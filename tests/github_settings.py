@@ -257,7 +257,7 @@ TEMPLATES = build_templates_config(
     app_root=APP_ROOT,
 )
 
-ALLOWED_HOSTS = "localhost"
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 SYSTEM_SETTINGS_LOCAL_PATH = os.path.join(
     APP_ROOT, "system_settings", "System_Settings.json"
