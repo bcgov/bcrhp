@@ -31,9 +31,9 @@ runs:
         echo Python packages installed
       shell: bash
 
-    - name: Create workflow .env file from dev file
+    - name: Overwrite the settings with github settings
       run: |
-          cp ./tests/dev.env ./.env
+          cp ./tests/github_settings.py ./bcrhp/settings.py
       shell: bash
 
     - name: Ensure frontend configuration files exist
