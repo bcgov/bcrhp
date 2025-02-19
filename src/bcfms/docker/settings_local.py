@@ -1,3 +1,0 @@
-DOCKER = True
-PUBLIC_SERVER_ADDRESS = "http://bcfms/bc-fossil-management"
-WEBPACK_DEVELOPMENT_SERVER_PORT = 8022
