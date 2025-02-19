@@ -158,7 +158,7 @@ DATABASES = {
         "AUTOCOMMIT": True,
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "HOST": "postgres",
+        "HOST": "localhost",
         "NAME": "bcrhp",
         "OPTIONS": {},
         "PASSWORD": "postgis",
