@@ -27,7 +27,9 @@ dependencies = [
     "arches==7.6.4",
     "bcgov_arches_common @ git+https://github.com/bcgov/arches_common@release/1.1.0_add_vue_components",
     "django-storages==1.13",
-    "python-dotenv"
+    "python-dotenv",
+    "html2text",
+    "oracledb"
 ]
 
 version = "1.3.0"
