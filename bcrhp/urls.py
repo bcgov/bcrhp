@@ -8,6 +8,8 @@ from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
 from bcgov_arches_common.views.map import BCTileserverProxyView
+from bcgov_arches_common.views.api import user as api_user
+from bcrhp.views.root import BcrhpRootView
 import re
 
 uuid_regex = settings.UUID_REGEX
@@ -26,6 +28,8 @@ def bc_path_prefix(path=""):
 
 
 urlpatterns = [
+    re_path(bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"),
+    re_path(bc_path_prefix(r"^api/user/"), api_user.UserView.as_view(), name="api_user"),
     re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),
         BCTileserverProxyView.as_view(),
