@@ -33,7 +33,7 @@ runs:
 
     - name: Create workflow .env file from dev file
       run: |
-          cp tests/dev.env ./.env
+          cp ./tests/dev.env ./.env
       shell: bash
 
     - name: Ensure frontend configuration files exist
