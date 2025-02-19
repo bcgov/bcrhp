@@ -26,6 +26,7 @@ requires-python = ">=3.10"
 dependencies = [
     "arches==7.6.4",
     "bcgov_arches_common @ git+https://github.com/bcgov/arches_common@release/1.1.0_add_vue_components",
+    "django-storages==1.13",
     "python-dotenv"
 ]
 
