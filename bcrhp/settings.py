@@ -167,6 +167,10 @@ DATABASES = {
         "TEST": {"CHARSET": None, "COLLATION": None, "MIRROR": None, "NAME": None},
         "TIME_ZONE": None,
         "USER": get_env_variable("PGUSERNAME"),
+        "DATABC_USER": get_env_variable("DATABC_USERNAME"),
+        "DATABC_PASSWORD": get_env_variable(
+            "DATABC_PASSWORD", is_optional=True
+        ),  # This is only required for initial deployment
     }
 }
 
