@@ -46,6 +46,8 @@ DATABASES = {
         "TEST": {"CHARSET": None, "COLLATION": None, "MIRROR": None, "NAME": None},
         "TIME_ZONE": None,
         "USER": "postgres",
+        "DATABC_USER": "proxy_databc",
+        "DATABC_PASSWORD": "proxy_databc_password",
     }
 }
 
