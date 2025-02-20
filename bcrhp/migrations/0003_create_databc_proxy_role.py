@@ -5,6 +5,7 @@ from arches.app.models.system_settings import settings
 
 class Migration(migrations.Migration):
 
+    print("Databases: %s" % settings.DATABASES)
     app_db_user = settings.DATABASES["default"]["USER"]
     db_name = settings.DATABASES["default"]["NAME"]
     databc_db_user = settings.DATABASES["default"]["DATABC_USER"]
