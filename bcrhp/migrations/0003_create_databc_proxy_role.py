@@ -5,10 +5,10 @@ from arches.app.models.system_settings import settings
 
 class Migration(migrations.Migration):
 
-    app_db_user = settings.DATABASES['default']['USER']
-    db_name = settings.DATABASES['default']['NAME']
-    databc_db_user = settings.DATABASES['default']['DATABC_USER']
-    databc_db_password = settings.DATABASES['default']['DATABC_PASSWORD']
+    app_db_user = settings.DATABASES["default"]["USER"]
+    db_name = settings.DATABASES["default"]["NAME"]
+    databc_db_user = settings.DATABASES["default"]["DATABC_USER"]
+    databc_db_password = settings.DATABASES["default"]["DATABC_PASSWORD"]
 
     dependencies = [
         ("bcrhp", "0002_alter_crhpexportdata_table"),
@@ -24,7 +24,9 @@ class Migration(migrations.Migration):
 
     grant_databc_proxy_schema = """
         grant all privileges on schema databc to {arches_db_user};
-    """.format(arches_db_user=app_db_user)
+    """.format(
+        arches_db_user=app_db_user
+    )
 
     create_databc_proxy_role = """
         DO
@@ -49,7 +51,11 @@ class Migration(migrations.Migration):
                 grant select on spatial_ref_sys TO {db_databc_user};
             END
         $$ language plpgsql;
-    """.format(arches_db_name=db_name, db_databc_user=databc_db_user, db_databc_password=databc_db_password)
+    """.format(
+        arches_db_name=db_name,
+        db_databc_user=databc_db_user,
+        db_databc_password=databc_db_password,
+    )
 
     drop_databc_proxy_role = """
         DO
@@ -64,7 +70,9 @@ class Migration(migrations.Migration):
                 end loop;
             END
         $$ language plpgsql;
-    """.format(db_databc_user=databc_db_user)
+    """.format(
+        db_databc_user=databc_db_user
+    )
 
     operations = [
         RunPrivilegedSQL(
