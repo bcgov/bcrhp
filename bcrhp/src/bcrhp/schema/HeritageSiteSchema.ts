@@ -1,13 +1,13 @@
 import { z } from 'zod';
-import {CivicAddress, CivicAddressSchema} from "@/bcrhp/schema/CivicAddressSchema.ts";
+import { CivicAddress, CivicAddressSchema } from "@/bcrhp/schema/CivicAddressSchema.ts";
 
 const HeritageSiteSchema = z.object({
     siteId: z.string().uuid(),
     bordenNumber: z.string()
-        .min(1, {message: "Borden Number is required."} )
-        .refine((value:string) => /^[A-Z][a-z][A-Z][a-z]-[0-9]{1-4}$/.test(value ?? ""), "Invalid Borden Number format."),
-    commonName:  z.string().min(1, {message: "Common Name is required."} ) ,
-    otherNames: z.array( z.string() ).max(5),
+        .min(1, { message: "Borden Number is required." })
+        .refine((value: string) => /^[A-Z][a-z][A-Z][a-z]-[0-9]{1-4}$/.test(value ?? ""), "Invalid Borden Number format."),
+    commonName: z.string().min(1, { message: "Common Name is required." }),
+    otherNames: z.array(z.string()).max(5),
     civicAddress: z.array(CivicAddressSchema),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
     siteBoundaryIncorrect: z.boolean().default(false), // If the geometry from the PID isn't right this flags it
@@ -49,4 +49,4 @@ class HeritageSite implements HeritageSiteType {
 
 console.log(requiredHeritageSiteSchema);
 
-export {HeritageSite, getHeritageSite, requiredHeritageSiteSchema};
+export { HeritageSite, getHeritageSite, requiredHeritageSiteSchema };

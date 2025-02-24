@@ -4,13 +4,13 @@ const isValid = () => {
   return true;
 };
 
-defineExpose({isValid});
+defineExpose({ isValid });
 
 </script>
 <template>
   <div class="flex flex-col h-48">
     <div
-        class="border-2 border-dashed border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-auto flex justify-center items-center font-medium">
+      class="border-2 border-dashed border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-auto flex justify-center items-center font-medium">
 
       <div class="about-section">
         <div class="about-title">Before you begin</div>
@@ -38,24 +38,24 @@ defineExpose({isValid});
 
 
       <div class="about-section">
-      <ul>
-        <li>
-          Steps 1-5 are mandatory to complete the basic data requirements for a notification.
-        </li>
-        <li>
-          Required documents for Step 11 include:
-          <ol>
-            <li>
-              Covering notification letter
-            </li>
-            <li>
-              Copy of Bylaw, Resolution, or Meeting Minutes
-            </li>
-            <li>
-              GIS files or Site Map
-            </li>
-          </ol>
-        </li>
+        <ul>
+          <li>
+            Steps 1-5 are mandatory to complete the basic data requirements for a notification.
+          </li>
+          <li>
+            Required documents for Step 11 include:
+            <ol>
+              <li>
+                Covering notification letter
+              </li>
+              <li>
+                Copy of Bylaw, Resolution, or Meeting Minutes
+              </li>
+              <li>
+                GIS files or Site Map
+              </li>
+            </ol>
+          </li>
         </ul>
 
         <div>
@@ -65,7 +65,7 @@ defineExpose({isValid});
         </div>
 
         <div>When you are ready to proceed press the start button to begin the submission.</div>
-        </div>
+      </div>
 
     </div>
   </div>
@@ -80,7 +80,7 @@ defineExpose({isValid});
   font-size: 21px;
   font-weight: bold;
   line-height: inherit;
-  color:#333;
+  color: #333;
 }
 
 .about-section {

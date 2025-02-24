@@ -1,6 +1,6 @@
 import arches from "arches";
 import Cookies from "js-cookie";
-import type {Ref} from "vue";
+import type { Ref } from "vue";
 
 function getToken() {
     const token = Cookies.get("csrftoken");
