@@ -1,20 +1,20 @@
 import { z } from 'zod';
-import {LegalDescription, LegalDescriptionSchema} from "@/bcrhp/schema/LegalDescriptionSchema.ts";
+import { LegalDescription, LegalDescriptionSchema } from "@/bcrhp/schema/LegalDescriptionSchema.ts";
 // @todo - Need to make parts of the model required if hasCivicAddress == true
 const CivicAddressSchema = z.object({
     hasCivicAddress: z.boolean().default(true),
     overrideAddress: z.boolean().default(false),
     streetAddress: z.string()
-        .min(1, {message: "Street Address is required."} )
+        .min(1, { message: "Street Address is required." })
         .max(80),
     city: z.string()
-        .min(1, {message: "City is required."} )
+        .min(1, { message: "City is required." })
         .max(80),
     province: z.string()
-        .min(1, {message: "City is required."} )
+        .min(1, { message: "City is required." })
         .max(80),
     postalCode: z.string()
-        .max(7).refine((value:string) => /^[A-Z][0-9][A-Z] [0-9][A-Z][0-9]$/.test(value ?? ""), 'Postal Code must bie in the form "A0A A0A"'),
+        .max(7).refine((value: string) => /^[A-Z][0-9][A-Z] [0-9][A-Z][0-9]$/.test(value ?? ""), 'Postal Code must bie in the form "A0A A0A"'),
     locality: z.string()
         .max(50),
     locationDescription: z.string()
@@ -61,4 +61,4 @@ class CivicAddress implements CivicAddressType {
 
 console.log(requiredCivicAddressSchema);
 
-export {CivicAddress, CivicAddressSchema, getCivicAddress, requiredCivicAddressSchema};
+export { CivicAddress, CivicAddressSchema, getCivicAddress, requiredCivicAddressSchema };

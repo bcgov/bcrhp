@@ -34,4 +34,4 @@ class LegalDescription implements LegalDescriptionType {
 }
 
 
-export {LegalDescription, LegalDescriptionSchema, getLegalDescription, requiredLegalDescriptionSchema};
+export { LegalDescription, LegalDescriptionSchema, getLegalDescription, requiredLegalDescriptionSchema };

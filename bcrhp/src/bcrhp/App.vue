@@ -55,7 +55,7 @@ router.beforeEach(async (to, _from, next) => {
             next();
         }
     } catch (error) {
-        if (to.name !== routeNames.root) {
+        if (to.name !== routeNames.home) {
             toast.add({
                 severity: ERROR,
                 life: DEFAULT_ERROR_TOAST_LIFE,
@@ -72,9 +72,10 @@ router.beforeEach(async (to, _from, next) => {
 
 <template>
     <main>
-        <PageHeader v-if="route.meta.shouldShowNavigation" route-names="routeNames" system-name="BC Register of Historic Places"/>
+        <PageHeader v-if="route.meta.shouldShowNavigation" route-names="routeNames"
+            system-name="BC Register of Historic Places" />
         <div style="display: flex; flex: auto; margin-top: 50px; flex-direction: row">
-            <SideNav v-if="route.meta.shouldShowNavigation" route-names="routeNames"/>
+            <SideNav v-if="route.meta.shouldShowNavigation" route-names="routeNames" />
             <div class="bcgov-main-content" style="flex: auto; background-color: #e9e9e9">
                 <RouterView />
             </div>
@@ -94,34 +95,37 @@ main {
 }
 
 .full-height {
-  height: 100%;
+    height: 100%;
 }
 </style>
 
 <style>
 #bcrhp-mounting-point {
-   font-size: 0.8rem;
+    font-size: 0.8rem;
 }
 
-.bcgov-vertical-steps > .p-steplist {
-   flex-direction: column;
-   align-items: flex-start;
+.bcgov-vertical-steps>.p-steplist {
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .bcgov-vertical-step-panels {
-   height:100%;
-   width: 100%;
+    height: 100%;
+    width: 100%;
 }
 
 .bcgov-main-content .p-panel {
-   background-color: var(--p-panel-background) !important;
+    background-color: var(--p-panel-background) !important;
 }
 
 .bcgov-stepper {
-   display: flex;
-   flex-direction: row;
+    display: flex;
+    flex-direction: row;
 }
-.p-tooltip-text, .p-button-label, .p-inputtext {
-  font-size: 0.8rem !important;
+
+.p-tooltip-text,
+.p-button-label,
+.p-inputtext {
+    font-size: 0.8rem !important;
 }
 </style>
