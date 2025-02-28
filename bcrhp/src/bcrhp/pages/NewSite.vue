@@ -17,6 +17,12 @@ import NewSiteStep1 from './steps/Step1_About.vue';
 import SiteAddress from './steps/Step2_SiteAddress.vue';
 import SpatialLocation from './steps/Step3_SpatialLocation.vue';
 import SiteNames from './steps/Step4_SiteNames.vue';
+import RecognitionDetails from './steps/Step5_RecognitionDetails.vue';
+import SOS from './steps/Step6_SOS.vue';
+import UploadImage from './steps/Step7_UploadImage.vue';
+import SiteClassification from './steps/Step8_SiteClassification.vue';
+import SiteDetails from './steps/Step9_SiteDetails.vue';
+import SupportingDocuments from './steps/Step10_SupportingDocuments.vue';
 
 import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -107,7 +113,7 @@ const showPrevious = computed(() => {
 </script>
 
 <template>
-  <Panel header="Submit New Heritage Property" class="full-height">
+  <Panel class="full-height">
     <div style="display: none">Step: {{ currentStep }}</div>
     <Stepper ref="myStepper" :state="stepperState" :props="stepperProps" :value="1" linear :ptOptions="stepperOptions"
       @update:value="activateStep">
@@ -129,131 +135,140 @@ const showPrevious = computed(() => {
           </StepList>
         </div>
         <div class="bcgov-vertical-step-panels">
-          <div class="py-6">
+          <h3>Submit New Heritage Property</h3>
+          <p v-if="currentStep === 1">This form is for local governments and regional districts to submit a notice of
+            new heritage property to
+            the BC
+            Register of Historic Places</p>
+          <div class="">
             <StepperNavigation :step-number="currentStep" :validate-fn="isValid" :show-previous="showPrevious"
               :next-label="nextLabel" @next-click="activateNextStep" @previous-click="activatePreviousStep">
             </StepperNavigation>
           </div>
+          <StepPanel v-slot="{ activateCallback }" :value="2">
+            <div class="">
+              <div class="step-title">Site Location</div>
+            </div>
+            <SiteAddress ref="step2"></SiteAddress>
+            <div class="">
+              <StepperNavigation :step-number="2" :validate-fn="isValid" @next-click="activateCallback(3)"
+                @previous-click="activateCallback(1)"></StepperNavigation>
+            </div>
+          </StepPanel>
           <StepPanels>
             <StepPanel v-slot="{ activateCallback }" :value="1">
               <NewSiteStep1 ref="step1"></NewSiteStep1>
-              <div class="py-6">
+              <div class="">
                 <StepperNavigation :step-number="1" :show-previous="false" :validate-fn="isValid"
                   @next-click="activateCallback(2)"></StepperNavigation>
               </div>
             </StepPanel>
-            <StepPanel v-slot="{ activateCallback }" :value="2">
-              <div class="flex flex-col h-48">
-                <div class="step-title">Site Location</div>
-              </div>
-              <SiteAddress ref="step2"></SiteAddress>
-              <div class="flex py-6 gap-2">
-                <StepperNavigation :step-number="2" :validate-fn="isValid" @next-click="activateCallback(3)"
-                  @previous-click="activateCallback(1)"></StepperNavigation>
-              </div>
-            </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="3">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">Spatial Location</div>
               </div>
               <SpatialLocation ref="step3"></SpatialLocation>
-              <div class="flex py-6 gap-2">
+              <div class="">
                 <StepperNavigation :step-number="3" :validate-fn="isValid" @next-click="activateCallback(4)"
                   @previous-click="activateCallback(2)"></StepperNavigation>
               </div>
             </StepPanel>
-
             <StepPanel v-slot="{ activateCallback }" :value="4">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">
                   Heritage Site Name(s)
                 </div>
               </div>
               <SiteNames ref="step4"></SiteNames>
-              <div class="flex py-6 gap-2">
+              <div class="">
                 <StepperNavigation :step-number="4" :validate-fn="isValid" @next-click="activateCallback(5)"
                   @previous-click="activateCallback(3)"></StepperNavigation>
               </div>
             </StepPanel>
-
             <StepPanel v-slot="{ activateCallback }" :value="5">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">
                   Official Recognition Details
                 </div>
               </div>
-              <div class="flex py-6 gap-2">
+              <RecognitionDetails ref="step5"></RecognitionDetails>
+              <div class="">
                 <StepperNavigation :step-number="5" :validate-fn="isValid" @next-click="activateCallback(6)"
                   @previous-click="activateCallback(4)"></StepperNavigation>
               </div>
             </StepPanel>
-
             <StepPanel v-slot="{ activateCallback }" :value="6">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">
                   Statement of Significance
                 </div>
               </div>
-              <div class="py-6">
+              <SOS ref="step6"></SOS>
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(7)" @previous-click="activateCallback(5)"></StepperNavigation>
               </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="7">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">Images</div>
               </div>
-              <div class="py-6">
+              <p>Upload 1-10 images for the historic site. File types must be jpg/jpeg with a max file size of 2MB.
+                Include illustrations, plans, etc. in the Supporting Documents section</p>
+              <UploadImage ref="step7"></UploadImage>
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(8)" @previous-click="activateCallback(6)"></StepperNavigation>
               </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="8">
-              <div class="flex flex-col h-48">
-                <div class="step-title">Heritage Details</div>
+              <div class="">
+                <div class="step-title">Site Classification</div>
               </div>
-              <div class="py-6">
+              <SiteClassification ref="step8"></SiteClassification>
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(9)" @previous-click="activateCallback(7)"></StepperNavigation>
               </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="9">
-              <div class="flex flex-col h-48">
-                <div class="step-title">Needs Title!!</div>
+              <div class="">
+                <div class="step-title">Site Details</div>
               </div>
-              <div class="py-6">
+              <SiteDetails ref="step9"></SiteDetails>
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(10)" @previous-click="activateCallback(8)"></StepperNavigation>
               </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="10">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">
                   Supporting Documents
                 </div>
               </div>
-              <div class="py-6">
+              <SupportingDocuments ref="step10"></SupportingDocuments>
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(11)" @previous-click="activateCallback(9)"></StepperNavigation>
               </div>
             </StepPanel>
             <StepPanel v-slot="{ activateCallback }" :value="11">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">Review Submission</div>
               </div>
-              <div class="py-6">
+              <div class="">
                 <StepperNavigation :step-number="6" :validate-fn="isValid" next-label="Submit"
                   @next-click="activateCallback(12)" @previous-click="activateCallback(10)"></StepperNavigation>
               </div>
             </StepPanel>
-
             <StepPanel :value="12">
-              <div class="flex flex-col h-48">
+              <div class="">
                 <div class="step-title">
                   Submission Complete
                 </div>
               </div>
-              <div class="py-6">
+              <div class="">
                 <StepperNavigation :step-number="7" :validate-fn="isValid" :show-previous="false" next-label="Print"
                   @next-click="printDetails"></StepperNavigation>
               </div>

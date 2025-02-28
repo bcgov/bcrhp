@@ -9,69 +9,126 @@ import { routeNames } from '@/bcrhp/routes.ts';
 
 const { $gettext } = useGettext();
 const workflowItems = ref([
-    {
-        label: $gettext('Submit a new site'),
-        description: $gettext('Submit a site that is not on the register'),
-        icon: 'fa fa-file',
-        class: 'dashboard-card ipa',
-        routeName: routeNames.newSite,
-    },
-    {
-        label: $gettext('Update an existing site'),
-        description: $gettext(
-            'Submit updates to an existing site on the register',
-        ),
-        icon: 'fa fa-file',
-        class: 'dashboard-card collection-event',
-        routeName: routeNames.updateSite,
-    },
+  {
+    label: $gettext("New Heritage Property"),
+    description: $gettext("Add a new site"),
+    icon: "fa fa-file",
+    class: "dashboard-card ipa",
+    routeName: routeNames.newSite
+  },
+  {
+    label: $gettext("Update Heritage Property"),
+    description: $gettext("Update an existing Site"),
+    icon: "fa fa-file",
+    class: "dashboard-card ipa",
+    routeName: routeNames.updateSite
+  },
+  {
+    label: $gettext("Legacy Heritage Property"),
+    description: $gettext("Deregister a Site"),
+    icon: "fa fa-file",
+    class: "dashboard-card ipa",
+    routeName: routeNames.updateSite
+  },
 ]);
 </script>
 <template>
-    <Panel
-        header="Workflows"
-        class="full-height"
-    >
-        <Fluid style="flex-direction: column">
-            <div
-                class="grid grid-cols-3 gap-4"
-                style="display: flex; gap: 1rem"
-            >
-                <Card
-                    v-for="item in workflowItems"
-                    :key="item.routeName"
-                    :class="item.class"
-                >
-                    <template #title>
-                        <router-link
-                            :to="{ name: item.routeName }"
-                            class="dashboard-card-link"
-                        >
-                            {{ item.label }}
-                        </router-link>
-                    </template>
-                    <template #content>
-                        <p class="m-0">
-                            {{ item.description }}
-                        </p>
-                    </template>
-                </Card>
-            </div>
-        </Fluid>
-    </Panel>
+  <Panel header="Workflows" class="full-height">
+    <Fluid>
+      <div class="flex max-w-2xl">
+        <Card v-for="item in workflowItems" :key="item.routeName" :class="item.class">
+          <template #title>
+            <p class="dashboard-card-title mt-2">
+              {{ item.label }}
+            </p>
+          </template>
+          <template #content>
+            <i :class="item.icon" class="dashboard-card-icon"> </i>
+          </template>
+          <template #footer>
+            <router-link :to="{ name: item.routeName }" class="card-router-link">
+              <div class="dashboard-card-link">
+                <p class="dashboard-card-description">
+                  {{ item.description }}
+                </p>
+              </div>
+            </router-link>
+          </template>
+        </Card>
+      </div>
+    </Fluid>
+  </Panel>
 </template>
 
-<style scoped></style>
-
-<style>
+<style scoped>
 .dashboard-card {
     /*margin: 1rem;*/
     min-width: 33%;
     /*display: inline-block;*/
 }
 
+.card-router-link {
+  text-decoration: none;
+}
+
 .dashboard-card.ipa {
-    border: solid thick rgba(53, 151, 143, 0.7);
+  border: 1px solid #7847CE;
+  border-radius: 0%;
+  height: 253px;
+  max-width: 275px;
+  margin: 5px;
+  text-align: center;
+  background: #8BC3EB;
+  color: #440EA2;
+  opacity: 0.8;
+}
+
+.dashboard-card.ipa :deep(.p-card-body) {
+  padding: 0rem;
+}
+
+.dashboard-card.ipa:hover {
+  background: #6da8d3;
+}
+
+.dashboard-card-title {
+  font-weight: 500;
+  color: #440EA2;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.dashboard-card-icon {
+  color: #fff;
+  font-size: 2.8rem;
+  line-height: 32px;
+  padding: 1rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-card-description {
+  height: 55px;
+  width: 100%;
+  font-weight: 600;
+  border-top: 1px solid #7847CE;
+  color: white;
+  font-size: 0.7rem;
+}
+
+.dashboard-card-link {
+  background: #2B4E6D;
+}
+
+.dashboard-card-link:hover {
+  background: #4683b9;
+}
+
+.dashboard-card-footer {
+  height: 50px;
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  color: white;
 }
 
 .dashboard-card.collection-event {

@@ -39,6 +39,10 @@ export default defineConfig({
                     path.join(appRoot, 'bcrhp', 'media', 'css'),
                 ),
             },
+            {
+                find: /.*\/primevue/,
+                replacement: path.resolve(path.join(appRoot, 'node_modules', 'primevue')),
+            },
             // {
             //     // This is to get out of the webpack/requireJS ecosystem
             //     find: /^.*\/output.css$/,

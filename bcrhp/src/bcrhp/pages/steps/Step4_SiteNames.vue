@@ -2,11 +2,10 @@
 import { useTemplateRef, inject, ref, onMounted } from "vue";
 import type { Ref } from "vue";
 
-import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 
-import LabelledInput from "@/bcgov_arches_common/components/labelledinput/LabelledInput.vue";
+import LabelledInput from "./LabelledInput.vue";
 import type { HeritageSite } from "@/bcrhp/schema/HeritageSiteSchema.ts";
 import type { CivicAddress } from "@/bcrhp/schema/CivicAddressSchema.ts";
 import { getCivicAddress } from "@/bcrhp/schema/CivicAddressSchema.ts";
@@ -100,27 +99,24 @@ onMounted(() => {
 
 </script>
 <template>
-  <div class="flex flex-col h-48">
-    <div
-      class="border-2 border-dashed border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-auto flex justify-center items-center font-medium">
-      <LabelledInput label="Common Name" hint="The common name is the most recognizable name for the site"
-        input-name="commonName" :error-message="errors.commonName?.join(',')" :required="true">
-        <div class="p-inputtext-fluid">
-          <InputText id="commonName" ref="commonNameField" v-model="heritageSite.commonName"
-            aria-describedby="username-help" aria-required="true" fluid @change="valueChanged" @focus="onFocusHandler"
-            @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-        </div>
-      </LabelledInput>
-      <LabelledInput label="Other Name (Optional)" hint="Click Add to enter one or more additional names as applicable"
-        input-name="otherName" :error-message="errors.otherNames?.join(',')" :required="true">
-        <div>
-          <InputText id="otherName" ref="otherNameField" v-model="otherName" aria-describedby="other-name-help"
-            aria-required="true" fluid class="inline-block" @change="valueChanged" @focus="onFocusHandler"
-            @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-          <Button id="addOtherName" label="Add" class="inline-block" @click="saveOtherName"></Button>
-        </div>
-      </LabelledInput>
-    </div>
+  <div class="flex flex-col">
+    <LabelledInput label="Common Name" hint="The common name is the most recognizable name for the site"
+      input-name="commonName" :error-message="errors.commonName?.join(',')" :required="true">
+      <div class="p-inputtext-fluid">
+        <InputText id="commonName" ref="commonNameField" v-model="heritageSite.commonName"
+          aria-describedby="username-help" aria-required="true" fluid @change="valueChanged" @focus="onFocusHandler"
+          @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
+      </div>
+    </LabelledInput>
+    <LabelledInput label="Other Names (Optional)" hint="Click Add to enter one or more additional names as applicable"
+      input-name="otherName" :error-message="errors.otherNames?.join(',')">
+      <div>
+        <InputText id="otherName" ref="otherNameField" v-model="otherName" aria-describedby="other-name-help"
+          aria-required="true" fluid class="inline-block" @change="valueChanged" @focus="onFocusHandler"
+          @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
+        <Button id="addOtherName" label="Add" class="inline-block" @click="saveOtherName"></Button>
+      </div>
+    </LabelledInput>
   </div>
 </template>
 
