@@ -1,9 +1,8 @@
 {% extends "base-root.htm" %}
 {% load webpack_static from webpack_loader %}
+{% load django_vite %}
 
-{% block title %}
 
-{% endblock title %}
 
 {% block css %}
 {{ block.super }}
@@ -17,5 +16,7 @@
 {% endblock css %}
 
 {% block body %}
-<div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
+    {% vite_hmr_client %}
+    {% vite_asset  '/bcrhp/static/build/js/views/root.js' %}
+    <div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
 {% endblock body %}

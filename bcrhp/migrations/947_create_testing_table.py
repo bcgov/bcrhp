@@ -27,6 +27,7 @@ class Migration(migrations.Migration):
         begin;
         call refresh_materialized_views();
         commit;
+        end;
         """,
             "",
         ),

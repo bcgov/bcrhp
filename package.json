@@ -11,11 +11,12 @@
         "eslint:watch": "nodemon --watch . --ext ts,vue --exec npm run --silent eslint:check",
         "gettext:extract": "vue-gettext-extract",
         "gettext:compile": "vue-gettext-compile",
-        "prettier:check": "prettier {{ project_name }}/src --check",
-        "prettier:fix": "prettier {{ project_name }}/src --write",
+        "prettier:check": "prettier bcrhp/src --check",
+        "prettier:fix": "prettier bcrhp/src --write",
         "ts:check": "vue-tsc --noEmit",
         "ts:watch": "vue-tsc --watch --noEmit",
         "start": "cross-env NODE_OPTIONS=--max-old-space-size=2048 webpack serve --config ./webpack/webpack.config.dev.js",
+        "dev": "DEBUG=vite:* vite --host --force",
         "vitest": "vitest --run --coverage"
     },
     "overrides": {
@@ -42,11 +43,17 @@
     "dependencies": {
         "@ckeditor/ckeditor5-vue": "7.3.0",
         "@tailwindcss/cli": "^4.0.8",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "@vue/cli": "^5.0.8",
         "arches": "github:bcgov/arches#v7.6.4.1_bcgov",
-        "bcgov_arches_common": "github:bcgov/arches_common",
+        "bcgov_arches_common": "file:../arches_common",
         "ckeditor5": "44.2.0",
         "primevue": "^4.2.5",
+        "rollup": "^4.34.8",
         "tailwindcss": "^4.0.8",
+        "vite": "latest",
+        "vite-plugin-node-polyfills": "^0.23.0",
+        "vue": "^3.5.13",
         "vue-router": "^4.4.3",
         "zod": "^3.23.8"
     },

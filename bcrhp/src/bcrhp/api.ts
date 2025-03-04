@@ -1,19 +1,28 @@
-import arches from "arches";
-import Cookies from "js-cookie";
-import type { Ref } from "vue";
+// import arches from 'arches';
+import Cookies from 'js-cookie';
+import type { Ref } from 'vue';
 
+const arches = {
+    urls: {
+        api_login: '',
+        api_logout: '',
+        api_user: '',
+        api_search: '',
+        paged_dropdown: '',
+    },
+};
 function getToken() {
-    const token = Cookies.get("csrftoken");
+    const token = Cookies.get('csrftoken');
     if (!token) {
-        throw new Error("Missing csrftoken");
+        throw new Error('Missing csrftoken');
     }
     return token;
 }
 
 export const login = async (username: string, password: string) => {
     const response = await fetch(arches.urls.api_login, {
-        method: "POST",
-        headers: { "X-CSRFTOKEN": getToken() },
+        method: 'POST',
+        headers: { 'X-CSRFTOKEN': getToken() },
         body: JSON.stringify({ username, password }),
     });
     const parsed = await response.json();
@@ -23,8 +32,8 @@ export const login = async (username: string, password: string) => {
 
 export const logout = async () => {
     const response = await fetch(arches.urls.api_logout, {
-        method: "POST",
-        headers: { "X-CSRFTOKEN": getToken() },
+        method: 'POST',
+        headers: { 'X-CSRFTOKEN': getToken() },
     });
     if (response.ok) return true;
     const parsedError = await response.json();
@@ -58,9 +67,9 @@ export const fetchSearchResults = async (
 
 export const fetchConcepts = function (concept_id: string, concepts: Ref) {
     const params = new URLSearchParams({
-        conceptid: concept_id
+        conceptid: concept_id,
     });
     fetch(`${arches.urls.paged_dropdown}?${params.toString()}`)
-        .then(response => response.json())
-        .then(data => concepts.value = data.results);
+        .then((response) => response.json())
+        .then((data) => (concepts.value = data.results));
 };

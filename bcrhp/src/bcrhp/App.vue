@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { provide, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useGettext } from "vue3-gettext";
+import { provide, ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useGettext } from 'vue3-gettext';
 
-import Toast from "primevue/toast";
-import { useToast } from "primevue/usetoast";
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 import {
     ANONYMOUS,
@@ -14,16 +14,16 @@ import {
     USER_KEY,
     selectedLanguageKey,
     systemLanguageKey,
-} from "@/bcgov_arches_common/constants.ts";
+} from '@/bcgov_arches_common/constants.ts';
 
-import { routeNames } from "@/bcrhp/routes.ts";
-import { fetchUser } from "@/bcrhp/api.ts";
-import PageHeader from "@/bcgov_arches_common/components/header/PageHeader.vue";
-import SideNav from "@/bcgov_arches_common/components/sidenav/SideNav.vue";
+import { routeNames } from '@/bcrhp/routes.ts';
+import { fetchUser } from '@/bcrhp/api.ts';
+// import PageHeader from "@/bcgov_arches_common/components/header/PageHeader.vue";
+import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 
-import type { Ref } from "vue";
-import type { Language } from "@/bcgov_arches_common/types";
-import type { User } from "@/bcgov_arches_common/types";
+import type { Ref } from 'vue';
+import type { Language } from '@/bcgov_arches_common/types';
+import type { User } from '@/bcgov_arches_common/types';
 
 const user = ref<User | null>(null);
 const setUser = (userToSet: User | null) => {
@@ -59,7 +59,7 @@ router.beforeEach(async (to, _from, next) => {
             toast.add({
                 severity: ERROR,
                 life: DEFAULT_ERROR_TOAST_LIFE,
-                summary: $gettext("Login required."),
+                summary: $gettext('Login required.'),
                 detail: error instanceof Error ? error.message : undefined,
             });
         }
@@ -72,11 +72,24 @@ router.beforeEach(async (to, _from, next) => {
 
 <template>
     <main>
-        <PageHeader v-if="route.meta.shouldShowNavigation" route-names="routeNames"
-            system-name="BC Register of Historic Places" />
-        <div style="display: flex; flex: auto; margin-top: 50px; flex-direction: row">
-            <SideNav v-if="route.meta.shouldShowNavigation" route-names="routeNames" />
-            <div class="bcgov-main-content" style="flex: auto; background-color: #e9e9e9">
+        <!--        <PageHeader v-if="route.meta.shouldShowNavigation" route-names="routeNames"-->
+        <!--            system-name="BC Register of Historic Places" />-->
+        <div
+            style="
+                display: flex;
+                flex: auto;
+                margin-top: 50px;
+                flex-direction: row;
+            "
+        >
+            <SideNav
+                v-if="route.meta.shouldShowNavigation"
+                route-names="routeNames"
+            />
+            <div
+                class="bcgov-main-content"
+                style="flex: auto; background-color: #e9e9e9"
+            >
                 <RouterView />
             </div>
         </div>
@@ -104,7 +117,7 @@ main {
     font-size: 0.8rem;
 }
 
-.bcgov-vertical-steps>.p-steplist {
+.bcgov-vertical-steps > .p-steplist {
     flex-direction: column;
     align-items: flex-start;
 }
