@@ -731,7 +731,7 @@ module.exports = () => {
                                     failureCount = 0,
                                 ) => {
                                     /*
-                                        Sometimes Django can choke on the number of requests, this function will 
+                                        Sometimes Django can choke on the number of requests, this function will
                                         continue attempting to render the template until successful or 5 failures.
                                     */
                                     if (failureCount < 5) {

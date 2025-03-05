@@ -202,7 +202,6 @@ INSTALLED_APPS = (
     "django_celery_results",
     # "compressor",
     # "silk",
-    # "django_vite_plugin",
     "django_vite",
     "storages",
     "bcrhp",
@@ -210,48 +209,28 @@ INSTALLED_APPS = (
 )
 INSTALLED_APPS += ("arches.app",)
 
+# django_vite SETTINGS
 BASE_DIR="/web_root/bcrhp/bcrhp"
-
 # Where ViteJS assets are built.
 DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR , "static" , "dist")
-
 # If use HMR or not.
 DJANGO_VITE_DEV_MODE = DEBUG
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
 ]
+# END django_vite SETTINGS
 
 
+# TODO - REMOVE THIS?
 # Name of static files folder (after called python manage.py collectstatic)
 STATIC_ROOT = os.path.join(BASE_DIR , "staticfiles")
+## END TODO
 
 # Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
 # when run command python manage.py collectstatic
 STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
 
-# DJANGO_VITE_PLUGIN = {
-#     'WS_CLIENT': '@vite/client',
-#     'DEV_MODE': getattr(settings, 'DEBUG', True),
-#     'BUILD_DIR': getattr(settings, 'STATIC_ROOT') or 'static',
-#     # 'BUILD_URL_PREFIX': getattr(settings, 'STATIC_URL'), # Bundled assets would be prefixed with this on production
-#     'BUILD_URL_PREFIX': '/bcrhp/static/', # Bundled assets would be prefixed with this on production
-#     'HOT_FILE': f"{BASE_DIR}/.hotfile",
-#     'SERVER': {
-#         'HTTPS': False,
-#         'HOST': 'localhost',
-#         'PORT': 5173
-#     },
-#     'JS_ATTRS': {
-#         'type': 'module'
-#     },
-#     'CSS_ATTRS': {
-#         'rel': 'stylesheet',
-#         'type': 'text/css'
-#     },
-#     'STATIC_LOOKUP': True
-# }
 
 ROOT_HOSTCONF = "bcrhp.hosts"
 DEFAULT_HOST = "bcrhp"
@@ -294,8 +273,6 @@ MIDDLEWARE.insert(  # this must resolve to first MIDDLEWARE entry
 MIDDLEWARE.append(  # this must resolve last MIDDLEWARE entry
     "django_hosts.middleware.HostsResponseMiddleware"
 )
-
-
 
 STATICFILES_DIRS = build_staticfiles_dirs(app_root=APP_ROOT)
 

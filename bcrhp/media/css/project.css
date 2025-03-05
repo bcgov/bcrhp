@@ -1,8 +1,8 @@
 @import url("node_modules/bcgov_arches_common/bcgov_arches_common/media/css/project.css");
-@import url("map_legend.css");
-@import url("../fontawesome/css/fontawesome.min.css");
-@import url("../fontawesome/css/solid.min.css");
-@import url("resource_details.css");
+@import "map_legend.css";
+@import "../fontawesome/css/fontawesome.min.css";
+@import "../fontawesome/css/solid.min.css";
+@import "resource_details.css";
 
 .card_component.start_year, .card_component.end_year, .card_component.dates_approximate {
     display: inline-block;
@@ -11,10 +11,8 @@
 
 .card_component.pid, .card_component.pin {
     display: inline-block;
-
-    /* max-width: 45%; */
-
-    /* min-width: 350px; */
+    /*max-width: 45%;*/
+    /*min-width: 350px;*/
     width: 350px;
 }
 
@@ -32,9 +30,8 @@
 .crhp-submit-widget {
     display: inline-block;
 }
-
 .crhp-export-button {
-    padding: 10px 5px 25px;
+    padding: 10px 5px 25px 5px;
     display: inline-block;
     vertical-align: bottom;
 }
@@ -43,7 +40,7 @@
     height: 350px;
 }
 
-/* Details Card */
+/*Details Card*/
 .details-card-section > .rp-card-section {
     margin-top: 2.5rem;
 }
@@ -90,24 +87,21 @@
     padding-left: 0;
 }
 
-/* .details-photo { */
-
-/*    padding-left: 3px; */
-
-/*    padding-right: 3px; */
-
-/* } */
+/*.details-photo {*/
+/*    padding-left: 3px;*/
+/*    padding-right: 3px;*/
+/*}*/
 
 .slick-slide img.details-photo {
     scale: 80% !important;
-    opacity: 0.8 !important;
+    opacity: 80% !important;
 }
 
 .slick-slide.slick-current img.details-photo {
     scale: 100% !important;
-    opacity: 1 !important;
+    opacity: 100% !important;
 }
 
 .slick-slide.slick-current .photo-info {
-    opacity: 1 !important;
+    opacity: 100% !important;
 }

@@ -17,4 +17,5 @@ stack, which was pulling in libraries and frameworks that were causing issues.
 1. Eliminate the base dir configuration in vite.config.mjs
 2. Only load the django-vite app and configuration in dev mode
 3. See if we can eliminate the copy of root.js in `bcrhp/src`
-4. Remove some of configuration around `arches` and `arches.js`, etc in `vite.config.js` to clean things up
+4. Remove some configuration around `arches` and `arches.js`, etc in `vite.config.js` to clean things up
+5. Revisit config added to settings.py (duplicate values, ensure removing doesn't mess up order)

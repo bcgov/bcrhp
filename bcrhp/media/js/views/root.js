@@ -104,8 +104,8 @@ const BCGovPreset = definePreset(Aura, {
         },
     },
 });
-// arches.urls.api_get_frontend_i18n_data
-fetch('/bcrhp/api/get_frontend_i18n_data')
+
+fetch(arches.urls.api_get_frontend_i18n_data)
     .then(function (resp) {
         if (!resp.ok) {
             throw new Error(resp.statusText);
@@ -130,13 +130,4 @@ fetch('/bcrhp/api/get_frontend_i18n_data')
         vueApp.directive('tooltip', Tooltip);
         vueApp.use(router);
         vueApp.mount('#bcrhp-mounting-point');
-        // createVueApplication(BCRHPApp, {
-        //     theme: {
-        //         preset: BCGovPreset,
-        //     },
-        // }).then((vueApp) => {
-        //     vueApp.use(router);
-        //     vueApp.mount('#bcrhp-mounting-point');
-        //     //Your code here
-        // });
     });
