@@ -18,7 +18,7 @@ import {
 
 import { routeNames } from '@/bcrhp/routes.ts';
 import { fetchUser } from '@/bcrhp/api.ts';
-// import PageHeader from "@/bcgov_arches_common/components/header/PageHeader.vue";
+// import PageHeader from '@/bcgov_arches_common/components/header/PageHeader.vue';
 import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 
 import type { Ref } from 'vue';
@@ -72,8 +72,11 @@ router.beforeEach(async (to, _from, next) => {
 
 <template>
     <main>
-        <!--        <PageHeader v-if="route.meta.shouldShowNavigation" route-names="routeNames"-->
-        <!--            system-name="BC Register of Historic Places" />-->
+        <!--PageHeader
+            v-if="route.meta.shouldShowNavigation"
+            route-names="routeNames"
+            system-name="BC Register of Historic Places"
+        /-->
         <div
             style="
                 display: flex;
