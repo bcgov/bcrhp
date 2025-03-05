@@ -100,8 +100,6 @@ module.exports = () => {
                 },
                 {},
             );
-        console.log('projectEntryPointConfiguration');
-        console.log(projectEntryPointConfiguration);
         const projectJavascriptRelativeFilepathToAbsoluteFilepathLookup =
             Object.entries(projectEntryPointConfiguration).reduce(
                 (acc, [path, config]) => {
