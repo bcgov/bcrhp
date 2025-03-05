@@ -1,7 +1,5 @@
 // // add the beginning of your app entry
 // import 'vite/modulepreload-polyfill';
-// import createVueApplication from '@/bcrhp/create-vue-application.ts';
-// import createVueApplication from 'arches/arches/app/media/js/utils/create-vue-application';
 import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
@@ -131,9 +129,7 @@ fetch('/bcrhp/api/get_frontend_i18n_data')
         vueApp.directive('styleclass', StyleClass);
         vueApp.directive('tooltip', Tooltip);
         vueApp.use(router);
-        document.addEventListener('DOMContentLoaded', function () {
-            vueApp.mount('#bcrhp-mounting-point');
-        });
+        vueApp.mount('#bcrhp-mounting-point');
         // createVueApplication(BCRHPApp, {
         //     theme: {
         //         preset: BCGovPreset,
