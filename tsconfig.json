@@ -24,12 +24,12 @@
       "@/*": [
         "./*"
       ],
-      "arches": [
-        "./../arches/arches/app/media/js/arches.js"
-      ],
-      "mod_arches_vue_init": [
-        "./../arches/arches/app/media/js/utils/create-vue-application_esm.js"
-      ],
+//      "arches": [
+//        "./../arches/arches/app/media/js/arches.js"
+//      ],
+//      "mod_arches_vue_init": [
+//        "./../arches/arches/app/media/js/utils/create-vue-application_esm.js"
+//      ],
       "@/bcrhp/*": [
         "./bcrhp/src/bcrhp/*"
       ],

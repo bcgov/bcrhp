@@ -1,7 +1,7 @@
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
-// import { fileURLToPath, URL, resolve } from 'url';
 import path from 'path';
 import vue from '@vitejs/plugin-vue';
+// import { vitePluginRequire } from 'vite-plugin-require';
 // import { node } from 'globals';
 // const { resolve } = require('path');
 // const appRoot = '/Users/brett/work/repo/git/arches/split/bcrhp';
@@ -9,34 +9,35 @@ const appRoot = '/web_root/bcrhp';
 
 export default defineConfig({
     optimizeDeps: {
-        include: ['mod_arches'],
+        include: [
+            /*'mod_arches', 'arches'*/
+        ],
     },
     // publicDir: 'http://localhost/',
     // base: '/bcrhp/static',
     resolve: {
         extensions: ['.js', '.json'],
         alias: [
-            // '@/bcgov_arches_common': path.resolve(
-            //     __dirname,
-            //     'node_modules/bcgov_arches_common/bcgov_arches_common/src/bcgov_arches_common',
-            // ),
-            // '@/arches': path.resolve(
-            //     __dirname,
-            //     'node_modules/arches/arches/src/arches',
-            // ),
             {
+                // This is to get out of the webpack/requireJS ecosystem
                 find: '/bcrhp/static/build/js/views/root.js',
                 replacement: path.resolve(
-                    path.join(
-                        appRoot,
-                        'bcrhp',
-                        'media',
-                        'js',
-                        'views',
-                        'root.js',
-                    ),
+                    path.join(appRoot, 'bcrhp', 'src', 'root.js'),
                 ),
             },
+            // {
+            //     find: '/bcrhp/static/build/js/views/root.js',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             'bcrhp',
+            //             'media',
+            //             'js',
+            //             'views',
+            //             'root.js',
+            //         ),
+            //     ),
+            // },
             {
                 find: '@/arches',
                 replacement: path.resolve(
@@ -51,52 +52,52 @@ export default defineConfig({
                     ),
                 ),
             },
-            {
-                find: 'mod_arches_vue_init',
-                replacement: path.resolve(
-                    path.join(
-                        appRoot,
-                        '..',
-                        'arches',
-                        'arches',
-                        'app',
-                        'media',
-                        'js',
-                        'utils',
-                        'create-vue-application_esm.js',
-                    ),
-                ),
-            },
-            {
-                find: 'mod_arches',
-                replacement: path.resolve(
-                    path.join(
-                        appRoot,
-                        '..',
-                        'arches',
-                        'arches',
-                        'app',
-                        'media',
-                        'js',
-                        'arches_esm.js',
-                    ),
-                ),
-            },
-            {
-                find: /^arches$/,
-                replacement: path.resolve(
-                    path.join(
-                        appRoot,
-                        '..',
-                        'arches',
-                        'arches',
-                        'app',
-                        'media',
-                        'js',
-                        'arches_esm.js',
-                    ),
-                ),
-            },
+            // {
+            //     find: 'mod_arches_vue_init',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             '..',
+            //             'arches',
+            //             'arches',
+            //             'app',
+            //             'media',
+            //             'js',
+            //             'utils',
+            //             'create-vue-application_esm.js',
+            //         ),
+            //     ),
+            // },
+            // {
+            //     find: 'mod_arches',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             '..',
+            //             'arches',
+            //             'arches',
+            //             'app',
+            //             'media',
+            //             'js',
+            //             'arches_esm.js',
+            //         ),
+            //     ),
+            // },
+            // {
+            //     find: /^arches$/,
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             '..',
+            //             'arches',
+            //             'arches',
+            //             'app',
+            //             'media',
+            //             'js',
+            //             'arches.js',
+            //         ),
+            //     ),
+            // },
 
             {
                 find: '@/bcgov_arches_common',
@@ -123,7 +124,7 @@ export default defineConfig({
     },
     plugins: [vue()],
     server: {
-        // root: path.resolve('./bcrhp/src'),
+        root: path.resolve('./bcrhp/src'),
         host: 'localhost',
         open: false,
         cors: {
@@ -139,7 +140,7 @@ export default defineConfig({
             ignored: ['**/*.log', '.idea/**'],
         },
         deps: {
-            inline: ['node', 'mod_arches'],
+            inline: ['node' /*'mod_arches'*/, 'arches'],
         },
         fs: {
             allow: [
@@ -161,7 +162,7 @@ export default defineConfig({
         appType: 'mpa',
         commonjsOptions: {
             transformMixedEsModules: true,
-            include: [/mod_arches/, /arches.js/],
+            include: [/arches.js/, /arches/],
             extensions: ['.js', '.cjs'],
         },
         rollupOptions: {

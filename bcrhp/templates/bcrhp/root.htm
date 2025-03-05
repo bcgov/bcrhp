@@ -16,7 +16,9 @@
 {% endblock css %}
 
 {% block body %}
-    {% vite_hmr_client %}
-    {% vite_asset  '/bcrhp/static/build/js/views/root.js' %}
+    {%  vite_hmr_client  %}
+    {%  vite_asset  '/bcrhp/static/build/js/views/root.js'  %}
     <div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
+    <script src="/bcrhp/static/node_modules/requirejs/require.js"></script>
+    <script src="/bcrhp/static/build/js/views/root.js"></script>
 {% endblock body %}

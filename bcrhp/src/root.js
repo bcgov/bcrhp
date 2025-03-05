@@ -106,41 +106,41 @@ const BCGovPreset = definePreset(Aura, {
         },
     },
 });
-// arches.urls.api_get_frontend_i18n_data
-fetch('/bcrhp/api/get_frontend_i18n_data')
-    .then(function (resp) {
-        if (!resp.ok) {
-            throw new Error(resp.statusText);
-        }
-        return resp.json();
-    })
-    .then(function (respJSON) {
-        const gettext = createGettext({
-            availableLanguages: respJSON['enabled_languages'],
-            defaultLanguage: respJSON['language'],
-            translations: respJSON['translations'],
-        });
-        const vueApp = createApp(BCRHPApp);
-        vueApp.use(PrimeVue, BCGovPreset);
-        vueApp.use(gettext);
-        vueApp.use(ConfirmationService);
-        vueApp.use(DialogService);
-        vueApp.use(ToastService);
-        vueApp.directive('animateonscroll', AnimateOnScroll);
-        vueApp.directive('focustrap', FocusTrap);
-        vueApp.directive('styleclass', StyleClass);
-        vueApp.directive('tooltip', Tooltip);
-        vueApp.use(router);
-        document.addEventListener('DOMContentLoaded', function () {
+//
+document.addEventListener('DOMContentLoaded', function () {
+    fetch(arches.urls.api_get_frontend_i18n_data)
+        .then(function (resp) {
+            if (!resp.ok) {
+                throw new Error(resp.statusText);
+            }
+            return resp.json();
+        })
+        .then(function (respJSON) {
+            const gettext = createGettext({
+                availableLanguages: respJSON['enabled_languages'],
+                defaultLanguage: respJSON['language'],
+                translations: respJSON['translations'],
+            });
+            const vueApp = createApp(BCRHPApp);
+            vueApp.use(PrimeVue, BCGovPreset);
+            vueApp.use(gettext);
+            vueApp.use(ConfirmationService);
+            vueApp.use(DialogService);
+            vueApp.use(ToastService);
+            vueApp.directive('animateonscroll', AnimateOnScroll);
+            vueApp.directive('focustrap', FocusTrap);
+            vueApp.directive('styleclass', StyleClass);
+            vueApp.directive('tooltip', Tooltip);
+            vueApp.use(router);
             vueApp.mount('#bcrhp-mounting-point');
+            // createVueApplication(BCRHPApp, {
+            //     theme: {
+            //         preset: BCGovPreset,
+            //     },
+            // }).then((vueApp) => {
+            //     vueApp.use(router);
+            //     vueApp.mount('#bcrhp-mounting-point');
+            //     //Your code here
+            // });
         });
-        // createVueApplication(BCRHPApp, {
-        //     theme: {
-        //         preset: BCGovPreset,
-        //     },
-        // }).then((vueApp) => {
-        //     vueApp.use(router);
-        //     vueApp.mount('#bcrhp-mounting-point');
-        //     //Your code here
-        // });
-    });
+});

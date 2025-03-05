@@ -3,7 +3,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
 from django.urls.resolvers import RegexPattern
-from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile
+from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile, ArchesUrls
 from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
@@ -45,6 +45,7 @@ for pattern in bc_url_resolver.url_patterns:
     # print("After: %s" % pattern.pattern)
 
 urlpatterns = [
+    re_path(bc_path_prefix(r"^api/urls/"), ArchesUrls.as_view(), name="api_urls"),
     re_path(bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"),
     re_path(bc_path_prefix(r"^api/user/"), api_user.UserView.as_view(), name="api_user"),
     re_path(

@@ -1,4 +1,5 @@
 import type { RouteNamesType } from '@/bcgov_arches_common/routes.ts';
+const dev_mode = false;
 const routes = [
     {
         path: '/bcrhp/submissions/',
@@ -6,7 +7,7 @@ const routes = [
         component: () => import('@/bcrhp/pages/Submissions.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     {
@@ -15,7 +16,7 @@ const routes = [
         component: () => import('@/bcrhp/pages/NewSite.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     {
@@ -24,7 +25,7 @@ const routes = [
         component: () => import('@/bcrhp/pages/UpdateSite.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     // {

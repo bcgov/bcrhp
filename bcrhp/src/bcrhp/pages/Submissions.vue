@@ -10,7 +10,7 @@ import { routeNames } from '@/bcrhp/routes.ts';
 const { $gettext } = useGettext();
 const workflowItems = ref([
     {
-        label: $gettext('Submit a new site2'),
+        label: $gettext('Submit a new site'),
         description: $gettext('Submit a site that is not on the register'),
         icon: 'fa fa-file',
         class: 'dashboard-card ipa',

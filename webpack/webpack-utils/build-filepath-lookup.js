@@ -57,6 +57,8 @@ function buildFilepathLookup(path, staticUrlPrefix) {
                 `${staticUrl}${prefix}/${file.replace(path, '').replace(/\\/g, '/').replace(/^\//, '')}`
             ] = file;
         }
+        // console.log('Returning lookup');
+        // console.log(lookup);
         return lookup;
     }, {});
 }
