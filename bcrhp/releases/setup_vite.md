@@ -1,9 +1,21 @@
-1. Add django-vite python package
-2. Run pip install .[dev] in bcrhp directory
-3. Run npm install in bcrhp directory
-4. Run npm install in arches_common directory (why is this necssary?)
-5. Run npm build_development in bcrhp directory
-6. Run npm dev in bcrhp directory
+### Steps to get Vite dev server running
+1. Delete and recreate docker containers to map the Vite dev server port (5173):
+```shell
+docker compose down
+docker image rm bcgov/bcrhp7-6 bcgov/bcrhp-webpack7-6
+docker compose up
+```
+2. Login to docker conatiner
+```shell
+docker exec -it bcrhp7-6 /bin/bash
+```
+2. Run `pip install .[dev]` in bcrhp directory
+3. Run `npm install` directory
+4. Run `cd ../arches_common && npm install && cd ../bcrhp` (need to figure out why is install here is necessary)
+5. Run `npm build_development` in bcrhp directory
+6. Run `npm vite_dev` in bcrhp directory - this should start the Vite dev server
+7. Open BCRHP app in web browser then login
+8. Navigate to `http://localhost/bcrhp/submissions/` - you should see assets being served by Vite dev server
 
 ### Concepts
 1. The idea is to have Vite server host all the Vue assets while leaving Webpack to deal with the Arches core /
