@@ -42,8 +42,8 @@
     "dependencies": {
         "@ckeditor/ckeditor5-vue": "7.3.0",
         "@tailwindcss/cli": "^4.0.8",
-        "arches": "github:bcgov/arches#v7.6.4.1_bcgov",
-        "bcgov_arches_common": "github:bcgov/arches_common",
+        "arches": "github:bcgov/arches#stable/7.6.6_bcgov_11823",
+        "bcgov_arches_common": "github:bcgov/arches_common#release/1.1.0_add_vue_components",
         "ckeditor5": "44.2.0",
         "primevue": "^4.2.5",
         "tailwindcss": "^4.0.8",
