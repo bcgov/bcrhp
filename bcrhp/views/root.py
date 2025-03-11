@@ -11,4 +11,12 @@ class BcrhpRootView(BaseManagerView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(main_script="/views/root")
         context["page_title"] = _("BCRHP Self Service")
-        return render(request, "bcrhp/root_vue_dev.htm" if settings.DJANGO_VITE_DEV_MODE else "bcrhp/root.htm", context)
+        return render(
+            request,
+            (
+                "bcrhp/root_vue_dev.htm"
+                if settings.DJANGO_VITE["default"]["dev_mode"]
+                else "bcrhp/root.htm"
+            ),
+            context,
+        )

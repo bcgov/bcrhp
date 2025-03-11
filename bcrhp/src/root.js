@@ -1,5 +1,5 @@
 // // add the beginning of your app entry
-// import 'vite/modulepreload-polyfill';
+import 'vite/modulepreload-polyfill';
 // import createVueApplication from '@/bcrhp/create-vue-application.ts';
 // import createVueApplication from 'arches/arches/app/media/js/utils/create-vue-application';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -108,7 +108,7 @@ const BCGovPreset = definePreset(Aura, {
 });
 //
 document.addEventListener('DOMContentLoaded', function () {
-    fetch(arches.urls.api_get_frontend_i18n_data)
+    fetch(`http://localhost/${arches.urls.api_get_frontend_i18n_data}`)
         .then(function (resp) {
             if (!resp.ok) {
                 throw new Error(resp.statusText);

@@ -43,8 +43,13 @@ const { $gettext } = useGettext();
 
 router.beforeEach(async (to, _from, next) => {
     try {
-        let userData = await fetchUser();
-        setUser(userData);
+        // let userData = await fetchUser();
+        // setUser(userData);
+        setUser({
+            first_name: 'Brett',
+            last_name: 'Ferguson',
+            username: 'bferguso@idir',
+        });
 
         const requiresAuthentication = to.matched.some(
             (record) => record.meta.requiresAuthentication,

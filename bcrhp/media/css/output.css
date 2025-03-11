@@ -288,7 +288,8 @@
     display: contents;
   }
   .flex {
-    display: flex;
+    display: inline-block;
+    background: purple;
   }
   .grid {
     display: grid;

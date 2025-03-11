@@ -1,5 +1,5 @@
 import type { RouteNamesType } from '@/bcgov_arches_common/routes.ts';
-const dev_mode = false;
+const dev_mode = true;
 const routes = [
     {
         path: '/bcrhp/submissions/',
@@ -15,7 +15,7 @@ const routes = [
         name: 'newSite',
         component: () => import('@/bcrhp/pages/NewSite.vue'),
         meta: {
-            shouldShowNavigation: true,
+            shouldShowNavigation: false,
             requiresAuthentication: !dev_mode,
         },
     },

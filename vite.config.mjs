@@ -1,8 +1,10 @@
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import path from 'path';
 import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 // const appRoot = '/Users/brett/work/repo/git/arches/split/bcrhp';
 const appRoot = '/web_root/bcrhp';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 export default defineConfig({
     optimizeDeps: {
@@ -13,7 +15,8 @@ export default defineConfig({
     // publicDir: 'http://localhost/',
     // base: '/bcrhp/static',
     resolve: {
-        extensions: ['.js', '.json', '.ts','.vue'],
+        // extensions: ['.js', '.json', '.ts','.vue'],
+        preserveSymlinks: true, // This is the fix!
         alias: [
             {
                 // This is to get out of the webpack/requireJS ecosystem
@@ -21,6 +24,38 @@ export default defineConfig({
                 replacement: path.resolve(
                     path.join(appRoot, 'bcrhp', 'src', 'root.js'),
                 ),
+            },
+            {
+                // This is to get out of the webpack/requireJS ecosystem
+                find: /^\/bcrhp\/static\/build\/css/,
+                replacement: path.resolve(
+                    path.join(appRoot, 'bcrhp', 'media', 'css'),
+                ),
+            },
+            {
+                // This is to get out of the webpack/requireJS ecosystem
+                find: /^\/bcrhp\/static\/css/,
+                replacement: path.resolve(
+                    path.join(appRoot, 'bcrhp', 'media', 'css'),
+                ),
+            },
+            // {
+            //     // This is to get out of the webpack/requireJS ecosystem
+            //     find: /^.*\/output.css$/,
+            //     replacement: path.resolve(
+            //         path.join(appRoot, 'bcrhp', 'media', 'css', 'output.css'),
+            //     ),
+            // },
+            // {
+            //     // This is to get out of the webpack/requireJS ecosystem
+            //     find: /^.*\/project.css$/,
+            //     replacement: path.resolve(
+            //         path.join(appRoot, 'bcrhp', 'media', 'css', 'project.css'),
+            //     ),
+            // },
+            {
+                find: /^.*\/node_modules/,
+                replacement: path.resolve(path.join(appRoot, 'node_modules')),
             },
             {
                 find: '@/arches',
@@ -46,6 +81,15 @@ export default defineConfig({
                 ),
             },
             {
+                find: 'node_modules/bcgov_arches_common/bcgov_arches_common',
+                replacement: path.resolve(
+                    path.join(
+                        __dirname,
+                        '../arches_common/bcgov_arches_common',
+                    ),
+                ),
+            },
+            {
                 find: '@/bcrhp',
                 replacement: path.resolve(
                     path.join(__dirname, './bcrhp/src/bcrhp'),
@@ -53,7 +97,11 @@ export default defineConfig({
             },
         ],
     },
-    plugins: [vue()],
+    plugins: [
+        vue(),
+        tailwindcss(),
+        cssInjectedByJsPlugin({ jsAssetsFilterFunction: () => true }),
+    ],
     server: {
         root: path.resolve('./bcrhp/src'),
         host: 'localhost',
@@ -74,16 +122,19 @@ export default defineConfig({
                 searchForWorkspaceRoot(process.cwd()),
                 '/web_root/arches_common/bcgov_arches_common/media',
                 '/web_root/arches/arches/app',
+                '/web_root/bcfms/bcfms/media',
+                '/web_root/bcfms/node_modules',
             ],
         },
     },
+    appType: 'mpa',
     build: {
-        outdir: path.resolve('./bcrhp/staticfiles/dist'),
+        outDir: path.resolve('./bcrhp/staticfiles/dist'),
         // ssrManifest: 'manifest.json',
         sourcemap: true,
         assetsDir: '',
-        // manifest: 'manifest.json',
-        manifest: true,
+        manifest: 'manifest.json',
+        // manifest: true,
         emptyOutDir: true,
         target: 'es2015',
         appType: 'mpa',
@@ -91,11 +142,13 @@ export default defineConfig({
             transformMixedEsModules: true,
             include: [/arches.js/, /arches/, /views\/root.js/],
             extensions: ['.js', '.cjs'],
+            esmExternals: true,
         },
         rollupOptions: {
             input: {
                 // main: path.resolve('./bcrhp/media/js/views/root.js'),
                 main: path.resolve('./bcrhp/src/root.js'),
+                main_css: path.resolve('./bcrhp/media/css/output.css'),
             },
             output: {
                 chunkFileNames: undefined,
