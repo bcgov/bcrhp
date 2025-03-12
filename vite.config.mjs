@@ -1,7 +1,7 @@
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import path from 'path';
 import vue from '@vitejs/plugin-vue';
-// import tailwindcss from '@tailwindcss/vite';
+import tailwindcss from '@tailwindcss/vite';
 // const appRoot = '/Users/brett/work/repo/git/arches/split/bcrhp';
 const appRoot = '/web_root/bcrhp';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
@@ -126,7 +126,7 @@ export default defineConfig({
     plugins: [
         vue(),
         cssInjectedByJsPlugin({ jsAssetsFilterFunction: () => true }),
-        // tailwindcss(),
+        tailwindcss(),
         Components({
             resolvers: [PrimeVueResolver()],
         }),

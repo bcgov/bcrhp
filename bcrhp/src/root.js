@@ -7,7 +7,7 @@ import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
 import { arches } from '@/bcrhp/api.ts';
 import Aura from '@primeuix/themes/aura';
-import { definePreset } from '@primevue/themes';
+import { definePreset } from '@primeuix/themes';
 import { createApp } from 'vue';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
@@ -65,7 +65,6 @@ const BCGovPreset = definePreset(Aura, {
         button: {
             paddingX: '.75rem;',
             paddingY: '0.1rem;',
-            color: 'red',
         },
         card: {
             titleFontSize: '1.0rem',
@@ -128,7 +127,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const vueApp = createApp(BCRHPApp);
             vueApp.use(PrimeVue, {
                 theme: {
-                    preset: Aura,
+                    preset: BCGovPreset,
+                    options: {
+                        cssLayer: {
+                            name: 'primevue',
+                            order: 'theme, base, primevue',
+                        },
+                    },
                 },
             });
             vueApp.use(gettext);
