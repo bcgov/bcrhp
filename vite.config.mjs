@@ -1,19 +1,27 @@
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import path from 'path';
 import vue from '@vitejs/plugin-vue';
-import tailwindcss from '@tailwindcss/vite';
+// import tailwindcss from '@tailwindcss/vite';
 // const appRoot = '/Users/brett/work/repo/git/arches/split/bcrhp';
 const appRoot = '/web_root/bcrhp';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
+import Components from 'unplugin-vue-components/vite';
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 
 export default defineConfig({
     optimizeDeps: {
         include: [
+            'primevue/components/utils/DomHandler',
             /*'mod_arches', 'arches'*/
         ],
     },
     // publicDir: 'http://localhost/',
     // base: '/bcrhp/static',
+    // css: {
+    //     postcss: {
+    //         plugins: [tailwindcss()],
+    //     },
+    // },
     resolve: {
         // extensions: ['.js', '.json', '.ts','.vue'],
         preserveSymlinks: true, // This is the fix!
@@ -40,9 +48,23 @@ export default defineConfig({
                 ),
             },
             {
-                find: /.*\/primevue/,
-                replacement: path.resolve(path.join(appRoot, 'node_modules', 'primevue')),
+                find: /^primevue/,
+                replacement: path.resolve(
+                    path.join(appRoot, 'node_modules', 'primevue'),
+                ),
             },
+            {
+                find: /^@primevue/,
+                replacement: path.resolve(
+                    path.join(appRoot, 'node_modules', '@primevue'),
+                ),
+            },
+            // {
+            //     find: /.*\/primevue\/fieldset/,
+            //     replacement: path.resolve(
+            //         path.join(appRoot, 'node_modules', 'primevue', 'fieldset'),
+            //     ),
+            // },
             // {
             //     // This is to get out of the webpack/requireJS ecosystem
             //     find: /^.*\/output.css$/,
@@ -103,9 +125,13 @@ export default defineConfig({
     },
     plugins: [
         vue(),
-        tailwindcss(),
         cssInjectedByJsPlugin({ jsAssetsFilterFunction: () => true }),
+        // tailwindcss(),
+        Components({
+            resolvers: [PrimeVueResolver()],
+        }),
     ],
+    ssr: { optimizeDeps: { noDiscovery: false } },
     server: {
         root: path.resolve('./bcrhp/src'),
         host: 'localhost',
@@ -134,6 +160,7 @@ export default defineConfig({
     appType: 'mpa',
     build: {
         outDir: path.resolve('./bcrhp/staticfiles/dist'),
+        cssCodeSplit: false,
         // ssrManifest: 'manifest.json',
         sourcemap: true,
         assetsDir: '',
@@ -144,7 +171,13 @@ export default defineConfig({
         appType: 'mpa',
         commonjsOptions: {
             transformMixedEsModules: true,
-            include: [/arches.js/, /arches/, /views\/root.js/],
+            include: [
+                /arches.js/,
+                /arches/,
+                /views\/root.js/,
+                /.*quill.*/,
+                /.*primevue.*/,
+            ],
             extensions: ['.js', '.cjs'],
             esmExternals: true,
         },
@@ -152,7 +185,7 @@ export default defineConfig({
             input: {
                 // main: path.resolve('./bcrhp/media/js/views/root.js'),
                 main: path.resolve('./bcrhp/src/root.js'),
-                main_css: path.resolve('./bcrhp/media/css/output.css'),
+                // main_css: path.resolve('./bcrhp/media/css/output.css'),
             },
             output: {
                 chunkFileNames: undefined,

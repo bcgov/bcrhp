@@ -1,5 +1,5 @@
 // import arches from 'arches';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import type { Ref } from 'vue';
 
 // @todo Initialize these from sever API call?
@@ -22,11 +22,11 @@ export const arches = {
     },
 };
 function getToken() {
-    const token = Cookies.get('csrftoken');
-    if (!token) {
-        throw new Error('Missing csrftoken');
-    }
-    return token;
+    // const token = Cookies.get('csrftoken');
+    // if (!token) {
+    //     throw new Error('Missing csrftoken');
+    // }
+    return null;
 }
 
 export const login = async (username: string, password: string) => {

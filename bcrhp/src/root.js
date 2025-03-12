@@ -6,7 +6,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
 import { arches } from '@/bcrhp/api.ts';
-import Aura from '@primevue/themes/aura';
+import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primevue/themes';
 import { createApp } from 'vue';
 import PrimeVue from 'primevue/config';
@@ -50,6 +50,9 @@ const BCGovPreset = definePreset(Aura, {
                 formField: {
                     hoverBorderColor: '{primary.color}',
                 },
+                button: {
+                    primary: 'red',
+                },
             },
             dark: {
                 formField: {
@@ -62,6 +65,7 @@ const BCGovPreset = definePreset(Aura, {
         button: {
             paddingX: '.75rem;',
             paddingY: '0.1rem;',
+            color: 'red',
         },
         card: {
             titleFontSize: '1.0rem',
@@ -122,7 +126,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 translations: respJSON['translations'],
             });
             const vueApp = createApp(BCRHPApp);
-            vueApp.use(PrimeVue, BCGovPreset);
+            vueApp.use(PrimeVue, {
+                theme: {
+                    preset: Aura,
+                },
+            });
             vueApp.use(gettext);
             vueApp.use(ConfirmationService);
             vueApp.use(DialogService);
