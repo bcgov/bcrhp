@@ -22,12 +22,6 @@
     "allowImportingTsExtensions": true,
     "noUnusedLocals": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/bcrhp/*": [
-        "./bcrhp/src/bcrhp/*"
-      ],
       "@s:webpack_loader/*": [
         "./../../usr/local/lib/python3.11/dist-packages/webpack_loader/static/webpack_loader/*"
       ],
