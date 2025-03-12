@@ -16,7 +16,7 @@ export default defineConfig({
         ],
     },
     // publicDir: 'http://localhost/',
-    // base: '/bcrhp/static',
+    base: '/bcrhp/static',
     // css: {
     //     postcss: {
     //         plugins: [tailwindcss()],
@@ -102,19 +102,11 @@ export default defineConfig({
                 replacement: path.resolve(
                     path.join(
                         __dirname,
-                        '../arches_common/bcgov_arches_common/src/bcgov_arches_common',
+                        './node_modules/bcgov_arches_common/bcgov_arches_common/src/bcgov_arches_common',
                     ),
                 ),
             },
-            {
-                find: 'node_modules/bcgov_arches_common/bcgov_arches_common',
-                replacement: path.resolve(
-                    path.join(
-                        __dirname,
-                        '../arches_common/bcgov_arches_common',
-                    ),
-                ),
-            },
+
             {
                 find: '@/bcrhp',
                 replacement: path.resolve(
@@ -171,13 +163,7 @@ export default defineConfig({
         appType: 'mpa',
         commonjsOptions: {
             transformMixedEsModules: true,
-            include: [
-                /arches.js/,
-                /arches/,
-                /views\/root.js/,
-                /.*quill.*/,
-                /.*primevue.*/,
-            ],
+            include: [/.*arches\.js/, /arches/, /views\/root.js/, /.*quill.*/],
             extensions: ['.js', '.cjs'],
             esmExternals: true,
         },

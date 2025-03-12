@@ -15,7 +15,7 @@ const routes = [
         name: 'newSite',
         component: () => import('@/bcrhp/pages/NewSite.vue'),
         meta: {
-            shouldShowNavigation: false,
+            shouldShowNavigation: true,
             requiresAuthentication: !dev_mode,
         },
     },

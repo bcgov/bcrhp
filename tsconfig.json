@@ -89,7 +89,7 @@
         "./bcrhp/templates/bcrhp/*"
       ],
       "@s:bcgov_arches_common/*": [
-        "./../arches_common/bcgov_arches_common/static/bcgov_arches_common/*"
+        "./node_modules/bcgov_arches_common/bcgov_arches_common/media/bcgov_arches_common/*"
       ],
       "@t:bcgov_arches_common/*": [
         "./../arches_common/bcgov_arches_common/templates/bcgov_arches_common/*"

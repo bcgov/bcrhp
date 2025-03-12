@@ -1,10 +1,15 @@
-@import url("node_modules/bcgov_arches_common/bcgov_arches_common/media/css/project.css");
+@import url("bcgov_arches_common/bcgov_arches_common/media/css/project.css");
+@import url("arches/arches/app/media/css/index.css");
 @import url("./map_legend.css");
-@import url("../fontawesome/css/fontawesome.min.css");
-@import url("../fontawesome/css/solid.min.css");
-@import url("/bcrhp/media/css/resource_details.css");
+@import url("./resource_details.css");
 @import url("tailwindcss");
 @import url("tailwindcss-primeui");
+@import url("./output.css");
+
+.header-link {
+    color: white;
+    font-size: 0.8rem;
+}
 
 .card_component.start_year, .card_component.end_year, .card_component.dates_approximate {
     display: inline-block;
