@@ -89,6 +89,14 @@ const BCGovPreset = definePreset(Aura, {
             paddingX: '0.2rem',
             paddingY: '0.2rem',
         },
+        checkbox: {
+            width: '1.0rem',
+            height: '1.0rem',
+        },
+        radiobutton: {
+            width: '1.0rem',
+            height: '1.0rem',
+        },
         panel: {
             contentPadding: '1.0rem',
             colorScheme: {

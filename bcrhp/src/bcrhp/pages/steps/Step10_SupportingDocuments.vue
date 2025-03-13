@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from "vue";
-import type { Ref } from "vue";
+import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
-import { QuillEditor } from '@vueup/vue-quill'
+import FileUpload from 'primevue/fileupload';
+import RadioButton from 'primevue/radiobutton';
+import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
-import LabelledInput from "./LabelledInput.vue";
-import type { HeritageSite } from "@/bcrhp/schema/HeritageSiteSchema.ts";
-import { requiredCivicAddressSchema } from "@/bcrhp/schema/CivicAddressSchema.ts";
-import type { ZodError } from "zod";
-
+import LabelledInput from './LabelledInput.vue';
+import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import type { ZodError } from 'zod';
 
 const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
 const heritageSiteRef: Ref<HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-let otherName = "";
+let otherName = '';
 // const otherNames = ref(string[]);
 
 // These names need to match the Zog schema
@@ -63,181 +64,151 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof HeritageSite = field.id as keyof HeritageSite;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(heritageSiteRef.value[key]);
+    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
+        heritageSiteRef.value[key],
+    );
     if (fieldValidation.success) {
-        field.classList.remove("p-invalid");
+        field.classList.remove('p-invalid');
         errors.value[key] = [];
-    }
-    else {
-        field.classList.add("p-invalid");
-        errors.value[key] = (fieldValidation.error as ZodError).flatten().formErrors;
+    } else {
+        field.classList.add('p-invalid');
+        errors.value[key] = (
+            fieldValidation.error as ZodError
+        ).flatten().formErrors;
     }
     return fieldValidation.success;
 };
 
 const addChronologyNotes = function () {
-    console.log("saveOtherName");
+    console.log('saveOtherName');
     heritageSite.otherNames.push(otherName);
-    otherName = "";
+    otherName = '';
 };
 
 const addArchitectOrBuilderNotes = function () {
-    console.log("saveOtherName");
+    console.log('saveOtherName');
     heritageSite.otherNames.push(otherName);
-    otherName = "";
+    otherName = '';
 };
 const addURL = function () {
-    console.log("saveOtherName");
+    console.log('saveOtherName');
     heritageSite.otherNames.push(otherName);
-    otherName = "";
+    otherName = '';
 };
+const onAdvancedUpload = function (event) {};
 
 let validateFields = false;
-
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
 
-onMounted(() => {
-});
-
+onMounted(() => {});
 </script>
 <template>
-    <FieldSet id="chronologyFieldset">
-        <p class="mb-2">Chronology</p>
-        <div class="flex flex-row">
-            <div class="flex flex-col">
-                <p class="mb-1">Event Type</p>
-                <div class="card flex flex-wrap gap-4">
-                    <div class="flex items-center gap-2">
-                        <Checkbox v-model="eventType" inputId="eventType1" name="construction" value="construction" />
-                        <label for="eventType1"> Construction </label>
+    <FieldSet
+        id="documentsFieldset"
+        legend="Supporting Documents"
+    >
+        <div class="flex flex-row gap-4">
+            <FileUpload
+                name="demo[]"
+                url="/api/upload"
+                :multiple="true"
+                accept="image/*"
+                :maxFileSize="1000000"
+                @upload="onAdvancedUpload($event)"
+            >
+                <template #empty>
+                    <span>Drag and drop files to here to upload.</span>
+                </template>
+            </FileUpload>
+            <div class="flex gap-4">
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2">Type</div>
+                    <div class="flex items-center">
+                        <RadioButton
+                            v-model="ingredient"
+                            inputId="documentType1"
+                            name="documentType"
+                            value="notificationLetter"
+                        />
+                        <label for="ingredient2">Notification Letter</label>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <Checkbox v-model="eventType" inputId="eventType2" name="significant" value="significant" />
-                        <label for="eventType2"> Significant </label>
+                    <div class="flex items-center">
+                        <RadioButton
+                            v-model="ingredient"
+                            inputId="documentType2"
+                            name="documentType"
+                            value="pdfMap"
+                        />
+                        <label for="ingredient3">PDF Map</label>
+                    </div>
+                    <div class="flex items-center">
+                        <RadioButton
+                            v-model="ingredient"
+                            inputId="documentType3"
+                            name="documentType"
+                            value="meetingMinutes"
+                        />
+                        <label for="ingredient4"
+                            >Bylaw / council meeting minutes</label
+                        >
+                    </div>
+                    <div class="flex items-center">
+                        <LabelledInput
+                            label="Document Description"
+                            hint="Provide short description of document content"
+                            input-name="documentDescription"
+                            :error-message="
+                                errors.documentDescription?.join(',')
+                            "
+                        >
+                            <div class="p-inputtext-fluid">
+                                <InputText
+                                    id="startYear"
+                                    ref="startYearField"
+                                    v-model="heritageSite.startYear"
+                                    aria-describedby="start-year-help"
+                                    aria-required="true"
+                                    fluid
+                                    @change="valueChanged"
+                                    @focus="onFocusHandler"
+                                    @focusout="onFocusOutHandler"
+                                    @update:model-value="valueUpdated"
+                                />
+                            </div>
+                        </LabelledInput>
                     </div>
                 </div>
             </div>
-            <LabelledInput label="Start Year" input-name="startYear" :error-message="errors.startYear?.join(',')"
-                :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="startYear" ref="startYearField" v-model="heritageSite.startYear"
-                        aria-describedby="start-year-help" aria-required="true" fluid @change="valueChanged"
-                        @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-            <LabelledInput label="End Year" input-name="endYear" :error-message="errors.endYear?.join(',')"
-                :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="endYear" ref="endYearField" v-model="heritageSite.endYear"
-                        aria-describedby="end-year-help" aria-required="true" fluid @change="valueChanged"
-                        @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-
-            <div class="flex items-center gap-2">
-                <Checkbox v-model="circa" inputId="circa" name="circa" value="circa" />
-                <label for="circa"> Circa </label>
-            </div>
-
-        </div>
-        <div class="flex flex-row">
-            <LabelledInput label="Chronology Notes (Optional)" hint="Enter details about the significant event"
-                input-name="chronologyNotes" :error-message="errors.chronologyNotes?.join(',')">
-                <div class="p-inputtext-fluid">
-                    <QuillEditor id="chronologyNotes" ref="chronologyNotesField"
-                        v-model:content="heritageSite.chronologyNotes" theme="snow"
-                        aria-describedby="chronology-notes-help" aria-required="true" fluid @editorChange="valueChanged"
-                        @focus="onFocusHandler" @blur="onFocusOutHandler" @update:content="valueUpdated" />
-                    <Button id="saveChronologyNotes" label="Add" class="inline-block"
-                        @click="addChronologyNotes"></Button>
-                </div>
-            </LabelledInput>
         </div>
     </FieldSet>
-    <Fieldset id="architectsBuildersFieldset" class="p-fieldset p-component mt-2">
-        <p class="mb-1 mt-2">Architects / Builders</p>
-        <div class="flex flex-row">
-            <LabelledInput label="Architect / Builder Name" hint="Enter the company or individual's name"
-                input-name="architectOrBuilderName" :error-message="errors.architectOrBuilderName?.join(',')"
-                :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="architectOrBuilderName" ref="architectOrBuilderNameField"
-                        v-model="heritageSite.architectOrBuilderName" aria-describedby="architect-or-builder-help"
-                        aria-required="true" fluid @change="valueChanged" @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-            <LabelledInput label="Type" input-name="architectOrBuilderType"
-                :error-message="errors.architectOrBuilderType?.join(',')" :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="architectOrBuilderType" ref="architectOrBuilderTypeField"
-                        v-model="heritageSite.architectOrBuilderType" aria-describedby="architect-or-builder-type-help"
-                        aria-required="true" fluid @change="valueChanged" @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-        </div>
-        <div class="flex flex-row">
-            <LabelledInput label="Architect / Builder Name Notes (Optional)"
-                hint="Provide any additional comments about the architect/builder" input-name="architectOrBuilderNotes"
-                :error-message="errors.architectOrBuilderNotes?.join(',')" :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="architectOrBuilderNotes" ref="architectOrBuilderNotesField"
-                        v-model="heritageSite.architectOrBuilderNotes"
-                        aria-describedby="architect-or-builder-notes-help" aria-required="true" fluid
-                        @change="valueChanged" @focus="onFocusHandler" @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-            <Button id="addOtherName" label="Add" class="inline-block" @click="addArchitectOrBuilderNotes"></Button>
-        </div>
-    </Fieldset>
-    <Fieldset id="relatedURLsFieldset" class="p-fieldset p-component mt-2">
-        <p class="mb-1 mt-2">Related URLs</p>
-        <div class="flex flex-row">
-            <LabelledInput label="URL Type" hint="Acceptable URL Types" input-name="urlType"
-                :error-message="errors.urlType?.join(',')" :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="urlType" ref="urlTypeField" v-model="heritageSite.urlType"
-                        aria-describedby="url-type-help" aria-required="true" fluid @change="valueChanged"
-                        @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-            <LabelledInput label="Link Text" hint="Enter text that describes the link" input-name="linkText"
-                :error-message="errors.linkText?.join(',')" :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="linkText" ref="linkTextField" v-model="heritageSite.linkText"
-                        aria-describedby="link-text-help" aria-required="true" fluid @change="valueChanged"
-                        @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-        </div>
-        <div class="flex flex-row">
-            <LabelledInput label="URL" hint="URL must be stable and publicly accessible" input-name="url"
-                :error-message="errors.url?.join(',')" :required="true">
-                <div class="p-inputtext-fluid">
-                    <InputText id="url" ref="urlField" v-model="heritageSite.url"
-                        aria-describedby="architect-or-builder-notes-help" aria-required="true" fluid
-                        @change="valueChanged" @focus="onFocusHandler" @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated" />
-                </div>
-            </LabelledInput>
-            <Button id="addOtherName" label="Add" class="inline-block" @click="addURL"></Button>
-        </div>
+    <Fieldset
+        id="submissionNotesFieldset"
+        class="p-fieldset p-component mt-2"
+        legend="Submission Notes (Optional)"
+    >
+        <LabelledInput
+            input-name="submissionNotes"
+            hint="Enter any additional remarks about the site submission"
+        >
+            <div class="p-inputtext-fluid">
+                <QuillEditor
+                    id="submissionNotes"
+                    ref="submissionNotesField"
+                    v-model:content="heritageSite.heritageValue"
+                    theme="snow"
+                    aria-describedby="submission-notes-help"
+                    fluid
+                    @editorChange="valueChanged"
+                    @focus="onFocusHandler"
+                    @blur="onFocusOutHandler"
+                    @update:content="valueUpdated"
+                />
+            </div>
+        </LabelledInput>
     </Fieldset>
 </template>
 
-<style>
-.inline-block {
-    display: inline-block;
-    width: unset;
-}
-
-.p-inputtext-fluid.inline-block {
-    width: calc(100% - 6.5rem);
-    margin-right: 1rem;
-}
-</style>
+<style></style>

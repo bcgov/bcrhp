@@ -7,17 +7,17 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import LabelledInput from "./LabelledInput.vue";
-import LabelledCheckboxInput from "./LabelledCheckbox.vue";
-import type { HeritageSite } from "@/bcrhp/schema/HeritageSiteSchema.ts";
-import type { CivicAddress } from "@/bcrhp/schema/CivicAddressSchema.ts";
-import { getCivicAddress } from "@/bcrhp/schema/CivicAddressSchema.ts";
-import { requiredCivicAddressSchema } from "@/bcrhp/schema/CivicAddressSchema.ts";
-import type { LegalDescription } from "@/bcrhp/schema/LegalDescriptionSchema.ts";
-import { getLegalDescription } from "@/bcrhp/schema/LegalDescriptionSchema.ts";
-import { requiredLegalDescriptionSchema } from "@/bcrhp/schema/LegalDescriptionSchema.ts";
-import type { ZodError } from "zod";
-import { fetchConcepts } from "@/bcrhp/api.ts";
+import LabelledInput from './LabelledInput.vue';
+import LabelledCheckboxInput from './LabelledCheckbox.vue';
+import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import type { CivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import type { LegalDescription } from '@/bcrhp/schema/LegalDescriptionSchema.ts';
+import { getLegalDescription } from '@/bcrhp/schema/LegalDescriptionSchema.ts';
+import { requiredLegalDescriptionSchema } from '@/bcrhp/schema/LegalDescriptionSchema.ts';
+import type { ZodError } from 'zod';
+import { fetchConcepts } from '@/bcrhp/api.ts';
 
 const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
 // const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
@@ -34,13 +34,13 @@ const concepts = ref([]);
 
 // These names need to match the Zog schema
 const fields = {
-  streetAddressField: useTemplateRef("streetAddressField"),
-  cityField: useTemplateRef("cityField"),
-  postalCodeField: useTemplateRef("postalCodeField"),
-  locationDescriptionField: useTemplateRef("locationDescriptionField"),
-  localityField: useTemplateRef("localityField"),
-  parcelIdField: useTemplateRef("parcelIdField"),
-  legalAddressField: useTemplateRef("legalAddressField"),
+    streetAddressField: useTemplateRef('streetAddressField'),
+    cityField: useTemplateRef('cityField'),
+    postalCodeField: useTemplateRef('postalCodeField'),
+    locationDescriptionField: useTemplateRef('locationDescriptionField'),
+    localityField: useTemplateRef('localityField'),
+    parcelIdField: useTemplateRef('parcelIdField'),
+    legalAddressField: useTemplateRef('legalAddressField'),
 };
 
 const isValid = () => {
@@ -122,79 +122,213 @@ defineExpose({ isValid });
 onMounted(() => {});
 </script>
 <template>
-  <div style="display: none;">Child {{ currentCivicAddress }}</div>
-  <div>
-    <LabelledCheckboxInput label="This site does not have a Street Address"
-      hint="Check if the site doesn't have a Street Address" input-name="hasCivicAddress">
-      <Checkbox id="hasCivicAddress" ref="hasCivicAddress" :model-value="!currentCivicAddress.hasCivicAddress"
-        aria-describedby="has-civic-address-help" aria-required="true" fluid binary small @change="hasAddressChanged" />
-    </LabelledCheckboxInput>
-    <FieldSet id="civicAddressFieldset" legend="Civic Address" :disabled="disableAddressSection">
-      <LabelledInput label="Street Address" hint="Select the government with the jurisdiction over the site"
-        input-name="authorizingAgency" :error-message="errors.streetAddress?.join(',')" :required="true">
-        <div class="p-inputtext-fluid">
-          <InputText id="streetAddress" ref="streetAddressField" v-model="currentCivicAddress.streetAddress"
-            aria-describedby="username-help" aria-required="true" fluid class="inline-block" @change="valueChanged"
-            @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-          <Button id="validateAddress" label="Validate" class="inline-block"></Button>
-        </div>
-      </LabelledInput>
-      <LabelledInput label="City" hint="Enter a unique name for your project." input-name="city"
-        :error-message="errors.city?.join(',')" :required="true">
-        <InputText id="city" ref="cityField" v-model="currentCivicAddress.city" aria-describedby="city-help"
-          aria-required="true" fluid @change="valueChanged" @focus="onFocusHandler" @focusout="onFocusOutHandler"
-          @update:modelValue="valueUpdated" />
-        <!--              @value-change="valueUpdated"-->
-      </LabelledInput>
-      <LabelledInput label="Postal Code" hint="Enter address postal code" input-name="postalCode"
-        :error-message="errors.postalCode?.join(',')" :required="true">
-        <InputText id="postalCode" ref="postalCodeField" v-model="currentCivicAddress.postalCode"
-          aria-describedby="postal-code-help" fluid @change="valueChanged" @focus="onFocusHandler"
-          @focusout="onFocusOutHandler" @update:modelValue="valueUpdated" />
-      </LabelledInput>
-      <LabelledInput label="Location Description" hint="Location description of the site if there is no street address"
-        input-name="locationDescription" :error-message="errors.locationDescription?.join(',')" :required="true">
-        <InputText id="locationDescription" ref="locationDescriptionField"
-          v-model="currentCivicAddress.locationDescription" aria-describedby="postal-code-help" fluid
-          @change="valueChanged" @focus="onFocusHandler" @focusout="onFocusOutHandler"
-          @update:modelValue="valueUpdated" />
-      </LabelledInput>
-      <LabelledInput label="Locality (Optional)" hint="Established area or neighborhood the site is located within"
-        input-name="locality" :error-message="errors.locality?.join(',')">
-        <InputText id="locality" ref="localityField" placeholder="Enter the Locality"
-          v-model="currentCivicAddress.locality" aria-describedby="locality-help" fluid @change="valueChanged"
-          @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:modelValue="valueUpdated" />
-      </LabelledInput>
-      <Button label="Add Address" @click="saveAddress" />
-    </FieldSet>
-    <FieldSet id="legalAddressFieldset" :disabled="disableAddressSection">
-      <div class="flex flex-row justify-around">
-        <LabelledInput label="Parcel Identifier (PID)" hint="Click Validate to generate the legal description"
-          input-name="parcelId" :error-message="errors.parcelId?.join(',')" :required="true">
-          <div class="p-inputtext-fluid">
-            <InputText id="parcelId" ref="parcelIdField" v-model="currentLegalDescription.parcelId"
-              aria-describedby="parcel-help" aria-required="true" fluid class="inline-block" @change="valueChanged"
-              @focus="onFocusHandler" @focusout="onFocusOutHandler" @update:model-value="valueUpdated" />
-            <Button id="validateParcel" label="Validate" class="inline-block"></Button>
-          </div>
-        </LabelledInput>
-        <LabelledInput label="Legal Description Line 1" input-name="overrideLegalDescription"
-          :error-message="errors.overrideLegalDescription?.join(',')">
-          <LabelledCheckboxInput label="Override Legal Description" hint="Manually enter if not found or incorrect"
-            input-name="overrideLegalDescription">
-            <Checkbox id="overrideLegalDescription" ref="overrideLegalDescription"
-              :model-value="!currentLegalDescription.overrideLegalDescription"
-              aria-describedby="override-legal-description-help" aria-required="false" fluid binary small />
-          </LabelledCheckboxInput>
-        </LabelledInput>
-      </div>
-      <LabelledInput label="Legal Address" hint="If the Legal Address is not found or incorrect, enter it here"
-        input-name="legalAddress" :error-message="errors.legalAddress?.join(',')" :required="true">
-        <InputText id="legalAddress" ref="legalAddressField"
-          :disabled="currentLegalDescription.overrideLegalDescription" v-model="currentLegalDescription.legalAddress"
-          aria-describedby="legal-address-help" fluid @change="valueChanged" @focus="onFocusHandler"
-          @focusout="onFocusOutHandler" @update:modelValue="valueUpdated" />
-      </LabelledInput>
-    </FieldSet>
-  </div>
+    <div style="display: none">Child {{ currentCivicAddress }}</div>
+    <div>
+        <LabelledCheckboxInput
+            label="This site does not have a Street Address"
+            hint="Check if the site doesn't have a Street Address"
+            input-name="hasCivicAddress"
+        >
+            <Checkbox
+                id="hasCivicAddress"
+                ref="hasCivicAddress"
+                :model-value="!currentCivicAddress.hasCivicAddress"
+                aria-describedby="has-civic-address-help"
+                aria-required="true"
+                fluid
+                binary
+                small
+                @change="hasAddressChanged"
+            />
+        </LabelledCheckboxInput>
+        <FieldSet
+            id="civicAddressFieldset"
+            legend="Civic Address"
+            :disabled="disableAddressSection"
+        >
+            <LabelledInput
+                label="Street Address"
+                hint="Select the government with the jurisdiction over the site"
+                input-name="authorizingAgency"
+                :error-message="errors.streetAddress?.join(',')"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid">
+                    <InputText
+                        id="streetAddress"
+                        ref="streetAddressField"
+                        v-model="currentCivicAddress.streetAddress"
+                        aria-describedby="username-help"
+                        aria-required="true"
+                        fluid
+                        class="inline-block"
+                        @change="valueChanged"
+                        @focus="onFocusHandler"
+                        @focusout="onFocusOutHandler"
+                        @update:model-value="valueUpdated"
+                    />
+                    <Button
+                        id="validateAddress"
+                        label="Validate"
+                        class="inline-block"
+                    ></Button>
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="City"
+                hint="Enter a unique name for your project."
+                input-name="city"
+                :error-message="errors.city?.join(',')"
+                :required="true"
+            >
+                <InputText
+                    id="city"
+                    ref="cityField"
+                    v-model="currentCivicAddress.city"
+                    aria-describedby="city-help"
+                    aria-required="true"
+                    fluid
+                    @change="valueChanged"
+                    @focus="onFocusHandler"
+                    @focusout="onFocusOutHandler"
+                    @update:modelValue="valueUpdated"
+                />
+                <!--              @value-change="valueUpdated"-->
+            </LabelledInput>
+            <LabelledInput
+                label="Postal Code"
+                hint="Enter address postal code"
+                input-name="postalCode"
+                :error-message="errors.postalCode?.join(',')"
+                :required="true"
+            >
+                <InputText
+                    id="postalCode"
+                    ref="postalCodeField"
+                    v-model="currentCivicAddress.postalCode"
+                    aria-describedby="postal-code-help"
+                    fluid
+                    @change="valueChanged"
+                    @focus="onFocusHandler"
+                    @focusout="onFocusOutHandler"
+                    @update:modelValue="valueUpdated"
+                />
+            </LabelledInput>
+            <LabelledInput
+                label="Location Description"
+                hint="Location description of the site if there is no street address"
+                input-name="locationDescription"
+                :error-message="errors.locationDescription?.join(',')"
+                :required="true"
+            >
+                <InputText
+                    id="locationDescription"
+                    ref="locationDescriptionField"
+                    v-model="currentCivicAddress.locationDescription"
+                    aria-describedby="postal-code-help"
+                    fluid
+                    @change="valueChanged"
+                    @focus="onFocusHandler"
+                    @focusout="onFocusOutHandler"
+                    @update:modelValue="valueUpdated"
+                />
+            </LabelledInput>
+            <LabelledInput
+                label="Locality (Optional)"
+                hint="Established area or neighborhood the site is located within"
+                input-name="locality"
+                :error-message="errors.locality?.join(',')"
+            >
+                <InputText
+                    id="locality"
+                    ref="localityField"
+                    v-model="currentCivicAddress.locality"
+                    placeholder="Enter the Locality"
+                    aria-describedby="locality-help"
+                    fluid
+                    @change="valueChanged"
+                    @focus="onFocusHandler"
+                    @focusout="onFocusOutHandler"
+                    @update:modelValue="valueUpdated"
+                />
+            </LabelledInput>
+            <Button
+                label="Add Address"
+                @click="saveAddress"
+            />
+        </FieldSet>
+        <FieldSet
+            id="legalAddressFieldset"
+            :disabled="disableAddressSection"
+            legend="Legal Description"
+        >
+            <LabelledInput
+                label="Parcel Identifier (PID)"
+                hint="Click Validate to generate the legal description"
+                input-name="parcelId"
+                :error-message="errors.parcelId?.join(',')"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid">
+                    <InputText
+                        id="parcelId"
+                        ref="parcelIdField"
+                        v-model="currentLegalDescription.parcelId"
+                        aria-describedby="parcel-help"
+                        aria-required="true"
+                        fluid
+                        class="inline-block"
+                        @change="valueChanged"
+                        @focus="onFocusHandler"
+                        @focusout="onFocusOutHandler"
+                        @update:model-value="valueUpdated"
+                    />
+                    <Button
+                        id="validateParcel"
+                        label="Validate"
+                        class="inline-block"
+                    ></Button>
+                    <LabelledCheckboxInput
+                        label="Override Legal Description"
+                        hint="Manually enter if not found or incorrect"
+                        input-name="overrideLegalDescription"
+                        class="inline-block"
+                    >
+                        <Checkbox
+                            id="overrideLegalDescription"
+                            ref="overrideLegalDescription"
+                            :model-value="
+                                currentLegalDescription.overrideLegalDescription
+                            "
+                            aria-describedby="override-legal-description-help"
+                            aria-required="false"
+                            fluid
+                            binary
+                            small
+                        />
+                    </LabelledCheckboxInput>
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Legal Address"
+                hint="If the Legal Address is not found or incorrect, enter it here"
+                input-name="legalAddress"
+                :error-message="errors.legalAddress?.join(',')"
+                :required="true"
+            >
+                <InputText
+                    id="legalAddress"
+                    ref="legalAddressField"
+                    v-model="currentLegalDescription.legalAddress"
+                    :disabled="currentLegalDescription.overrideLegalDescription"
+                    aria-describedby="legal-address-help"
+                    fluid
+                    @change="valueChanged"
+                    @focus="onFocusHandler"
+                    @focusout="onFocusOutHandler"
+                    @update:modelValue="valueUpdated"
+                />
+            </LabelledInput>
+        </FieldSet>
+    </div>
 </template>
