@@ -1,10 +1,8 @@
 @import url("bcgov_arches_common/bcgov_arches_common/media/css/project.css");
-@import url("arches/arches/app/media/css/index.css");
 @import url("./map_legend.css");
 @import url("./resource_details.css");
 @import url("tailwindcss");
 @import url("tailwindcss-primeui");
-/*@import url("./output.css");*/
 
 .header-link {
     color: white;
