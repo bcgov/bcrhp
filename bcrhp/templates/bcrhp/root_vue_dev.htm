@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 {% load django_vite %}
-<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
-<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
-<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+<!--[if IE 8]>
+<html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]>
+<html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en"> <!--<![endif]-->
 
 
 <head>
 
-    <title>
-
-    </title>
+    <title> Vue Dev Template </title>
     <base href="http://localhost:5173/">
 
     <!-- Meta -->
@@ -35,7 +36,7 @@
     <link href="/bcrhp/static/css/index.css" rel="stylesheet">
     <link href="/bcrhp/static/node_modules/arches/arches/app/media/css/index.css" rel="stylesheet" />
     <link href="/bcrhp/static/bcrhp/media/css/project.css" rel="stylesheet">
-<!--    <link href="/node_modules/bcgov_arches_common/bcgov_arches_common/media/css/bc_index.css" rel="stylesheet" />-->
+    <!--    <link href="/node_modules/bcgov_arches_common/bcgov_arches_common/media/css/bc_index.css" rel="stylesheet" />-->
     <link href="/bcrhp/static/css/accessibility.css" rel="stylesheet">
     <link href="/bcrhp/static/bcrhp/media/css/output.css" rel="stylesheet">
     <style>
@@ -47,11 +48,10 @@
 </head>
 
 
-
-<body dir="ltr" >
+<body dir="ltr">
 
 {% vite_hmr_client %}
-{% vite_asset '/bcrhp/static/build/js/views/root.js'%}
+{% vite_asset '/bcrhp/static/build/js/views/root_vue.js'%}
 <div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
 
 <div

@@ -1,7 +1,5 @@
 // // add the beginning of your app entry
-import 'vite/modulepreload-polyfill';
-// import createVueApplication from '@/bcrhp/create-vue-application.ts';
-// import createVueApplication from 'arches/arches/app/media/js/utils/create-vue-application';
+// import 'vite/modulepreload-polyfill';
 import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
@@ -49,9 +47,6 @@ const BCGovPreset = definePreset(Aura, {
                 color: '{gray.50}',
                 formField: {
                     hoverBorderColor: '{primary.color}',
-                },
-                button: {
-                    primary: 'red',
                 },
             },
             dark: {
@@ -117,9 +112,9 @@ const BCGovPreset = definePreset(Aura, {
         },
     },
 });
-//
+
 document.addEventListener('DOMContentLoaded', function () {
-    fetch(`http://localhost/${arches.urls.api_get_frontend_i18n_data}`)
+    fetch(arches.urls.api_get_frontend_i18n_data)
         .then(function (resp) {
             if (!resp.ok) {
                 throw new Error(resp.statusText);
@@ -154,14 +149,5 @@ document.addEventListener('DOMContentLoaded', function () {
             vueApp.directive('tooltip', Tooltip);
             vueApp.use(router);
             vueApp.mount('#bcrhp-mounting-point');
-            // createVueApplication(BCRHPApp, {
-            //     theme: {
-            //         preset: BCGovPreset,
-            //     },
-            // }).then((vueApp) => {
-            //     vueApp.use(router);
-            //     vueApp.mount('#bcrhp-mounting-point');
-            //     //Your code here
-            // });
         });
 });
