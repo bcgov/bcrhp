@@ -28,9 +28,9 @@ export default defineConfig({
         alias: [
             {
                 // This is to get out of the webpack/requireJS ecosystem
-                find: /^.*\/root.js$/,
+                find: /^.*\/root_vue.js$/,
                 replacement: path.resolve(
-                    path.join(appRoot, 'bcrhp', 'src', 'root.js'),
+                    path.join(appRoot, 'bcrhp', 'src', 'root_vue.js'),
                 ),
             },
             {
@@ -170,7 +170,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 // main: path.resolve('./bcrhp/media/js/views/root.js'),
-                main: path.resolve('./bcrhp/src/root.js'),
+                main: path.resolve('./bcrhp/src/root_vue.js'),
+                // main: path.resolve('./bcrhp/src/root.js'),
                 // main_css: path.resolve('./bcrhp/media/css/output.css'),
             },
             output: {
