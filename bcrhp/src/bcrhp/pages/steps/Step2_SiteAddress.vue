@@ -26,6 +26,7 @@ let currentCivicAddress: CivicAddress = getCivicAddress();
 let currentLegalDescription: LegalDescription = getLegalDescription();
 // This is needed to access the IPA Data in methods? The above appears to be undefined after mounting.
 const civicAddressRef: Ref<CivicAddress> = ref(currentCivicAddress);
+const legalDescriptionRef: Ref<LegalDescription> = ref(currentLegalDescription);
 
 type FormErrors = Partial<Record<keyof CivicAddress, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
@@ -39,6 +40,8 @@ const fields = {
     postalCodeField: useTemplateRef('postalCodeField'),
     locationDescriptionField: useTemplateRef('locationDescriptionField'),
     localityField: useTemplateRef('localityField'),
+};
+const legalDescriptionFields = {
     parcelIdField: useTemplateRef('parcelIdField'),
     legalAddressField: useTemplateRef('legalAddressField'),
 };
@@ -55,7 +58,16 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
+        console.log(field);
+        valid =
+            validateAddressField(field?.value.$el as HTMLInputElement) && valid;
+    }
+    for (const field of Object.values(legalDescriptionFields) as Array<Ref>) {
+        console.log(field);
+        valid =
+            validateLegalDescriptionField(
+                field?.value.$el as HTMLInputElement,
+            ) && valid;
     }
     return valid;
 };
@@ -66,7 +78,7 @@ const valueUpdated = function (value: string | undefined) {
 
 const valueChanged = function (event: Event) {
     console.log(`valueChanged`);
-    validateField(event.target as HTMLInputElement);
+    validateAddressField(event.target as HTMLInputElement);
 };
 
 const onFocusHandler = function (event: Event) {
@@ -76,16 +88,58 @@ const onFocusHandler = function (event: Event) {
 
 const onFocusOutHandler = function (event: Event) {
     console.log(`onFocusOutHandler`);
-    validateField(event.target as HTMLInputElement);
+    validateAddressField(event.target as HTMLInputElement);
     // (event.target as HTMLInputElement).classList.remove("p-invalid");
 };
 
-const validateField = function (field: HTMLInputElement) {
+const legalAddressValueUpdated = function (value: string | undefined) {
+    console.log(`valueUpdated: ${value}`);
+};
+
+const legalAddressValueChanged = function (event: Event) {
+    console.log(`valueChanged`);
+    validateLegalDescriptionField(event.target as HTMLInputElement);
+};
+
+const legalAddressOnFocusHandler = function (event: Event) {
+    console.log(`onFocusHandler ${event}`);
+    // (event.target as HTMLInputElement).classList.remove("p-invalid");
+};
+
+const legalAddressOnFocusOutHandler = function (event: Event) {
+    console.log(`onFocusOutHandler`);
+    validateLegalDescriptionField(event.target as HTMLInputElement);
+    // (event.target as HTMLInputElement).classList.remove("p-invalid");
+};
+
+const validateAddressField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
+
     const key: keyof CivicAddress = field.id as keyof CivicAddress;
     const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
         civicAddressRef.value[key],
     );
+
+    if (fieldValidation.success) {
+        field.classList.remove('p-invalid');
+        errors.value[key] = [];
+    } else {
+        field.classList.add('p-invalid');
+        errors.value[key] = (
+            fieldValidation.error as ZodError
+        ).flatten().formErrors;
+    }
+    return fieldValidation.success;
+};
+
+const validateLegalDescriptionField = function (field: HTMLInputElement) {
+    console.log(`ID: ${field.id}`);
+
+    const key: keyof LegalDescription = field.id as keyof LegalDescription;
+    const fieldValidation = requiredLegalDescriptionSchema.shape[key].safeParse(
+        legalDescriptionRef.value[key],
+    );
+
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
         errors.value[key] = [];
@@ -278,10 +332,10 @@ onMounted(() => {});
                         aria-required="true"
                         fluid
                         class="inline-block"
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="legalAddressValueChanged"
+                        @focus="legalAddressOnFocusHandler"
+                        @focusout="legalAddressOnFocusOutHandler"
+                        @update:model-value="legalAddressValueUpdated"
                     />
                     <Button
                         id="validateParcel"
@@ -323,10 +377,10 @@ onMounted(() => {});
                     :disabled="currentLegalDescription.overrideLegalDescription"
                     aria-describedby="legal-address-help"
                     fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:modelValue="valueUpdated"
+                    @change="legalAddressValueChanged"
+                    @focus="legalAddressOnFocusHandler"
+                    @focusout="legalAddressOnFocusOutHandler"
+                    @update:modelValue="legalAddressValueUpdated"
                 />
             </LabelledInput>
         </FieldSet>

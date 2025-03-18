@@ -6,13 +6,12 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import FileUpload from 'primevue/fileupload';
 import RadioButton from 'primevue/radiobutton';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import Editor from 'primevue/editor';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import LabelledInput from './LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
@@ -20,13 +19,11 @@ const heritageSiteRef: Ref<HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-let otherName = '';
-// const otherNames = ref(string[]);
-
-// These names need to match the Zog schema
-const eventType = ref();
-const circa = ref();
-
+const ingredient = ref();
+const fields = {
+    documentDescriptionField: useTemplateRef('documentDescriptionField'),
+    submissionNotesField: useTemplateRef('submissionNotesField'),
+};
 const isValid = () => {
     // We don't want to validate fields the first time we show the step
     if (!validateFields) {
@@ -64,7 +61,7 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof HeritageSite = field.id as keyof HeritageSite;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
+    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
@@ -79,22 +76,6 @@ const validateField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const addChronologyNotes = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
-};
-
-const addArchitectOrBuilderNotes = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
-};
-const addURL = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
-};
 const onAdvancedUpload = function (event) {};
 
 let validateFields = false;
@@ -166,10 +147,10 @@ onMounted(() => {});
                         >
                             <div class="p-inputtext-fluid">
                                 <InputText
-                                    id="startYear"
-                                    ref="startYearField"
-                                    v-model="heritageSite.startYear"
-                                    aria-describedby="start-year-help"
+                                    id="documentDescription"
+                                    ref="documentDescriptionField"
+                                    v-model="heritageSite.documentDescription"
+                                    aria-describedby="document-description-help"
                                     aria-required="true"
                                     fluid
                                     @change="valueChanged"
@@ -194,10 +175,10 @@ onMounted(() => {});
             hint="Enter any additional remarks about the site submission"
         >
             <div class="p-inputtext-fluid">
-                <QuillEditor
+                <Editor
                     id="submissionNotes"
                     ref="submissionNotesField"
-                    v-model:content="heritageSite.heritageValue"
+                    v-model="heritageSite.submissionNotes"
                     theme="snow"
                     aria-describedby="submission-notes-help"
                     fluid

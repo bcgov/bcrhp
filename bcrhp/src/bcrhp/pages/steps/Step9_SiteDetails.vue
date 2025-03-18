@@ -4,13 +4,11 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import LabelledInput from './LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
@@ -24,6 +22,17 @@ let otherName = '';
 // These names need to match the Zog schema
 const eventType = ref();
 const circa = ref();
+
+const fields = {
+    startYearField: useTemplateRef('startYearField'),
+    endYearField: useTemplateRef('endYearField'),
+    chronologyNotesField: useTemplateRef('chronologyNotesField'),
+    architectOrBuilderNameField: useTemplateRef('architectOrBuilderNameField'),
+    architectOrBuilderTypeField: useTemplateRef('architectOrBuilderTypeField'),
+    urlTypeField: useTemplateRef('urlTypeField'),
+    linkTextField: useTemplateRef('linkTextField'),
+    urlField: useTemplateRef('urlField'),
+};
 
 const isValid = () => {
     // We don't want to validate fields the first time we show the step
@@ -62,7 +71,7 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof HeritageSite = field.id as keyof HeritageSite;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
+    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
@@ -398,6 +407,7 @@ onMounted(() => {});
     width: calc(100% - 6.5rem);
     margin-right: 1rem;
 }
+
 .full-width {
     width: 100%;
 }

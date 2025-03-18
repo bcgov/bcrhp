@@ -1,13 +1,21 @@
 import { z } from 'zod';
-import { CivicAddress, CivicAddressSchema } from "@/bcrhp/schema/CivicAddressSchema.ts";
+import {
+    CivicAddress,
+    CivicAddressSchema,
+} from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { boolean } from 'zod';
 
 const HeritageSiteSchema = z.object({
     siteId: z.string().uuid(),
-    bordenNumber: z.string()
-        .min(1, { message: "Borden Number is required." })
-        .refine((value: string) => /^[A-Z][a-z][A-Z][a-z]-[0-9]{1-4}$/.test(value ?? ""), "Invalid Borden Number format."),
-    commonName: z.string().min(1, { message: "Common Name is required." }),
+    bordenNumber: z
+        .string()
+        .min(1, { message: 'Borden Number is required.' })
+        .refine(
+            (value: string) =>
+                /^[A-Z][a-z][A-Z][a-z]-[0-9]{1-4}$/.test(value ?? ''),
+            'Invalid Borden Number format.',
+        ),
+    commonName: z.string().min(1, { message: 'Common Name is required.' }),
     otherNames: z.array(z.string()).max(5),
     civicAddress: z.array(CivicAddressSchema),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
@@ -15,6 +23,7 @@ const HeritageSiteSchema = z.object({
     designationDate: z.array(z.string()).max(12),
     legislativeAct: z.array(z.string()).max(32),
     referenceNumber: z.array(z.string()).max(80),
+    description: z.array(z.string()).max(4000),
     heritageValue: z.array(z.string()).max(4000),
     definingElements: z.array(z.string()).max(4000),
     documentLocation: z.array(z.string()).max(350),
@@ -29,11 +38,15 @@ const HeritageSiteSchema = z.object({
     architectOrBuilderType: z.array(z.string()).max(32),
     urlType: z.array(z.string()).max(250),
     urlText: z.array(z.string()).max(250),
-    url: z.array(z.string()).max(250)
+    linkText: z.array(z.string()).max(250),
+    url: z.array(z.string()).max(250),
+    otherName: z.array(z.string()).max(12),
+    documentDescription: z.array(z.string()).max(250),
+    submissionNotes: z.array(z.string()).max(250),
 });
 
 const requiredHeritageSiteSchema = HeritageSiteSchema.partial({
-    commonName: true
+    commonName: true,
 });
 
 type HeritageSiteType = z.infer<typeof HeritageSiteSchema>;
@@ -44,20 +57,20 @@ function getHeritageSite(): HeritageSiteType {
 
 // @todo - Figure out object state - New/Updated/Deleted
 class HeritageSite implements HeritageSiteType {
-
     constructor() {
         this.siteId = crypto.randomUUID();
-        this.bordenNumber = "";
-        this.commonName = "";
+        this.bordenNumber = '';
+        this.commonName = '';
         this.otherNames = [];
         this.hasCivicAddress = true;
         this.civicAddress = {}; // Object of UUID -> CivicAddress objects
         this.siteBoundary = {};
         this.siteBoundaryIncorrect = false;
-        this.designationDate = ''
+        this.designationDate = '';
         this.legislativeAct = '';
         this.showInactiveHistoricActs = false;
         this.referenceNumber = '';
+        this.description = '';
         this.heritageValue = '';
         this.definingElements = '';
         this.documentLocation = '';
@@ -73,6 +86,9 @@ class HeritageSite implements HeritageSiteType {
         this.urlType = '';
         this.linkText = '';
         this.url = '';
+        this.otherName = '';
+        this.documentDescription = '';
+        this.submissionNotes = '';
     }
     siteId: string;
     bordenNumber: string;
@@ -83,9 +99,10 @@ class HeritageSite implements HeritageSiteType {
     siteBoundary: object;
     siteBoundaryIncorrect: boolean;
     designationDate: string;
-    legislativeAct: string
+    legislativeAct: string;
     showInactiveHistoricActs: boolean;
     referenceNumber: string;
+    description: string;
     heritageValue: string;
     definingElements: string;
     documentLocation: string;
@@ -101,8 +118,10 @@ class HeritageSite implements HeritageSiteType {
     urlType: string;
     linkText: string;
     url: string;
+    otherName: string;
+    documentDescription: string;
+    submissionNotes: string;
 }
-
 
 console.log(requiredHeritageSiteSchema);
 
