@@ -12,8 +12,39 @@ from bcrhp.util.borden_number_api import BordenNumberApi
 from bcrhp.util.business_data_proxy import LegislativeActDataProxy
 from arches.app.models import models
 from bcrhp.util.mvt_tiler import MVTTiler
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
+
+DUMMY_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ArchesUrls(APIBase):
+    def get(self, request):
+        api_urls = {
+            "api_card": reverse(
+                "api_card",
+                kwargs={"resourceid": DUMMY_UUID},
+            ).replace(DUMMY_UUID, ""),
+            "api_tiles": reverse("api_tiles", kwargs={"tileid": DUMMY_UUID}).replace(
+                DUMMY_UUID, ""
+            ),
+            # "api_nodegroup": ('(nodegroupid)=>{ return "{% url "api_nodegroup' '" " aaaaaaaa - aaaa - aaaa - aaaa - aaaaaaaaaaaa " %}".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodegroupid); }'),
+            # "api_nodes": '(nodeid)=>{ return "{% url " api_nodes " " aaaaaaaa - aaaa - aaaa - aaaa - aaaaaaaaaaaa " %}".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodeid); }',
+            "api_node_value": reverse("api_node_value"),
+            "api_bulk_disambiguated_resource_instance": reverse(
+                "api_bulk_disambiguated_resource_instance"
+            ),
+            # "api_resources": '(resourceid)=>{return "{% url "resources" "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" %}".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", resourceid)}'
+            "api_search_component_data": reverse(
+                "api_search_component_data", kwargs={"componentname": None}
+            ),
+            "api_user_incomplete_workflows": reverse("api_user_incomplete_workflows"),
+            "api_get_frontend_i18n_data": reverse("get_frontend_i18n_data"),
+        }
+
+        return JSONResponse(JSONSerializer().serializeToPython(api_urls))
 
 
 @method_decorator(csrf_exempt, name="dispatch")

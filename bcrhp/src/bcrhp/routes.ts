@@ -1,30 +1,31 @@
-import type { RouteNamesType } from "@/bcgov_arches_common/routes.ts";
-export const routes = [
+import type { RouteNamesType } from '@/bcgov_arches_common/routes.ts';
+const dev_mode = true;
+const routes = [
     {
-        path: "/bcrhp/submissions/",
-        name: "root",
-        component: () => import("@/bcrhp/pages/Submissions.vue"),
+        path: '/bcrhp/submissions/',
+        name: 'root',
+        component: () => import('@/bcrhp/pages/Submissions.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     {
-        path: "/bcrhp/submissions/new-site/",
-        name: "newSite",
-        component: () => import("@/bcrhp/pages/NewSite.vue"),
+        path: '/bcrhp/submissions/new-site/',
+        name: 'newSite',
+        component: () => import('@/bcrhp/pages/NewSite.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     {
-        path: "/bcrhp/submissions/update-site/",
-        name: "updateSite",
-        component: () => import("@/bcrhp/pages/UpdateSite.vue"),
+        path: '/bcrhp/submissions/update-site/',
+        name: 'updateSite',
+        component: () => import('@/bcrhp/pages/UpdateSite.vue'),
         meta: {
             shouldShowNavigation: true,
-            requiresAuthentication: true,
+            requiresAuthentication: !dev_mode,
         },
     },
     // {
@@ -85,20 +86,21 @@ export const routes = [
     // },
 ];
 
-type BCRHPRouteNamesType = RouteNamesType &
-{
-    newSite: string,
-    updateSite: string
-}
+type BCRHPRouteNamesType = RouteNamesType & {
+    newSite: string;
+    updateSite: string;
+};
 
-export const routeNames: BCRHPRouteNamesType = {
-    home: "root",
-    login: "login",
-    newSite: "newSite",
-    updateSite: "updateSite",
+const routeNames: BCRHPRouteNamesType = {
+    home: 'root',
+    login: 'login',
+    newSite: 'newSite',
+    updateSite: 'updateSite',
     // search: "search",
     // advancedSearch: "advanced-search",
     // schemes: "schemes",
     // concept: "concept",
     // scheme: "scheme",
 };
+export { routes, routeNames };
+export type { BCRHPRouteNamesType };

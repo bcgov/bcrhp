@@ -1,8 +1,13 @@
-@import url("node_modules/bcgov_arches_common/bcgov_arches_common/media/css/project.css");
-@import "map_legend.css";
-@import "../fontawesome/css/fontawesome.min.css";
-@import "../fontawesome/css/solid.min.css";
-@import "resource_details.css";
+@import url("bcgov_arches_common/bcgov_arches_common/media/css/project.css");
+@import url("./map_legend.css");
+@import url("./resource_details.css");
+@import url("tailwindcss");
+@import url("tailwindcss-primeui");
+
+.header-link {
+    color: white;
+    font-size: 0.8rem;
+}
 
 .card_component.start_year, .card_component.end_year, .card_component.dates_approximate {
     display: inline-block;
@@ -16,6 +21,68 @@
     width: 350px;
 }
 
+.p-fieldset {
+    border: solid thin #999;
+    margin: 1rem 0;
+    padding: 0 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.p-fieldset-legend {
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-top: -.6rem;
+    margin-left: 1rem;
+    padding: 0 .5rem;
+    width: fit-content;
+}
+
+.p-radiobutton {
+    align-self: start;
+    margin-right: .5rem;
+}
+
+.bcgov-vertical-step-panels {
+    max-width: calc(100% - 200px);
+}
+
+.ql-container {
+    background-color: #fff;
+}
+
+.p-inputtext-fluid.inline-block {
+    width: calc(100% - 6.5rem);
+    margin-right: 1rem;
+    vertical-align: top;
+    align-self: start;
+}
+
+.inline-block {
+    vertical-align: top;
+}
+
+.p-checkbox {
+    vertical-align: top;
+    margin-right: .5rem;
+}
+
+.stepper-nav-panel {
+    background: var(--p-panel-background);
+    display: flex;
+    height: 50px;
+    align-items: flex-start;
+    margin-top: .25rem;
+    justify-content: space-between;
+    width: calc(100% - 2rem);
+}
+
+.p-fileupload-advanced {
+    max-width: 350px;
+}
+
+.next-button {
+  right: 1rem;
+}
 .card_component.pin::before {
     content: "or" !important;
     position: relative;

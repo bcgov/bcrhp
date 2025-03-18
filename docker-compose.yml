@@ -18,6 +18,7 @@ services:
       - 5688:5678
       - 80:80
       - 443:443
+      - 5173:5173
     stdin_open: true
     tty: true
 

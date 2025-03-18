@@ -202,11 +202,42 @@ INSTALLED_APPS = (
     "django_celery_results",
     # "compressor",
     # "silk",
+    "django_vite",
     "storages",
     "bcrhp",
     "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app",)
+
+DJANGO_VITE = {
+  "default": {
+    "dev_mode": True,
+     # "static_url_prefix": "/bcrhp/static",
+     "static_url_prefix": "/",
+  }
+}
+
+# django_vite SETTINGS
+BASE_DIR="/web_root/bcrhp/bcrhp/src"
+# Where ViteJS assets are built.
+DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR , "staticfiles" , "dist")
+# If use HMR or not.
+# DJANGO_VITE_DEV_MODE = DEBUG
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+# END django_vite SETTINGS
+
+
+# TODO - REMOVE THIS?
+# Name of static files folder (after called python manage.py collectstatic)
+STATIC_ROOT = os.path.join(BASE_DIR , "staticfiles")
+## END TODO
+
+# Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
+# when run command python manage.py collectstatic
+# STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
+
 
 ROOT_HOSTCONF = "bcrhp.hosts"
 DEFAULT_HOST = "bcrhp"
@@ -246,6 +277,8 @@ MIDDLEWARE.append(  # this must resolve last MIDDLEWARE entry
 )
 
 STATICFILES_DIRS = build_staticfiles_dirs(app_root=APP_ROOT)
+print(STATICFILES_DIRS)
+STATICFILES_DIRS += (DJANGO_VITE_ASSETS_PATH,)
 
 TEMPLATES = build_templates_config(
     debug=DEBUG,
