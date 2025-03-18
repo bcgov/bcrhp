@@ -36,11 +36,11 @@ load_dotenv(
     os.path.join(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0], ".env")
 )
 APP_NAME = "bcrhp"
-APP_VERSION = semantic_version.Version(major=1, minor=3, patch=1)
+APP_VERSION = semantic_version.Version(major=1, minor=3, patch=0)
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 # PROXY prefix used - NB - cannot have leading "/", and must have trailing "/"
-BCGOV_PROXY_PREFIX = get_env_variable("BCGOV_PROXY_PREFIX")
+BCGOV_PROXY_PREFIX = "bcrhp/"
 
 WEBPACK_LOADER = {
     "DEFAULT": {
@@ -55,7 +55,7 @@ SEARCH_COMPONENT_LOCATIONS.append("bcrhp.search_components")
 
 LOCALE_PATHS.insert(0, os.path.join(APP_ROOT, "locale"))
 
-FILE_TYPE_CHECKING = "Lenient"
+FILE_TYPE_CHECKING = False
 FILE_TYPES = [
     "bmp",
     "gif",
@@ -79,16 +79,16 @@ UPLOADED_FILES_DIR = "uploadedfiles"
 SECRET_KEY = get_env_variable("DJANGO_SECRET_KEY")
 
 # options are either "PROD" or "DEV" (installing with Dev mode set gets you extra dependencies)
-MODE = get_env_variable("DJANGO_MODE")
+MODE = "DEV"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ast.literal_eval(get_env_variable("DJANGO_DEBUG"))
+DEBUG = True
 
 ROOT_URLCONF = "bcrhp.urls"
 
-ELASTICSEARCH_SCHEME = get_env_variable("ES_SCHEME")
-ELASTICSEARCH_HTTP_PORT = int(get_env_variable("ES_PORT"))
-ELASTICSEARCH_HTTP_HOST = get_env_variable("ES_HOST")
+ELASTICSEARCH_SCHEME = "http"
+ELASTICSEARCH_HTTP_PORT = 9200
+ELASTICSEARCH_HTTP_HOST = "localhost"
 ELASTICSEARCH_HOSTS = [
     {
         "scheme": ELASTICSEARCH_SCHEME,
@@ -117,8 +117,8 @@ ELASTICSEARCH_HOSTS = [
 # ELASTICSEARCH_HOSTS = [{"scheme": "https", "host": ELASTICSEARCH_HTTP_HOST, "port": ELASTICSEARCH_HTTP_PORT}]
 #
 # # How do we handle this across environments?
-ELASTICSEARCH_CERT_LOCATION = get_env_variable("ES_CERT_FILE")
-ELASTICSEARCH_API_KEY = get_env_variable("ES_API_KEY")
+ELASTICSEARCH_CERT_LOCATION = ""
+ELASTICSEARCH_API_KEY = ""
 #
 # # # If you need to connect to Elasticsearch via an API key instead of username/password, use the syntax below:
 if ELASTICSEARCH_CERT_LOCATION and ELASTICSEARCH_API_KEY:
@@ -129,7 +129,7 @@ if ELASTICSEARCH_CERT_LOCATION and ELASTICSEARCH_API_KEY:
         "ca_certs": ELASTICSEARCH_CERT_LOCATION,
     }
 # a prefix to append to all elasticsearch indexes, note: must be lower case
-ELASTICSEARCH_PREFIX = "bcrhp" + get_env_variable("APP_SUFFIX")
+ELASTICSEARCH_PREFIX = "bcrhp"
 
 ELASTICSEARCH_CUSTOM_INDEXES = []
 # [{
@@ -148,7 +148,7 @@ LOAD_PACKAGE_ONTOLOGIES = True
 # This is the namespace to use for export of data (for RDF/XML for example)
 # It must point to the url where you host your site
 # Make sure to use a trailing slash
-PUBLIC_SERVER_ADDRESS = get_env_variable("PUBLIC_SERVER_ADDRESS")
+PUBLIC_SERVER_ADDRESS = "http://localhost:8000/bcrhp"
 
 ARCHES_NAMESPACE_FOR_DATA_EXPORT = PUBLIC_SERVER_ADDRESS
 
@@ -158,30 +158,28 @@ DATABASES = {
         "AUTOCOMMIT": True,
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "HOST": get_env_variable("PGHOST"),
-        "NAME": get_env_variable("PGDBNAME"),
+        "HOST": "localhost",
+        "NAME": "bcrhp",
         "OPTIONS": {},
-        "PASSWORD": get_env_variable("PGPASSWORD"),
+        "PASSWORD": "postgis",
         "PORT": "5432",
         "POSTGIS_TEMPLATE": "template_postgis",
         "TEST": {"CHARSET": None, "COLLATION": None, "MIRROR": None, "NAME": None},
         "TIME_ZONE": None,
-        "USER": get_env_variable("PGUSERNAME"),
-        "DATABC_USER": get_env_variable("DATABC_USERNAME"),
-        "DATABC_PASSWORD": get_env_variable(
-            "DATABC_PASSWORD", is_optional=True
-        ),  # This is only required for initial deployment
+        "USER": "postgres",
+        "DATABC_USER": "proxy_databc",
+        "DATABC_PASSWORD": "proxy_databc_password",
     }
 }
 
-HRIA_DATABASE = {
-    "USER": get_env_variable("HRIADB_USER"),
-    "PASSWORD": get_env_variable("HRIADB_PASSWORD"),
-    "HOST": get_env_variable("HRIADB_HOST"),
-    "PORT": get_env_variable("HRIADB_PORT"),
-    "SERVICE_NAME": get_env_variable("HRIADB_SERVICE_NAME"),
-    "APPLICATION_USER": get_env_variable("HRIADB_APPLICATION_USER"),
-}
+# HRIA_DATABASE = {
+#     "USER": get_env_variable("HRIADB_USER"),
+#     "PASSWORD": get_env_variable("HRIADB_PASSWORD"),
+#     "HOST": get_env_variable("HRIADB_HOST"),
+#     "PORT": get_env_variable("HRIADB_PORT"),
+#     "SERVICE_NAME": get_env_variable("HRIADB_SERVICE_NAME"),
+#     "APPLICATION_USER": get_env_variable("HRIADB_APPLICATION_USER"),
+# }
 
 SEARCH_THUMBNAILS = False
 
@@ -206,49 +204,22 @@ INSTALLED_APPS = (
     "django_celery_results",
     # "compressor",
     # "silk",
-    "django_vite",
     "storages",
     "bcrhp",
     "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app",)
 
-DJANGO_VITE = {
-  "default": {
-    "dev_mode": True,
-     # "static_url_prefix": "/bcrhp/static",
-     "static_url_prefix": "/",
-  }
-}
-
-# django_vite SETTINGS
-BASE_DIR="/web_root/bcrhp/bcrhp/src"
-# Where ViteJS assets are built.
-DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR , "staticfiles" , "dist")
-# If use HMR or not.
-# DJANGO_VITE_DEV_MODE = DEBUG
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-# END django_vite SETTINGS
-
-
-# TODO - REMOVE THIS?
-# Name of static files folder (after called python manage.py collectstatic)
-STATIC_ROOT = os.path.join(BASE_DIR , "staticfiles")
-## END TODO
-
-# Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
-# when run command python manage.py collectstatic
-# STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
-
-
 ROOT_HOSTCONF = "bcrhp.hosts"
 DEFAULT_HOST = "bcrhp"
 
 AUTHENTICATION_BACKENDS = (
+    # "arches.app.utils.email_auth_backend.EmailAuthenticationBackend", #Comment out for IDIR
     "oauth2_provider.backends.OAuth2Backend",
-    "django.contrib.auth.backends.ModelBackend",
+    "bcrhp.util.external_oauth_backend.ExternalOauthAuthenticationBackend",
+    # "django.contrib.auth.backends.ModelBackend",  # this is default # Comment out for IDIR
+    # "django.contrib.auth.backends.RemoteUserBackend",
+    # "bcrhp.util.auth.backends.BCGovRemoteUserBackend",  # For IDIR authentication behind legacy siteminder
     "guardian.backends.ObjectPermissionBackend",
     "arches.app.utils.permission_backend.PermissionBackend",
 )
@@ -265,7 +236,8 @@ MIDDLEWARE = [
     "arches.app.utils.middleware.ModifyAuthorizationHeader",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "bcgov_arches_common.util.auth.oauth_token_refresh.OAuthTokenRefreshMiddleware",
+    # "bcrhp.util.auth.middleware.SiteminderMiddleware",
+    # "bcrhp.util.auth.auth_required_middleware.AuthRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "arches.app.utils.middleware.SetAnonymousUser",
@@ -281,15 +253,13 @@ MIDDLEWARE.append(  # this must resolve last MIDDLEWARE entry
 )
 
 STATICFILES_DIRS = build_staticfiles_dirs(app_root=APP_ROOT)
-print(STATICFILES_DIRS)
-STATICFILES_DIRS += (DJANGO_VITE_ASSETS_PATH,)
 
 TEMPLATES = build_templates_config(
     debug=DEBUG,
     app_root=APP_ROOT,
 )
 
-ALLOWED_HOSTS = get_env_variable("ALLOWED_HOSTS").split()
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 SYSTEM_SETTINGS_LOCAL_PATH = os.path.join(
     APP_ROOT, "system_settings", "System_Settings.json"
@@ -304,7 +274,7 @@ MEDIA_URL = "/files/"
 MEDIA_ROOT = os.path.join(APP_ROOT)
 
 # when hosting Arches under a sub path set this value to the sub path eg : "/{sub_path}/"
-FORCE_SCRIPT_NAME = get_env_variable("FORCE_SCRIPT_NAME")
+FORCE_SCRIPT_NAME = ""
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -366,14 +336,14 @@ RATE_LIMIT = "5/m"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640
 
 # Unique session cookie ensures that logins are treated separately for each app
-SESSION_COOKIE_NAME = "bcrhp" + get_env_variable("APP_SUFFIX")
+SESSION_COOKIE_NAME = "bcrhp"
 
 
 # For more info on configuring your cache: https://docs.djangoproject.com/en/2.2/topics/cache/
 CACHES = {
     "default": {
-        "BACKEND": get_env_variable("CACHE_BACKEND"),
-        "LOCATION": get_env_variable("CACHE_BACKEND_LOCATION", is_optional=True),
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        "LOCATION": "",
     },
     "user_permission": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
@@ -401,33 +371,26 @@ TILE_CACHE_TIMEOUT = 600  # seconds
 CLUSTER_DISTANCE_MAX = 20000  # meters
 GRAPH_MODEL_CACHE_TIMEOUT = None
 
-# We are using a fork of the Arches Core and not publishing to PyPi so this needs to be silenced
-SILENCED_SYSTEM_CHECKS = ["arches.E002"]
-
-OAUTH_CLIENT_ID = ""  #'9JCibwrWQ4hwuGn5fu2u1oRZSs9V6gK8Vu8hpRC4'
+OAUTH_CLIENT_ID = ""
 
 
-AUTHLIB_OAUTH_CLIENTS = {
-    "default": {
-        "auth_required": False,
-        "client_id": get_env_variable("OAUTH_CLIENT_ID"),
-        "client_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
-        "authorize_url": get_env_variable("OAUTH_AUTH_ENDPOINT"),
-        "access_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
-        "refresh_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
-        "server_metadata_url": get_env_variable("OAUTH_SERVER_METADATA_URL"),
-        "client_kwargs": {
-            "scope": "openid profile email",
-            "token_endpoint_auth_method": "client_secret_post",
-        },
-        "urls": {
-            "home_page": "/bcrhp/search",
-            "unauthorized_page": "/bcrhp/unauthorized",
-            "unauthorized_template": "unauthorized.htm",
-            "auth_exempt_pages": [],
-        },
-    }
-}
+# EXTERNAL_OAUTH_CONFIGURATION = {
+#     # these groups will be assigned to OAuth authenticated users on their first login
+#     # "default_user_groups": ["Guest", "Resource Exporter"],
+#     # claim to be used to assign arches username from
+#     "uid_claim": "preferred_username",
+#     # application ID and secret assigned to your arches application
+#     "app_id": get_env_variable("OAUTH_CLIENT_ID"),
+#     "app_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
+#     # provider scopes must at least give Arches access to openid, email and profile
+#     "scopes": ["openid", "profile", "email"],
+#     # authorization, token and jwks URIs must be configured for your provider
+#     "authorization_endpoint": get_env_variable("OAUTH_AUTH_ENDPOINT"),
+#     "token_endpoint": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
+#     "jwks_uri": get_env_variable("OAUTH_JWKS_URI"),
+#     # enforces token validation on authentication, AVOID setting this to False,
+#     "validate_id_token": True,
+# }
 
 APP_TITLE = "BC Government | Historic Place Inventory"
 COPYRIGHT_TEXT = "All Rights Reserved."
@@ -439,11 +402,9 @@ ENABLE_CAPTCHA = False
 # RECAPTCHA_USE_SSL = False
 NOCAPTCHA = True
 # RECAPTCHA_PROXY = 'http://127.0.0.1:8000'
+if DEBUG is True:
+    SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 
-# We're not using this
-SILENCED_SYSTEM_CHECKS.append(
-    "captcha.recaptcha_test_key_error"
-)
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  #<-- Only need to uncomment this for testing without an actual email server
 # EMAIL_USE_TLS = True
@@ -455,18 +416,16 @@ EMAIL_HOST_USER = "BCHistoricPlacesRegister@gov.bc.ca"
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-CELERY_WORKER_NAME = get_env_variable("CELERY_WORKER_NAME")
-CELERY_BROKER_URL = get_env_variable(
-    "CELERY_BROKER_URL"
-)  # RabbitMQ --> "amqp://guest:guest@localhost",  Redis --> "redis://localhost:6379/0"
+CELERY_WORKER_NAME = "bcrhp_dev"
+CELERY_BROKER_URL = ""
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_RESULT_BACKEND = (
     "django-db"  # Use 'django-cache' if you want to use your cache as your backend
 )
 CELERY_TASK_SERIALIZER = "json"
 
-CELERY_SEARCH_EXPORT_EXPIRES = 24 * 3600  # seconds
-CELERY_SEARCH_EXPORT_CHECK = 3600  # seconds
+# CELERY_SEARCH_EXPORT_EXPIRES = 24 * 3600  # seconds
+# CELERY_SEARCH_EXPORT_CHECK = 3600  # seconds
 
 CELERY_BEAT_SCHEDULE = {
     "delete-expired-search-export": {
@@ -609,14 +568,14 @@ STORAGES = {
     },
 }
 
-AWS_STORAGE_BUCKET_NAME = get_env_variable("S3_BUCKET")
-AWS_ACCESS_KEY_ID = get_env_variable("S3_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = get_env_variable("S3_SECRET_ACCESS_KEY")
-AWS_S3_ENDPOINT_URL = "https://nrs.objectstore.gov.bc.ca/"
-S3_URL = AWS_S3_ENDPOINT_URL
+# AWS_STORAGE_BUCKET_NAME = get_env_variable("S3_BUCKET")
+# AWS_ACCESS_KEY_ID = get_env_variable("S3_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = get_env_variable("S3_SECRET_ACCESS_KEY")
+# AWS_S3_ENDPOINT_URL = "https://nrs.objectstore.gov.bc.ca/"
+# S3_URL = AWS_S3_ENDPOINT_URL
 # We want media to be accessed through the arches app not directly from S3
 # MEDIA_URL = AWS_S3_ENDPOINT_URL
-AWS_S3_PROXIES = {"https": get_env_variable("S3_PROXIES")}
+# AWS_S3_PROXIES = {"https": get_env_variable("S3_PROXIES")}
 
 # CSRF_TRUSTED_ORIGINS = ["https://{{ arches_url_hostname }}"]
 
@@ -632,11 +591,11 @@ BC_TILESERVER_URLS = {
     "local": "http://localhost:7800/",
 }
 
-AUTH_BYPASS_HOSTS = get_env_variable("AUTH_BYPASS_HOSTS")
+AUTH_BYPASS_HOSTS = ""
 AUTH_NOACCESS_URL = "https://www2.gov.bc.ca/gov/content/governments/celebrating-british-columbia/historic-places/"
 
 # Need to use an outbound proxy as route to tile servers is blocked by firewall
-TILESERVER_OUTBOUND_PROXY = get_env_variable("TILESERVER_OUTBOUND_PROXY")
+TILESERVER_OUTBOUND_PROXY = ""
 # END Tileserver proxy configuration
 
 DATE_FORMATS = {
