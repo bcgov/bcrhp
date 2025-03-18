@@ -17,13 +17,12 @@ import {
 } from '@/bcgov_arches_common/constants.ts';
 
 import { routeNames } from '@/bcrhp/routes.ts';
-import { fetchUser } from '@/bcrhp/api.ts';
+import { fetchUser, setUrlPrefix } from '@/bcgov_arches_common/api.ts';
 import PageHeader from '@/bcgov_arches_common/components/header/PageHeader.vue';
 import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 
 import type { Ref } from 'vue';
-import type { Language } from '@/bcgov_arches_common/types';
-import type { User } from '@/bcgov_arches_common/types';
+import type { Language, User } from '@/bcgov_arches_common/types.ts';
 
 const user = ref<User | null>(null);
 const setUser = (userToSet: User | null) => {
@@ -41,15 +40,13 @@ const route = useRoute();
 const toast = useToast();
 const { $gettext } = useGettext();
 
+// @todo - Get this from config
+setUrlPrefix('http://localhost/bcrhp');
+
 router.beforeEach(async (to, _from, next) => {
     try {
-        // let userData = await fetchUser();
-        // setUser(userData);
-        setUser({
-            first_name: 'Brett',
-            last_name: 'Ferguson',
-            username: 'bferguso@idir',
-        });
+        let userData = await fetchUser();
+        setUser(userData);
 
         const requiresAuthentication = to.matched.some(
             (record) => record.meta.requiresAuthentication,
