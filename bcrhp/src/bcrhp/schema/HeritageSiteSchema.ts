@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CivicAddress, CivicAddressSchema } from "@/bcrhp/schema/CivicAddressSchema.ts";
+import { boolean } from 'zod';
 
 const HeritageSiteSchema = z.object({
     siteId: z.string().uuid(),
@@ -11,6 +12,24 @@ const HeritageSiteSchema = z.object({
     civicAddress: z.array(CivicAddressSchema),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
     siteBoundaryIncorrect: z.boolean().default(false), // If the geometry from the PID isn't right this flags it
+    designationDate: z.array(z.string()).max(12),
+    legislativeAct: z.array(z.string()).max(32),
+    referenceNumber: z.array(z.string()).max(80),
+    heritageValue: z.array(z.string()).max(4000),
+    definingElements: z.array(z.string()).max(4000),
+    documentLocation: z.array(z.string()).max(350),
+    numberOfResources: z.array(z.string()).max(12),
+    functionCategory: z.array(z.string()).max(12),
+    heritageTheme: z.array(z.string()).max(12),
+    chronologyNotes: z.array(z.string()).max(250),
+    startYear: z.array(z.string()).max(4),
+    endYear: z.array(z.string()).max(4),
+    architectOrBuilderName: z.array(z.string()).max(250),
+    architectOrBuilderNotes: z.array(z.string()).max(250),
+    architectOrBuilderType: z.array(z.string()).max(32),
+    urlType: z.array(z.string()).max(250),
+    urlText: z.array(z.string()).max(250),
+    url: z.array(z.string()).max(250)
 });
 
 const requiredHeritageSiteSchema = HeritageSiteSchema.partial({
@@ -35,6 +54,25 @@ class HeritageSite implements HeritageSiteType {
         this.civicAddress = {}; // Object of UUID -> CivicAddress objects
         this.siteBoundary = {};
         this.siteBoundaryIncorrect = false;
+        this.designationDate = ''
+        this.legislativeAct = '';
+        this.showInactiveHistoricActs = false;
+        this.referenceNumber = '';
+        this.heritageValue = '';
+        this.definingElements = '';
+        this.documentLocation = '';
+        this.numberOfResources = '';
+        this.functionCategory = '';
+        this.heritageTheme = '';
+        this.chronologyNotes = '';
+        this.startYear = '';
+        this.endYear = '';
+        this.architectOrBuilderName = '';
+        this.architectOrBuilderNotes = '';
+        this.architectOrBuilderType = '';
+        this.urlType = '';
+        this.linkText = '';
+        this.url = '';
     }
     siteId: string;
     bordenNumber: string;
@@ -44,6 +82,25 @@ class HeritageSite implements HeritageSiteType {
     civicAddress: object;
     siteBoundary: object;
     siteBoundaryIncorrect: boolean;
+    designationDate: string;
+    legislativeAct: string
+    showInactiveHistoricActs: boolean;
+    referenceNumber: string;
+    heritageValue: string;
+    definingElements: string;
+    documentLocation: string;
+    numberOfResources: string;
+    functionCategory: string;
+    heritageTheme: string;
+    chronologyNotes: string;
+    startYear: string;
+    endYear: string;
+    architectOrBuilderName: string;
+    architectOrBuilderNotes: string;
+    architectOrBuilderType: string;
+    urlType: string;
+    linkText: string;
+    url: string;
 }
 
 
