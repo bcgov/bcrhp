@@ -45,8 +45,12 @@ for pattern in bc_url_resolver.url_patterns:
     # print("After: %s" % pattern.pattern)
 
 urlpatterns = [
-    re_path(bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"),
-    re_path(bc_path_prefix(r"^api/user/"), api_user.UserView.as_view(), name="api_user"),
+    re_path(
+        bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"
+    ),
+    re_path(
+        bc_path_prefix(r"^api/user/"), api_user.UserView.as_view(), name="api_user"
+    ),
     re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),
         BCTileserverProxyView.as_view(),

@@ -214,17 +214,17 @@ INSTALLED_APPS = (
 INSTALLED_APPS += ("arches.app",)
 
 DJANGO_VITE = {
-  "default": {
-    "dev_mode": True,
-     # "static_url_prefix": "/bcrhp/static",
-     "static_url_prefix": "/",
-  }
+    "default": {
+        "dev_mode": True,
+        # "static_url_prefix": "/bcrhp/static",
+        "static_url_prefix": "/",
+    }
 }
 
 # django_vite SETTINGS
-BASE_DIR="/web_root/bcrhp/bcrhp/src"
+BASE_DIR = "/web_root/bcrhp/bcrhp/src"
 # Where ViteJS assets are built.
-DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR , "staticfiles" , "dist")
+DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, "staticfiles", "dist")
 # If use HMR or not.
 # DJANGO_VITE_DEV_MODE = DEBUG
 CORS_ALLOWED_ORIGINS = [
@@ -235,7 +235,7 @@ CORS_ALLOWED_ORIGINS = [
 
 # TODO - REMOVE THIS?
 # Name of static files folder (after called python manage.py collectstatic)
-STATIC_ROOT = os.path.join(BASE_DIR , "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 ## END TODO
 
 # Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
