@@ -8,7 +8,7 @@ import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import LabelledInput from './LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
@@ -66,7 +66,7 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof HeritageSite = field.id as keyof HeritageSite;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
+    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
