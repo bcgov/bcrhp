@@ -7,6 +7,9 @@ const LegalDescriptionSchema = z.object({
         .max(250),
     internalNotes: z.string(),
     overrideAddress: z.boolean().default(false),
+    parcelId: z.string()
+        .min(1, { message: "Parcel Identifier is required." })
+        .max(32)
 });
 
 type LegalDescriptionType = z.infer<typeof LegalDescriptionSchema>;
@@ -25,12 +28,18 @@ class LegalDescription implements LegalDescriptionType {
         this.internalNotes = "";
         this.pid = 0;
         this.pin = 0;
+        this.parcelId = '';
+        this.overrideLegalDescription = false;
+        this.legalAddress = '';
     }
 
     legalDescription: string;
     internalNotes: string;
     pid: number;
     pin: number;
+    parcelId: string;
+    overrideLegalDescription: boolean;
+    legalAddress: string;
 }
 
 
