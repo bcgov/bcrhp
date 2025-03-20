@@ -3,6 +3,10 @@ import {
     CivicAddress,
     CivicAddressSchema,
 } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import {
+    UploadImage,
+    UploadImageSchema,
+} from '@/bcrhp/schema/UploadImageSchema.ts';
 import { boolean } from 'zod';
 
 const HeritageSiteSchema = z.object({
@@ -18,6 +22,7 @@ const HeritageSiteSchema = z.object({
     commonName: z.string().min(1, { message: 'Common Name is required.' }),
     otherNames: z.array(z.string()).max(5),
     civicAddress: z.array(CivicAddressSchema),
+    uploadImage: z.array(UploadImageSchema),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
     siteBoundaryIncorrect: z.boolean().default(false), // If the geometry from the PID isn't right this flags it
     designationDate: z.array(z.string()).max(12),
@@ -64,6 +69,7 @@ class HeritageSite implements HeritageSiteType {
         this.otherNames = [];
         this.hasCivicAddress = true;
         this.civicAddress = {}; // Object of UUID -> CivicAddress objects
+        this.uploadImage = {};
         this.siteBoundary = {};
         this.siteBoundaryIncorrect = false;
         this.designationDate = '';
@@ -96,6 +102,7 @@ class HeritageSite implements HeritageSiteType {
     otherNames: string[];
     hasCivicAddress: boolean;
     civicAddress: object;
+    uploadImage: object;
     siteBoundary: object;
     siteBoundaryIncorrect: boolean;
     designationDate: string;
