@@ -205,7 +205,8 @@ const showPrevious = computed(() => {
                                     :validate-fn="isValid"
                                     @next-click="activateCallback(4)"
                                     @previous-click="activateCallback(2)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -224,7 +225,8 @@ const showPrevious = computed(() => {
                                     :validate-fn="isValid"
                                     @next-click="activateCallback(5)"
                                     @previous-click="activateCallback(3)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -245,7 +247,8 @@ const showPrevious = computed(() => {
                                     :validate-fn="isValid"
                                     @next-click="activateCallback(6)"
                                     @previous-click="activateCallback(4)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -265,7 +268,8 @@ const showPrevious = computed(() => {
                                     next-label="Submit"
                                     @next-click="activateCallback(7)"
                                     @previous-click="activateCallback(5)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -289,7 +293,8 @@ const showPrevious = computed(() => {
                                     next-label="Next"
                                     @next-click="activateCallback(8)"
                                     @previous-click="activateCallback(6)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -311,7 +316,8 @@ const showPrevious = computed(() => {
                                     next-label="Next"
                                     @next-click="activateCallback(9)"
                                     @previous-click="activateCallback(7)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -329,7 +335,8 @@ const showPrevious = computed(() => {
                                     next-label="Next"
                                     @next-click="activateCallback(10)"
                                     @previous-click="activateCallback(8)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -351,7 +358,8 @@ const showPrevious = computed(() => {
                                     next-label="Next"
                                     @next-click="activateCallback(11)"
                                     @previous-click="activateCallback(9)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel
@@ -368,7 +376,8 @@ const showPrevious = computed(() => {
                                     next-label="Submit"
                                     @next-click="activateCallback(12)"
                                     @previous-click="activateCallback(10)"
-                                ></StepperNavigation>
+                                >
+                                </StepperNavigation>
                             </div>
                         </StepPanel>
                         <StepPanel :value="12">

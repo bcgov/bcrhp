@@ -5,22 +5,15 @@ import type { Ref } from 'vue';
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
 import LabelledInput from './LabelledInput.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import type { UploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
+import { getUploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
+import { requiredUploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
 import type { ZodError } from 'zod';
 
-const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
-// const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
-const heritageSiteRef: Ref<HeritageSite> = ref(heritageSite);
-type FormErrors = Partial<Record<keyof HeritageSite, string[]>>;
+const uploadImage: UploadImage = getUploadImage();
+const uploadImageRef: Ref<UploadImage> = ref(uploadImage);
+type FormErrors = Partial<Record<keyof UploadImage, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-let imageType = ref('');
-let imageView = ref('');
-let imageFeatures = ref('');
-let imageDate = ref('');
-let imageDescription = ref('');
-let photographer = ref('');
-let copyright = ref('');
 
 // These names need to match the Zog schema
 const fields = {
@@ -69,9 +62,9 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof HeritageSite = field.id as keyof HeritageSite;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+    const key: keyof UploadImage = field.id as keyof UploadImage;
+    const fieldValidation = requiredUploadImageSchema.shape[key].safeParse(
+        uploadImageRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -87,6 +80,8 @@ const validateField = function (field: HTMLInputElement) {
 
 let validateFields = false;
 
+const onImageUpload = function (event) {};
+
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
@@ -95,6 +90,18 @@ onMounted(() => {});
 </script>
 <template>
     <div class="flex flex-row">
+        <FileUpload
+            name="fileUpload"
+            url="/api/upload"
+            :multiple="true"
+            accept="image/*"
+            :maxFileSize="1000000"
+            @upload="onImageUpload($event)"
+        >
+            <template #empty>
+                <span>Drag and drop files to here to upload.</span>
+            </template>
+        </FileUpload>
         <LabelledInput
             label="Image Type"
             hint="Select Historical or Contemporary image type"
@@ -106,7 +113,7 @@ onMounted(() => {});
                 <InputText
                     id="imageType"
                     ref="imageTypeField"
-                    v-model="imageType"
+                    v-model="uploadImage.imageType"
                     aria-describedby="image-type-help"
                     aria-required="true"
                     fluid
@@ -128,7 +135,7 @@ onMounted(() => {});
                 <InputText
                     id="imageView"
                     ref="imageViewField"
-                    v-model="imageView"
+                    v-model="uploadImage.imageView"
                     aria-describedby="image-view-help"
                     aria-required="true"
                     fluid
@@ -151,7 +158,7 @@ onMounted(() => {});
             <InputText
                 id="imageFeatures"
                 ref="imageFeaturesField"
-                v-model="imageFeatures"
+                v-model="uploadImage.imageFeatures"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -174,7 +181,7 @@ onMounted(() => {});
             <InputText
                 id="imageDate"
                 ref="imageDateField"
-                v-model="imageDate"
+                v-model="uploadImage.imageDate"
                 aria-describedby="image-date-help"
                 aria-required="true"
                 fluid
@@ -197,7 +204,7 @@ onMounted(() => {});
             <Editor
                 id="imageDescription"
                 ref="imageDescriptionField"
-                v-model="imageDescription"
+                v-model="uploadImage.imageDescription"
                 theme="snow"
                 aria-describedby="image-description-help"
                 aria-required="true"
@@ -219,7 +226,7 @@ onMounted(() => {});
             <InputText
                 id="photographer"
                 ref="photographerField"
-                v-model="photographer"
+                v-model="uploadImage.photographer"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -241,7 +248,7 @@ onMounted(() => {});
             <InputText
                 id="copyright"
                 ref="copyrightField"
-                v-model="copyright"
+                v-model="uploadImage.copyright"
                 aria-describedby="copyright-help"
                 aria-required="true"
                 fluid
