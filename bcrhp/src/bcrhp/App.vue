@@ -24,13 +24,13 @@ import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 import type { Ref } from 'vue';
 import type { Language, User } from '@/bcgov_arches_common/types.ts';
 
-const user = ref<User | null>(null);
-const setUser = (userToSet: User | null) => {
+const user = ref<typeof User | null>(null);
+const setUser = (userToSet: typeof User | null) => {
     user.value = userToSet;
 };
 provide(USER_KEY, { user, setUser });
 
-const selectedLanguage: Ref<Language> = ref(ENGLISH);
+const selectedLanguage: Ref<typeof Language> = ref(ENGLISH);
 provide(selectedLanguageKey, selectedLanguage);
 const systemLanguage = ENGLISH; // TODO: get from settings
 provide(systemLanguageKey, systemLanguage);

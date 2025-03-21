@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { boolean } from 'zod';
 
 const UploadImageSchema = z.object({
     imageType: z.array(z.string()).max(250),
@@ -12,7 +11,7 @@ const UploadImageSchema = z.object({
 });
 
 const requiredUploadImageSchema = UploadImageSchema.partial({});
-
+// @ts-ignore
 type UploadImageType = z.infer<typeof UploadImageSchema>;
 
 function getUploadImage(): UploadImageType {

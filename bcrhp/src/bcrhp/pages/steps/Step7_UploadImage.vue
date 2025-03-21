@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { useTemplateRef, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -10,9 +10,9 @@ import { getUploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
 import { requiredUploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
 import type { ZodError } from 'zod';
 
-const uploadImage: UploadImage = getUploadImage();
-const uploadImageRef: Ref<UploadImage> = ref(uploadImage);
-type FormErrors = Partial<Record<keyof UploadImage, string[]>>;
+const uploadImage: typeof UploadImage = getUploadImage();
+const uploadImageRef: Ref<typeof UploadImage> = ref(uploadImage);
+type FormErrors = Partial<Record<keyof typeof UploadImage, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
 // These names need to match the Zog schema
@@ -62,7 +62,7 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof UploadImage = field.id as keyof UploadImage;
+    const key: keyof typeof UploadImage = field.id as keyof typeof UploadImage;
     const fieldValidation = requiredUploadImageSchema.shape[key].safeParse(
         uploadImageRef.value[key],
     );
@@ -72,7 +72,7 @@ const validateField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;
@@ -80,7 +80,7 @@ const validateField = function (field: HTMLInputElement) {
 
 let validateFields = false;
 
-const onImageUpload = function (event) {};
+const onImageUpload = function () {};
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
@@ -96,7 +96,7 @@ onMounted(() => {});
             :multiple="true"
             accept="image/*"
             :maxFileSize="1000000"
-            @upload="onImageUpload($event)"
+            @upload="onImageUpload"
         >
             <template #empty>
                 <span>Drag and drop files to here to upload.</span>

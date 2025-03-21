@@ -17,21 +17,25 @@ import type { LegalDescription } from '@/bcrhp/schema/LegalDescriptionSchema.ts'
 import { getLegalDescription } from '@/bcrhp/schema/LegalDescriptionSchema.ts';
 import { requiredLegalDescriptionSchema } from '@/bcrhp/schema/LegalDescriptionSchema.ts';
 import type { ZodError } from 'zod';
-import { fetchConcepts } from '@/bcrhp/api.ts';
+//import { fetchConcepts } from '@/bcrhp/api.ts';
 
-const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
+const heritageSite: typeof HeritageSite = inject(
+    'heritageSite',
+) as typeof HeritageSite;
 // const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
-let currentCivicAddress: CivicAddress = getCivicAddress();
+let currentCivicAddress: typeof CivicAddress = getCivicAddress();
 // civicAddress[currentCivicAddress.civicAddressId] = currentCivicAddress;
-let currentLegalDescription: LegalDescription = getLegalDescription();
+let currentLegalDescription: typeof LegalDescription = getLegalDescription();
 // This is needed to access the IPA Data in methods? The above appears to be undefined after mounting.
-const civicAddressRef: Ref<CivicAddress> = ref(currentCivicAddress);
-const legalDescriptionRef: Ref<LegalDescription> = ref(currentLegalDescription);
+const civicAddressRef: Ref<typeof CivicAddress> = ref(currentCivicAddress);
+const legalDescriptionRef: Ref<typeof LegalDescription> = ref(
+    currentLegalDescription,
+);
 
-type FormErrors = Partial<Record<keyof CivicAddress, string[]>>;
+type FormErrors = Partial<Record<keyof typeof CivicAddress, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-const concepts = ref([]);
+//const concepts = ref([]);
 
 // These names need to match the Zog schema
 const fields = {
@@ -115,7 +119,8 @@ const legalAddressOnFocusOutHandler = function (event: Event) {
 const validateAddressField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
 
-    const key: keyof CivicAddress = field.id as keyof CivicAddress;
+    const key: keyof typeof CivicAddress =
+        field.id as keyof typeof CivicAddress;
     const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
         civicAddressRef.value[key],
     );
@@ -126,7 +131,7 @@ const validateAddressField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;
@@ -135,7 +140,8 @@ const validateAddressField = function (field: HTMLInputElement) {
 const validateLegalDescriptionField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
 
-    const key: keyof LegalDescription = field.id as keyof LegalDescription;
+    const key: keyof typeof LegalDescription =
+        field.id as keyof typeof LegalDescription;
     const fieldValidation = requiredLegalDescriptionSchema.shape[key].safeParse(
         legalDescriptionRef.value[key],
     );
@@ -146,7 +152,7 @@ const validateLegalDescriptionField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;
