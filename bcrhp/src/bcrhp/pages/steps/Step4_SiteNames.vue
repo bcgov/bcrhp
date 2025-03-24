@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 
-import LabelledInput from './LabelledInput.vue';
+import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { CivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
