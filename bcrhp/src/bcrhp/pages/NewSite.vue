@@ -110,9 +110,23 @@ const nextLabel = computed(() => {
 const showPrevious = computed(() => {
     return !(currentStep.value === steps.length || currentStep.value === 1);
 });
+const showDebug = ref(false);
 </script>
 
 <template>
+    <div
+        id="debug-div"
+        :v-show="showDebug"
+        class="debug-step"
+        :class="{ 'show-debug': showDebug }"
+    >
+        {{ JSON.stringify(heritageSite) }}
+    </div>
+    <i
+        style="margin-top: 30px"
+        class="fa fa-eye-slash debug-toggle"
+        @click="showDebug = !showDebug"
+    ></i>
     <Panel class="full-height">
         <div style="display: none">Step: {{ currentStep }}</div>
         <Stepper
@@ -424,5 +438,25 @@ li {
     font-weight: bold;
     line-height: inherit;
     color: #333;
+}
+
+.debug-step {
+    max-width: 80%;
+    margin-top: 100px;
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    word-wrap: anywhere;
+    color: darkgray;
+}
+.show-debug {
+    display: inline-block !important;
+}
+.debug-toggle {
+    position: absolute;
+    top: 0;
+    left: 0.5rem;
+    color: white;
+    z-index: 9000;
 }
 </style>
