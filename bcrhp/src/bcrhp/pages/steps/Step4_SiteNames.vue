@@ -9,6 +9,8 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
+import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
+
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -19,12 +21,12 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-let otherName = '';
-// const otherNames = ref(string[]);
+const otherName = ref('');
+const otherNames = ref([] as Array<string>);
 
 // These names need to match the Zog schema
 const fields = {
-    streetAddressField: useTemplateRef('commonNameField'),
+    commonNameField: useTemplateRef('commonNameField'),
     otherNameField: useTemplateRef('otherNameField'),
 };
 
@@ -42,8 +44,15 @@ const isValid = () => {
     return valid;
 };
 
+const updateAddOtherState = function () {
+    addOtherNameDisabled.value =
+        otherName.value.length < 1 ||
+        heritageSiteRef.value.otherNames.length > 4;
+};
+
 const valueUpdated = function (value: string | undefined) {
     console.log(`valueUpdated: ${value}`);
+    updateAddOtherState();
 };
 
 const valueChanged = function (event: Event) {
@@ -84,17 +93,28 @@ const validateField = function (field: HTMLInputElement) {
 
 const saveOtherName = function () {
     console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+    heritageSiteRef.value.otherNames.push(otherName.value);
+    otherName.value = '';
+    updateAddOtherState();
 };
 
+const addOtherNameDisabled = ref(false);
+
 let validateFields = false;
+
+const deleteOtherNameCallback = function (index: number) {
+    heritageSiteRef.value.otherNames.splice(index, 1);
+    updateAddOtherState();
+};
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
 
-onMounted(() => {});
+onMounted(() => {
+    heritageSiteRef.value.otherNames = otherNames;
+    updateAddOtherState();
+});
 </script>
 <template>
     <div class="flex flex-col">
@@ -144,10 +164,21 @@ onMounted(() => {});
                     id="addOtherName"
                     label="Add"
                     class="inline-block"
+                    :aria-disabled="addOtherNameDisabled"
+                    :disabled="addOtherNameDisabled"
                     @click="saveOtherName"
                 ></Button>
             </div>
         </LabelledInput>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            label="Other Name(s)"
+            :showDeleteButton="true"
+            :displayValues="otherNames"
+            :deleteCallback="deleteOtherNameCallback"
+        >
+            <div class="parent value">{{ slotProps.value }}</div>
+        </MultiValuePlaceholder>
     </div>
 </template>
 
