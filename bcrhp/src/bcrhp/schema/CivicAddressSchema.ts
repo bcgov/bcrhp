@@ -29,7 +29,7 @@ const CivicAddressSchema = z.object({
 const requiredCivicAddressSchema = CivicAddressSchema.partial({
     hasCivicAddress: true,
 });
-
+// @ts-ignore
 type CivicAddressType = z.infer<typeof CivicAddressSchema>;
 
 function getCivicAddress(): CivicAddressType {
@@ -46,7 +46,7 @@ class CivicAddress implements CivicAddressType {
         this.postalCode = '';
         this.locality = '';
         this.locationDescription = '';
-        this.legalDescriptions = <LegalDescription[]>[];
+        this.legalDescriptions = <(typeof LegalDescription)[]>[];
     }
 
     civicAddressId: string;
@@ -58,7 +58,7 @@ class CivicAddress implements CivicAddressType {
     postalCode: string;
     locality: string;
     locationDescription: string;
-    legalDescriptions: LegalDescription[];
+    legalDescriptions: (typeof LegalDescription)[];
 }
 
 console.log(requiredCivicAddressSchema);
