@@ -7,7 +7,7 @@ import InputText from 'primevue/inputtext';
 import FileUpload from 'primevue/fileupload';
 import RadioButton from 'primevue/radiobutton';
 import Editor from 'primevue/editor';
-import LabelledInput from './LabelledInput.vue';
+import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';

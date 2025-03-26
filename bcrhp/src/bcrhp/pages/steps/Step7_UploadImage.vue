@@ -4,7 +4,7 @@ import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
-import LabelledInput from './LabelledInput.vue';
+import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { UploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
 import { getUploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
 import { requiredUploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';

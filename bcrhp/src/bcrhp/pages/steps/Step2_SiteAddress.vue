@@ -7,8 +7,8 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 
-import LabelledInput from './LabelledInput.vue';
-import LabelledCheckboxInput from './LabelledCheckbox.vue';
+import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { CivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';

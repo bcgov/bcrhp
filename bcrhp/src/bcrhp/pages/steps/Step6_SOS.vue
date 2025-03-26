@@ -3,7 +3,7 @@ import { useTemplateRef, inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
-import LabelledInput from './LabelledInput.vue';
+import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import Editor from 'primevue/editor';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
