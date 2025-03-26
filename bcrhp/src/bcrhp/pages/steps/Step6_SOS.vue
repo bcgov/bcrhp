@@ -6,15 +6,15 @@ import InputText from 'primevue/inputtext';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import Editor from 'primevue/editor';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import type { CivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
-import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
-const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
-const heritageSiteRef: Ref<HeritageSite> = ref(heritageSite);
+const heritageSite: typeof HeritageSite = inject(
+    'heritageSite',
+) as typeof HeritageSite;
+const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-type FormErrors = Partial<Record<keyof HeritageSite, string[]>>;
+type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
 // These names need to match the Zog schema
@@ -61,7 +61,8 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field}`);
-    const key: keyof HeritageSite = field.id as keyof HeritageSite;
+    const key: keyof typeof HeritageSite =
+        field.id as keyof typeof HeritageSite;
     const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
@@ -71,15 +72,10 @@ const validateField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;
-};
-
-const saveOtherName = function () {
-    console.log('Save address');
-    heritageSite.otherNames.push(currentCivicAddress.civicAddressId);
 };
 
 let validateFields = false;

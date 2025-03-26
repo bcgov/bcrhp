@@ -77,11 +77,8 @@ let lastStep = 1;
 const currentStep = computed(() => {
     return myStepper.value?.d_value;
 });
-const stepperOptions = {
-    activateCallback: activateStep,
-};
 const submitted = ref(false);
-const heritageSite: Ref<HeritageSite> = ref(getHeritageSite());
+const heritageSite: Ref<typeof HeritageSite> = ref(getHeritageSite());
 
 provide('heritageSite', heritageSite);
 
@@ -121,7 +118,6 @@ const showPrevious = computed(() => {
             :props="stepperProps"
             :value="1"
             linear
-            :ptOptions="stepperOptions"
             @update:value="activateStep"
         >
             <div class="bcgov-stepper">
@@ -134,8 +130,8 @@ const showPrevious = computed(() => {
                         <Step :value="5">Official Recognition Details</Step>
                         <Step :value="6">Statement of Significance</Step>
                         <Step :value="7">Images</Step>
-                        <Step :value="8">Heritage Details</Step>
-                        <Step :value="9">Need Title!!</Step>
+                        <Step :value="8">Site Classification</Step>
+                        <Step :value="9">Site Details</Step>
                         <Step :value="10">Supporting Documents</Step>
                         <Step :value="11">Review Submission</Step>
                         <Step :value="12">Submission Complete</Step>
