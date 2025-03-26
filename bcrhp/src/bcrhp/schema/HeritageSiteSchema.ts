@@ -1,13 +1,6 @@
 import { z } from 'zod';
-import {
-    CivicAddress,
-    CivicAddressSchema,
-} from '@/bcrhp/schema/CivicAddressSchema.ts';
-import {
-    UploadImage,
-    UploadImageSchema,
-} from '@/bcrhp/schema/UploadImageSchema.ts';
-import { boolean } from 'zod';
+import { CivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
+import { UploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
 
 const HeritageSiteSchema = z.object({
     siteId: z.string().uuid(),
@@ -53,7 +46,7 @@ const HeritageSiteSchema = z.object({
 const requiredHeritageSiteSchema = HeritageSiteSchema.partial({
     commonName: true,
 });
-
+// @ts-ignore
 type HeritageSiteType = z.infer<typeof HeritageSiteSchema>;
 
 function getHeritageSite(): HeritageSiteType {

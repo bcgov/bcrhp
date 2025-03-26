@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -13,15 +13,17 @@ import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import type { ZodError } from 'zod';
 
-const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
+const heritageSite: typeof HeritageSite = inject(
+    'heritageSite',
+) as typeof HeritageSite;
 // const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
-let currentCivicAddress: CivicAddress = getCivicAddress();
+let currentCivicAddress: typeof CivicAddress = getCivicAddress();
 // civicAddress[currentCivicAddress.civicAddressId] = currentCivicAddress;
 
 // This is needed to access the IPA Data in methods? The above appears to be undefined after mounting.
-const civicAddressRef: Ref<CivicAddress> = ref(currentCivicAddress);
+const civicAddressRef: Ref<typeof CivicAddress> = ref(currentCivicAddress);
 
-type FormErrors = Partial<Record<keyof CivicAddress, string[]>>;
+type FormErrors = Partial<Record<keyof typeof CivicAddress, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
 // These names need to match the Zog schema
@@ -46,7 +48,8 @@ const isValid = () => {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof CivicAddress = field.id as keyof CivicAddress;
+    const key: keyof typeof CivicAddress =
+        field.id as keyof typeof CivicAddress;
     const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
         civicAddressRef.value[key],
     );
@@ -56,7 +59,7 @@ const validateField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;

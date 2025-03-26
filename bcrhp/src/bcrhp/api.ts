@@ -26,7 +26,7 @@ function getToken() {
     // if (!token) {
     //     throw new Error('Missing csrftoken');
     // }
-    return null;
+    return '';
 }
 
 export const login = async (username: string, password: string) => {

@@ -7,17 +7,17 @@ import InputText from 'primevue/inputtext';
 import FileUpload from 'primevue/fileupload';
 import RadioButton from 'primevue/radiobutton';
 import Editor from 'primevue/editor';
-import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
 
-const heritageSite: HeritageSite = inject('heritageSite') as HeritageSite;
-const heritageSiteRef: Ref<HeritageSite> = ref(heritageSite);
+const heritageSite: typeof HeritageSite = inject(
+    'heritageSite',
+) as typeof HeritageSite;
+const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-type FormErrors = Partial<Record<keyof HeritageSite, string[]>>;
+type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 const ingredient = ref();
 const fields = {
@@ -60,7 +60,8 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof HeritageSite = field.id as keyof HeritageSite;
+    const key: keyof typeof HeritageSite =
+        field.id as keyof typeof HeritageSite;
     const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
@@ -70,13 +71,13 @@ const validateField = function (field: HTMLInputElement) {
     } else {
         field.classList.add('p-invalid');
         errors.value[key] = (
-            fieldValidation.error as ZodError
+            fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
     return fieldValidation.success;
 };
 
-const onAdvancedUpload = function (event) {};
+const onAdvancedUpload = function () {};
 
 let validateFields = false;
 
@@ -98,7 +99,7 @@ onMounted(() => {});
                 :multiple="true"
                 accept="image/*"
                 :maxFileSize="1000000"
-                @upload="onAdvancedUpload($event)"
+                @upload="onAdvancedUpload()"
             >
                 <template #empty>
                     <span>Drag and drop files to here to upload.</span>

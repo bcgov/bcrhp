@@ -12,7 +12,7 @@ const LegalDescriptionSchema = z.object({
         .max(32),
     legalAddress: z.string().max(250),
 });
-
+// @ts-ignore
 type LegalDescriptionType = z.infer<typeof LegalDescriptionSchema>;
 
 const requiredLegalDescriptionSchema = LegalDescriptionSchema.partial({});
