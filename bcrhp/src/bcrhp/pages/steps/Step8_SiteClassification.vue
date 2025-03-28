@@ -3,10 +3,11 @@ import { useTemplateRef, inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
-import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
+import Dropdown from 'primevue/dropdown';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
@@ -18,7 +19,30 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-let otherName = '';
+const contributingResourcesOptions = ref([
+    { name: '1', code: 1 },
+    { name: '2', code: 2 },
+    { name: '3', code: 3 },
+    { name: '4', code: 4 },
+    { name: '5', code: 5 },
+]);
+const functionCategoryOptions = ref([
+    { name: 'Market', code: 'market' },
+    { name: 'Eating or Drinking Establishment', code: 'eating_or_drinking' },
+]);
+const functionThemeOptions = ref([
+    { name: 'Learning and the Arts', code: 'learning_and_arts' },
+    { name: 'Architecture and Design', code: 'architecture_and_design' },
+]);
+const contributingResources = ref({ name: '', code: 0 });
+const totalContributingResources = ref([] as Array<string>);
+const functionCategory = ref({ name: '', code: '' });
+const functionCategories = ref([] as Array<string>);
+const heritageTheme = ref({ name: '', code: '' });
+const heritageThemes = ref([] as Array<string>);
+const addContributingResourcesDisabled = ref(false);
+const addOtherFunctionCategoryDisabled = ref(false);
+const addOtherHeritageSiteDisabled = ref(false);
 // const otherNames = ref(string[]);
 
 // These names need to match the Zog schema
@@ -45,24 +69,28 @@ const isValid = () => {
     return valid;
 };
 
+const updateAddContributingResourceCategory = function () {
+    addContributingResourcesDisabled.value =
+        contributingResources.value.code < 1 ||
+        heritageSiteRef.value.totalContributingResources.length > 4;
+};
+
+const updateAddOtherFunctionCategory = function () {
+    addOtherFunctionCategoryDisabled.value =
+        functionCategory.value.name !== '' ||
+        heritageSiteRef.value.functionCategories.length > 4;
+};
+
+const updateAddOtherHeritageSite = function () {
+    addOtherHeritageSiteDisabled.value =
+        heritageSiteRef.value.heritageThemes.length > 4;
+};
+
 const valueUpdated = function (value: string | undefined) {
+    console.log(contributingResources.value.code);
+    console.log(functionCategory.value.code);
+
     console.log(`valueUpdated: ${value}`);
-};
-
-const valueChanged = function (event: Event) {
-    console.log(`valueChanged`);
-    validateField(event.target as HTMLInputElement);
-};
-
-const onFocusHandler = function (event: Event) {
-    console.log(`onFocusHandler ${event}`);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const onFocusOutHandler = function (event: Event) {
-    console.log(`onFocusOutHandler`);
-    validateField(event.target as HTMLInputElement);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
 };
 
 const validateField = function (field: HTMLInputElement) {
@@ -84,16 +112,45 @@ const validateField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const addContributingSource = function () {
-    console.log('addContributingSource');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+const saveContributingResource = function () {
+    console.log('saveContributingResource');
+    heritageSiteRef.value.totalContributingResources.push(
+        contributingResources.value,
+    );
+
+    updateAddContributingResourceCategory();
 };
 
 const saveFunctionCategory = function () {
     console.log('saveFunctionCategory');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+    heritageSiteRef.value.functionCategories.push(functionCategory.value);
+
+    updateAddOtherFunctionCategory();
+};
+
+const saveHeritageTheme = function () {
+    console.log('saveHeritageThemes');
+    heritageSiteRef.value.heritageThemes.push(heritageTheme.value);
+
+    updateAddOtherHeritageSite();
+};
+
+const deleteContributingResourcesCallback = function (index: number) {
+    heritageSiteRef.value.totalContributingResources.splice(index, 1);
+
+    updateAddContributingResourceCategory();
+};
+
+const deleteFunctionCategoryCallback = function (index: number) {
+    heritageSiteRef.value.functionCategories.splice(index, 1);
+
+    updateAddOtherFunctionCategory();
+};
+
+const deleteHeritageThemeCallback = function (index: number) {
+    heritageSiteRef.value.heritageThemes.splice(index, 1);
+
+    updateAddOtherHeritageSite();
 };
 
 let validateFields = false;
@@ -102,7 +159,16 @@ let validateFields = false;
 // configuration so API methods are not
 defineExpose({ isValid });
 
-onMounted(() => {});
+onMounted(() => {
+    heritageSiteRef.value.totalContributingResources =
+        totalContributingResources;
+    heritageSiteRef.value.functionCategories = functionCategories;
+    heritageSiteRef.value.heritageThemes = heritageThemes;
+
+    updateAddContributingResourceCategory();
+    updateAddOtherFunctionCategory();
+    updateAddOtherHeritageSite();
+});
 </script>
 <template>
     <FieldSet
@@ -111,29 +177,31 @@ onMounted(() => {});
     >
         <LabelledInput
             label="Number of Contributing Resources"
-            input-name="referenceNumber"
-            :error-message="errors.referenceNumber?.join(',')"
+            input-name="contributingResources"
+            :error-message="errors.contributingResources?.join(',')"
             :required="true"
         >
             <div>
-                <InputText
-                    id="numberOfResources"
+                <Dropdown
+                    id="contributingResources"
                     ref="numberOfResourcesField"
-                    v-model="heritageSite.numberOfResources"
+                    v-model="contributingResources"
+                    placeholder="0"
+                    optionLabel="name"
+                    :options="contributingResourcesOptions"
                     aria-describedby="reference-number-help"
                     aria-required="true"
                     fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
+                    class="w-full md:w-14rem"
                     @update:model-value="valueUpdated"
                 />
                 <Button
-                    id="saveReferenceNumber"
+                    id="saveContributingResources"
+                    :disabled="addContributingResourcesDisabled"
+                    :aria-disabled="addContributingResourcesDisabled"
                     label="Add"
                     class="inline-block"
-                    @click="addContributingSource"
+                    @click="saveContributingResource"
                 ></Button>
             </div>
         </LabelledInput>
@@ -239,6 +307,15 @@ onMounted(() => {});
                 </div>
             </div>
         </div>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            :showDeleteButton="true"
+            :displayValues="totalContributingResources"
+            label="Contributing Resource(s)"
+            :deleteCallback="deleteContributingResourcesCallback"
+        >
+            <div class="parent value">{{ slotProps.value.name }}</div>
+        </MultiValuePlaceholder>
     </FieldSet>
     <Fieldset
         id="heritageFunctionFieldset"
@@ -248,21 +325,21 @@ onMounted(() => {});
         <LabelledInput
             label="Function Category"
             input-name="heritageTheme"
-            :error-message="errors.functionCategory?.join(',')"
+            :error-message="errors.functionCategories?.join(',')"
             :required="true"
         >
             <div class="p-inputtext-fluid flex flex-row">
-                <InputText
+                <Dropdown
                     id="functionCategory"
                     ref="functionCategoryField"
-                    v-model="heritageSite.functionCategory"
+                    v-model="functionCategory"
+                    optionLabel="name"
+                    placeholder="Select Function Category"
+                    :options="functionCategoryOptions"
                     aria-describedby="function-category-help"
                     aria-required="true"
                     fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
+                    class="w-full md:w-14rem"
                     @update:model-value="valueUpdated"
                 />
                 <div class="inline-block">
@@ -286,13 +363,24 @@ onMounted(() => {});
                     </div>
                 </div>
             </div>
+            <Button
+                id="addOtherName"
+                label="Add"
+                class="inline-block"
+                :disabled="addOtherFunctionCategoryDisabled"
+                :aria-disabled="addOtherFunctionCategoryDisabled"
+                @click="saveFunctionCategory"
+            ></Button>
         </LabelledInput>
-        <Button
-            id="addOtherName"
-            label="Add"
-            class="inline-block"
-            @click="saveFunctionCategory"
-        ></Button>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            :showDeleteButton="true"
+            :displayValues="functionCategories"
+            label="Category/Categories"
+            :deleteCallback="deleteFunctionCategoryCallback"
+        >
+            <div class="parent value">{{ slotProps.value.name }}</div>
+        </MultiValuePlaceholder>
     </Fieldset>
     <Fieldset
         id="heritageThemeFieldset"
@@ -302,24 +390,42 @@ onMounted(() => {});
         <LabelledInput
             label="Heritage Theme"
             input-name="heritageTheme"
-            :error-message="errors.heritageTheme?.join(',')"
+            :error-message="errors.heritageThemes?.join(',')"
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <InputText
+                <Dropdown
                     id="heritageTheme"
                     ref="heritageThemeField"
-                    v-model="heritageSite.heritageTheme"
-                    aria-describedby="heritage-theme-help"
+                    v-model="heritageTheme"
+                    optionLabel="name"
+                    placeholder="Select Function Theme"
+                    :options="functionThemeOptions"
+                    aria-describedby="function-theme-help"
                     aria-required="true"
                     fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
+                    class="w-full md:w-14rem"
                     @update:model-value="valueUpdated"
                 />
             </div>
+            <Button
+                id="addHeritageTheme"
+                label="Add"
+                class="inline-block"
+                :disabled="addOtherHeritageSiteDisabled"
+                :aria_disabled="addOtherHeritageSiteDisabled"
+                @click="saveHeritageTheme"
+            ></Button>
         </LabelledInput>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            :showDeleteButton="true"
+            :displayValues="heritageThemes"
+            label="Theme(s)"
+            :deleteCallback="deleteHeritageThemeCallback"
+        >
+            <div class="parent value">{{ slotProps.value.name }}</div>
+        </MultiValuePlaceholder>
     </Fieldset>
 </template>
 

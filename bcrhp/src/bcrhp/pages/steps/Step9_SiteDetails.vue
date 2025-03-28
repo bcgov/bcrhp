@@ -6,6 +6,9 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
+import DatePicker from 'primevue/datepicker';
+
+import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -15,11 +18,18 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+const chronology = ref('');
+const chronologies = ref([] as Array<string>);
+const architectOrBuilder = ref('');
+const architectsOrBuilders = ref([] as Array<string>);
+const url = ref('');
+const urls = ref([] as Array<string>);
+const addURLDisabled = ref(false);
+const startYear = ref();
+const endYear = ref();
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-let otherName = '';
-// const otherNames = ref(string[]);
 
 // These names need to match the Zog schema
 const eventType = ref();
@@ -28,7 +38,7 @@ const circa = ref();
 const fields = {
     startYearField: useTemplateRef('startYearField'),
     endYearField: useTemplateRef('endYearField'),
-    chronologyNotesField: useTemplateRef('chronologyNotesField'),
+    chronologyField: useTemplateRef('chronologyField'),
     architectOrBuilderNameField: useTemplateRef('architectOrBuilderNameField'),
     architectOrBuilderTypeField: useTemplateRef('architectOrBuilderTypeField'),
     urlTypeField: useTemplateRef('urlTypeField'),
@@ -89,21 +99,63 @@ const validateField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const addChronologyNotes = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+const updateAddChronology = function () {
+    addURLDisabled.value =
+        chronology.value.length < 1 ||
+        heritageSiteRef.value.chronologies.length > 4;
+};
+const updateAddOtherArchitectOrBuilder = function () {
+    addURLDisabled.value =
+        architectOrBuilder.value.length < 1 ||
+        heritageSiteRef.value.architectsOrBuilders.length > 4;
 };
 
-const addArchitectOrBuilderNotes = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+const updateAddOtherURL = function () {
+    addURLDisabled.value =
+        url.value.length < 1 || heritageSiteRef.value.urls.length > 4;
 };
-const addURL = function () {
-    console.log('saveOtherName');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+
+const saveChronology = function () {
+    console.log('saveChronology');
+    heritageSite.startYear = startYear.value;
+    heritageSite.endYear = endYear.value;
+    heritageSiteRef.value.chronologies.push(chronology.value);
+    architectOrBuilder.value = '';
+
+    updateAddChronology();
+};
+
+const saveArchitectOrBuilder = function () {
+    console.log('saveArchitectOrBuilder');
+    heritageSiteRef.value.architectsOrBuilders.push(architectOrBuilder.value);
+    architectOrBuilder.value = '';
+
+    updateAddOtherArchitectOrBuilder();
+};
+const saveURL = function () {
+    console.log('saveURL');
+    heritageSiteRef.value.urls.push(url.value);
+    url.value = '';
+
+    updateAddOtherURL();
+};
+
+const deleteChronologyCallback = function (index: number) {
+    heritageSiteRef.value.chronologies.splice(index, 1);
+
+    updateAddOtherArchitectOrBuilder();
+};
+
+const deleteArchitectBuilderCallback = function (index: number) {
+    heritageSiteRef.value.architectsOrBuilders.splice(index, 1);
+
+    updateAddOtherArchitectOrBuilder();
+};
+
+const deleteURLCallback = function (index: number) {
+    heritageSiteRef.value.urls.splice(index, 1);
+
+    updateAddOtherURL();
 };
 
 let validateFields = false;
@@ -112,7 +164,15 @@ let validateFields = false;
 // configuration so API methods are not
 defineExpose({ isValid });
 
-onMounted(() => {});
+onMounted(() => {
+    heritageSiteRef.value.chronologies = chronologies;
+    heritageSiteRef.value.architectsOrBuilders = architectsOrBuilders;
+    heritageSiteRef.value.urls = urls;
+
+    updateAddChronology();
+    updateAddOtherArchitectOrBuilder();
+    updateAddOtherURL();
+});
 </script>
 <template>
     <FieldSet
@@ -145,51 +205,24 @@ onMounted(() => {});
                     </div>
                 </div>
             </div>
-            <LabelledInput
-                label="Start Year"
-                input-name="startYear"
-                class="inline-block"
-                :error-message="errors.startYear?.join(',')"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <InputText
-                        id="startYear"
-                        ref="startYearField"
-                        v-model="heritageSite.startYear"
-                        aria-describedby="start-year-help"
-                        aria-required="true"
-                        fluid
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
-                    />
-                </div>
-            </LabelledInput>
-            <LabelledInput
-                label="End Year"
-                input-name="endYear"
-                class="inline-block"
-                :error-message="errors.endYear?.join(',')"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <InputText
-                        id="endYear"
-                        ref="endYearField"
-                        v-model="heritageSite.endYear"
-                        aria-describedby="end-year-help"
-                        aria-required="true"
-                        fluid
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
-                    />
-                </div>
-            </LabelledInput>
-
+            <DatePicker
+                id="startYear"
+                ref="startYearField"
+                v-model="startYear"
+                dateFormat="yy"
+                view="year"
+                aria-describedby="start-year-help"
+                aria-required="true"
+            />
+            <DatePicker
+                id="endYear"
+                ref="endYearField"
+                v-model="endYear"
+                dateFormat="yy"
+                view="year"
+                aria-describedby="end-year-help"
+                aria-required="true"
+            />
             <div class="inline-block">
                 <Checkbox
                     v-model="circa"
@@ -210,10 +243,10 @@ onMounted(() => {});
                 <div class="">
                     <InputText
                         id="chronologyNotes"
-                        ref="chronologyNotesField"
+                        ref="chronologyField"
                         v-model:content="heritageSite.chronologyNotes"
                         theme="snow"
-                        aria-describedby="chronology-notes-help"
+                        aria-describedby="chronology-help"
                         aria-required="true"
                         fluid
                         class="inline-block"
@@ -223,14 +256,23 @@ onMounted(() => {});
                         @update:content="valueUpdated"
                     />
                     <Button
-                        id="saveChronologyNotes"
+                        id="saveChronology"
                         label="Add"
                         class="inline-block"
-                        @click="addChronologyNotes"
+                        @click="saveChronology"
                     ></Button>
                 </div>
             </LabelledInput>
         </div>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            label="Architect(s) / Builder(s)"
+            :showDeleteButton="true"
+            :displayValues="chronologies"
+            :deleteCallback="deleteChronologyCallback"
+        >
+            <div class="parent value">{{ slotProps.value }}</div>
+        </MultiValuePlaceholder>
     </FieldSet>
     <Fieldset
         id="architectsBuildersFieldset"
@@ -289,7 +331,7 @@ onMounted(() => {});
                 hint="Provide any additional comments about the architect/builder"
                 input-name="architectOrBuilderNotes"
                 :error-message="errors.architectOrBuilderNotes?.join(',')"
-                :required="true"
+                :required="false"
             >
                 <div class="">
                     <InputText
@@ -309,11 +351,20 @@ onMounted(() => {});
                         id="addOtherName"
                         label="Add"
                         class="inline-block"
-                        @click="addArchitectOrBuilderNotes"
+                        @click="saveArchitectOrBuilder"
                     ></Button>
                 </div>
             </LabelledInput>
         </div>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            label="Architect(s) / Builder(s)"
+            :showDeleteButton="true"
+            :displayValues="architectsOrBuilders"
+            :deleteCallback="deleteArchitectBuilderCallback"
+        >
+            <div class="parent value">{{ slotProps.value }}</div>
+        </MultiValuePlaceholder>
     </Fieldset>
     <Fieldset
         id="relatedURLsFieldset"
@@ -371,15 +422,15 @@ onMounted(() => {});
                 label="URL"
                 hint="URL must be stable and publicly accessible"
                 input-name="url"
-                :error-message="errors.url?.join(',')"
+                :error-message="errors.urls?.join(',')"
                 :required="true"
             >
                 <div class="flex flex-row full-width">
                     <InputText
                         id="url"
                         ref="urlField"
-                        v-model="heritageSite.url"
-                        aria-describedby="architect-or-builder-notes-help"
+                        v-model="url"
+                        aria-describedby="url-help"
                         aria-required="true"
                         fluid
                         class="inline-block"
@@ -389,13 +440,22 @@ onMounted(() => {});
                         @update:model-value="valueUpdated"
                     />
                     <Button
-                        id="addOtherName"
+                        id="saveURL"
                         label="Add"
                         class="inline-block"
-                        @click="addURL"
+                        @click="saveURL"
                     ></Button>
                 </div>
             </LabelledInput>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="URL(s)"
+                :showDeleteButton="true"
+                :displayValues="urls"
+                :deleteCallback="deleteURLCallback"
+            >
+                <div class="parent value">{{ slotProps.value }}</div>
+            </MultiValuePlaceholder>
         </div>
     </Fieldset>
 </template>
