@@ -215,7 +215,7 @@ INSTALLED_APPS += ("arches.app",)
 
 DJANGO_VITE = {
     "default": {
-        "dev_mode": True,
+        "dev_mode": False,
         # "static_url_prefix": "/bcrhp/static",
         "static_url_prefix": "/",
     }
