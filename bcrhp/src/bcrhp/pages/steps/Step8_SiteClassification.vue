@@ -9,7 +9,7 @@ import Dropdown from 'primevue/dropdown';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import { requiredSiteClassificationSchema } from '@/bcrhp/schema/SiteClassificationSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -35,9 +35,9 @@ const functionThemeOptions = ref([
     { name: 'Architecture and Design', code: 'architecture_and_design' },
 ]);
 const contributingResources = ref({ name: '', code: 0 });
-const totalContributingResources = ref([] as Array<string>);
+const heritageClasses = ref([] as Array<string>);
 const functionCategory = ref({ name: '', code: '' });
-const functionCategories = ref([] as Array<string>);
+const heritageFunctions = ref([] as Array<string>);
 const heritageTheme = ref({ name: '', code: '' });
 const heritageThemes = ref([] as Array<string>);
 const addContributingResourcesDisabled = ref(false);
@@ -52,8 +52,7 @@ const fields = {
 };
 const heritageCategory = ref();
 const ownership = ref();
-const functionCategoryCurrent = ref();
-const functionCategoryHistoric = ref();
+const functionCategoryType = ref();
 
 const isValid = () => {
     // We don't want to validate fields the first time we show the step
@@ -69,21 +68,21 @@ const isValid = () => {
     return valid;
 };
 
-const updateAddContributingResourceCategory = function () {
+const updateAddHeritageClassCategory = function () {
     addContributingResourcesDisabled.value =
-        contributingResources.value.code < 1 ||
-        heritageSiteRef.value.totalContributingResources.length > 4;
+        contributingResources.value.code < 0 ||
+        heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
 };
 
 const updateAddOtherFunctionCategory = function () {
     addOtherFunctionCategoryDisabled.value =
         functionCategory.value.name !== '' ||
-        heritageSiteRef.value.functionCategories.length > 4;
+        heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
 };
 
 const updateAddOtherHeritageSite = function () {
     addOtherHeritageSiteDisabled.value =
-        heritageSiteRef.value.heritageThemes.length > 4;
+        heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
 };
 
 const valueUpdated = function (value: string | undefined) {
@@ -97,9 +96,9 @@ const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof HeritageSite =
         field.id as keyof typeof HeritageSite;
-    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
-    );
+    const fieldValidation = requiredSiteClassificationSchema.shape[
+        key
+    ].safeParse(heritageSiteRef.value[key]);
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
         errors.value[key] = [];
@@ -112,43 +111,50 @@ const validateField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const saveContributingResource = function () {
-    console.log('saveContributingResource');
-    heritageSiteRef.value.totalContributingResources.push(
-        contributingResources.value,
-    );
+const saveHeritageClass = function () {
+    console.log('saveHeritageClass');
+    heritageSiteRef.value.siteClassification.heritageClasses.push({
+        contributingResources: contributingResources.value,
+        heritageCategory: heritageCategory.value?.toString(),
+        ownership: ownership.value?.toString(),
+    });
 
-    updateAddContributingResourceCategory();
+    updateAddHeritageClassCategory();
 };
 
 const saveFunctionCategory = function () {
     console.log('saveFunctionCategory');
-    heritageSiteRef.value.functionCategories.push(functionCategory.value);
+    heritageSiteRef.value.siteClassification.heritageFunctions.push({
+        functionCategory: functionCategory.value,
+        functionCategoryType: functionCategoryType.value?.toString(),
+    });
 
     updateAddOtherFunctionCategory();
 };
 
 const saveHeritageTheme = function () {
     console.log('saveHeritageThemes');
-    heritageSiteRef.value.heritageThemes.push(heritageTheme.value);
+    heritageSiteRef.value.siteClassification.heritageThemes.push(
+        heritageTheme.value,
+    );
 
     updateAddOtherHeritageSite();
 };
 
 const deleteContributingResourcesCallback = function (index: number) {
-    heritageSiteRef.value.totalContributingResources.splice(index, 1);
+    heritageSiteRef.value.siteClassification.heritageClasses.splice(index, 1);
 
-    updateAddContributingResourceCategory();
+    updateAddHeritageClassCategory();
 };
 
 const deleteFunctionCategoryCallback = function (index: number) {
-    heritageSiteRef.value.functionCategories.splice(index, 1);
+    heritageSiteRef.value.siteClassification.heritageFunctions.splice(index, 1);
 
     updateAddOtherFunctionCategory();
 };
 
 const deleteHeritageThemeCallback = function (index: number) {
-    heritageSiteRef.value.heritageThemes.splice(index, 1);
+    heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
 
     updateAddOtherHeritageSite();
 };
@@ -160,12 +166,12 @@ let validateFields = false;
 defineExpose({ isValid });
 
 onMounted(() => {
-    heritageSiteRef.value.totalContributingResources =
-        totalContributingResources;
-    heritageSiteRef.value.functionCategories = functionCategories;
-    heritageSiteRef.value.heritageThemes = heritageThemes;
+    heritageSiteRef.value.siteClassification.heritageClasses = heritageClasses;
+    heritageSiteRef.value.siteClassification.heritageFunctions =
+        heritageFunctions;
+    heritageSiteRef.value.siteClassification.heritageThemes = heritageThemes;
 
-    updateAddContributingResourceCategory();
+    updateAddHeritageClassCategory();
     updateAddOtherFunctionCategory();
     updateAddOtherHeritageSite();
 });
@@ -196,12 +202,12 @@ onMounted(() => {
                     @update:model-value="valueUpdated"
                 />
                 <Button
-                    id="saveContributingResources"
+                    id="saveHeritageClasss"
                     :disabled="addContributingResourcesDisabled"
                     :aria-disabled="addContributingResourcesDisabled"
                     label="Add"
                     class="inline-block"
-                    @click="saveContributingResource"
+                    @click="saveHeritageClass"
                 ></Button>
             </div>
         </LabelledInput>
@@ -211,51 +217,46 @@ onMounted(() => {
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="heritageCategory"
-                        inputId="category1"
-                        name="archaeologicalSite"
-                        value="archaeologicalSite"
+                        inputId="archeological_site"
+                        value="Archeological Site"
                     />
-                    <label for="category1">
+                    <label for="archeological_site">
                         Archaeological Site / Remains
                     </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="heritageCategory"
-                        inputId="category2"
-                        name="building"
-                        value="building"
+                        inputId="building"
+                        value="Building"
                     />
-                    <label for="category2"> Building </label>
+                    <label for="building"> Building </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="heritageCategory"
-                        inputId="category3"
-                        name="collection"
-                        value="collection"
+                        inputId="collection"
+                        value="Collection"
                     />
-                    <label for="category3"> Collection </label>
+                    <label for="collection"> Collection </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="heritageCategory"
-                        inputId="category4"
-                        name="landscapeFeatures"
-                        value="landscapeFeatures"
+                        inputId="landscape_features"
+                        value="Landscape Features"
                     />
-                    <label for="category4">
+                    <label for="landscape_features">
                         Landscape(s) or Landscape Feature(s)
                     </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="heritageCategory"
-                        inputId="category5"
-                        name="structure"
-                        value="structure"
+                        inputId="structure"
+                        value="Structure"
                     />
-                    <label for="category5"> Structure </label>
+                    <label for="structure"> Structure </label>
                 </div>
             </div>
             <p class="mb-1">Ownership</p>
@@ -263,58 +264,60 @@ onMounted(() => {
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="ownership"
-                        inputId="ownership1"
-                        name="Not-for-profit"
-                        value="notForProfit"
+                        inputId="not_for_profit"
+                        value="Not-for-profit"
                     />
-                    <label for="ownership1"> Not-for-profit </label>
+                    <label for="not_for_profit"> Not-for-profit </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="ownership"
-                        inputId="ownership2"
-                        name="private"
-                        value="private"
+                        inputId="private"
+                        value="Private"
                     />
-                    <label for="ownership2"> Private </label>
+                    <label for="private"> Private </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="ownership"
-                        inputId="ownership3"
-                        name="publicFederal"
-                        value="publicFederal"
+                        inputId="public_federal"
+                        value="Public (federal)"
                     />
-                    <label for="ownership3"> Public (federal) </label>
+                    <label for="public_federal"> Public (federal) </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="ownership"
-                        inputId="ownership4"
-                        name="publicLocal"
-                        value="publicLocal"
+                        inputId="public_local"
+                        value="Public (local)"
                     />
-                    <label for="ownership4"> Public (local) </label>
+                    <label for="public_local"> Public (local) </label>
                 </div>
                 <div class="flex items-center gap-2">
                     <Checkbox
                         v-model="ownership"
                         inputId="ownership5"
-                        name="publicProvincial"
-                        value="publicProvincial"
+                        value="Public (provincial)"
                     />
-                    <label for="category5"> Public (provincial) </label>
+                    <label for="public_provincial"> Public (provincial) </label>
                 </div>
             </div>
         </div>
         <MultiValuePlaceholder
             v-slot="slotProps"
             :showDeleteButton="true"
-            :displayValues="totalContributingResources"
+            :displayValues="heritageClasses"
             label="Contributing Resource(s)"
             :deleteCallback="deleteContributingResourcesCallback"
         >
-            <div class="parent value">{{ slotProps.value.name }}</div>
+            <div
+                v-for="slot in slotProps"
+                :key="slot"
+                class="parent value"
+            >
+                {{ slot.heritageCategory }} {{ slot.ownership }}
+                {{ slot.contributingResources?.name }}
+            </div>
         </MultiValuePlaceholder>
     </FieldSet>
     <Fieldset
@@ -345,26 +348,24 @@ onMounted(() => {
                 <div class="inline-block">
                     <div class="inline-block">
                         <Checkbox
-                            v-model="functionCategoryCurrent"
+                            v-model="functionCategoryType"
                             inputId="current"
-                            name="functionCategoryCurrent"
-                            value="functionCategoryCurrent"
+                            value="Current"
                         />
                         <label for="current">Current</label>
                     </div>
                     <div class="inline-block">
                         <Checkbox
-                            v-model="functionCategoryHistoric"
+                            v-model="functionCategoryType"
                             inputId="historic"
-                            name="functionCategoryCHistoric"
-                            value="functionCategoryCHistoric"
+                            value="Historic"
                         />
                         <label for="historic">Historic</label>
                     </div>
                 </div>
             </div>
             <Button
-                id="addOtherName"
+                id="saveFunctionCategory"
                 label="Add"
                 class="inline-block"
                 :disabled="addOtherFunctionCategoryDisabled"
@@ -375,11 +376,18 @@ onMounted(() => {
         <MultiValuePlaceholder
             v-slot="slotProps"
             :showDeleteButton="true"
-            :displayValues="functionCategories"
+            :displayValues="heritageFunctions"
             label="Category/Categories"
             :deleteCallback="deleteFunctionCategoryCallback"
         >
-            <div class="parent value">{{ slotProps.value.name }}</div>
+            <div
+                v-for="slot in slotProps"
+                :key="slot"
+                class="parent value"
+            >
+                {{ slot.functionCategory?.name }}
+                {{ slot.functionCategoryType }}
+            </div>
         </MultiValuePlaceholder>
     </Fieldset>
     <Fieldset
@@ -424,7 +432,7 @@ onMounted(() => {
             label="Theme(s)"
             :deleteCallback="deleteHeritageThemeCallback"
         >
-            <div class="parent value">{{ slotProps.value.name }}</div>
+            <div class="parent value">{{ slotProps.value?.name }}</div>
         </MultiValuePlaceholder>
     </Fieldset>
 </template>
