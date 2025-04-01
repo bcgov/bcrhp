@@ -6,7 +6,9 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
+import DatePicker from 'primevue/datepicker';
 
+import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -21,7 +23,9 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-let otherName = '';
+const referenceNumber = ref('');
+const referenceNumbers = ref([] as Array<string>);
+const addOtherReferenceNumberDisabled = ref(false);
 
 // These names need to match the Zog schema
 const fields = {
@@ -42,6 +46,12 @@ const isValid = () => {
         valid = validateField(field?.value.$el as HTMLInputElement) && valid;
     }
     return valid;
+};
+
+const updateAddOtherRefNumber = function () {
+    addOtherReferenceNumberDisabled.value =
+        referenceNumber.value.length < 1 ||
+        heritageSiteRef.value.referenceNumbers.length > 4;
 };
 
 const valueUpdated = function (value: string | undefined) {
@@ -68,6 +78,7 @@ const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof HeritageSite =
         field.id as keyof typeof HeritageSite;
+    console.log(key);
     const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
@@ -85,8 +96,14 @@ const validateField = function (field: HTMLInputElement) {
 
 const saveReferenceNumber = function () {
     console.log('saveReferenceNumber');
-    heritageSite.otherNames.push(otherName);
-    otherName = '';
+    heritageSiteRef.value.referenceNumbers.push(referenceNumber.value);
+    referenceNumber.value = '';
+    updateAddOtherRefNumber();
+};
+
+const deleteReferenceNumberCallback = function (index: number) {
+    heritageSiteRef.value.referenceNumbers.splice(index, 1);
+    updateAddOtherRefNumber();
 };
 
 let validateFields = false;
@@ -95,7 +112,10 @@ let validateFields = false;
 // configuration so API methods are not
 defineExpose({ isValid });
 
-onMounted(() => {});
+onMounted(() => {
+    heritageSiteRef.value.referenceNumbers = referenceNumbers;
+    updateAddOtherRefNumber();
+});
 </script>
 <template>
     <FieldSet id="recognitionDetailsFieldset">
@@ -107,18 +127,12 @@ onMounted(() => {});
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <InputText
+                <DatePicker
                     id="designationDate"
                     ref="designationDateField"
                     v-model="heritageSite.designationDate"
                     aria-describedby="designation-date-help"
                     aria-required="true"
-                    fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
                 />
             </div>
         </LabelledInput>
@@ -129,7 +143,7 @@ onMounted(() => {});
             :error-message="errors.legislativeAct?.join(',')"
             :required="true"
         >
-            <div class="p-inputtext-fluid">
+            <div class="p-inputtext-fluid flex">
                 <InputText
                     id="legislativeAct"
                     ref="legislativeActField"
@@ -170,14 +184,14 @@ onMounted(() => {});
             label="Reference Number"
             hint="The bylaw or resolution number"
             input-name="referenceNumber"
-            :error-message="errors.referenceNumber?.join(',')"
+            :error-message="errors.referenceNumbers?.join(',')"
             :required="true"
         >
             <div>
                 <InputText
                     id="referenceNumber"
                     ref="referenceNumberField"
-                    v-model="heritageSite.referenceNumber"
+                    v-model="referenceNumber"
                     aria-describedby="reference-number-help"
                     aria-required="true"
                     fluid
@@ -191,10 +205,20 @@ onMounted(() => {});
                     id="saveReferenceNumber"
                     label="Add"
                     class="inline-block"
+                    :aria-disabled="addOtherReferenceNumberDisabled"
                     @click="saveReferenceNumber"
                 ></Button>
             </div>
         </LabelledInput>
+        <MultiValuePlaceholder
+            v-slot="slotProps"
+            label="Reference Number"
+            :showDeleteButton="true"
+            :displayValues="referenceNumbers"
+            :deleteCallback="deleteReferenceNumberCallback"
+        >
+            <div class="parent value">{{ slotProps.value }}</div>
+        </MultiValuePlaceholder>
     </FieldSet>
 </template>
 
