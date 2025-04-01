@@ -23,6 +23,7 @@ import UploadImage from './steps/Step7_UploadImage.vue';
 import SiteClassification from './steps/Step8_SiteClassification.vue';
 import SiteDetails from './steps/Step9_SiteDetails.vue';
 import SupportingDocuments from './steps/Step10_SupportingDocuments.vue';
+import ReviewSubmission from './steps/Step11_ReviewSubmission.vue';
 
 import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -379,6 +380,7 @@ const showDebug = ref(false);
                             <div class="">
                                 <div class="step-title">Review Submission</div>
                             </div>
+                            <ReviewSubmission ref="step11"></ReviewSubmission>
                             <div class="">
                                 <StepperNavigation
                                     :step-number="6"

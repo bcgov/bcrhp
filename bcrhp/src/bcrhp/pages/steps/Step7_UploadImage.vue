@@ -4,6 +4,8 @@ import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
+import DatePicker from 'primevue/datepicker';
+
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { UploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
 import { getUploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
@@ -177,21 +179,13 @@ onMounted(() => {});
         :error-message="errors.imageDate?.join(',')"
         :required="true"
     >
-        <div>
-            <InputText
-                id="imageDate"
-                ref="imageDateField"
-                v-model="uploadImage.imageDate"
-                aria-describedby="image-date-help"
-                aria-required="true"
-                fluid
-                class="inline-block"
-                @change="valueChanged"
-                @focus="onFocusHandler"
-                @focusout="onFocusOutHandler"
-                @update:model-value="valueUpdated"
-            />
-        </div>
+        <DatePicker
+            id="imageDate"
+            ref="imageDateField"
+            v-model="uploadImage.imageDate"
+            aria-describedby="image-date-help"
+            aria-required="true"
+        />
     </LabelledInput>
     <LabelledInput
         label="Image Description"

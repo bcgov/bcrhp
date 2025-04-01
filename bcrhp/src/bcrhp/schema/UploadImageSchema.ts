@@ -1,13 +1,25 @@
 import { z } from 'zod';
 
 const UploadImageSchema = z.object({
-    imageType: z.array(z.string()).max(250),
-    imageView: z.array(z.string()).max(250),
-    imageFeatures: z.array(z.string()).max(250),
-    imageDate: z.array(z.string()).max(250),
-    imageDescription: z.array(z.string()).max(250),
-    photographer: z.array(z.string()).max(250),
-    copyright: z.array(z.string()).max(250),
+    imageType: z
+        .string()
+        .min(1, { message: 'Image Type is required.' })
+        .max(250),
+    imageView: z
+        .string()
+        .min(1, { message: 'Image View is required.' })
+        .max(250),
+    imageFeatures: z.string().max(250),
+    imageDate: z
+        .string()
+        .min(1, { message: 'Image Date is required.' })
+        .max(250),
+    imageDescription: z
+        .string()
+        .min(1, { message: 'Image Description is required.' })
+        .max(250),
+    photographer: z.string().max(250),
+    copyright: z.string().max(250),
 });
 
 const requiredUploadImageSchema = UploadImageSchema.partial({});
