@@ -29,13 +29,11 @@ class RecognitionDetails implements RecognitionDetailsType {
     constructor() {
         this.designationDate = '';
         this.legislativeAct = '';
-        this.showInactiveHistoricActs = false;
         this.referenceNumber = '';
         this.totalRecognitionDetails = [];
     }
     designationDate: string;
     legislativeAct: string;
-    showInactiveHistoricActs: boolean;
     referenceNumber: string;
     totalRecognitionDetails: string[];
 }

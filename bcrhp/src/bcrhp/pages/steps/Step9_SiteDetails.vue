@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
+import RadioButton from 'primevue/radiobutton';
 import DatePicker from 'primevue/datepicker';
 import Dropdown from 'primevue/dropdown';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredSiteDetailsSchema } from '@/bcrhp/schema/SiteDetailsSchema.ts';
+import {
+    requiredSiteDetailsSchema,
+    requiredChronologySchema,
+    requiredArchitectBuilderSchema,
+    requiredRequiredURLsSchema,
+} from '@/bcrhp/schema/SiteDetailsSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -39,65 +44,88 @@ const urlTypeOptions = ref([
     { name: 'Historic Place Website', code: 'historic_place_website' },
     { name: 'Provincial Website', code: 'provincial_website' },
 ]);
+const eventType = ref();
+const circa = ref('Exact');
 const addURLDisabled = ref(false);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-// These names need to match the Zog schema
-const eventType = ref();
-const circa = ref('Exact');
+const valueChanged = function (event: Event, schema: string) {
+    console.log(event);
 
-const fields = {
-    startYearField: useTemplateRef('startYearField'),
-    endYearField: useTemplateRef('endYearField'),
-    chronologyNotesField: useTemplateRef('chronologyNotesField'),
-    architectOrBuilderNameField: useTemplateRef('architectOrBuilderNameField'),
-    architectOrBuilderTypeField: useTemplateRef('architectOrBuilderTypeField'),
-    urlTypeField: useTemplateRef('urlTypeField'),
-    linkTextField: useTemplateRef('linkTextField'),
-    urlField: useTemplateRef('urlField'),
-};
-
-const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
+    if (schema === 'requiredSiteDetailsSchema') {
+        validateSiteDetailsFields(event.target as HTMLInputElement);
+    } else if (schema === 'requiredChronologySchema') {
+        validateChronologyField(event.target as HTMLInputElement);
+    } else if (schema === 'requiredArchitectBuilderSchema') {
+        validateArchitectOrBuilderField(event.target as HTMLInputElement);
+    } else if (schema === 'requiredRequiredURLsSchema') {
+        validateURLField(event.target as HTMLInputElement);
     }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
-    }
-    return valid;
 };
-
-const valueUpdated = function (value: string | undefined) {
-    console.log(`valueUpdated: ${value}`);
-};
-
-const valueChanged = function (event: Event) {
-    console.log(`valueChanged`);
-    validateField(event.target as HTMLInputElement);
-};
-
-const onFocusHandler = function (event: Event) {
-    console.log(`onFocusHandler ${event}`);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const onFocusOutHandler = function (event: Event) {
-    console.log(`onFocusOutHandler`);
-    validateField(event.target as HTMLInputElement);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const validateField = function (field: HTMLInputElement) {
+const validateSiteDetailsFields = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof HeritageSite =
         field.id as keyof typeof HeritageSite;
     const fieldValidation = requiredSiteDetailsSchema.shape[key].safeParse(
+        heritageSiteRef.value[key],
+    );
+    if (fieldValidation.success) {
+        field.classList.remove('p-invalid');
+        errors.value[key] = [];
+    } else {
+        field.classList.add('p-invalid');
+        errors.value[key] = (
+            fieldValidation.error as typeof ZodError
+        ).flatten().formErrors;
+    }
+    return fieldValidation.success;
+};
+
+const validateChronologyField = function (field: HTMLInputElement) {
+    console.log(`ID: ${field.id}`);
+    const key: keyof typeof HeritageSite =
+        field.id as keyof typeof HeritageSite;
+    const fieldValidation = requiredChronologySchema.shape[key].safeParse(
+        heritageSiteRef.value[key],
+    );
+    if (fieldValidation.success) {
+        field.classList.remove('p-invalid');
+        errors.value[key] = [];
+    } else {
+        field.classList.add('p-invalid');
+        errors.value[key] = (
+            fieldValidation.error as typeof ZodError
+        ).flatten().formErrors;
+    }
+    return fieldValidation.success;
+};
+
+const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
+    console.log(`ID: ${field.id}`);
+    const key: keyof typeof HeritageSite =
+        field.id as keyof typeof HeritageSite;
+    const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
+        heritageSiteRef.value[key],
+    );
+    if (fieldValidation.success) {
+        field.classList.remove('p-invalid');
+        errors.value[key] = [];
+    } else {
+        field.classList.add('p-invalid');
+        errors.value[key] = (
+            fieldValidation.error as typeof ZodError
+        ).flatten().formErrors;
+    }
+    return fieldValidation.success;
+};
+
+const validateURLField = function (field: HTMLInputElement) {
+    console.log(`ID: ${field.id}`);
+    const key: keyof typeof HeritageSite =
+        field.id as keyof typeof HeritageSite;
+    const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
@@ -181,12 +209,6 @@ const deleteURLCallback = function (index: number) {
     updateAddOtherURL();
 };
 
-let validateFields = false;
-
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
-defineExpose({ isValid });
-
 onMounted(() => {
     heritageSiteRef.value.siteDetails.chronologies = chronologies;
     heritageSiteRef.value.siteDetails.architectsOrBuilders =
@@ -209,18 +231,30 @@ onMounted(() => {
                     <p class="mb-1">Event Type</p>
                     <div class="card flex flex-col">
                         <div class="flex items-center gap-2">
-                            <Checkbox
+                            <RadioButton
                                 v-model="eventType"
-                                inputId="construction"
+                                inputId="eventType"
                                 value="Construction"
+                                @change="
+                                    valueChanged(
+                                        $event,
+                                        'requiredChronologySchema',
+                                    )
+                                "
                             />
                             <label for="construction"> Construction </label>
                         </div>
                         <div class="flex items-center gap-2">
-                            <Checkbox
+                            <RadioButton
                                 v-model="eventType"
-                                inputId="significant"
+                                inputId="eventType"
                                 value="Significant"
+                                @change="
+                                    valueChanged(
+                                        $event,
+                                        'requiredChronologySchema',
+                                    )
+                                "
                             />
                             <label for="significant"> Significant </label>
                         </div>
@@ -236,6 +270,9 @@ onMounted(() => {
                 view="year"
                 aria-describedby="start-year-help"
                 aria-required="true"
+                @update:model-value="
+                    valueChanged($event, 'requiredChronologySchema')
+                "
             />
             <p>End Year</p>
             <DatePicker
@@ -246,12 +283,16 @@ onMounted(() => {
                 view="year"
                 aria-describedby="end-year-help"
                 aria-required="true"
+                @update:model-value="
+                    valueChanged($event, 'requiredChronologySchema')
+                "
             />
             <div class="inline-block">
                 <Checkbox
                     v-model="circa"
                     inputId="circa"
                     value="Circa"
+                    @change="valueChanged($event, 'requiredChronologySchema')"
                 />
                 <label for="circa"> Circa </label>
             </div>
@@ -273,9 +314,9 @@ onMounted(() => {
                         fluid
                         class="inline-block"
                         @editorChange="valueChanged"
-                        @focus="onFocusHandler"
-                        @blur="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="
+                            valueChanged($event, 'requiredChronologySchema')
+                        "
                     />
                     <Button
                         id="saveChronology"
@@ -325,10 +366,12 @@ onMounted(() => {
                         aria-describedby="architect-or-builder-help"
                         aria-required="true"
                         fluid
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="
+                            valueChanged(
+                                $event,
+                                'requiredArchitectBuilderSchema',
+                            )
+                        "
                     />
                 </div>
             </LabelledInput>
@@ -343,13 +386,16 @@ onMounted(() => {
                     ref="architectOrBuilderTypeField"
                     v-model="architectOrBuilderType"
                     optionLabel="name"
+                    optionValue="code"
                     placeholder="Select Type"
                     :options="architectOrBuilderTypeOptions"
                     aria-describedby="architect-or-builder-type-help"
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="valueUpdated"
+                    @update:model-value="
+                        valueChanged($event, 'requiredArchitectBuilderSchema')
+                    "
                 />
             </LabelledInput>
         </div>
@@ -370,10 +416,12 @@ onMounted(() => {
                         aria-required="true"
                         fluid
                         class="inline-block"
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="
+                            valueChanged(
+                                $event,
+                                'requiredArchitectBuilderSchema',
+                            )
+                        "
                     />
                     <Button
                         id="addOtherName"
@@ -421,12 +469,15 @@ onMounted(() => {
                     v-model="urlType"
                     placeholder="Select Type"
                     optionLabel="name"
+                    optionValue="code"
                     :options="urlTypeOptions"
                     aria-describedby="url-type-help"
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="valueUpdated"
+                    @update:model-value="
+                        valueChanged($event, 'requiredRequiredURLsSchema')
+                    "
                 />
             </LabelledInput>
             <LabelledInput
@@ -444,10 +495,9 @@ onMounted(() => {
                         aria-describedby="link-text-help"
                         aria-required="true"
                         fluid
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="
+                            valueChanged($event, 'requiredRequiredURLsSchema')
+                        "
                     />
                 </div>
             </LabelledInput>
@@ -469,10 +519,9 @@ onMounted(() => {
                         aria-required="true"
                         fluid
                         class="inline-block"
-                        @change="valueChanged"
-                        @focus="onFocusHandler"
-                        @focusout="onFocusOutHandler"
-                        @update:model-value="valueUpdated"
+                        @change="
+                            valueChanged($event, 'requiredRequiredURLsSchema')
+                        "
                     />
                     <Button
                         id="saveURL"

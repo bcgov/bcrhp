@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
+import Dropdown from 'primevue/dropdown';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -21,8 +22,12 @@ const heritageSite: typeof HeritageSite = inject(
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
 
+const errors: Ref<FormErrors> = ref<FormErrors>({});
+const legislativeActOptions = ref([
+    { name: 'Legislative Act 1', code: 'legislative_act_1' },
+    { name: 'Legislative Act 2', code: 'legislative_act_2' },
+]);
 const designationDate = ref();
 const legislativeAct = ref('');
 const referenceNumber = ref('');
@@ -160,17 +165,18 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid flex">
-                <InputText
+                <Dropdown
                     id="legislativeAct"
                     ref="legislativeActField"
                     v-model="legislativeAct"
+                    optionLabel="name"
+                    optionValue="code"
+                    placeholder="Select Legislative Act"
+                    :options="legislativeActOptions"
                     aria-describedby="legislative-act-help"
                     aria-required="true"
-                    class="inline-block"
                     fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
+                    class="w-full md:w-14rem"
                     @update:model-value="valueUpdated"
                 />
                 <div class="inline-block">
@@ -238,7 +244,7 @@ onMounted(() => {
                 :key="slot"
                 class="parent value"
             >
-                {{ slot.designationDate }} {{ slot.legislativeAct }}
+                {{ slot.designationDate }} {{ slot.legislativeAct?.name }}
                 {{ slot.referenceNumber }}
             </div>
         </MultiValuePlaceholder>
