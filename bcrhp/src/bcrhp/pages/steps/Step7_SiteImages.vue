@@ -71,7 +71,7 @@ const validateField = function (field: HTMLInputElement) {
 
     const key: keyof typeof SiteImages = field.id as keyof typeof SiteImages;
     const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.siteImages[key],
     );
 
     if (fieldValidation.success) {

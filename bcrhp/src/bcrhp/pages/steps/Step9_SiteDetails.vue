@@ -90,7 +90,7 @@ const validateChronologyField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof Chronology = field.id as keyof typeof Chronology;
     const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.siteDetails[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -109,7 +109,7 @@ const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     const key: keyof typeof ArchitectOrBuilder =
         field.id as keyof typeof ArchitectOrBuilder;
     const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.siteDetails[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -128,7 +128,7 @@ const validateURLField = function (field: HTMLInputElement) {
     const key: keyof typeof RequiredURLs =
         field.id as keyof typeof RequiredURLs;
     const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.siteDetails[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
