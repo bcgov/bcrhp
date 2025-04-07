@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
-import { UploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
+import { SiteImagesSchema } from '@/bcrhp/schema/SiteImagesSchema.ts';
 import { RecognitionDetails } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
 import { StatementOfSignificance } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
 import { SiteClassification } from '@/bcrhp/schema/SiteClassificationSchema.ts';
@@ -19,7 +19,7 @@ const HeritageSiteSchema = z.object({
     commonName: z.string().min(1, { message: 'Common Name is required.' }),
     otherNames: z.array(z.string()).max(5),
     civicAddress: z.array(CivicAddressSchema),
-    uploadImage: z.array(UploadImageSchema),
+    siteImages: z.array(SiteImagesSchema),
     recognitionDetails: z.array(RecognitionDetails),
     statementOfSignificance: z.array(StatementOfSignificance),
     siteClassification: z.array(SiteClassification),
@@ -50,7 +50,7 @@ class HeritageSite implements HeritageSiteType {
         this.otherNames = [];
         this.hasCivicAddress = true;
         this.civicAddress = {}; // Object of UUID -> CivicAddress objects
-        this.uploadImage = {};
+        this.siteImages = {};
         this.siteBoundary = {};
         this.recognitionDetails = {};
         this.statementOfSignificance = {};
@@ -67,7 +67,7 @@ class HeritageSite implements HeritageSiteType {
     otherNames: string[];
     hasCivicAddress: boolean;
     civicAddress: object;
-    uploadImage: object;
+    siteImages: object;
     recognitionDetails: object;
     statementOfSignificance: object;
     siteClassification: object;

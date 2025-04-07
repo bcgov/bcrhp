@@ -13,6 +13,10 @@ import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePl
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
+    SiteDetails,
+    Chronology,
+    ArchitectOrBuilder,
+    RequiredURLs,
     requiredSiteDetailsSchema,
     requiredChronologySchema,
     requiredArchitectBuilderSchema,
@@ -66,8 +70,7 @@ const valueChanged = function (event: Event, schema: string) {
 };
 const validateSiteDetailsFields = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof SiteDetails = field.id as keyof typeof SiteDetails;
     const fieldValidation = requiredSiteDetailsSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
@@ -85,10 +88,9 @@ const validateSiteDetailsFields = function (field: HTMLInputElement) {
 
 const validateChronologyField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof Chronology = field.id as keyof typeof Chronology;
     const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.chronologies[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -104,10 +106,10 @@ const validateChronologyField = function (field: HTMLInputElement) {
 
 const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof ArchitectOrBuilder =
+        field.id as keyof typeof ArchitectOrBuilder;
     const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.architectsOrBuilders[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -123,10 +125,10 @@ const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
 
 const validateURLField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof RequiredURLs =
+        field.id as keyof typeof RequiredURLs;
     const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.urls[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -386,7 +388,6 @@ onMounted(() => {
                     ref="architectOrBuilderTypeField"
                     v-model="architectOrBuilderType"
                     optionLabel="name"
-                    optionValue="code"
                     placeholder="Select Type"
                     :options="architectOrBuilderTypeOptions"
                     aria-describedby="architect-or-builder-type-help"
@@ -469,7 +470,6 @@ onMounted(() => {
                     v-model="urlType"
                     placeholder="Select Type"
                     optionLabel="name"
-                    optionValue="code"
                     :options="urlTypeOptions"
                     aria-describedby="url-type-help"
                     aria-required="true"

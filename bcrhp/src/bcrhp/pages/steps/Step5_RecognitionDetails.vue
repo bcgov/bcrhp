@@ -13,7 +13,11 @@ import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePl
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredRecognitionDetailsSchema } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+import {
+    RecognitionDetails,
+    requiredRecognitionDetailsSchema,
+} from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -85,11 +89,11 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
 
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof RecognitionDetails =
+        field.id as keyof typeof RecognitionDetails;
     const fieldValidation = requiredRecognitionDetailsSchema.shape[
         key
-    ].safeParse(heritageSiteRef.value[key]);
+    ].safeParse(heritageSiteRef.value.recognitionDetails[key]);
 
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -170,7 +174,6 @@ onMounted(() => {
                     ref="legislativeActField"
                     v-model="legislativeAct"
                     optionLabel="name"
-                    optionValue="code"
                     placeholder="Select Legislative Act"
                     :options="legislativeActOptions"
                     aria-describedby="legislative-act-help"

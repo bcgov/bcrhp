@@ -11,6 +11,10 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
+    SiteClassification,
+    HeritageClass,
+    HeritageFunction,
+    HeritageTheme,
     requiredSiteClassificationSchema,
     requiredHeritageClassSchema,
     requiredHeritageFunctionSchema,
@@ -62,26 +66,26 @@ const valueChanged = function (event: Event, schema: string) {
 
 const updateAddHeritageClassCategory = function () {
     addContributingResourcesDisabled.value =
-        heritageClasses.value.length < 0 ||
+        heritageClasses.value.length < 1 ||
         heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
 };
 
 const updateAddOtherFunctionCategory = function () {
     addOtherFunctionCategoryDisabled.value =
-        heritageFunctions.value.length < 0 ||
+        heritageFunctions.value.length < 1 ||
         heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
 };
 
 const updateAddOtherHeritageSite = function () {
     addOtherHeritageSiteDisabled.value =
-        heritageThemes.value.length < 0 ||
+        heritageThemes.value.length < 1 ||
         heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
 };
 
 const validateSiteClassificationFields = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof SiteClassification =
+        field.id as keyof typeof SiteClassification;
     const fieldValidation = requiredSiteClassificationSchema.shape[
         key
     ].safeParse(heritageSiteRef.value[key]);
@@ -99,10 +103,10 @@ const validateSiteClassificationFields = function (field: HTMLInputElement) {
 
 const validateHeritageClassField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof HeritageClass =
+        field.id as keyof typeof HeritageClass;
     const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.heritageClasses[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -118,10 +122,10 @@ const validateHeritageClassField = function (field: HTMLInputElement) {
 
 const validateHeritageFunctionField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof HeritageFunction =
+        field.id as keyof typeof HeritageFunction;
     const fieldValidation = requiredHeritageFunctionSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.heritageFunctions[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -137,10 +141,10 @@ const validateHeritageFunctionField = function (field: HTMLInputElement) {
 
 const validateHeritageThemeField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof HeritageTheme =
+        field.id as keyof typeof HeritageTheme;
     const fieldValidation = requiredHeritageThemeSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        heritageSiteRef.value.heritageThemes[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -402,7 +406,6 @@ onMounted(() => {
                     id="functionCategory"
                     ref="functionCategoryField"
                     v-model="functionCategory"
-                    optionValue="code"
                     inputId="functionCategory"
                     optionLabel="name"
                     placeholder="Select Function Category"
@@ -489,7 +492,6 @@ onMounted(() => {
                     ref="heritageThemeField"
                     v-model="heritageTheme"
                     optionLabel="name"
-                    optionValue="code"
                     inputId="heritageTheme"
                     placeholder="Select Function Theme"
                     :options="functionThemeOptions"

@@ -34,7 +34,7 @@ const heritageSite: typeof HeritageSite = inject(
             :key="recognitionDetail"
         >
             <p>Start Date {{ recognitionDetail.designationDate }}</p>
-            <p>Legislative Act {{ recognitionDetail.legislativeAct }}</p>
+            <p>Legislative Act {{ recognitionDetail.legislativeAct?.name }}</p>
             <p>Reference Number {{ recognitionDetail.referenceNumber }}</p>
         </div>
     </div>
@@ -62,7 +62,7 @@ const heritageSite: typeof HeritageSite = inject(
     <div>
         <p class="mb-2 underline font-bold">Images</p>
         <div
-            v-for="image in heritageSite.uploadImage"
+            v-for="image in heritageSite.siteImages"
             :key="image"
         >
             <p>Type {{ image.imageType }}</p>

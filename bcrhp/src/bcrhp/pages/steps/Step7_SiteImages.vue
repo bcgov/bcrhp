@@ -8,7 +8,10 @@ import DatePicker from 'primevue/datepicker';
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredUploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
+import {
+    SiteImages,
+    requiredSiteImagesSchema,
+} from '@/bcrhp/schema/SiteImagesSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -66,10 +69,9 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
 
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
-    const fieldValidation = requiredUploadImageSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+    const key: keyof typeof SiteImages = field.id as keyof typeof SiteImages;
+    const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
+        heritageSiteRef.value.siteImages[key],
     );
 
     if (fieldValidation.success) {
@@ -120,7 +122,7 @@ onMounted(() => {});
                 <InputText
                     id="imageType"
                     ref="imageTypeField"
-                    v-model="heritageSite.uploadImage.imageType"
+                    v-model="heritageSite.siteImages.imageType"
                     aria-describedby="image-type-help"
                     aria-required="true"
                     fluid
@@ -142,7 +144,7 @@ onMounted(() => {});
                 <InputText
                     id="imageView"
                     ref="imageViewField"
-                    v-model="heritageSite.uploadImage.imageView"
+                    v-model="heritageSite.siteImages.imageView"
                     aria-describedby="image-view-help"
                     aria-required="true"
                     fluid
@@ -165,7 +167,7 @@ onMounted(() => {});
             <InputText
                 id="imageFeatures"
                 ref="imageFeaturesField"
-                v-model="heritageSite.uploadImage.imageFeatures"
+                v-model="heritageSite.siteImages.imageFeatures"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -187,7 +189,7 @@ onMounted(() => {});
         <DatePicker
             id="imageDate"
             ref="imageDateField"
-            v-model="heritageSite.uploadImage.imageDate"
+            v-model="heritageSite.siteImages.imageDate"
             aria-describedby="image-date-help"
             aria-required="true"
         />
@@ -203,7 +205,7 @@ onMounted(() => {});
             <Editor
                 id="imageDescription"
                 ref="imageDescriptionField"
-                v-model="heritageSite.uploadImage.imageDescription"
+                v-model="heritageSite.siteImages.imageDescription"
                 theme="snow"
                 aria-describedby="image-description-help"
                 aria-required="true"
@@ -225,7 +227,7 @@ onMounted(() => {});
             <InputText
                 id="photographer"
                 ref="photographerField"
-                v-model="heritageSite.uploadImage.photographer"
+                v-model="heritageSite.siteImages.photographer"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -247,7 +249,7 @@ onMounted(() => {});
             <InputText
                 id="copyright"
                 ref="copyrightField"
-                v-model="heritageSite.uploadImage.copyright"
+                v-model="heritageSite.siteImages.copyright"
                 aria-describedby="copyright-help"
                 aria-required="true"
                 fluid

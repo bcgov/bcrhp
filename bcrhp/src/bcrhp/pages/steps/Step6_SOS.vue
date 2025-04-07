@@ -6,7 +6,10 @@ import InputText from 'primevue/inputtext';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import Editor from 'primevue/editor';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredStatementOfSignificanceSchema } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
+import {
+    StatementOfSignificance,
+    requiredStatementOfSignificanceSchema,
+} from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -62,11 +65,11 @@ const onFocusOutHandler = function (event: Event) {
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field}`);
 
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+    const key: keyof typeof StatementOfSignificance =
+        field.id as keyof typeof StatementOfSignificance;
     const fieldValidation = requiredStatementOfSignificanceSchema.shape[
         key
-    ].safeParse(heritageSiteRef.value[key]);
+    ].safeParse(heritageSiteRef.value.statementOfSignificance[key]);
 
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
