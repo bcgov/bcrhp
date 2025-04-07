@@ -106,7 +106,7 @@ const validateHeritageClassField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageClass =
         field.id as keyof typeof HeritageClass;
     const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        heritageSiteRef.value.heritageClasses[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -125,7 +125,7 @@ const validateHeritageFunctionField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageFunction =
         field.id as keyof typeof HeritageFunction;
     const fieldValidation = requiredHeritageFunctionSchema.shape[key].safeParse(
-        heritageSiteRef.value.heritageFunctions[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -144,7 +144,7 @@ const validateHeritageThemeField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageTheme =
         field.id as keyof typeof HeritageTheme;
     const fieldValidation = requiredHeritageThemeSchema.shape[key].safeParse(
-        heritageSiteRef.value.heritageThemes[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -414,7 +414,7 @@ onMounted(() => {
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="
+                    @blur="
                         valueChanged($event, 'requiredHeritageFunctionSchema')
                     "
                 />
@@ -499,9 +499,7 @@ onMounted(() => {
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="
-                        valueChanged($event, 'requiredHeritageThemeSchema')
-                    "
+                    @blur="valueChanged($event, 'requiredHeritageThemeSchema')"
                 />
             </div>
             <Button

@@ -69,7 +69,7 @@ const validateField = function (field: HTMLInputElement) {
         field.id as keyof typeof StatementOfSignificance;
     const fieldValidation = requiredStatementOfSignificanceSchema.shape[
         key
-    ].safeParse(heritageSiteRef.value.statementOfSignificance[key]);
+    ].safeParse(heritageSiteRef.value[key]);
 
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');

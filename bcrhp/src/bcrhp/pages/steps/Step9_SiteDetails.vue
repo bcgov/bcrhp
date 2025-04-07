@@ -90,7 +90,7 @@ const validateChronologyField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof Chronology = field.id as keyof typeof Chronology;
     const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        heritageSiteRef.value.chronologies[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -109,7 +109,7 @@ const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     const key: keyof typeof ArchitectOrBuilder =
         field.id as keyof typeof ArchitectOrBuilder;
     const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        heritageSiteRef.value.architectsOrBuilders[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -128,7 +128,7 @@ const validateURLField = function (field: HTMLInputElement) {
     const key: keyof typeof RequiredURLs =
         field.id as keyof typeof RequiredURLs;
     const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        heritageSiteRef.value.urls[key],
+        heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -162,7 +162,7 @@ const updateAddOtherURL = function () {
 const saveChronology = function () {
     console.log('saveChronology');
     heritageSiteRef.value.siteDetails.chronologies.push({
-        eventType: eventType.value.toString(),
+        eventType: eventType.value?.toString(),
         startYear: startYear.value,
         endYear: endYear.value,
         circa: circa.value,
@@ -272,9 +272,7 @@ onMounted(() => {
                 view="year"
                 aria-describedby="start-year-help"
                 aria-required="true"
-                @update:model-value="
-                    valueChanged($event, 'requiredChronologySchema')
-                "
+                @input="valueChanged($event, 'requiredChronologySchema')"
             />
             <p>End Year</p>
             <DatePicker
@@ -285,9 +283,7 @@ onMounted(() => {
                 view="year"
                 aria-describedby="end-year-help"
                 aria-required="true"
-                @update:model-value="
-                    valueChanged($event, 'requiredChronologySchema')
-                "
+                @input="valueChanged($event, 'requiredChronologySchema')"
             />
             <div class="inline-block">
                 <Checkbox
@@ -394,7 +390,7 @@ onMounted(() => {
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="
+                    @blur="
                         valueChanged($event, 'requiredArchitectBuilderSchema')
                     "
                 />
@@ -468,6 +464,7 @@ onMounted(() => {
                     id="urlType"
                     ref="urlTypeField"
                     v-model="urlType"
+                    inputId="urlType"
                     placeholder="Select Type"
                     optionLabel="name"
                     :options="urlTypeOptions"
@@ -475,9 +472,7 @@ onMounted(() => {
                     aria-required="true"
                     fluid
                     class="w-full md:w-14rem"
-                    @update:model-value="
-                        valueChanged($event, 'requiredRequiredURLsSchema')
-                    "
+                    @blur="valueChanged($event, 'requiredRequiredURLsSchema')"
                 />
             </LabelledInput>
             <LabelledInput
