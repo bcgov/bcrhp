@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -7,14 +7,18 @@ import Editor from 'primevue/editor';
 import DatePicker from 'primevue/datepicker';
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import type { UploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
-import { getUploadImage } from '@/bcrhp/schema/UploadImageSchema.ts';
-import { requiredUploadImageSchema } from '@/bcrhp/schema/UploadImageSchema.ts';
+import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    SiteImages,
+    requiredSiteImagesSchema,
+} from '@/bcrhp/schema/SiteImagesSchema.ts';
 import type { ZodError } from 'zod';
 
-const uploadImage: typeof UploadImage = getUploadImage();
-const uploadImageRef: Ref<typeof UploadImage> = ref(uploadImage);
-type FormErrors = Partial<Record<keyof typeof UploadImage, string[]>>;
+const heritageSite: typeof HeritageSite = inject(
+    'heritageSite',
+) as typeof HeritageSite;
+const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
 // These names need to match the Zog schema
@@ -64,10 +68,12 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof UploadImage = field.id as keyof typeof UploadImage;
-    const fieldValidation = requiredUploadImageSchema.shape[key].safeParse(
-        uploadImageRef.value[key],
+
+    const key: keyof typeof SiteImages = field.id as keyof typeof SiteImages;
+    const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
+        heritageSiteRef.value.siteImages[key],
     );
+
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
         errors.value[key] = [];
@@ -77,6 +83,7 @@ const validateField = function (field: HTMLInputElement) {
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
+
     return fieldValidation.success;
 };
 
@@ -115,7 +122,7 @@ onMounted(() => {});
                 <InputText
                     id="imageType"
                     ref="imageTypeField"
-                    v-model="uploadImage.imageType"
+                    v-model="heritageSite.siteImages.imageType"
                     aria-describedby="image-type-help"
                     aria-required="true"
                     fluid
@@ -137,7 +144,7 @@ onMounted(() => {});
                 <InputText
                     id="imageView"
                     ref="imageViewField"
-                    v-model="uploadImage.imageView"
+                    v-model="heritageSite.siteImages.imageView"
                     aria-describedby="image-view-help"
                     aria-required="true"
                     fluid
@@ -160,7 +167,7 @@ onMounted(() => {});
             <InputText
                 id="imageFeatures"
                 ref="imageFeaturesField"
-                v-model="uploadImage.imageFeatures"
+                v-model="heritageSite.siteImages.imageFeatures"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -182,7 +189,7 @@ onMounted(() => {});
         <DatePicker
             id="imageDate"
             ref="imageDateField"
-            v-model="uploadImage.imageDate"
+            v-model="heritageSite.siteImages.imageDate"
             aria-describedby="image-date-help"
             aria-required="true"
         />
@@ -198,7 +205,7 @@ onMounted(() => {});
             <Editor
                 id="imageDescription"
                 ref="imageDescriptionField"
-                v-model="uploadImage.imageDescription"
+                v-model="heritageSite.siteImages.imageDescription"
                 theme="snow"
                 aria-describedby="image-description-help"
                 aria-required="true"
@@ -220,7 +227,7 @@ onMounted(() => {});
             <InputText
                 id="photographer"
                 ref="photographerField"
-                v-model="uploadImage.photographer"
+                v-model="heritageSite.siteImages.photographer"
                 aria-describedby="image-features-help"
                 aria-required="true"
                 fluid
@@ -242,7 +249,7 @@ onMounted(() => {});
             <InputText
                 id="copyright"
                 ref="copyrightField"
-                v-model="uploadImage.copyright"
+                v-model="heritageSite.siteImages.copyright"
                 aria-describedby="copyright-help"
                 aria-required="true"
                 fluid

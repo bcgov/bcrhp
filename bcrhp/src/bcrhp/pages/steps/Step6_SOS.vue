@@ -6,7 +6,10 @@ import InputText from 'primevue/inputtext';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import Editor from 'primevue/editor';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    StatementOfSignificance,
+    requiredStatementOfSignificanceSchema,
+} from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -61,11 +64,13 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
-    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
-    );
+
+    const key: keyof typeof StatementOfSignificance =
+        field.id as keyof typeof StatementOfSignificance;
+    const fieldValidation = requiredStatementOfSignificanceSchema.shape[
+        key
+    ].safeParse(heritageSiteRef.value.statementOfSignificance[key]);
+
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
         errors.value[key] = [];
@@ -75,6 +80,7 @@ const validateField = function (field: HTMLInputElement) {
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
+
     return fieldValidation.success;
 };
 
@@ -99,7 +105,7 @@ onMounted(() => {});
                 <Editor
                     id="description"
                     ref="descriptionField"
-                    v-model="heritageSite.description"
+                    v-model="heritageSite.statementOfSignificance.description"
                     theme="snow"
                     aria-describedby="description-help"
                     aria-required="true"
@@ -122,7 +128,7 @@ onMounted(() => {});
                 <Editor
                     id="heritageValue"
                     ref="heritageValueField"
-                    v-model="heritageSite.heritageValue"
+                    v-model="heritageSite.statementOfSignificance.heritageValue"
                     theme="snow"
                     aria-describedby="heritage-value-help"
                     aria-required="true"
@@ -145,7 +151,9 @@ onMounted(() => {});
                 <Editor
                     id="definingElements"
                     ref="definingElementsField"
-                    v-model="heritageSite.definingElements"
+                    v-model="
+                        heritageSite.statementOfSignificance.definingElements
+                    "
                     theme="snow"
                     aria-describedby="defining-elements-help"
                     aria-required="true"
@@ -168,7 +176,9 @@ onMounted(() => {});
                 <InputText
                     id="documentLocation"
                     ref="documentLocationField"
-                    v-model="heritageSite.documentLocation"
+                    v-model="
+                        heritageSite.statementOfSignificance.documentLocation
+                    "
                     aria-describedby="document-location-help"
                     aria-required="true"
                     fluid

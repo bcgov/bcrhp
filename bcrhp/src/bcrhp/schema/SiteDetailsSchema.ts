@@ -1,0 +1,123 @@
+import { z } from 'zod';
+
+const SiteDetailsSchema = z.object({
+    chronologies: z.array(z.string()).max(5),
+    architectsOrBuilders: z.array(z.string()).max(5),
+    urls: z.array(z.string()).max(5),
+});
+const ChronologySchema = z.object({
+    eventType: z.string().max(20),
+    startYear: z.array(z.string()).max(4),
+    endYear: z.array(z.string()).max(4),
+    circa: z.string().max(20),
+    chronologyNotes: z.string().max(1000),
+});
+const ArchitectBuilderSchema = z.object({
+    architectOrBuilderName: z
+        .string()
+        .min(1, { message: 'Architect or Builder Name is required.' })
+        .max(250),
+    architectOrBuilderNotes: z.string().max(4000),
+    architectOrBuilderType: z
+        .string()
+        .min(1, { message: 'Architect or Builder Type is required.' })
+        .max(250),
+});
+const RequiredURLsSchema = z.object({
+    urlType: z.array(z.string()).max(250),
+    urlText: z.string().min(1, { message: 'URL Type is required.' }).max(250),
+    linkText: z.string().min(1, { message: 'URL Text is required.' }).max(250),
+    url: z.string().min(1, { message: 'URL is required.' }).max(250),
+});
+
+const requiredSiteDetailsSchema = SiteDetailsSchema.partial({});
+const requiredChronologySchema = ChronologySchema.partial({});
+const requiredArchitectBuilderSchema = ArchitectBuilderSchema.partial({});
+const requiredRequiredURLsSchema = RequiredURLsSchema.partial({});
+
+// @ts-ignore
+type SiteDetailsType = z.infer<typeof SiteDetailsSchema>;
+// @ts-ignore
+type ChronologyType = z.infer<typeof ChronologySchema>;
+// @ts-ignore
+type ArchitectOrBuilderType = z.infer<typeof ArchitectOrBuilderSchema>;
+// @ts-ignore
+type RequiredURLsType = z.infer<typeof RequiredURLsSchema>;
+
+function getSiteDetailsSchema(): SiteDetailsType {
+    return new SiteDetails();
+}
+function getChronologySchema(): ChronologyType {
+    return new Chronology();
+}
+function getArchitectOrBuilderSchema(): ArchitectOrBuilderType {
+    return new ArchitectOrBuilder();
+}
+function getRequiredURLsSchema(): RequiredURLsType {
+    return new RequiredURLs();
+}
+
+// @todo - Figure out object state - New/Updated/Deleted
+class SiteDetails implements SiteDetailsType {
+    constructor() {
+        this.chronologies = [];
+        this.architectsOrBuilders = [];
+        this.urls = [];
+    }
+    chronologies: string[];
+    architectsOrBuilders: string[];
+    urls: string[];
+}
+class Chronology implements ChronologyType {
+    constructor() {
+        this.eventType = '';
+        this.startYear = '';
+        this.endYear = '';
+        this.circa = '';
+        this.chronologyNotes = '';
+    }
+    eventType: string;
+    startYear: string;
+    endYear: string;
+    circa: string;
+    chronologyNotes: string;
+}
+class ArchitectOrBuilder implements ArchitectOrBuilderType {
+    constructor() {
+        this.architectOrBuilderName = '';
+        this.architectOrBuilderNotes = '';
+        this.architectOrBuilderType = '';
+    }
+    architectOrBuilderName: string;
+    architectOrBuilderNotes: string;
+    architectOrBuilderType: string;
+}
+class RequiredURLs implements RequiredURLsType {
+    constructor() {
+        this.urlType = '';
+        this.linkText = '';
+        this.url = '';
+    }
+    urlType: string;
+    linkText: string;
+    url: string;
+}
+
+export {
+    SiteDetails,
+    SiteDetailsSchema,
+    getSiteDetailsSchema,
+    requiredSiteDetailsSchema,
+    Chronology,
+    ChronologySchema,
+    getChronologySchema,
+    requiredChronologySchema,
+    ArchitectOrBuilder,
+    ArchitectBuilderSchema,
+    getArchitectOrBuilderSchema,
+    requiredArchitectBuilderSchema,
+    RequiredURLs,
+    RequiredURLsSchema,
+    getRequiredURLsSchema,
+    requiredRequiredURLsSchema,
+};

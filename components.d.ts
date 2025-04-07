@@ -8,9 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Checkbox: typeof import('primevue/checkbox')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Fieldset: typeof import('primevue/fieldset')['default']
     FileUpload: typeof import('primevue/fileupload')['default']
+    InputText: typeof import('primevue/inputtext')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

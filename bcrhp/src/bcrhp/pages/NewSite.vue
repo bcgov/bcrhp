@@ -19,7 +19,7 @@ import SpatialLocation from './steps/Step3_SpatialLocation.vue';
 import SiteNames from './steps/Step4_SiteNames.vue';
 import RecognitionDetails from './steps/Step5_RecognitionDetails.vue';
 import SOS from './steps/Step6_SOS.vue';
-import UploadImage from './steps/Step7_UploadImage.vue';
+import SiteImages from './steps/Step7_SiteImages.vue';
 import SiteClassification from './steps/Step8_SiteClassification.vue';
 import SiteDetails from './steps/Step9_SiteDetails.vue';
 import SupportingDocuments from './steps/Step10_SupportingDocuments.vue';
@@ -296,7 +296,7 @@ const showDebug = ref(false);
                                 2MB. Include illustrations, plans, etc. in the
                                 Supporting Documents section
                             </p>
-                            <UploadImage ref="step7"></UploadImage>
+                            <SiteImages ref="step7"></SiteImages>
                             <div class="">
                                 <StepperNavigation
                                     :step-number="6"
@@ -447,9 +447,11 @@ li {
     word-wrap: anywhere;
     color: darkgray;
 }
+
 .show-debug {
     display: inline-block !important;
 }
+
 .debug-toggle {
     position: absolute;
     top: 0;

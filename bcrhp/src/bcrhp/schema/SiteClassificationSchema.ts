@@ -1,0 +1,120 @@
+import { z } from 'zod';
+
+const SiteClassificationSchema = z.object({
+    heritageClasses: z.array(z.string()).max(5),
+    heritageFunctions: z.array(z.string()).max(5),
+    heritageThemes: z.array(z.string()).max(5),
+});
+const HeritageClassSchema = z.object({
+    contributingResources: z
+        .number()
+        .min(1, { message: 'Number of Contributing Resources is required.' })
+        .max(250),
+    heritageCategory: z
+        .string()
+        .min(1, { message: 'Heritage Category is required.' })
+        .max(250),
+    ownership: z
+        .string()
+        .min(1, { message: 'Ownership is required.' })
+        .max(250),
+});
+const HeritageFunctionSchema = z.object({
+    functionCategory: z
+        .string()
+        .min(1, { message: 'Function Category is required.' })
+        .max(250),
+    functionCategoryType: z.string().max(12),
+});
+const HeritageThemeSchema = z.object({
+    heritageTheme: z
+        .string()
+        .min(1, { message: 'Heritage Theme is required.' })
+        .max(250),
+});
+
+const requiredSiteClassificationSchema = SiteClassificationSchema.partial({});
+const requiredHeritageClassSchema = HeritageClassSchema.partial({});
+const requiredHeritageFunctionSchema = HeritageFunctionSchema.partial({});
+const requiredHeritageThemeSchema = HeritageThemeSchema.partial({});
+
+// @ts-ignore
+type SiteClassificationType = z.infer<typeof SiteClassificationSchema>;
+// @ts-ignore
+type HeritageClassType = z.infer<typeof HeritageClassSchema>;
+// @ts-ignore
+type HeritageFunctionType = z.infer<typeof HeritageFunctionSchema>;
+// @ts-ignore
+type HeritageThemeType = z.infer<typeof HeritageThemeSchema>;
+
+function getSiteClassificationSchema(): SiteClassificationType {
+    return new SiteClassification();
+}
+function getHeritageClassSchema(): HeritageClassType {
+    return new HeritageClass();
+}
+function getHeritageFunctionSchema(): HeritageFunctionType {
+    return new HeritageFunction();
+}
+
+function getHeritageThemeSchema(): HeritageThemeType {
+    return new HeritageTheme();
+}
+
+// @todo - Figure out object state - New/Updated/Deleted
+class SiteClassification implements SiteClassificationType {
+    constructor() {
+        this.heritageClasses = [];
+        this.heritageFunctions = [];
+        this.heritageThemes = [];
+    }
+    heritageClasses: string[];
+    heritageFunctions: string[];
+    heritageThemes: string[];
+}
+
+class HeritageClass implements HeritageClassType {
+    constructor() {
+        this.contributingResources = 0;
+        this.heritageCategory = '';
+        this.ownership = '';
+    }
+    contributingResources: number;
+    heritageCategory: string;
+    ownership: string;
+}
+
+class HeritageFunction implements HeritageFunctionType {
+    constructor() {
+        this.functionCategory = '';
+        this.functionCategoryType = '';
+    }
+    functionCategory: string;
+    functionCategoryType: string;
+}
+
+class HeritageTheme implements HeritageThemeType {
+    constructor() {
+        this.heritageTheme = '';
+    }
+    heritageTheme: string;
+}
+
+export {
+    SiteClassification,
+    SiteClassificationSchema,
+    getSiteClassificationSchema,
+    requiredSiteClassificationSchema,
+    HeritageClass,
+    HeritageClassSchema,
+    getHeritageClassSchema,
+    requiredHeritageClassSchema,
+    HeritageFunction,
+    HeritageFunctionSchema,
+    getHeritageFunctionSchema,
+    requiredHeritageFunctionSchema,
+    HeritageTheme,
+    HeritageThemeSchema,
+    getHeritageThemeSchema,
+    requiredHeritageThemeSchema,
+};
