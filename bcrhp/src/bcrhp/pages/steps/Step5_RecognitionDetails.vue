@@ -7,12 +7,17 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
+import Dropdown from 'primevue/dropdown';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    RecognitionDetails,
+    requiredRecognitionDetailsSchema,
+} from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -21,10 +26,16 @@ const heritageSite: typeof HeritageSite = inject(
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
 
+const errors: Ref<FormErrors> = ref<FormErrors>({});
+const legislativeActOptions = ref([
+    { name: 'Legislative Act 1', code: 'legislative_act_1' },
+    { name: 'Legislative Act 2', code: 'legislative_act_2' },
+]);
+const designationDate = ref();
+const legislativeAct = ref('');
 const referenceNumber = ref('');
-const referenceNumbers = ref([] as Array<string>);
+const totalRecognitionDetails = ref([] as Array<string>);
 const addOtherReferenceNumberDisabled = ref(false);
 
 // These names need to match the Zog schema
@@ -48,10 +59,11 @@ const isValid = () => {
     return valid;
 };
 
-const updateAddOtherRefNumber = function () {
+const updateAddOtherRecognitionDetails = function () {
     addOtherReferenceNumberDisabled.value =
-        referenceNumber.value.length < 1 ||
-        heritageSiteRef.value.referenceNumbers.length > 4;
+        totalRecognitionDetails.value.length < 1 ||
+        heritageSiteRef.value.recognitionDetails.totalRecognitionDetails
+            .length > 4;
 };
 
 const valueUpdated = function (value: string | undefined) {
@@ -76,12 +88,13 @@ const onFocusOutHandler = function (event: Event) {
 
 const validateField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
-    const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
-    console.log(key);
-    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
-    );
+
+    const key: keyof typeof RecognitionDetails =
+        field.id as keyof typeof RecognitionDetails;
+    const fieldValidation = requiredRecognitionDetailsSchema.shape[
+        key
+    ].safeParse(heritageSiteRef.value.recognitionDetails[key]);
+
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
         errors.value[key] = [];
@@ -91,19 +104,28 @@ const validateField = function (field: HTMLInputElement) {
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
+
     return fieldValidation.success;
 };
 
-const saveReferenceNumber = function () {
-    console.log('saveReferenceNumber');
-    heritageSiteRef.value.referenceNumbers.push(referenceNumber.value);
-    referenceNumber.value = '';
-    updateAddOtherRefNumber();
+const saveRecognitionDetails = function () {
+    console.log('saveRecognitionDetails');
+    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
+        designationDate: designationDate.value,
+        legislativeAct: legislativeAct.value,
+        referenceNumber: referenceNumber.value,
+    });
+
+    updateAddOtherRecognitionDetails();
 };
 
-const deleteReferenceNumberCallback = function (index: number) {
-    heritageSiteRef.value.referenceNumbers.splice(index, 1);
-    updateAddOtherRefNumber();
+const deleteRecognitionDetailsCallback = function (index: number) {
+    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.splice(
+        index,
+        1,
+    );
+
+    updateAddOtherRecognitionDetails();
 };
 
 let validateFields = false;
@@ -113,8 +135,10 @@ let validateFields = false;
 defineExpose({ isValid });
 
 onMounted(() => {
-    heritageSiteRef.value.referenceNumbers = referenceNumbers;
-    updateAddOtherRefNumber();
+    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails =
+        totalRecognitionDetails;
+
+    updateAddOtherRecognitionDetails();
 });
 </script>
 <template>
@@ -130,7 +154,8 @@ onMounted(() => {
                 <DatePicker
                     id="designationDate"
                     ref="designationDateField"
-                    v-model="heritageSite.designationDate"
+                    v-model="designationDate"
+                    dateFormat="dd/mm/yy"
                     aria-describedby="designation-date-help"
                     aria-required="true"
                 />
@@ -144,17 +169,17 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid flex">
-                <InputText
+                <Dropdown
                     id="legislativeAct"
                     ref="legislativeActField"
-                    v-model="heritageSite.legislativeAct"
+                    v-model="legislativeAct"
+                    optionLabel="name"
+                    placeholder="Select Legislative Act"
+                    :options="legislativeActOptions"
                     aria-describedby="legislative-act-help"
                     aria-required="true"
-                    class="inline-block"
                     fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
+                    class="w-full md:w-14rem"
                     @update:model-value="valueUpdated"
                 />
                 <div class="inline-block">
@@ -184,7 +209,7 @@ onMounted(() => {
             label="Reference Number"
             hint="The bylaw or resolution number"
             input-name="referenceNumber"
-            :error-message="errors.referenceNumbers?.join(',')"
+            :error-message="errors.totalRecognitionDetails?.join(',')"
             :required="true"
         >
             <div>
@@ -201,23 +226,30 @@ onMounted(() => {
                     @focusout="onFocusOutHandler"
                     @update:model-value="valueUpdated"
                 />
-                <Button
-                    id="saveReferenceNumber"
-                    label="Add"
-                    class="inline-block"
-                    :aria-disabled="addOtherReferenceNumberDisabled"
-                    @click="saveReferenceNumber"
-                ></Button>
             </div>
+            <Button
+                id="saveRecognitionDetails"
+                label="Add"
+                class="inline-block"
+                :aria-disabled="addOtherReferenceNumberDisabled"
+                @click="saveRecognitionDetails"
+            ></Button>
         </LabelledInput>
         <MultiValuePlaceholder
             v-slot="slotProps"
             label="Reference Number"
             :showDeleteButton="true"
-            :displayValues="referenceNumbers"
-            :deleteCallback="deleteReferenceNumberCallback"
+            :displayValues="totalRecognitionDetails"
+            :deleteCallback="deleteRecognitionDetailsCallback"
         >
-            <div class="parent value">{{ slotProps.value }}</div>
+            <div
+                v-for="slot in slotProps"
+                :key="slot"
+                class="parent value"
+            >
+                {{ slot.designationDate }} {{ slot.legislativeAct?.name }}
+                {{ slot.referenceNumber }}
+            </div>
         </MultiValuePlaceholder>
     </FieldSet>
 </template>

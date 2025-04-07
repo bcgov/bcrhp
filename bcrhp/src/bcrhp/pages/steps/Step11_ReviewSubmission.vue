@@ -28,29 +28,41 @@ const heritageSite: typeof HeritageSite = inject(
     </div>
     <div>
         <p class="mb-2 underline font-bold">Official Recognition Details</p>
-        <p>Start Date {{ heritageSite.commonName }}</p>
-        <p>Legislative Act {{ heritageSite.commonName }}</p>
         <div
-            v-for="number in heritageSite.referenceNumbers"
-            :key="number"
+            v-for="recognitionDetail in heritageSite.recognitionDetails
+                .totalRecognitionDetails"
+            :key="recognitionDetail"
         >
-            <p>Reference Number {{ number }}</p>
+            <p>Start Date {{ recognitionDetail.designationDate }}</p>
+            <p>Legislative Act {{ recognitionDetail.legislativeAct?.name }}</p>
+            <p>Reference Number {{ recognitionDetail.referenceNumber }}</p>
         </div>
     </div>
     <div>
         <p class="mb-2 underline font-bold">Statement of Significance</p>
-        <p>Description <span v-html="heritageSite.description"> </span></p>
-        <p>Heritage Value <span v-html="heritageSite.heritageValue"> </span></p>
+        <p>
+            Description
+            <span v-html="heritageSite.statementOfSignificance.description">
+            </span>
+        </p>
+        <p>
+            Heritage Value
+            <span v-html="heritageSite.statementOfSignificance.heritageValue">
+            </span>
+        </p>
         <p>
             Character Defining Elements
-            <span v-html="heritageSite.definingElements"> </span>
+            <span
+                v-html="heritageSite.statementOfSignificance.definingElements"
+            >
+            </span>
         </p>
         <p>Document Location {{ heritageSite.documentLocation }}</p>
     </div>
     <div>
         <p class="mb-2 underline font-bold">Images</p>
         <div
-            v-for="image in heritageSite.uploadImage"
+            v-for="image in heritageSite.siteImages"
             :key="image"
         >
             <p>Type {{ image.imageType }}</p>
@@ -65,48 +77,84 @@ const heritageSite: typeof HeritageSite = inject(
             <p class="mb-2 underline font-bold">Site Details</p>
             <p>Heritage Class</p>
             <div
-                v-for="contributingResource in heritageSite.totalContributingResources"
-                :key="contributingResource"
+                v-for="heritageClass in heritageSite.siteClassification
+                    .heritageClasses"
+                :key="heritageClass"
             >
-                <p>{{ contributingResource }}</p>
+                <ol class="list-decimal ml-4">
+                    <li>
+                        {{ heritageClass.heritageCategory }},
+                        {{ heritageClass.ownership }} ({{
+                            heritageClass.contributingResources.name
+                        }})
+                    </li>
+                </ol>
             </div>
             <p>Heritage Function</p>
             <div
-                v-for="heritageTheme in heritageSite.heritageThemes"
-                :key="heritageTheme"
+                v-for="heritageFunction in heritageSite.siteClassification
+                    .heritageFunctions"
+                :key="heritageFunction"
             >
-                <p>{{ heritageTheme }}</p>
+                <ol class="list-decimal ml-4">
+                    <li>
+                        {{ heritageFunction.functionCategory.name }} ({{
+                            heritageFunction.functionCategoryType
+                        }})
+                    </li>
+                </ol>
             </div>
             <p>Heritage Theme</p>
             <div
-                v-for="functionCategory in heritageSite.functionCategories"
-                :key="functionCategory"
+                v-for="heritageTheme in heritageSite.siteClassification
+                    .heritageThemes"
+                :key="heritageTheme"
             >
-                <p>{{ functionCategory }}</p>
+                <ol class="list-decimal ml-4">
+                    <p>{{ heritageTheme.name }}</p>
+                </ol>
             </div>
         </div>
         <div>
             <p class="mb-2 underline font-bold">Site Classification</p>
             <p>Chronology</p>
             <div
-                v-for="chronology in heritageSite.chronologies"
+                v-for="chronology in heritageSite.siteDetails.chronologies"
                 :key="chronology"
             >
-                <p>{{ chronology }}</p>
+                <ol class="list-decimal ml-4">
+                    <li>
+                        {{ chronology.eventType }}, {{ chronology.circa }}
+                        {{ chronology.startYear }}-{{ chronology.endYear }}
+                        <p>{{ chronology.chronologyNotes }}</p>
+                    </li>
+                </ol>
             </div>
             <p>Architects / Builders</p>
             <div
-                v-for="architectOrBuilder in heritageSite.architectsOrBuilders"
+                v-for="architectOrBuilder in heritageSite.siteDetails
+                    .architectsOrBuilders"
                 :key="architectOrBuilder"
             >
-                <p>{{ architectOrBuilder }}</p>
+                <ol class="list-decimal ml-4">
+                    <li>
+                        {{ architectOrBuilder.architectOrBuilderType.name }}
+                        {{ architectOrBuilder.architectOrBuilderName }}
+                    </li>
+                    <p>{{ architectOrBuilder.architectOrBuilderNotes }}</p>
+                </ol>
             </div>
             <p>URLs</p>
             <div
-                v-for="url in heritageSite.urls"
+                v-for="url in heritageSite.siteDetails.urls"
                 :key="url"
             >
-                <p>{{ url }}</p>
+                <ol class="list-decimal ml-4">
+                    <li>
+                        {{ url.urlType.name }}: {{ url.url }}
+                        <p>Link Text: {{ url.linkText }}</p>
+                    </li>
+                </ol>
             </div>
         </div>
         <div>

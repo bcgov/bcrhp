@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const UploadImageSchema = z.object({
+const SiteImagesSchema = z.object({
     imageType: z
         .string()
         .min(1, { message: 'Image Type is required.' })
@@ -22,16 +22,16 @@ const UploadImageSchema = z.object({
     copyright: z.string().max(250),
 });
 
-const requiredUploadImageSchema = UploadImageSchema.partial({});
+const requiredSiteImagesSchema = SiteImagesSchema.partial({});
 // @ts-ignore
-type UploadImageType = z.infer<typeof UploadImageSchema>;
+type SiteImagesType = z.infer<typeof SiteImagesSchema>;
 
-function getUploadImage(): UploadImageType {
-    return new UploadImage();
+function getSiteImages(): SiteImagesType {
+    return new SiteImages();
 }
 
 // @todo - Figure out object state - New/Updated/Deleted
-class UploadImage implements UploadImageType {
+class SiteImages implements SiteImagesType {
     constructor() {
         this.imageType = '';
         this.imageView = '';
@@ -51,8 +51,8 @@ class UploadImage implements UploadImageType {
 }
 
 export {
-    UploadImage,
-    UploadImageSchema,
-    getUploadImage,
-    requiredUploadImageSchema,
+    SiteImages,
+    SiteImagesSchema,
+    getSiteImages,
+    requiredSiteImagesSchema,
 };
