@@ -6,7 +6,7 @@ import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import RadioButton from 'primevue/radiobutton';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -402,7 +402,7 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid flex flex-row">
-                <Dropdown
+                <Select
                     id="functionCategory"
                     ref="functionCategoryField"
                     v-model="functionCategory"
@@ -487,7 +487,7 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <Dropdown
+                <Select
                     id="heritageTheme"
                     ref="heritageThemeField"
                     v-model="heritageTheme"
