@@ -6,8 +6,6 @@ import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
 import DatePicker from 'primevue/datepicker';
 
-import { fetchConcepts } from '@/bcgov_arches_common/api.ts';
-
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -102,9 +100,6 @@ const onImageUpload = function () {};
 // configuration so API methods are not
 defineExpose({ isValid });
 
-// Lookup values
-const imageTypes = ref();
-
 const updateImageType = function (
     newValue: string,
     selectField: typeof ConceptSelect,
@@ -113,9 +108,7 @@ const updateImageType = function (
     currentSiteImage.value[selectField.id] = newValue;
 };
 
-onMounted(() => {
-    fetchConcepts('b4f84f28-e64b-4285-a8e4-0bacf36e1101', imageTypes);
-});
+onMounted(() => {});
 </script>
 <template>
     <div class="flex flex-row">
