@@ -36,10 +36,10 @@ class BCRegexPattern(RegexPattern):
         )
 
 
+common_url_resolver = re_path(r"^", include("bcgov_arches_common.urls"))
 bc_url_resolver = re_path((r"^"), include("arches.urls"))
 
-
-for pattern in bc_url_resolver.url_patterns:
+for pattern in bc_url_resolver.url_patterns + common_url_resolver.url_patterns:
     # print("Before: %s" % pattern.pattern)
     pattern.pattern = BCRegexPattern(pattern.pattern)
     # print("After: %s" % pattern.pattern)
@@ -119,11 +119,12 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
+    common_url_resolver,
     bc_url_resolver,
 ]
-# Ensure Arches core urls are superseded by project-level urls
-urlpatterns.append(path("", include("arches.urls")))
 
+# # Ensure Arches core urls are superseded by project-level urls
+# urlpatterns.append(path("", include("arches.urls")))
 
 # Adds URL pattern to serve media files during development
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
