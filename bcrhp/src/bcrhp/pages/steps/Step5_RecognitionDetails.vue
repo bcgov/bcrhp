@@ -7,7 +7,7 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -169,7 +169,7 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid flex">
-                <Dropdown
+                <Select
                     id="legislativeAct"
                     ref="legislativeActField"
                     v-model="legislativeAct"

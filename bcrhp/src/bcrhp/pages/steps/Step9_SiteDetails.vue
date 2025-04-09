@@ -7,7 +7,7 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import RadioButton from 'primevue/radiobutton';
 import DatePicker from 'primevue/datepicker';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -379,7 +379,7 @@ onMounted(() => {
                 :error-message="errors.architectOrBuilderType?.join(',')"
                 :required="true"
             >
-                <Dropdown
+                <Select
                     id="architectOrBuilderType"
                     ref="architectOrBuilderTypeField"
                     v-model="architectOrBuilderType"
@@ -460,7 +460,7 @@ onMounted(() => {
                 :error-message="errors.urlType?.join(',')"
                 :required="true"
             >
-                <Dropdown
+                <Select
                     id="urlType"
                     ref="urlTypeField"
                     v-model="urlType"
