@@ -33,6 +33,7 @@ function getSiteImages(): SiteImagesType {
 // @todo - Figure out object state - New/Updated/Deleted
 class SiteImages implements SiteImagesType {
     constructor() {
+        this.id = crypto.randomUUID();
         this.imageType = '';
         this.imageView = '';
         this.imageFeatures = '';
@@ -41,6 +42,7 @@ class SiteImages implements SiteImagesType {
         this.photographer = '';
         this.copyright = '';
     }
+    id: string;
     imageType: string;
     imageView: string;
     imageFeatures: string;

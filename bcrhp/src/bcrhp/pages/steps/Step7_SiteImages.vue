@@ -7,19 +7,24 @@ import Editor from 'primevue/editor';
 import DatePicker from 'primevue/datepicker';
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     SiteImages,
     requiredSiteImagesSchema,
+    getSiteImages,
 } from '@/bcrhp/schema/SiteImagesSchema.ts';
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
+
+const currentSiteImage = ref(getSiteImages());
+currentSiteImage.value.imageTypes = [];
+heritageSite.value.siteImages[currentSiteImage.value.id] = currentSiteImage;
 
 // These names need to match the Zog schema
 const fields = {
@@ -71,7 +76,7 @@ const validateField = function (field: HTMLInputElement) {
 
     const key: keyof typeof SiteImages = field.id as keyof typeof SiteImages;
     const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteImages[key],
+        currentSiteImage.value[key],
     );
 
     if (fieldValidation.success) {
@@ -94,6 +99,14 @@ const onImageUpload = function () {};
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
+
+const updateImageType = function (
+    newValue: string,
+    selectField: typeof ConceptSelect,
+) {
+    console.log(`New value ${newValue}`);
+    currentSiteImage.value[selectField.id] = newValue;
+};
 
 onMounted(() => {});
 </script>
@@ -119,17 +132,14 @@ onMounted(() => {});
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <InputText
+                <ConceptSelect
                     id="imageType"
                     ref="imageTypeField"
-                    v-model="heritageSite.siteImages.imageType"
-                    aria-describedby="image-type-help"
-                    aria-required="true"
-                    fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
+                    graph-slug="heritage_site"
+                    node-alias="image_type"
+                    model-value="currentSiteImage.imageType"
+                    placeholder="Select an Image Type"
+                    @value-updated="updateImageType"
                 />
             </div>
         </LabelledInput>
@@ -141,18 +151,14 @@ onMounted(() => {});
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <InputText
+                <ConceptSelect
                     id="imageView"
                     ref="imageViewField"
-                    v-model="heritageSite.siteImages.imageView"
-                    aria-describedby="image-view-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
+                    graph-slug="heritage_site"
+                    node-alias="image_view"
+                    model-value="currentSiteImage.imageView"
+                    placeholder="Select an Image View"
+                    @value-updated="updateImageType"
                 />
             </div>
         </LabelledInput>
@@ -169,7 +175,6 @@ onMounted(() => {});
                 ref="imageFeaturesField"
                 v-model="heritageSite.siteImages.imageFeatures"
                 aria-describedby="image-features-help"
-                aria-required="true"
                 fluid
                 class="inline-block"
                 @change="valueChanged"
@@ -190,6 +195,7 @@ onMounted(() => {});
             id="imageDate"
             ref="imageDateField"
             v-model="heritageSite.siteImages.imageDate"
+            show-icon
             aria-describedby="image-date-help"
             aria-required="true"
         />
@@ -262,15 +268,3 @@ onMounted(() => {});
         </div>
     </LabelledInput>
 </template>
-
-<style scoped>
-.inline-block {
-    display: inline-block;
-    width: unset;
-}
-
-.p-inputtext-fluid.inline-block {
-    width: calc(100% - 6.5rem);
-    margin-right: 1rem;
-}
-</style>
