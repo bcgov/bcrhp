@@ -17,6 +17,7 @@
 
 {% block navbar %}
 {{ block.super }}
+{% if user.is_authenticated and request.user.username != 'anonymous' %}
 <ul class="list-group" aria-label="Site Submissions menu">
     <!-- Site Submissions -->
     <li>
@@ -28,5 +29,6 @@
         </a>
     </li>
 </ul>
+{% endif %}
 {% endblock navbar %}
 
