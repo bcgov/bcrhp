@@ -38,7 +38,7 @@
     <link href="/bcrhp/static/bcrhp/media/css/project.css" rel="stylesheet">
     <!--    <link href="/node_modules/bcgov_arches_common/bcgov_arches_common/media/css/bc_index.css" rel="stylesheet" />-->
     <link href="/bcrhp/static/css/accessibility.css" rel="stylesheet">
-    <link href="/bcrhp/static/bcrhp/media/css/output.css" rel="stylesheet">
+    <link href="/bcrhp/static/bcrhp/media/css/tailwind_output.css" rel="stylesheet">
     <style>
         html {
             font-size: 16px;
@@ -50,146 +50,107 @@
 
 <body dir="ltr">
 
-{% vite_hmr_client %}
-{% vite_asset '/bcrhp/static/build/js/views/root_vue.js'%}
-<div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
+    {% vite_hmr_client %}
+    {% vite_asset '/bcrhp/static/build/js/views/root_vue.js'%}
+    <div id="bcrhp-mounting-point" class="bcgov-vue-mounting-point"></div>
 
-<div
-    class='arches-urls'
-    root="/bcrhp/"
-    home="/bcrhp/index.htm"
-    media="/bcrhp/static/"
-    rdm="/bcrhp/rdm/"
-    uploadedfiles="/files/"
-    url_subpath=""
-    concept_tree="/bcrhp/concepts/tree/"
-    concept="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    concept_search="/bcrhp/concepts/search"
-    concept_value="/bcrhp/conceptvalue/"
-    concept_manage_parents="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/manage_parents/"
-    concept_make_collection="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/make_collection/"
-    change_password="/bcrhp/auth/password"
-    export_concept="/bcrhp/concepts/export/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    export_concept_collections="/bcrhp/concepts/export/collections"
-    get_concept_collections="/bcrhp/concepts/collections"
-    dropdown="/bcrhp/concepts/dropdown"
-    paged_dropdown="/bcrhp/concepts/paged_dropdown"
-    get_pref_label="/bcrhp/concepts/get_pref_label"
-    from_sparql_endpoint="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/from_sparql_endpoint"
-    search_sparql_endpoint="/bcrhp/concepts/search_sparql_endpoint"
-    confirm_delete="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/confirm_delete/"
-    search_home="/bcrhp/search"
-    search_terms="/bcrhp/search/terms"
-    search_results="/bcrhp/search/resources"
-    export_results="/bcrhp/search/export_results"
-    get_export_file="/bcrhp/search/get_export_file"
-    buffer="/bcrhp/buffer/"
-    config="/bcrhp/settings/"
-    node="/bcrhp/node/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    graph_nodes='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/nodes".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    nodegroup="/bcrhp/nodegroup/"
-    node_layer="/bcrhp/node_layer/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
-    graph='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    graph_designer='(graphid)=>{return "/bcrhp/graph_designer/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    graph_settings='(graphid)=>{return "/bcrhp/graph_settings/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    get_notifications="/bcrhp/notifications"
-    dismiss_notifications="/bcrhp/notifications/dismiss"
-    get_notification_types="/bcrhp/notifications/get_types"
-    update_notification_types="/bcrhp/notifications/update_types"
-    card="/bcrhp/card/"
-    reorder_cards="/bcrhp/reorder_cards/"
-    resource="/bcrhp/resource"
-    resource_editor='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    resource_copy='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/copy".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    resource_report='"/bcrhp/report/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    resource_edit_log='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/history".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    get_resource_edit_log='(graphid)=>{return "/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/history".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    resource_data='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/data/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace(/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/g, "")'
-    resource_cards='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/cards".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    related_resources='"/bcrhp/resource/related/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    resource_descriptors='"/bcrhp/resource/descriptors/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    resource_tiles="/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/tiles"
-    tile="/bcrhp/tile"
-    reorder_tiles="/bcrhp/tiles/reorder_tiles"
-    reorder_nodes="/bcrhp/graph/reorder_nodes"
-    delete_provisional_tile="/bcrhp/tiles/delete_provisional_tile"
-    edit_history="/bcrhp/resource/history"
-    tile_history="/bcrhp/tiles/tile_history"
-    download_files="/bcrhp/tiles/download_files"
-    apply_functions='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/apply_functions".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    remove_functions='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/remove_functions".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    time_wheel_config="/bcrhp/search/time_wheel_config"
-    two_factor_authentication_reset="/bcrhp/two-factor-authentication-reset"
-    reindex="/bcrhp/admin/reindex/resources"
-    permission_data="/bcrhp/graph/permissions"
-    resource_permission_data="/bcrhp/resource/permissions"
-    permission_manager_data="/bcrhp/graph/permissions/permission_manager_data"
-    clear_user_permission_cache="/bcrhp/clear-user-permission-cache"
-    get_user_names="/bcrhp/user/get_user_names"
-    feature_popup_content="/bcrhp/feature_popup_content"
-    related_resource_candidates="/bcrhp/resource/related/candidates"
-    relatable_resources="/bcrhp/resource/related/relatable"
-    languages="/bcrhp/language/"
-    get_domain_connections='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/get_domain_connections".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    clone_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/clone".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    export_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/export".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    publish_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/publish".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    unpublish_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/unpublish".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    delete_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/delete".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    delete_instances='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/delete_instances".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    export_mapping_file='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/export_mapping_file".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    add_resource='(graphid)=>{return "/bcrhp/add-resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    function_manager='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/function_manager".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
-    plugin='(pluginid)=>{return "/bcrhp/plugins/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", pluginid)}'
-    workflow_history='"/bcrhp/workflow_history/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    transaction_reverse='(transactionid)=> {return "/bcrhp/transaction/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/reverse".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", transactionid)}'
-    mvt='(nodeid)=>{return decodeURI("/bcrhp/mvt/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/%7Bz%7D/%7Bx%7D/%7By%7D.pbf").replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodeid)}'
-    help_template="/bcrhp/help-templates"
-    api_plugins='"/bcrhp/api/plugins/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    graphs_api='"/bcrhp/graphs/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    api_card='"/bcrhp/cards/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
-    api_tiles='(tileid)=>{
+    <div class='arches-urls' root="/bcrhp/" home="/bcrhp/index.htm" media="/bcrhp/static/" rdm="/bcrhp/rdm/"
+        uploadedfiles="/files/" url_subpath="" concept_tree="/bcrhp/concepts/tree/"
+        concept="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" concept_search="/bcrhp/concepts/search"
+        concept_value="/bcrhp/conceptvalue/"
+        concept_manage_parents="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/manage_parents/"
+        concept_make_collection="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/make_collection/"
+        change_password="/bcrhp/auth/password"
+        export_concept="/bcrhp/concepts/export/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        export_concept_collections="/bcrhp/concepts/export/collections"
+        get_concept_collections="/bcrhp/concepts/collections" dropdown="/bcrhp/concepts/dropdown"
+        paged_dropdown="/bcrhp/concepts/paged_dropdown" get_pref_label="/bcrhp/concepts/get_pref_label"
+        from_sparql_endpoint="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/from_sparql_endpoint"
+        search_sparql_endpoint="/bcrhp/concepts/search_sparql_endpoint"
+        confirm_delete="/bcrhp/concepts/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/confirm_delete/"
+        search_home="/bcrhp/search" search_terms="/bcrhp/search/terms" search_results="/bcrhp/search/resources"
+        export_results="/bcrhp/search/export_results" get_export_file="/bcrhp/search/get_export_file"
+        buffer="/bcrhp/buffer/" config="/bcrhp/settings/" node="/bcrhp/node/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        graph_nodes='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/nodes".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        nodegroup="/bcrhp/nodegroup/" node_layer="/bcrhp/node_layer/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        graph='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        graph_designer='(graphid)=>{return "/bcrhp/graph_designer/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        graph_settings='(graphid)=>{return "/bcrhp/graph_settings/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        get_notifications="/bcrhp/notifications" dismiss_notifications="/bcrhp/notifications/dismiss"
+        get_notification_types="/bcrhp/notifications/get_types"
+        update_notification_types="/bcrhp/notifications/update_types" card="/bcrhp/card/"
+        reorder_cards="/bcrhp/reorder_cards/" resource="/bcrhp/resource"
+        resource_editor='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        resource_copy='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/copy".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        resource_report='"/bcrhp/report/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        resource_edit_log='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/history".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        get_resource_edit_log='(graphid)=>{return "/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/history".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        resource_data='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/data/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace(/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/g, "")'
+        resource_cards='"/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/cards".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        related_resources='"/bcrhp/resource/related/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        resource_descriptors='"/bcrhp/resource/descriptors/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        resource_tiles="/bcrhp/resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/tiles" tile="/bcrhp/tile"
+        reorder_tiles="/bcrhp/tiles/reorder_tiles" reorder_nodes="/bcrhp/graph/reorder_nodes"
+        delete_provisional_tile="/bcrhp/tiles/delete_provisional_tile" edit_history="/bcrhp/resource/history"
+        tile_history="/bcrhp/tiles/tile_history" download_files="/bcrhp/tiles/download_files"
+        apply_functions='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/apply_functions".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        remove_functions='"/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/remove_functions".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        time_wheel_config="/bcrhp/search/time_wheel_config"
+        two_factor_authentication_reset="/bcrhp/two-factor-authentication-reset"
+        reindex="/bcrhp/admin/reindex/resources" permission_data="/bcrhp/graph/permissions"
+        resource_permission_data="/bcrhp/resource/permissions"
+        permission_manager_data="/bcrhp/graph/permissions/permission_manager_data"
+        clear_user_permission_cache="/bcrhp/clear-user-permission-cache" get_user_names="/bcrhp/user/get_user_names"
+        feature_popup_content="/bcrhp/feature_popup_content"
+        related_resource_candidates="/bcrhp/resource/related/candidates"
+        relatable_resources="/bcrhp/resource/related/relatable" languages="/bcrhp/language/"
+        get_domain_connections='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/get_domain_connections".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        clone_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/clone".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        export_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/export".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        publish_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/publish".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        unpublish_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/unpublish".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        delete_graph='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/delete".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        delete_instances='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/delete_instances".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        export_mapping_file='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/export_mapping_file".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        add_resource='(graphid)=>{return "/bcrhp/add-resource/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        function_manager='(graphid)=>{return "/bcrhp/graph/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/function_manager".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", graphid)}'
+        plugin='(pluginid)=>{return "/bcrhp/plugins/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", pluginid)}'
+        workflow_history='"/bcrhp/workflow_history/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        transaction_reverse='(transactionid)=> {return "/bcrhp/transaction/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/reverse".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", transactionid)}'
+        mvt='(nodeid)=>{return decodeURI("/bcrhp/mvt/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/%7Bz%7D/%7Bx%7D/%7By%7D.pbf").replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodeid)}'
+        help_template="/bcrhp/help-templates"
+        api_plugins='"/bcrhp/api/plugins/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        graphs_api='"/bcrhp/graphs/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        api_card='"/bcrhp/cards/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "")'
+        api_tiles='(tileid)=>{
         return "/bcrhp/api/tiles/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", tileid);
-    }'
-    api_nodegroup='(nodegroupid)=>{
+    }' api_nodegroup='(nodegroupid)=>{
         return "/bcrhp/api/nodegroup/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodegroupid);
-    }'
-    api_nodes='(nodeid)=>{
+    }' api_nodes='(nodeid)=>{
         return "/bcrhp/api/nodes/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nodeid);
-    }'
-    api_node_value="/bcrhp/api/node_value/"
-    api_resource_report='(resourceid)=>{return "/bcrhp/api/resource_report/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", resourceid)}'
-    api_bulk_resource_report="/bcrhp/api/bulk_resource_report"
-    api_bulk_disambiguated_resource_instance="/bcrhp/api/bulk_disambiguated_resource_instance"
-    api_resources='(resourceid)=>{return "/bcrhp/resources/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", resourceid)}'
-    api_search_component_data='"/bcrhp/search_component_data/aaaa".replace("aaaa", "")'
-    api_user_incomplete_workflows="/bcrhp/api/user_incomplete_workflows"
-    api_get_frontend_i18n_data="/bcrhp/api/get_frontend_i18n_data"
-    geojson="/bcrhp/geojson"
-    icons="/bcrhp/icons"
-    ontology_properties="/bcrhp/ontology_properties"
-    iiifmanifest="/bcrhp/iiifmanifest"
-    manifest_manager="/bcrhp/image-service-manager"
-    etl_manager="/bcrhp/etl-manager"
-    iiifannotations="/bcrhp/iiifannotations"
-    iiifannotationnodes="/bcrhp/iiifannotationnodes"
-    validatejson='"/bcrhp/validate/aaaa".replace("aaaa", "")'
-    get_dsl="/bcrhp/search/get_dsl"
-    transform_edtf_for_tile="/bcrhp/transform-edtf-for-tile"
-    api_get_nodegroup_tree="/bcrhp/api/get_nodegroup_tree"
-></div>
+    }' api_node_value="/bcrhp/api/node_value/"
+        api_resource_report='(resourceid)=>{return "/bcrhp/api/resource_report/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", resourceid)}'
+        api_bulk_resource_report="/bcrhp/api/bulk_resource_report"
+        api_bulk_disambiguated_resource_instance="/bcrhp/api/bulk_disambiguated_resource_instance"
+        api_resources='(resourceid)=>{return "/bcrhp/resources/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa".replace("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", resourceid)}'
+        api_search_component_data='"/bcrhp/search_component_data/aaaa".replace("aaaa", "")'
+        api_user_incomplete_workflows="/bcrhp/api/user_incomplete_workflows"
+        api_get_frontend_i18n_data="/bcrhp/api/get_frontend_i18n_data" geojson="/bcrhp/geojson" icons="/bcrhp/icons"
+        ontology_properties="/bcrhp/ontology_properties" iiifmanifest="/bcrhp/iiifmanifest"
+        manifest_manager="/bcrhp/image-service-manager" etl_manager="/bcrhp/etl-manager"
+        iiifannotations="/bcrhp/iiifannotations" iiifannotationnodes="/bcrhp/iiifannotationnodes"
+        validatejson='"/bcrhp/validate/aaaa".replace("aaaa", "")' get_dsl="/bcrhp/search/get_dsl"
+        transform_edtf_for_tile="/bcrhp/transform-edtf-for-tile" api_get_nodegroup_tree="/bcrhp/api/get_nodegroup_tree">
+    </div>
 
-<div class="arches-urls"
-     api_user="/bcrhp/api/user/"
-     user_profile_manager="/bcrhp/user"
-     dashboard="/bcrhp/submissions/">
-</div>
+    <div class="arches-urls" api_user="/bcrhp/api/user/" user_profile_manager="/bcrhp/user"
+        dashboard="/bcrhp/submissions/">
+    </div>
 
 
-<div class="arches-urls"
-     api_user="/bcrhp/api/user/"
-     user_profile_manager="/bcrhp/user"
-     dashboard="/bcrhp/submissions/">
-</div>
+    <div class="arches-urls" api_user="/bcrhp/api/user/" user_profile_manager="/bcrhp/user"
+        dashboard="/bcrhp/submissions/">
+    </div>
 </body>
+
 </html>

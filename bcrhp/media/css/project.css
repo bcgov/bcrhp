@@ -1,20 +1,19 @@
-@import url("bcgov_arches_common/bcgov_arches_common/media/css/project.css");
-@import url("./map_legend.css");
-@import url("./resource_details.css");
-@import url("tailwindcss");
-@import url("tailwindcss-primeui");
+@import "tailwindcss";
 
 .header-link {
     color: white;
     font-size: 0.8rem;
 }
 
-.card_component.start_year, .card_component.end_year, .card_component.dates_approximate {
+.card_component.start_year,
+.card_component.end_year,
+.card_component.dates_approximate {
     display: inline-block;
     width: 30%;
 }
 
-.card_component.pid, .card_component.pin {
+.card_component.pid,
+.card_component.pin {
     display: inline-block;
     /*max-width: 45%;*/
     /*min-width: 350px;*/
@@ -81,8 +80,9 @@
 }
 
 .next-button {
-  right: 1rem;
+    right: 1rem;
 }
+
 .card_component.pin::before {
     content: "or" !important;
     position: relative;
@@ -97,6 +97,7 @@
 .crhp-submit-widget {
     display: inline-block;
 }
+
 .crhp-export-button {
     padding: 10px 5px 25px 5px;
     display: inline-block;
@@ -108,7 +109,7 @@
 }
 
 /*Details Card*/
-.details-card-section > .rp-card-section {
+.details-card-section>.rp-card-section {
     margin-top: 2.5rem;
 }
 
@@ -120,7 +121,10 @@
     margin-bottom: 1.5rem;
 }
 
-.street_address, .city, .province, .address_separator {
+.street_address,
+.city,
+.province,
+.address_separator {
     font-size: 1.4rem;
 }
 
@@ -139,7 +143,9 @@
     opacity: 0;
 }
 
-.photo-caption-part > span, .photo-info dl, span.separator {
+.photo-caption-part>span,
+.photo-info dl,
+span.separator {
     font-size: 1.4rem;
 }
 
