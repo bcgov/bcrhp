@@ -7,160 +7,213 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 </script>
 <template>
+    <p class="mb-2 underline font-bold">Address</p>
     <div
         v-for="address in heritageSite.civicAddress"
         :key="address"
     >
-        <p class="mb-2 underline font-bold">Address</p>
-        <p>Street Address {{ address.streetAddress }}</p>
-        <p>Detailed Location {{ address.streetAddress }}</p>
-        <p>Legal Description {{ address.streetAddress }}</p>
-    </div>
-    <div>
-        <p class="mb-2 underline font-bold">Site Names</p>
-        <p>Common {{ heritageSite.commonName }}</p>
-        <div
-            v-for="name in heritageSite.otherNames"
-            :key="name"
-        >
-            <p>Alternate {{ name }}</p>
+        <div display="flex flex-col">
+            <div>Street Address</div>
+            <div class="justify-self-center">{{ address.streetAddress }}</div>
+            <div>Detailed Location</div>
+            <div class="justify-self-center">{{ address.streetAddress }}</div>
+            <div>Legal Description</div>
+            <div class="justify-self-center">{{ address.streetAddress }}</div>
         </div>
     </div>
     <div>
-        <p class="mb-2 underline font-bold">Official Recognition Details</p>
-        <div
-            v-for="recognitionDetail in heritageSite.recognitionDetails
-                .totalRecognitionDetails"
-            :key="recognitionDetail"
-        >
-            <p>Start Date {{ recognitionDetail.designationDate }}</p>
-            <p>Legislative Act {{ recognitionDetail.legislativeAct?.name }}</p>
-            <p>Reference Number {{ recognitionDetail.referenceNumber }}</p>
+        <p class="underline font-bold">Site Names</p>
+        <div display="flex flex-col">
+            <div>Common</div>
+            <div class="justify-self-center">{{ heritageSite.commonName }}</div>
+        </div>
+        <div class="flex flex-col">
+            <div
+                v-for="name in heritageSite.otherNames"
+                :key="name"
+            >
+                <div>Alternate</div>
+                <div class="justify-self-center">{{ name }}</div>
+            </div>
         </div>
     </div>
     <div>
-        <p class="mb-2 underline font-bold">Statement of Significance</p>
-        <p>
-            Description
+        <div class="mb-2 underline font-bold mt-2">
+            Official Recognition Details
+        </div>
+        <div class="flex flex-col">
+            <div
+                v-for="recognitionDetail in heritageSite.recognitionDetails
+                    .totalRecognitionDetails"
+                :key="recognitionDetail"
+            >
+                <div>Start Date</div>
+                <div class="justify-self-center">
+                    {{ recognitionDetail.designationDate }}
+                </div>
+                <div>Legislative Act</div>
+                <div class="justify-self-center">
+                    {{ recognitionDetail.legislativeAct?.name }}
+                </div>
+                <div>Reference Number</div>
+                <div class="justify-self-center">
+                    {{ recognitionDetail.referenceNumber }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="mb-2 underline font-bold mt-2">
+            Statement of Significance
+        </div>
+        <div class="grid grid-cols-2">
+            <div>Description</div>
             <span v-html="heritageSite.statementOfSignificance.description">
             </span>
-        </p>
-        <p>
-            Heritage Value
+            <div>Heritage Value</div>
             <span v-html="heritageSite.statementOfSignificance.heritageValue">
             </span>
-        </p>
-        <p>
-            Character Defining Elements
+            <div>Character Defining Elements</div>
             <span
                 v-html="heritageSite.statementOfSignificance.definingElements"
             >
             </span>
-        </p>
-        <p>Document Location {{ heritageSite.documentLocation }}</p>
+            <p>Document Location</p>
+            <div>{{ heritageSite.documentLocation }}</div>
+        </div>
     </div>
     <div>
-        <p class="mb-2 underline font-bold">Images</p>
+        <div class="mb-2 underline font-bold mt-2">Images</div>
         <div
             v-for="image in heritageSite.siteImages"
             :key="image"
         >
-            <p>Type {{ image.imageType }}</p>
-            <p>View {{ image.imageView }}</p>
-            <p>Features {{ image.imageFeatures }}</p>
-            <p>Date {{ image.imageDate }}</p>
-            <p>Description {{ image.imageDescription }}</p>
-            <p>Photographer {{ image.photographer }}</p>
-            <p>Copyright {{ image.copyright }}</p>
-        </div>
-        <div>
-            <p class="mb-2 underline font-bold">Site Details</p>
-            <p>Heritage Class</p>
-            <div
-                v-for="heritageClass in heritageSite.siteClassification
-                    .heritageClasses"
-                :key="heritageClass"
-            >
-                <ol class="list-decimal ml-4">
-                    <li>
-                        {{ heritageClass.heritageCategory }},
-                        {{ heritageClass.ownership }} ({{
-                            heritageClass.contributingResources.name
-                        }})
-                    </li>
-                </ol>
-            </div>
-            <p>Heritage Function</p>
-            <div
-                v-for="heritageFunction in heritageSite.siteClassification
-                    .heritageFunctions"
-                :key="heritageFunction"
-            >
-                <ol class="list-decimal ml-4">
-                    <li>
-                        {{ heritageFunction.functionCategory.name }} ({{
-                            heritageFunction.functionCategoryType
-                        }})
-                    </li>
-                </ol>
-            </div>
-            <p>Heritage Theme</p>
-            <div
-                v-for="heritageTheme in heritageSite.siteClassification
-                    .heritageThemes"
-                :key="heritageTheme"
-            >
-                <ol class="list-decimal ml-4">
-                    <p>{{ heritageTheme.name }}</p>
-                </ol>
+            <div display="flex flex-col">
+                <div>Type</div>
+                <div class="justify-self-center">{{ image.imageType }}</div>
+                <div>View</div>
+                <div class="justify-self-center">{{ image.imageView }}</div>
+                <div>Features</div>
+                <div class="justify-self-center">{{ image.imageFeatures }}</div>
+                <div>Date</div>
+                <div class="justify-self-center">{{ image.imageDate }}</div>
+                <div>Description</div>
+                <div class="justify-self-center">
+                    {{ image.imageDescription }}
+                </div>
+                <div>Photographer</div>
+                <div class="justify-self-center">{{ image.photographer }}</div>
+                <div>Copyright</div>
+                <div class="justify-self-center">{{ image.copyright }}</div>
             </div>
         </div>
         <div>
-            <p class="mb-2 underline font-bold">Site Classification</p>
-            <p>Chronology</p>
-            <div
-                v-for="chronology in heritageSite.siteDetails.chronologies"
-                :key="chronology"
-            >
-                <ol class="list-decimal ml-4">
-                    <li>
-                        {{ chronology.eventType }}, {{ chronology.circa }}
-                        {{ chronology.startYear }}-{{ chronology.endYear }}
-                        <p>{{ chronology.chronologyNotes }}</p>
-                    </li>
-                </ol>
+            <div class="mb-2 mt-2 underline font-bold">Site Details</div>
+            <div display="flex flex-col">
+                <div>Heritage Class</div>
+                <div
+                    v-for="heritageClass in heritageSite.siteClassification
+                        .heritageClasses"
+                    :key="heritageClass"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <li>
+                            {{ heritageClass.heritageCategory }},
+                            {{ heritageClass.ownership }} ({{
+                                heritageClass.contributingResources.name
+                            }})
+                        </li>
+                    </ol>
+                </div>
             </div>
-            <p>Architects / Builders</p>
-            <div
-                v-for="architectOrBuilder in heritageSite.siteDetails
-                    .architectsOrBuilders"
-                :key="architectOrBuilder"
-            >
-                <ol class="list-decimal ml-4">
-                    <li>
-                        {{ architectOrBuilder.architectOrBuilderType.name }}
-                        {{ architectOrBuilder.architectOrBuilderName }}
-                    </li>
-                    <p>{{ architectOrBuilder.architectOrBuilderNotes }}</p>
-                </ol>
+            <div display="flex flex-col">
+                <div>Heritage Function</div>
+                <div
+                    v-for="heritageFunction in heritageSite.siteClassification
+                        .heritageFunctions"
+                    :key="heritageFunction"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <li>
+                            {{ heritageFunction.functionCategory.name }} ({{
+                                heritageFunction.functionCategoryType
+                            }})
+                        </li>
+                    </ol>
+                </div>
             </div>
-            <p>URLs</p>
-            <div
-                v-for="url in heritageSite.siteDetails.urls"
-                :key="url"
-            >
-                <ol class="list-decimal ml-4">
-                    <li>
-                        {{ url.urlType.name }}: {{ url.url }}
-                        <p>Link Text: {{ url.linkText }}</p>
-                    </li>
-                </ol>
+            <div display="flex flex-col">
+                <div>Heritage Theme</div>
+                <div
+                    v-for="heritageTheme in heritageSite.siteClassification
+                        .heritageThemes"
+                    :key="heritageTheme"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <p>{{ heritageTheme.name }}</p>
+                    </ol>
+                </div>
             </div>
         </div>
         <div>
-            <p class="mb-2 underline font-bold">Supporting Documents</p>
-            {{ heritageSite.documentDescription }}
-            {{ heritageSite.submissionNotes }}
+            <div class="mb-2 underline font-bold mt-2">Site Classification</div>
+            <div class="flex flex-col">
+                <div>Chronology</div>
+                <div
+                    v-for="chronology in heritageSite.siteDetails.chronologies"
+                    :key="chronology"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <li>
+                            {{ chronology.eventType }}, {{ chronology.circa }}
+                            {{ chronology.startYear }}-{{ chronology.endYear }}
+                            <p>{{ chronology.chronologyNotes }}</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div>Architects / Builders</div>
+                <div
+                    v-for="architectOrBuilder in heritageSite.siteDetails
+                        .architectsOrBuilders"
+                    :key="architectOrBuilder"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <li>
+                            {{ architectOrBuilder.architectOrBuilderType.name }}
+                            {{ architectOrBuilder.architectOrBuilderName }}
+                        </li>
+                        <div>
+                            {{ architectOrBuilder.architectOrBuilderNotes }}
+                        </div>
+                    </ol>
+                </div>
+            </div>
+            <div class="flex flex-col">
+                <div>URLs</div>
+                <div
+                    v-for="url in heritageSite.siteDetails.urls"
+                    :key="url"
+                >
+                    <ol class="list-decimal ml-4 justify-self-center">
+                        <li>
+                            {{ url.urlType.name }}: {{ url.url }}
+                            <div>Link Text:</div>
+                            {{ url.linkText }}
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div>
+                <div class="mb-2 underline font-bold mt-2">
+                    Supporting Documents
+                </div>
+                <div display="flex flex-col">
+                    {{ heritageSite.documentDescription }}
+                    {{ heritageSite.submissionNotes }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
