@@ -7,11 +7,12 @@ const SiteDetailsSchema = z.object({
 });
 const ChronologySchema = z.object({
     eventType: z.string().max(20),
-    startYear: z.array(z.string()).max(4),
-    endYear: z.array(z.string()).max(4),
+    startYear: z.date(),
+    endYear: z.date(),
     circa: z.string().max(20),
     chronologyNotes: z.string().max(1000),
 });
+
 const ArchitectBuilderSchema = z.object({
     architectOrBuilderName: z
         .string()
@@ -23,6 +24,7 @@ const ArchitectBuilderSchema = z.object({
         .min(1, { message: 'Architect or Builder Type is required.' })
         .max(250),
 });
+
 const RequiredURLsSchema = z.object({
     urlType: z.array(z.string()).max(250),
     urlText: z.string().min(1, { message: 'URL Type is required.' }).max(250),
@@ -71,15 +73,15 @@ class SiteDetails implements SiteDetailsType {
 class Chronology implements ChronologyType {
     constructor() {
         this.eventType = '';
-        this.startYear = '';
-        this.endYear = '';
-        this.circa = '';
+        this.startYear = null;
+        this.endYear = null;
+        this.circa = false;
         this.chronologyNotes = '';
     }
     eventType: string;
-    startYear: string;
-    endYear: string;
-    circa: string;
+    startYear: Date | null;
+    endYear: Date | null;
+    circa: boolean;
     chronologyNotes: string;
 }
 class ArchitectOrBuilder implements ArchitectOrBuilderType {
