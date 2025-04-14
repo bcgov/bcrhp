@@ -4,11 +4,12 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
 import RadioButton from 'primevue/radiobutton';
 import Select from 'primevue/select';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
+import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     SiteClassification,
@@ -19,6 +20,9 @@ import {
     requiredHeritageClassSchema,
     requiredHeritageFunctionSchema,
     requiredHeritageThemeSchema,
+    getHeritageClassSchema,
+    getHeritageFunctionSchema,
+    getHeritageThemeSchema,
 } from '@/bcrhp/schema/SiteClassificationSchema.ts';
 import type { ZodError } from 'zod';
 
@@ -29,38 +33,33 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-const functionCategoryOptions = ref([
-    { name: 'Market', code: 'market' },
-    { name: 'Eating or Drinking Establishment', code: 'eating_or_drinking' },
-]);
-const functionThemeOptions = ref([
-    { name: 'Learning and the Arts', code: 'learning_and_arts' },
-    { name: 'Architecture and Design', code: 'architecture_and_design' },
-]);
-const contributingResources = ref('');
+const currentHeritageClass = ref(getHeritageClassSchema());
+const currentHeritageFunction = ref(getHeritageFunctionSchema());
+const currentHeritageTheme = ref(getHeritageThemeSchema());
 const heritageClasses = ref([] as Array<string>);
-const functionCategory = ref({ name: '', code: '' });
 const heritageFunctions = ref([] as Array<string>);
-const heritageTheme = ref({ name: '', code: '' });
 const heritageThemes = ref([] as Array<string>);
 const addContributingResourcesDisabled = ref(false);
 const addOtherFunctionCategoryDisabled = ref(false);
 const addOtherHeritageSiteDisabled = ref(false);
-const heritageCategory = ref();
-const ownership = ref();
-const functionCategoryType = ref();
 
-const valueChanged = function (event: Event, schema: string) {
-    console.log(event);
+const updateSelectValue = function (
+    newValue: string,
+    selectField: typeof RadioButton | typeof ConceptSelect,
+) {
+    console.log(`New value ${newValue}`);
+    validateField(selectField);
+};
 
-    if (schema === 'requiredSiteClassificationSchema') {
-        validateSiteClassificationFields(event.target as HTMLInputElement);
-    } else if (schema === 'requiredHeritageClassSchema') {
-        validateHeritageClassField(event.target as HTMLInputElement);
-    } else if (schema === 'requiredHeritageFunctionSchema') {
-        validateHeritageFunctionField(event.target as HTMLInputElement);
-    } else if (schema === 'requiredHeritageThemeSchema') {
-        validateHeritageThemeField(event.target as HTMLInputElement);
+const validateField = function (
+    inputField: typeof Select | typeof RadioButton,
+) {
+    if (Object.hasOwn(currentHeritageClass, inputField?.inputId)) {
+        validateHeritageClassField(inputField as HTMLInputElement);
+    } else if (Object.hasOwn(currentHeritageFunction, inputField?.inputId)) {
+        validateHeritageFunctionField(inputField as HTMLInputElement);
+    } else if (Object.hasOwn(currentHeritageTheme, inputField?.inputId)) {
+        validateHeritageThemeField(inputField as HTMLInputElement);
     }
 };
 
@@ -106,7 +105,7 @@ const validateHeritageClassField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageClass =
         field.id as keyof typeof HeritageClass;
     const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteClassification[key],
+        currentHeritageClass.value[field.id],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -125,7 +124,7 @@ const validateHeritageFunctionField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageFunction =
         field.id as keyof typeof HeritageFunction;
     const fieldValidation = requiredHeritageFunctionSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteClassification[key],
+        currentHeritageFunction.value[field.id],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -144,7 +143,7 @@ const validateHeritageThemeField = function (field: HTMLInputElement) {
     const key: keyof typeof HeritageTheme =
         field.id as keyof typeof HeritageTheme;
     const fieldValidation = requiredHeritageThemeSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteClassification[key],
+        currentHeritageTheme.value[field.id],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -161,9 +160,9 @@ const validateHeritageThemeField = function (field: HTMLInputElement) {
 const saveHeritageClass = function () {
     console.log('saveHeritageClass');
     heritageSiteRef.value.siteClassification.heritageClasses.push({
-        contributingResources: contributingResources.value,
-        heritageCategory: heritageCategory.value?.toString(),
-        ownership: ownership.value?.toString(),
+        contributingResources: currentHeritageClass.value.contributingResources,
+        heritageCategory: currentHeritageClass.value.heritageCategory,
+        ownership: currentHeritageClass.value.ownership,
     });
 
     updateAddHeritageClassCategory();
@@ -172,8 +171,9 @@ const saveHeritageClass = function () {
 const saveFunctionCategory = function () {
     console.log('saveFunctionCategory');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
-        functionCategory: functionCategory.value,
-        functionCategoryType: functionCategoryType.value?.toString(),
+        functionCategory: currentHeritageFunction.value.functionCategory,
+        functionCategoryType:
+            currentHeritageFunction.value.functionCategoryType,
     });
 
     updateAddOtherFunctionCategory();
@@ -182,7 +182,7 @@ const saveFunctionCategory = function () {
 const saveHeritageTheme = function () {
     console.log('saveHeritageThemes');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
-        heritageTheme.value,
+        currentHeritageTheme.value.heritageTheme,
     );
 
     updateAddOtherHeritageSite();
@@ -232,14 +232,11 @@ onMounted(() => {
                 <InputText
                     id="contributingResources"
                     ref="numberOfResourcesField"
-                    v-model="contributingResources"
+                    v-model="currentHeritageClass.contributingResources"
                     aria-describedby="contributing-resources-help"
                     aria-required="true"
                     fluid
                     class="inline-block"
-                    @change="
-                        valueChanged($event, 'requiredHeritageClassSchema')
-                    "
                 />
                 <Button
                     id="saveHeritageClass"
@@ -253,124 +250,28 @@ onMounted(() => {
         </LabelledInput>
         <div class="flex flex-col">
             <p class="mb-1">Heritage Category</p>
-            <div class="card flex flex-wrap gap-4">
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="heritageCategory"
-                        inputId="heritageCategory"
-                        value="Archeological Site"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="archeological_site">
-                        Archaeological Site / Remains
-                    </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="heritageCategory"
-                        inputId="heritageCategory"
-                        value="Building"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="building"> Building </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="heritageCategory"
-                        inputId="heritageCategory"
-                        value="Collection"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="collection"> Collection </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="heritageCategory"
-                        inputId="heritageCategory"
-                        value="Landscape Features"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="landscape_features">
-                        Landscape(s) or Landscape Feature(s)
-                    </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="heritageCategory"
-                        inputId="heritageCategory"
-                        value="Structure"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="structure"> Structure </label>
-                </div>
+            <div class="flex flex-col">
+                <ConceptRadioButtons
+                    id="heritageCategory"
+                    ref="heritageCategoryField"
+                    v-model="currentHeritageClass.heritageCategory"
+                    graph-slug="heritage_site"
+                    node-alias="heritageClass"
+                    group-direction="column"
+                    @value-updated="updateSelectValue"
+                />
             </div>
             <p class="mb-1">Ownership</p>
-            <div class="card flex flex-wrap gap-4">
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="ownership"
-                        inputId="ownership"
-                        value="Not-for-profit"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="not_for_profit"> Not-for-profit </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="ownership"
-                        inputId="ownership"
-                        value="Private"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="private"> Private </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="ownership"
-                        inputId="ownership"
-                        value="Public (federal)"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="public_federal"> Public (federal) </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="ownership"
-                        inputId="ownership"
-                        value="Public (local)"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="public_local"> Public (local) </label>
-                </div>
-                <div class="flex items-center gap-2">
-                    <RadioButton
-                        v-model="ownership"
-                        inputId="ownership"
-                        value="Public (provincial)"
-                        @change="
-                            valueChanged($event, 'requiredHeritageClassSchema')
-                        "
-                    />
-                    <label for="public_provincial"> Public (provincial) </label>
-                </div>
+            <div class="flex flex-col">
+                <ConceptRadioButtons
+                    id="ownership"
+                    ref="ownershipField"
+                    v-model="currentHeritageClass.ownership"
+                    graph-slug="heritage_site"
+                    node-alias="heritageClass"
+                    group-direction="column"
+                    @value-updated="updateSelectValue"
+                />
             </div>
         </div>
         <MultiValuePlaceholder
@@ -402,51 +303,24 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid flex flex-row">
-                <Select
+                <ConceptSelect
                     id="functionCategory"
                     ref="functionCategoryField"
-                    v-model="functionCategory"
-                    inputId="functionCategory"
-                    optionLabel="name"
-                    placeholder="Select Function Category"
-                    :options="functionCategoryOptions"
-                    aria-describedby="function-category-help"
-                    aria-required="true"
-                    fluid
-                    class="w-full md:w-14rem"
-                    @blur="
-                        valueChanged($event, 'requiredHeritageFunctionSchema')
-                    "
+                    v-model="currentHeritageFunction.functionCategory"
+                    graph-slug="heritage_site"
+                    node-alias="function_category"
+                    @value-updated="updateSelectValue"
                 />
                 <div class="inline-block">
-                    <div class="inline-block">
-                        <Checkbox
-                            v-model="functionCategoryType"
-                            inputId="functionCategoryType"
-                            value="Current"
-                            @change="
-                                valueChanged(
-                                    $event,
-                                    'requiredHeritageFunctionSchema',
-                                )
-                            "
-                        />
-                        <label for="current">Current</label>
-                    </div>
-                    <div class="inline-block">
-                        <Checkbox
-                            v-model="functionCategoryType"
-                            inputId="functionCategoryType"
-                            value="Historic"
-                            @change="
-                                valueChanged(
-                                    $event,
-                                    'requiredHeritageFunctionSchema',
-                                )
-                            "
-                        />
-                        <label for="historic">Historic</label>
-                    </div>
+                    <ConceptRadioButtons
+                        id="functionCategoryType"
+                        ref="functionCategoryTypeRef"
+                        v-model="currentHeritageFunction.functionCategoryType"
+                        graph-slug="heritage_site"
+                        node-alias="functionCategoryType"
+                        group-direction="column"
+                        @value-updated="updateSelectValue"
+                    />
                 </div>
             </div>
             <Button
@@ -470,7 +344,7 @@ onMounted(() => {
                 :key="slot"
                 class="parent value"
             >
-                {{ slot.functionCategory?.name }}
+                {{ slot.functionCategory }}
                 {{ slot.functionCategoryType }}
             </div>
         </MultiValuePlaceholder>
@@ -487,19 +361,13 @@ onMounted(() => {
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <Select
+                <ConceptSelect
                     id="heritageTheme"
                     ref="heritageThemeField"
-                    v-model="heritageTheme"
-                    optionLabel="name"
-                    inputId="heritageTheme"
-                    placeholder="Select Function Theme"
-                    :options="functionThemeOptions"
-                    aria-describedby="function-theme-help"
-                    aria-required="true"
-                    fluid
-                    class="w-full md:w-14rem"
-                    @blur="valueChanged($event, 'requiredHeritageThemeSchema')"
+                    v-model="currentHeritageTheme.heritageTheme"
+                    graph-slug="heritage_site"
+                    node-alias="heritage_theme"
+                    @value-updated="updateSelectValue"
                 />
             </div>
             <Button
@@ -518,7 +386,7 @@ onMounted(() => {
             label="Theme(s)"
             :deleteCallback="deleteHeritageThemeCallback"
         >
-            <div class="parent value">{{ slotProps.value?.name }}</div>
+            <div class="parent value">{{ slotProps.value }}</div>
         </MultiValuePlaceholder>
     </Fieldset>
 </template>
