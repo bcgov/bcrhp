@@ -46,6 +46,16 @@ setUrlPrefix('http://localhost/bcrhp');
 router.beforeEach(async (to, _from, next) => {
     try {
         let userData = await fetchUser();
+        if (
+            to.meta.requiresAuthentication &&
+            !(
+                'Local Government' in userData.groups ||
+                'Heritage Branch' in userData.groups
+            )
+        ) {
+            window.location.replace(window.location.origin + '/bcrhp');
+        }
+
         setUser(userData);
 
         const requiresAuthentication = to.matched.some(
