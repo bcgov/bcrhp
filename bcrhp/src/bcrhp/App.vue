@@ -76,7 +76,7 @@ router.beforeEach(async (to, _from, next) => {
     <main>
         <PageHeader
             v-if="route.meta.shouldShowNavigation"
-            route-names="routeNames"
+            :route-names="routeNames"
             system-name="BC Register of Historic Places"
         />
         <div
@@ -89,7 +89,7 @@ router.beforeEach(async (to, _from, next) => {
         >
             <SideNav
                 v-if="route.meta.shouldShowNavigation"
-                route-names="routeNames"
+                :route-names="routeNames"
             />
             <div
                 class="bcgov-main-content"

@@ -6,8 +6,10 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import RadioButton from 'primevue/radiobutton';
-import DatePicker from 'primevue/datepicker';
 import Select from 'primevue/select';
+import DatePicker from 'primevue/datepicker';
+import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -21,6 +23,9 @@ import {
     requiredChronologySchema,
     requiredArchitectBuilderSchema,
     requiredRequiredURLsSchema,
+    getArchitectOrBuilderSchema,
+    getChronologySchema,
+    getRequiredURLsSchema,
 } from '@/bcrhp/schema/SiteDetailsSchema.ts';
 import type { ZodError } from 'zod';
 
@@ -28,44 +33,41 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-const startYear = ref();
-const endYear = ref();
-const chronologyNotes = ref();
 const chronologies = ref([] as Array<string>);
-const architectOrBuilderName = ref();
-const architectOrBuilderNotes = ref();
-const architectOrBuilderType = ref();
-const architectOrBuilderTypeOptions = ref([
-    { name: 'Architect', code: 'architect' },
-    { name: 'Builder', code: 'builder' },
-]);
+
+const currentChronology = ref(getChronologySchema());
+const currentArchitectOrBuilder = ref(getArchitectOrBuilderSchema());
+const currentURL = ref(getRequiredURLsSchema());
+
+const updateSelectValue = function (
+    newValue: string,
+    selectField: typeof RadioButton | typeof ConceptSelect,
+) {
+    console.log(`New value ${newValue}`);
+    // validateField(selectField);
+};
+
 const architectsOrBuilders = ref([] as Array<string>);
-const urlType = ref();
-const linkText = ref();
-const url = ref('');
 const urls = ref([] as Array<string>);
-const urlTypeOptions = ref([
-    { name: 'Historic Place Website', code: 'historic_place_website' },
-    { name: 'Provincial Website', code: 'provincial_website' },
-]);
-const eventType = ref();
-const circa = ref('Exact');
 const addURLDisabled = ref(false);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-const valueChanged = function (event: Event, schema: string) {
+const valueChanged = function (event: Event) {
     console.log(event);
+    validateField(event.target);
+};
 
-    if (schema === 'requiredSiteDetailsSchema') {
-        validateSiteDetailsFields(event.target as HTMLInputElement);
-    } else if (schema === 'requiredChronologySchema') {
-        validateChronologyField(event.target as HTMLInputElement);
-    } else if (schema === 'requiredArchitectBuilderSchema') {
-        validateArchitectOrBuilderField(event.target as HTMLInputElement);
-    } else if (schema === 'requiredRequiredURLsSchema') {
-        validateURLField(event.target as HTMLInputElement);
+const validateField = function (
+    inputField: typeof Select | typeof RadioButton,
+) {
+    if (Object.hasOwn(currentChronology, inputField?.inputId)) {
+        validateChronologyField(inputField as HTMLInputElement);
+    } else if (Object.hasOwn(currentArchitectOrBuilder, inputField?.inputId)) {
+        validateArchitectOrBuilderField(inputField as HTMLInputElement);
+    } else if (Object.hasOwn(currentURL, inputField?.inputId)) {
+        validateURLField(inputField as HTMLInputElement);
     }
 };
 const validateSiteDetailsFields = function (field: HTMLInputElement) {
@@ -90,7 +92,7 @@ const validateChronologyField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof Chronology = field.id as keyof typeof Chronology;
     const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        heritageSiteRef.value.siteDetails[key],
+        currentChronology[field.id],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -107,9 +109,9 @@ const validateChronologyField = function (field: HTMLInputElement) {
 const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     console.log(`ID: ${field.id}`);
     const key: keyof typeof ArchitectOrBuilder =
-        field.id as keyof typeof ArchitectOrBuilder;
+        field.inputId as keyof typeof ArchitectOrBuilder;
     const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteDetails[key],
+        currentArchitectOrBuilder[field.inputId],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -123,12 +125,12 @@ const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateURLField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateURLField = function (field) {
+    console.log(`ID: ${field.inputId}`);
     const key: keyof typeof RequiredURLs =
-        field.id as keyof typeof RequiredURLs;
+        field.inputId as keyof typeof RequiredURLs;
     const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        heritageSiteRef.value.siteDetails[key],
+        currentURL[field.inputId],
     );
     if (fieldValidation.success) {
         field.classList.remove('p-invalid');
@@ -162,11 +164,11 @@ const updateAddOtherURL = function () {
 const saveChronology = function () {
     console.log('saveChronology');
     heritageSiteRef.value.siteDetails.chronologies.push({
-        eventType: eventType.value?.toString(),
-        startYear: startYear.value,
-        endYear: endYear.value,
-        circa: circa.value,
-        chronologyNotes: chronologyNotes.value,
+        eventType: currentChronology.value.eventType,
+        startYear: currentChronology.value.startYear,
+        endYear: currentChronology.value.endYear,
+        circa: currentChronology.value.circa,
+        chronologyNotes: currentChronology.value.chronologyNotes,
     });
 
     updateAddChronology();
@@ -175,9 +177,12 @@ const saveChronology = function () {
 const saveArchitectOrBuilder = function () {
     console.log('saveArchitectOrBuilder');
     heritageSiteRef.value.siteDetails.architectsOrBuilders.push({
-        architectOrBuilderName: architectOrBuilderName.value,
-        architectOrBuilderType: architectOrBuilderType.value,
-        architectOrBuilderNotes: architectOrBuilderNotes.value,
+        architectOrBuilderName:
+            currentArchitectOrBuilder.value.architectOrBuilderName,
+        architectOrBuilderType:
+            currentArchitectOrBuilder.value.architectOrBuilderType,
+        architectOrBuilderNotes:
+            currentArchitectOrBuilder.value.architectOrBuilderNotes,
     });
 
     updateAddOtherArchitectOrBuilder();
@@ -185,9 +190,9 @@ const saveArchitectOrBuilder = function () {
 const saveURL = function () {
     console.log('saveURL');
     heritageSiteRef.value.siteDetails.urls.push({
-        urlType: urlType.value,
-        linkText: linkText.value,
-        url: url.value,
+        urlType: currentURL.value.urlType,
+        linkText: currentURL.value.linkText,
+        url: currentURL.value.url,
     });
 
     updateAddOtherURL();
@@ -227,70 +232,51 @@ onMounted(() => {
         id="chronologyFieldset"
         legend="Chronology"
     >
-        <div class="p-inputtext-fluid">
+        <div class="flex flex-row flex-wrap gap-4">
             <div class="inline-block">
                 <div class="flex flex-col">
-                    <p class="mb-1">Event Type</p>
-                    <div class="card flex flex-col">
-                        <div class="flex items-center gap-2">
-                            <RadioButton
-                                v-model="eventType"
-                                inputId="eventType"
-                                value="Construction"
-                                @change="
-                                    valueChanged(
-                                        $event,
-                                        'requiredChronologySchema',
-                                    )
-                                "
-                            />
-                            <label for="construction"> Construction </label>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <RadioButton
-                                v-model="eventType"
-                                inputId="eventType"
-                                value="Significant"
-                                @change="
-                                    valueChanged(
-                                        $event,
-                                        'requiredChronologySchema',
-                                    )
-                                "
-                            />
-                            <label for="significant"> Significant </label>
-                        </div>
-                    </div>
+                    <ConceptRadioButtons
+                        id="eventType"
+                        ref="eventTypeField"
+                        v-model="currentChronology.eventType"
+                        graph-slug="heritage_site"
+                        node-alias="chronology"
+                        group-direction="column"
+                        @value-updated="updateSelectValue"
+                    />
                 </div>
             </div>
-            <p>Start Year</p>
+            <label for="startYear">Start Year</label>
             <DatePicker
                 id="startYear"
                 ref="startYearField"
-                v-model="startYear"
+                v-model="currentChronology.startYear"
+                class="flex-shrink"
                 dateFormat="yy"
                 view="year"
+                show-icon
                 aria-describedby="start-year-help"
                 aria-required="true"
-                @input="valueChanged($event, 'requiredChronologySchema')"
+                @input="valueChanged"
             />
-            <p>End Year</p>
+            <label for="endYear">End Year</label>
             <DatePicker
                 id="endYear"
                 ref="endYearField"
-                v-model="endYear"
+                v-model="currentChronology.endYear"
                 dateFormat="yy"
                 view="year"
+                show-icon
                 aria-describedby="end-year-help"
                 aria-required="true"
-                @input="valueChanged($event, 'requiredChronologySchema')"
+                @input="valueChanged"
             />
             <div class="inline-block">
                 <Checkbox
-                    v-model="circa"
+                    v-model="currentChronology.circa"
                     inputId="circa"
                     value="Circa"
-                    @change="valueChanged($event, 'requiredChronologySchema')"
+                    @change="valueChanged"
                 />
                 <label for="circa"> Circa </label>
             </div>
@@ -306,15 +292,13 @@ onMounted(() => {
                     <InputText
                         id="chronologyNotes"
                         ref="chronologyNotesField"
-                        v-model="chronologyNotes"
+                        v-model="currentChronology.chronologyNotes"
                         theme="snow"
                         aria-describedby="chronology-help"
                         fluid
                         class="inline-block"
                         @editorChange="valueChanged"
-                        @change="
-                            valueChanged($event, 'requiredChronologySchema')
-                        "
+                        @change="valueChanged"
                     />
                     <Button
                         id="saveChronology"
@@ -360,16 +344,13 @@ onMounted(() => {
                     <InputText
                         id="architectOrBuilderName"
                         ref="architectOrBuilderNameField"
-                        v-model="architectOrBuilderName"
+                        v-model="
+                            currentArchitectOrBuilder.architectOrBuilderName
+                        "
                         aria-describedby="architect-or-builder-help"
                         aria-required="true"
                         fluid
-                        @change="
-                            valueChanged(
-                                $event,
-                                'requiredArchitectBuilderSchema',
-                            )
-                        "
+                        @change="valueChanged"
                     />
                 </div>
             </LabelledInput>
@@ -379,20 +360,13 @@ onMounted(() => {
                 :error-message="errors.architectOrBuilderType?.join(',')"
                 :required="true"
             >
-                <Select
+                <ConceptSelect
                     id="architectOrBuilderType"
                     ref="architectOrBuilderTypeField"
-                    v-model="architectOrBuilderType"
-                    optionLabel="name"
-                    placeholder="Select Type"
-                    :options="architectOrBuilderTypeOptions"
-                    aria-describedby="architect-or-builder-type-help"
-                    aria-required="true"
-                    fluid
-                    class="w-full md:w-14rem"
-                    @blur="
-                        valueChanged($event, 'requiredArchitectBuilderSchema')
-                    "
+                    v-model="currentArchitectOrBuilder.architectOrBuilderType"
+                    graph-slug="heritage_site"
+                    node-alias="construction_actor_type"
+                    @value-updated="updateSelectValue"
                 />
             </LabelledInput>
         </div>
@@ -408,17 +382,14 @@ onMounted(() => {
                     <InputText
                         id="architectOrBuilderNotes"
                         ref="architectOrBuilderNotesField"
-                        v-model="architectOrBuilderNotes"
+                        v-model="
+                            currentArchitectOrBuilder.architectOrBuilderNotes
+                        "
                         aria-describedby="architect-or-builder-notes-help"
                         aria-required="true"
                         fluid
                         class="inline-block"
-                        @change="
-                            valueChanged(
-                                $event,
-                                'requiredArchitectBuilderSchema',
-                            )
-                        "
+                        @change="valueChanged"
                     />
                     <Button
                         id="addOtherName"
@@ -441,7 +412,7 @@ onMounted(() => {
                 :key="slot"
                 class="parent value"
             >
-                {{ slot.architectOrBuilderType?.name }}
+                {{ slot.architectOrBuilderType }}
                 {{ slot.architectOrBuilderName }}
                 {{ slot.architectOrBuilderNotes }}
             </div>
@@ -460,19 +431,14 @@ onMounted(() => {
                 :error-message="errors.urlType?.join(',')"
                 :required="true"
             >
-                <Select
+                <ConceptSelect
                     id="urlType"
                     ref="urlTypeField"
-                    v-model="urlType"
-                    inputId="urlType"
-                    placeholder="Select Type"
-                    optionLabel="name"
-                    :options="urlTypeOptions"
-                    aria-describedby="url-type-help"
-                    aria-required="true"
-                    fluid
-                    class="w-full md:w-14rem"
-                    @blur="valueChanged($event, 'requiredRequiredURLsSchema')"
+                    v-model="currentURL.urlType"
+                    graph-slug="heritage_site"
+                    node-alias="external_url_type"
+                    placeholder="Select URL Type"
+                    @value-updated="updateSelectValue"
                 />
             </LabelledInput>
             <LabelledInput
@@ -486,13 +452,11 @@ onMounted(() => {
                     <InputText
                         id="linkText"
                         ref="linkTextField"
-                        v-model="linkText"
+                        v-model="currentURL.linkText"
                         aria-describedby="link-text-help"
                         aria-required="true"
                         fluid
-                        @change="
-                            valueChanged($event, 'requiredRequiredURLsSchema')
-                        "
+                        @change="valueChanged"
                     />
                 </div>
             </LabelledInput>
@@ -509,14 +473,12 @@ onMounted(() => {
                     <InputText
                         id="url"
                         ref="urlField"
-                        v-model="url"
+                        v-model="currentURL.url"
                         aria-describedby="url-help"
                         aria-required="true"
                         fluid
                         class="inline-block"
-                        @change="
-                            valueChanged($event, 'requiredRequiredURLsSchema')
-                        "
+                        @change="valueChanged"
                     />
                     <Button
                         id="saveURL"
@@ -538,7 +500,7 @@ onMounted(() => {
                     :key="slot"
                     class="parent value"
                 >
-                    {{ slot.urlType?.name }} {{ slot.url }} {{ slot.linkText }}
+                    {{ slot.urlType }} {{ slot.url }} {{ slot.linkText }}
                 </div>
             </MultiValuePlaceholder>
         </div>
