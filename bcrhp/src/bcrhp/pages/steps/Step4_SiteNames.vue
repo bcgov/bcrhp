@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -29,6 +29,28 @@ const updateAddOtherState = function () {
     addOtherNameDisabled.value =
         otherName.value.length < 1 ||
         heritageSiteRef.value.otherNames.length > 4;
+};
+
+// These names need to match the Zog schema
+const fields = {
+    commonNameField: useTemplateRef('commonNameField'),
+    otherNameField: useTemplateRef('otherNameField'),
+};
+
+const isValid = () => {
+    // We don't want to validate fields the first time we show the step
+    if (!validateFields) {
+        validateFields = true;
+        return true;
+    }
+    let valid = true;
+
+    for (const field of Object.values(fields) as Array<Ref>) {
+        valid =
+            validateField(field?.value.$el as FormFieldResolverOptions) &&
+            valid;
+    }
+    return valid;
 };
 
 const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
@@ -64,10 +86,14 @@ const saveOtherName = function () {
 
 const addOtherNameDisabled = ref(false);
 
+let validateFields = false;
+
 const deleteOtherNameCallback = function (index: number) {
     heritageSiteRef.value.otherNames.splice(index, 1);
     updateAddOtherState();
 };
+
+defineExpose({ isValid });
 
 onMounted(() => {
     heritageSiteRef.value.otherNames = otherNames;
