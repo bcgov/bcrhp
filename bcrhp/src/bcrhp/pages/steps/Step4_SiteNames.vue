@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-
+import { Form, FormField } from '@primevue/forms';
+import type { FormFieldResolverOptions } from '@primevue/forms';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import type { ZodError } from 'zod';
@@ -30,6 +31,10 @@ const fields = {
     otherNameField: useTemplateRef('otherNameField'),
 };
 
+watch(otherName, () => {
+    updateAddOtherState();
+});
+
 const isValid = () => {
     // We don't want to validate fields the first time we show the step
     if (!validateFields) {
@@ -39,7 +44,9 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
+        valid =
+            validateField(field?.value.$el as FormFieldResolverOptions) &&
+            valid;
     }
     return valid;
 };
@@ -50,44 +57,27 @@ const updateAddOtherState = function () {
         heritageSiteRef.value.otherNames.length > 4;
 };
 
-const valueUpdated = function (value: string | undefined) {
-    console.log(`valueUpdated: ${value}`);
-    updateAddOtherState();
+const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
+    return validateField(e as FormFieldResolverOptions);
 };
 
-const valueChanged = function (event: Event) {
-    console.log(`valueChanged`);
-    validateField(event.target as HTMLInputElement);
-};
-
-const onFocusHandler = function (event: Event) {
-    console.log(`onFocusHandler ${event}`);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const onFocusOutHandler = function (event: Event) {
-    console.log(`onFocusOutHandler`);
-    validateField(event.target as HTMLInputElement);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const validateField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof HeritageSite =
-        field.id as keyof typeof HeritageSite;
+        event.name as keyof typeof HeritageSite;
     const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
 
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
     }
+
     return fieldValidation.success;
 };
 
@@ -107,8 +97,6 @@ const deleteOtherNameCallback = function (index: number) {
     updateAddOtherState();
 };
 
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
 defineExpose({ isValid });
 
 onMounted(() => {
@@ -117,69 +105,77 @@ onMounted(() => {
 });
 </script>
 <template>
-    <div class="flex flex-col">
-        <LabelledInput
-            label="Common Name"
-            hint="The common name is the most recognizable name for the site"
-            input-name="commonName"
-            :error-message="errors.commonName?.join(',')"
-            :required="true"
-        >
-            <div class="p-inputtext-fluid">
-                <InputText
-                    id="commonName"
-                    ref="commonNameField"
-                    v-model="heritageSite.commonName"
-                    aria-describedby="username-help"
-                    aria-required="true"
-                    fluid
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
-                />
-            </div>
-        </LabelledInput>
-        <LabelledInput
-            label="Other Names (Optional)"
-            hint="Click Add to enter one or more additional names as applicable"
-            input-name="otherName"
-            :error-message="errors.otherNames?.join(',')"
-        >
-            <div>
-                <InputText
-                    id="otherName"
-                    ref="otherNameField"
-                    v-model="otherName"
-                    aria-describedby="other-name-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
-                />
-                <Button
-                    id="addOtherName"
-                    label="Add"
-                    class="inline-block"
-                    :aria-disabled="addOtherNameDisabled"
-                    :disabled="addOtherNameDisabled"
-                    @click="saveOtherName"
-                ></Button>
-            </div>
-        </LabelledInput>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            label="Other Name(s)"
-            :showDeleteButton="true"
-            :displayValues="otherNames"
-            :deleteCallback="deleteOtherNameCallback"
-        >
-            <div class="parent value">{{ slotProps.value }}</div>
-        </MultiValuePlaceholder>
-    </div>
+    <Form
+        ref="siteNamesRef"
+        name="siteNamesRef"
+    >
+        <div class="flex flex-col">
+            <FormField
+                :resolver="resolver"
+                name="commonName"
+            >
+                <LabelledInput
+                    label="Common Name"
+                    hint="The common name is the most recognizable name for the site"
+                    input-name="commonName"
+                    :error-message="errors.commonName?.join(',')"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <InputText
+                            id="commonName"
+                            ref="commonNameField"
+                            v-model="heritageSite.commonName"
+                            name="commonName"
+                            aria-describedby="username-help"
+                            aria-required="true"
+                            fluid
+                        />
+                    </div>
+                </LabelledInput>
+            </FormField>
+            <FormField
+                v-slot="$field"
+                :resolver="resolver"
+                name="otherName"
+            >
+                <LabelledInput
+                    label="Other Names (Optional)"
+                    hint="Click Add to enter one or more additional names as applicable"
+                    input-name="otherName"
+                    :error-message="$field.error?.message"
+                >
+                    <InputText
+                        id="otherName"
+                        ref="otherNameField"
+                        v-model="otherName"
+                        name="otherName"
+                        aria-describedby="other-name-help"
+                        aria-required="true"
+                        fluid
+                        class="inline-block"
+                    />
+                    <Button
+                        id="addOtherName"
+                        label="Add"
+                        class="inline-block"
+                        :aria-disabled="addOtherNameDisabled"
+                        :disabled="addOtherNameDisabled"
+                        @click="saveOtherName"
+                    ></Button>
+                </LabelledInput>
+            </FormField>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="Other Name(s)"
+                :showDeleteButton="true"
+                :displayValues="otherNames"
+                :deleteCallback="deleteOtherNameCallback"
+            >
+                <div class="parent value">{{ slotProps.value }}</div>
+            </MultiValuePlaceholder>
+        </div>
+    </Form>
 </template>
 
 <style>
