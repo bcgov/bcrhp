@@ -1,10 +1,7 @@
 import { z } from 'zod';
 
 const RecognitionDetailsSchema = z.object({
-    designationDate: z
-        .string()
-        .min(1, { message: 'Designation Date is required.' })
-        .max(12),
+    designationDate: z.date(),
     legislativeAct: z
         .string()
         .min(1, { message: 'Legislative Act is required.' })
@@ -27,12 +24,12 @@ function getRecognitionDetails(): RecognitionDetailsType {
 // @todo - Figure out object state - New/Updated/Deleted
 class RecognitionDetails implements RecognitionDetailsType {
     constructor() {
-        this.designationDate = '';
+        this.designationDate = null;
         this.legislativeAct = '';
         this.referenceNumber = '';
         this.totalRecognitionDetails = [];
     }
-    designationDate: string;
+    designationDate: Date | null;
     legislativeAct: string;
     referenceNumber: string;
     totalRecognitionDetails: string[];
