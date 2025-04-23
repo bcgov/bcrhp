@@ -256,7 +256,7 @@ onMounted(() => {
                     ref="heritageCategoryField"
                     v-model="currentHeritageClass.heritageCategory"
                     graph-slug="heritage_site"
-                    node-alias="heritageClass"
+                    node-alias="heritage_category"
                     group-direction="column"
                     @value-updated="updateSelectValue"
                 />
@@ -268,7 +268,7 @@ onMounted(() => {
                     ref="ownershipField"
                     v-model="currentHeritageClass.ownership"
                     graph-slug="heritage_site"
-                    node-alias="heritageClass"
+                    node-alias="ownership"
                     group-direction="column"
                     @value-updated="updateSelectValue"
                 />
@@ -317,7 +317,7 @@ onMounted(() => {
                         ref="functionCategoryTypeRef"
                         v-model="currentHeritageFunction.functionCategoryType"
                         graph-slug="heritage_site"
-                        node-alias="functionCategoryType"
+                        node-alias="functional_category"
                         group-direction="column"
                         @value-updated="updateSelectValue"
                     />
