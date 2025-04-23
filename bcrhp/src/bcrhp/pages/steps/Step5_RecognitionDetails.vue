@@ -27,6 +27,7 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 const currentRecognitionDetails = ref(getRecognitionDetails());
+const showInactiveHistoricActs = ref(false);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 
@@ -191,9 +192,7 @@ onMounted(() => {
                                 <Checkbox
                                     id="showInactiveHistoricActs"
                                     ref="showInactiveHistoricActs"
-                                    :model-value="
-                                        !heritageSite.showInactiveHistoricActs
-                                    "
+                                    :model-value="showInactiveHistoricActs"
                                     aria-describedby="show-inactive-historic-acts-help"
                                     aria-required="false"
                                     class="inline-block"
