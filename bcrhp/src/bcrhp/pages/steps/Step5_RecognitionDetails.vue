@@ -8,7 +8,8 @@ import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import Select from 'primevue/select';
-
+import { Form, FormField } from '@primevue/forms';
+import type { FormFieldResolverOptions } from '@primevue/forms';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -16,6 +17,7 @@ import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     RecognitionDetails,
     requiredRecognitionDetailsSchema,
+    getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
 
 import type { ZodError } from 'zod';
@@ -24,6 +26,8 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+const currentRecognitionDetails = ref(getRecognitionDetails());
+const showInactiveHistoricActs = ref(false);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 
@@ -32,9 +36,6 @@ const legislativeActOptions = ref([
     { name: 'Legislative Act 1', code: 'legislative_act_1' },
     { name: 'Legislative Act 2', code: 'legislative_act_2' },
 ]);
-const designationDate = ref();
-const legislativeAct = ref('');
-const referenceNumber = ref('');
 const totalRecognitionDetails = ref([] as Array<string>);
 const addOtherReferenceNumberDisabled = ref(false);
 
@@ -54,7 +55,9 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
+        valid =
+            validateField(field?.value.$el as FormFieldResolverOptions) &&
+            valid;
     }
     return valid;
 };
@@ -66,40 +69,22 @@ const updateAddOtherRecognitionDetails = function () {
             .length > 4;
 };
 
-const valueUpdated = function (value: string | undefined) {
-    console.log(`valueUpdated: ${value}`);
+const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
+    return validateField(e as FormFieldResolverOptions);
 };
 
-const valueChanged = function (event: Event) {
-    console.log(`valueChanged`);
-    validateField(event.target as HTMLInputElement);
-};
-
-const onFocusHandler = function (event: Event) {
-    console.log(`onFocusHandler ${event}`);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const onFocusOutHandler = function (event: Event) {
-    console.log(`onFocusOutHandler`);
-    validateField(event.target as HTMLInputElement);
-    // (event.target as HTMLInputElement).classList.remove("p-invalid");
-};
-
-const validateField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
-
+const validateField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof RecognitionDetails =
-        field.id as keyof typeof RecognitionDetails;
+        event.name as keyof typeof RecognitionDetails;
     const fieldValidation = requiredRecognitionDetailsSchema.shape[
         key
     ].safeParse(heritageSiteRef.value.recognitionDetails[key]);
 
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -111,9 +96,9 @@ const validateField = function (field: HTMLInputElement) {
 const saveRecognitionDetails = function () {
     console.log('saveRecognitionDetails');
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate: designationDate.value,
-        legislativeAct: legislativeAct.value,
-        referenceNumber: referenceNumber.value,
+        designationDate: currentRecognitionDetails.value.designationDate,
+        legislativeAct: currentRecognitionDetails.value.legislativeAct,
+        referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
     updateAddOtherRecognitionDetails();
@@ -135,6 +120,7 @@ let validateFields = false;
 defineExpose({ isValid });
 
 onMounted(() => {
+    heritageSiteRef.value.recognitionDetails = currentRecognitionDetails;
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails =
         totalRecognitionDetails;
 
@@ -142,116 +128,131 @@ onMounted(() => {
 });
 </script>
 <template>
-    <FieldSet id="recognitionDetailsFieldset">
-        <LabelledInput
-            label="Designation or Recognition Start Date"
-            hint="The date the designation or recognition was brought into effect"
-            input-name="designationDate"
-            :error-message="errors.designationDate?.join(',')"
-            :required="true"
-        >
-            <div class="p-inputtext-fluid">
-                <DatePicker
-                    id="designationDate"
-                    ref="designationDateField"
-                    v-model="designationDate"
-                    dateFormat="dd/mm/yy"
-                    aria-describedby="designation-date-help"
-                    aria-required="true"
-                />
-            </div>
-        </LabelledInput>
-        <LabelledInput
-            label="Legislative Act"
-            hint="Designation or recognition type that applies to the site"
-            input-name="legislativeAct"
-            :error-message="errors.legislativeAct?.join(',')"
-            :required="true"
-        >
-            <div class="p-inputtext-fluid flex">
-                <Select
-                    id="legislativeAct"
-                    ref="legislativeActField"
-                    v-model="legislativeAct"
-                    optionLabel="name"
-                    placeholder="Select Legislative Act"
-                    :options="legislativeActOptions"
-                    aria-describedby="legislative-act-help"
-                    aria-required="true"
-                    fluid
-                    class="w-full md:w-14rem"
-                    @update:model-value="valueUpdated"
-                />
-                <div class="inline-block">
-                    <LabelledCheckboxInput
-                        label="Historic Acts"
-                        hint="Show inactive acts"
-                        input-name="showInactiveHistoricActs"
-                    >
-                        <Checkbox
-                            id="showInactiveHistoricActs"
-                            ref="showInactiveHistoricActs"
-                            :model-value="
-                                !heritageSite.showInactiveHistoricActs
-                            "
-                            aria-describedby="show-inactive-historic-acts-help"
-                            aria-required="false"
-                            class="inline-block"
-                            fluid
-                            binary
-                            small
-                        />
-                    </LabelledCheckboxInput>
-                </div>
-            </div>
-        </LabelledInput>
-        <LabelledInput
-            label="Reference Number"
-            hint="The bylaw or resolution number"
-            input-name="referenceNumber"
-            :error-message="errors.totalRecognitionDetails?.join(',')"
-            :required="true"
-        >
-            <div>
-                <InputText
-                    id="referenceNumber"
-                    ref="referenceNumberField"
-                    v-model="referenceNumber"
-                    aria-describedby="reference-number-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
-                    @change="valueChanged"
-                    @focus="onFocusHandler"
-                    @focusout="onFocusOutHandler"
-                    @update:model-value="valueUpdated"
-                />
-            </div>
-            <Button
-                id="saveRecognitionDetails"
-                label="Add"
-                class="inline-block"
-                :aria-disabled="addOtherReferenceNumberDisabled"
-                @click="saveRecognitionDetails"
-            ></Button>
-        </LabelledInput>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            label="Reference Number"
-            :showDeleteButton="true"
-            :displayValues="totalRecognitionDetails"
-            :deleteCallback="deleteRecognitionDetailsCallback"
-        >
-            <div
-                v-for="slot in slotProps"
-                :key="slot"
-                class="parent value"
+    <Form
+        ref="recognitionDetailsRef"
+        name="recognitionDetailsRef"
+    >
+        <FieldSet id="recognitionDetailsFieldset">
+            <FormField
+                :resolver="resolver"
+                name="designationDate"
             >
-                {{ slot.designationDate }} {{ slot.legislativeAct?.name }}
-                {{ slot.referenceNumber }}
-            </div>
-        </MultiValuePlaceholder>
-    </FieldSet>
+                <LabelledInput
+                    label="Designation or Recognition Start Date"
+                    hint="The date the designation or recognition was brought into effect"
+                    input-name="designationDate"
+                    :error-message="errors.designationDate?.join(',')"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <DatePicker
+                            id="designationDate"
+                            ref="designationDateField"
+                            v-model="currentRecognitionDetails.designationDate"
+                            name="designationDate"
+                            dateFormat="mm/dd/yy"
+                            aria-describedby="designation-date-help"
+                            aria-required="true"
+                        />
+                    </div>
+                </LabelledInput>
+            </FormField>
+            <FormField
+                :resolver="resolver"
+                name="legislativeAct"
+            >
+                <LabelledInput
+                    label="Legislative Act"
+                    hint="Designation or recognition type that applies to the site"
+                    input-name="legislativeAct"
+                    :error-message="errors.legislativeAct?.join(',')"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid flex">
+                        <Select
+                            id="legislativeAct"
+                            ref="legislativeActField"
+                            v-model="currentRecognitionDetails.legislativeAct"
+                            name="legislativeAct"
+                            optionValue="code"
+                            optionLabel="name"
+                            placeholder="Select Legislative Act"
+                            :options="legislativeActOptions"
+                            aria-describedby="legislative-act-help"
+                            aria-required="true"
+                            fluid
+                            class="w-full md:w-14rem"
+                        />
+                        <div class="inline-block">
+                            <LabelledCheckboxInput
+                                label="Historic Acts"
+                                hint="Show inactive acts"
+                                input-name="showInactiveHistoricActs"
+                            >
+                                <Checkbox
+                                    id="showInactiveHistoricActs"
+                                    ref="showInactiveHistoricActs"
+                                    :model-value="showInactiveHistoricActs"
+                                    aria-describedby="show-inactive-historic-acts-help"
+                                    aria-required="false"
+                                    class="inline-block"
+                                    fluid
+                                    binary
+                                    small
+                                />
+                            </LabelledCheckboxInput>
+                        </div>
+                    </div>
+                </LabelledInput>
+            </FormField>
+            <FormField
+                :resolver="resolver"
+                name="referenceNumber"
+            >
+                <LabelledInput
+                    label="Reference Number"
+                    hint="The bylaw or resolution number"
+                    input-name="referenceNumber"
+                    :error-message="errors.referenceNumber?.join(',')"
+                    :required="true"
+                >
+                    <InputText
+                        id="referenceNumber"
+                        ref="referenceNumberField"
+                        v-model="currentRecognitionDetails.referenceNumber"
+                        aria-describedby="reference-number-help"
+                        name="referenceNumber"
+                        aria-required="true"
+                        fluid
+                        class="inline-block"
+                    />
+                    <Button
+                        id="saveRecognitionDetails"
+                        label="Add"
+                        class="inline-block"
+                        :aria-disabled="addOtherReferenceNumberDisabled"
+                        @click="saveRecognitionDetails"
+                    ></Button>
+                </LabelledInput>
+            </FormField>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="Reference Number"
+                :showDeleteButton="true"
+                :displayValues="totalRecognitionDetails"
+                :deleteCallback="deleteRecognitionDetailsCallback"
+            >
+                <div
+                    v-for="slot in slotProps"
+                    :key="slot"
+                    class="parent value"
+                >
+                    {{ slot.designationDate }} {{ slot.legislativeAct }}
+                    {{ slot.referenceNumber }}
+                </div>
+            </MultiValuePlaceholder>
+        </FieldSet>
+    </Form>
 </template>
 
 <style>
