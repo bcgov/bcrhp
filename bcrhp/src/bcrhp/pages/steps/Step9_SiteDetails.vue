@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import RadioButton from 'primevue/radiobutton';
-import Select from 'primevue/select';
 import DatePicker from 'primevue/datepicker';
+import { Form, FormField } from '@primevue/forms';
+import type { FormFieldResolverOptions } from '@primevue/forms';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
 import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
-
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
@@ -39,13 +38,13 @@ const currentChronology = ref(getChronologySchema());
 const currentArchitectOrBuilder = ref(getArchitectOrBuilderSchema());
 const currentURL = ref(getRequiredURLsSchema());
 
-const updateSelectValue = function (
-    newValue: string,
-    selectField: typeof RadioButton | typeof ConceptSelect,
-) {
-    console.log(`New value ${newValue}`);
-    // validateField(selectField);
-};
+// const updateSelectValue = function (
+//     newValue: string,
+//     selectField: typeof RadioButton | typeof ConceptSelect,
+// ) {
+//     console.log(`New value ${newValue}`);
+//     // validateField(selectField);
+// };
 
 const architectsOrBuilders = ref([] as Array<string>);
 const urls = ref([] as Array<string>);
@@ -54,33 +53,56 @@ const addURLDisabled = ref(false);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
-const valueChanged = function (event: Event) {
-    console.log(event);
-    validateField(event.target);
+const fields = {
+    eventTypeField: useTemplateRef('eventTypeField'),
+    startYearField: useTemplateRef('startYearField'),
+    endYearField: useTemplateRef('endYearField'),
+    chronologyNotesField: useTemplateRef('chronologyNotesField'),
+    architectOrBuilderNameField: useTemplateRef('architectOrBuilderNameField'),
+    architectOrBuilderTypeField: useTemplateRef('architectOrBuilderTypeField'),
+    architectOrBuilderNotesField: useTemplateRef(
+        'architectOrBuilderNotesField',
+    ),
+    urlTypeField: useTemplateRef('urlTypeField'),
+    linkTextField: useTemplateRef('linkTextField'),
+    urlField: useTemplateRef('urlField'),
+};
+const isValid = () => {
+    // We don't want to validate fields the first time we show the step
+    if (!validateFields) {
+        validateFields = true;
+        return true;
+    }
+    let valid = true;
+
+    for (const field of Object.values(fields) as Array<Ref>) {
+        valid = resolver(field?.value.$el as FormFieldResolverOptions) && valid;
+    }
+    return valid;
 };
 
-const validateField = function (
-    inputField: typeof Select | typeof RadioButton,
-) {
-    if (Object.hasOwn(currentChronology, inputField?.inputId)) {
-        validateChronologyField(inputField as HTMLInputElement);
-    } else if (Object.hasOwn(currentArchitectOrBuilder, inputField?.inputId)) {
-        validateArchitectOrBuilderField(inputField as HTMLInputElement);
-    } else if (Object.hasOwn(currentURL, inputField?.inputId)) {
-        validateURLField(inputField as HTMLInputElement);
+const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
+    if (Object.hasOwn(currentChronology.value, e.name ?? '')) {
+        return validateChronologyField(e as FormFieldResolverOptions);
+    } else if (Object.hasOwn(currentArchitectOrBuilder.value, e.name ?? '')) {
+        return validateArchitectOrBuilderField(e as FormFieldResolverOptions);
+    } else if (Object.hasOwn(currentURL.value, e.name ?? '')) {
+        return validateURLField(e as FormFieldResolverOptions);
     }
+
+    return {};
 };
-const validateSiteDetailsFields = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
-    const key: keyof typeof SiteDetails = field.id as keyof typeof SiteDetails;
+const validateSiteDetailsFields = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
+    const key: keyof typeof SiteDetails =
+        event.name as keyof typeof SiteDetails;
     const fieldValidation = requiredSiteDetailsSchema.shape[key].safeParse(
         heritageSiteRef.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -88,17 +110,16 @@ const validateSiteDetailsFields = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateChronologyField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
-    const key: keyof typeof Chronology = field.id as keyof typeof Chronology;
+const validateChronologyField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
+    const key: keyof typeof Chronology = event.name as keyof typeof Chronology;
     const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        currentChronology[field.id],
+        currentChronology.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -106,18 +127,17 @@ const validateChronologyField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateArchitectOrBuilderField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof ArchitectOrBuilder =
-        field.inputId as keyof typeof ArchitectOrBuilder;
+        event.name as keyof typeof ArchitectOrBuilder;
     const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        currentArchitectOrBuilder[field.inputId],
+        currentArchitectOrBuilder.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -125,18 +145,17 @@ const validateArchitectOrBuilderField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateURLField = function (field) {
-    console.log(`ID: ${field.inputId}`);
+const validateURLField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof RequiredURLs =
-        field.inputId as keyof typeof RequiredURLs;
+        event.name as keyof typeof RequiredURLs;
     const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        currentURL[field.inputId],
+        currentURL.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -216,6 +235,12 @@ const deleteURLCallback = function (index: number) {
     updateAddOtherURL();
 };
 
+let validateFields = false;
+
+// This needs to be removed - added because ESLint was complaining. Need to figure out
+// configuration so API methods are not
+defineExpose({ isValid });
+
 onMounted(() => {
     heritageSiteRef.value.siteDetails.chronologies = chronologies;
     heritageSiteRef.value.siteDetails.architectsOrBuilders =
@@ -228,283 +253,339 @@ onMounted(() => {
 });
 </script>
 <template>
-    <FieldSet
-        id="chronologyFieldset"
-        legend="Chronology"
+    <Form
+        ref="siteDetailsRef"
+        name="siteDetailsRef"
     >
-        <div class="flex flex-row flex-wrap gap-4">
-            <div class="inline-block">
-                <div class="flex flex-col">
-                    <ConceptRadioButtons
-                        id="eventType"
-                        ref="eventTypeField"
-                        v-model="currentChronology.eventType"
-                        graph-slug="heritage_site"
-                        node-alias="chronology"
-                        group-direction="column"
-                        @value-updated="updateSelectValue"
-                    />
-                </div>
-            </div>
-            <label for="startYear">Start Year</label>
-            <DatePicker
-                id="startYear"
-                ref="startYearField"
-                v-model="currentChronology.startYear"
-                class="flex-shrink"
-                dateFormat="yy"
-                view="year"
-                show-icon
-                aria-describedby="start-year-help"
-                aria-required="true"
-                @input="valueChanged"
-            />
-            <label for="endYear">End Year</label>
-            <DatePicker
-                id="endYear"
-                ref="endYearField"
-                v-model="currentChronology.endYear"
-                dateFormat="yy"
-                view="year"
-                show-icon
-                aria-describedby="end-year-help"
-                aria-required="true"
-                @input="valueChanged"
-            />
-            <div class="inline-block">
-                <Checkbox
-                    v-model="currentChronology.circa"
-                    inputId="circa"
-                    value="Circa"
-                    @change="valueChanged"
-                />
-                <label for="circa"> Circa </label>
-            </div>
-        </div>
-        <div class="p-inputtext-fluid">
-            <LabelledInput
-                label="Chronology Notes (Optional)"
-                hint="Enter details about the significant event"
-                input-name="chronologyNotes"
-                :error-message="errors.chronologyNotes?.join(',')"
-            >
-                <div class="">
-                    <InputText
-                        id="chronologyNotes"
-                        ref="chronologyNotesField"
-                        v-model="currentChronology.chronologyNotes"
-                        theme="snow"
-                        aria-describedby="chronology-help"
-                        fluid
-                        class="inline-block"
-                        @editorChange="valueChanged"
-                        @change="valueChanged"
-                    />
-                    <Button
-                        id="saveChronology"
-                        label="Add"
-                        class="inline-block"
-                        @click="saveChronology"
-                    ></Button>
-                </div>
-            </LabelledInput>
-        </div>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            label="Chronologies"
-            :showDeleteButton="true"
-            :displayValues="chronologies"
-            :deleteCallback="deleteChronologyCallback"
+        <FieldSet
+            id="chronologyFieldset"
+            legend="Chronology"
         >
-            <div
-                v-for="slot in slotProps"
-                :key="slot"
-                class="parent value"
-            >
-                {{ slot.eventType }} {{ slot.circa }} {{ slot.startYear }}
-                {{ slot.endYear }} {{ slot.chronologyNotes }}
+            <div class="flex flex-row flex-wrap gap-4">
+                <div class="inline-block">
+                    <div class="flex flex-col">
+                        <FormField
+                            :resolver="resolver"
+                            name="eventType"
+                        >
+                            <ConceptRadioButtons
+                                id="eventType"
+                                ref="eventTypeField"
+                                v-model="currentChronology.eventType"
+                                graph-slug="heritage_site"
+                                node-alias="chronology"
+                                group-direction="column"
+                            />
+                        </FormField>
+                    </div>
+                </div>
+                <label for="startYear">Start Year</label>
+                <FormField
+                    :resolver="resolver"
+                    name="startYear"
+                >
+                    <DatePicker
+                        id="startYear"
+                        ref="startYearField"
+                        v-model="currentChronology.startYear"
+                        class="flex-shrink"
+                        dateFormat="yy"
+                        view="year"
+                        show-icon
+                        aria-describedby="start-year-help"
+                        aria-required="true"
+                    />
+                </FormField>
+                <label for="endYear">End Year</label>
+                <FormField
+                    :resolver="resolver"
+                    name="endYear"
+                >
+                    <DatePicker
+                        id="endYear"
+                        ref="endYearField"
+                        v-model="currentChronology.endYear"
+                        dateFormat="yy"
+                        view="year"
+                        show-icon
+                        aria-describedby="end-year-help"
+                        aria-required="true"
+                    />
+                </FormField>
+                <div class="inline-block">
+                    <FormField
+                        :resolver="resolver"
+                        name="circa"
+                    >
+                        <Checkbox
+                            v-model="currentChronology.circa"
+                            inputId="circa"
+                            value="Circa"
+                        />
+                    </FormField>
+                    <label for="circa"> Circa </label>
+                </div>
             </div>
-        </MultiValuePlaceholder>
-    </FieldSet>
-    <Fieldset
-        id="architectsBuildersFieldset"
-        class="p-fieldset p-component mt-2"
-        legend="Architects / Builders"
-    >
-        <div class="p-inputtext-fluid flex">
-            <LabelledInput
-                label="Architect / Builder Name"
-                hint="Enter the company or individual's name"
-                input-name="architectOrBuilderName"
-                class="inline-block"
-                :error-message="errors.architectOrBuilderName?.join(',')"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <InputText
-                        id="architectOrBuilderName"
-                        ref="architectOrBuilderNameField"
-                        v-model="
-                            currentArchitectOrBuilder.architectOrBuilderName
-                        "
-                        aria-describedby="architect-or-builder-help"
-                        aria-required="true"
-                        fluid
-                        @change="valueChanged"
-                    />
-                </div>
-            </LabelledInput>
-            <LabelledInput
-                label="Type"
-                input-name="architectOrBuilderType"
-                :error-message="errors.architectOrBuilderType?.join(',')"
-                :required="true"
-            >
-                <ConceptSelect
-                    id="architectOrBuilderType"
-                    ref="architectOrBuilderTypeField"
-                    v-model="currentArchitectOrBuilder.architectOrBuilderType"
-                    graph-slug="heritage_site"
-                    node-alias="construction_actor_type"
-                    @value-updated="updateSelectValue"
-                />
-            </LabelledInput>
-        </div>
-        <div class="p-inputtext-fluid">
-            <LabelledInput
-                label="Architect / Builder Name Notes (Optional)"
-                hint="Provide any additional comments about the architect/builder"
-                input-name="architectOrBuilderNotes"
-                :error-message="errors.architectOrBuilderNotes?.join(',')"
-                :required="false"
-            >
-                <div class="">
-                    <InputText
-                        id="architectOrBuilderNotes"
-                        ref="architectOrBuilderNotesField"
-                        v-model="
-                            currentArchitectOrBuilder.architectOrBuilderNotes
-                        "
-                        aria-describedby="architect-or-builder-notes-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                        @change="valueChanged"
-                    />
-                    <Button
-                        id="addOtherName"
-                        label="Add"
-                        class="inline-block"
-                        @click="saveArchitectOrBuilder"
-                    ></Button>
-                </div>
-            </LabelledInput>
-        </div>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            label="Architect(s) / Builder(s)"
-            :showDeleteButton="true"
-            :displayValues="architectsOrBuilders"
-            :deleteCallback="deleteArchitectBuilderCallback"
-        >
-            <div
-                v-for="slot in slotProps"
-                :key="slot"
-                class="parent value"
-            >
-                {{ slot.architectOrBuilderType }}
-                {{ slot.architectOrBuilderName }}
-                {{ slot.architectOrBuilderNotes }}
+            <div class="p-inputtext-fluid">
+                <FormField
+                    :resolver="resolver"
+                    name="chronologyNotes"
+                >
+                    <LabelledInput
+                        label="Chronology Notes (Optional)"
+                        hint="Enter details about the significant event"
+                        input-name="chronologyNotes"
+                        :error-message="errors.chronologyNotes?.join(',')"
+                    >
+                        <div class="">
+                            <InputText
+                                id="chronologyNotes"
+                                ref="chronologyNotesField"
+                                v-model="currentChronology.chronologyNotes"
+                                theme="snow"
+                                aria-describedby="chronology-help"
+                                fluid
+                                class="inline-block"
+                            />
+                            <Button
+                                id="saveChronology"
+                                label="Add"
+                                class="inline-block"
+                                @click="saveChronology"
+                            ></Button>
+                        </div>
+                    </LabelledInput>
+                </FormField>
             </div>
-        </MultiValuePlaceholder>
-    </Fieldset>
-    <Fieldset
-        id="relatedURLsFieldset"
-        class="p-fieldset p-component mt-2"
-        legend="Related URLs"
-    >
-        <div class="flex flex-row">
-            <LabelledInput
-                label="URL Type"
-                hint="Acceptable URL Types"
-                input-name="urlType"
-                :error-message="errors.urlType?.join(',')"
-                :required="true"
-            >
-                <ConceptSelect
-                    id="urlType"
-                    ref="urlTypeField"
-                    v-model="currentURL.urlType"
-                    graph-slug="heritage_site"
-                    node-alias="external_url_type"
-                    placeholder="Select URL Type"
-                    @value-updated="updateSelectValue"
-                />
-            </LabelledInput>
-            <LabelledInput
-                label="Link Text"
-                hint="Enter text that describes the link"
-                input-name="linkText"
-                :error-message="errors.linkText?.join(',')"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <InputText
-                        id="linkText"
-                        ref="linkTextField"
-                        v-model="currentURL.linkText"
-                        aria-describedby="link-text-help"
-                        aria-required="true"
-                        fluid
-                        @change="valueChanged"
-                    />
-                </div>
-            </LabelledInput>
-        </div>
-        <div class="p-inputtext-fluid">
-            <LabelledInput
-                label="URL"
-                hint="URL must be stable and publicly accessible"
-                input-name="url"
-                :error-message="errors.urls?.join(',')"
-                :required="true"
-            >
-                <div class="flex flex-row full-width">
-                    <InputText
-                        id="url"
-                        ref="urlField"
-                        v-model="currentURL.url"
-                        aria-describedby="url-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                        @change="valueChanged"
-                    />
-                    <Button
-                        id="saveURL"
-                        label="Add"
-                        class="inline-block"
-                        @click="saveURL"
-                    ></Button>
-                </div>
-            </LabelledInput>
             <MultiValuePlaceholder
                 v-slot="slotProps"
-                label="URL(s)"
+                label="Chronologies"
                 :showDeleteButton="true"
-                :displayValues="urls"
-                :deleteCallback="deleteURLCallback"
+                :displayValues="chronologies"
+                :deleteCallback="deleteChronologyCallback"
             >
                 <div
                     v-for="slot in slotProps"
                     :key="slot"
                     class="parent value"
                 >
-                    {{ slot.urlType }} {{ slot.url }} {{ slot.linkText }}
+                    {{ slot.eventType }} {{ slot.circa }} {{ slot.startYear }}
+                    {{ slot.endYear }} {{ slot.chronologyNotes }}
                 </div>
             </MultiValuePlaceholder>
-        </div>
-    </Fieldset>
+        </FieldSet>
+        <Fieldset
+            id="architectsBuildersFieldset"
+            class="p-fieldset p-component mt-2"
+            legend="Architects / Builders"
+        >
+            <div class="p-inputtext-fluid flex">
+                <FormField
+                    :resolver="resolver"
+                    name="architectOrBuilderName"
+                >
+                    <LabelledInput
+                        label="Architect / Builder Name"
+                        hint="Enter the company or individual's name"
+                        input-name="architectOrBuilderName"
+                        class="inline-block"
+                        :error-message="
+                            errors.architectOrBuilderName?.join(',')
+                        "
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <InputText
+                                id="architectOrBuilderName"
+                                ref="architectOrBuilderNameField"
+                                v-model="
+                                    currentArchitectOrBuilder.architectOrBuilderName
+                                "
+                                aria-describedby="architect-or-builder-help"
+                                aria-required="true"
+                                fluid
+                            />
+                        </div>
+                    </LabelledInput>
+                </FormField>
+                <FormField
+                    :resolver="resolver"
+                    name="architectOrBuilderType"
+                >
+                    <LabelledInput
+                        label="Type"
+                        input-name="architectOrBuilderType"
+                        :error-message="
+                            errors.architectOrBuilderType?.join(',')
+                        "
+                        :required="true"
+                    >
+                        <ConceptSelect
+                            id="architectOrBuilderType"
+                            ref="architectOrBuilderTypeField"
+                            v-model="
+                                currentArchitectOrBuilder.architectOrBuilderType
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="construction_actor_type"
+                        />
+                    </LabelledInput>
+                </FormField>
+            </div>
+            <div class="p-inputtext-fluid">
+                <FormField
+                    :resolver="resolver"
+                    name="architectOrBuilderNotes"
+                >
+                    <LabelledInput
+                        label="Architect / Builder Name Notes (Optional)"
+                        hint="Provide any additional comments about the architect/builder"
+                        input-name="architectOrBuilderNotes"
+                        :error-message="
+                            errors.architectOrBuilderNotes?.join(',')
+                        "
+                        :required="false"
+                    >
+                        <div class="">
+                            <InputText
+                                id="architectOrBuilderNotes"
+                                ref="architectOrBuilderNotesField"
+                                v-model="
+                                    currentArchitectOrBuilder.architectOrBuilderNotes
+                                "
+                                aria-describedby="architect-or-builder-notes-help"
+                                aria-required="true"
+                                fluid
+                                class="inline-block"
+                            />
+                            <Button
+                                id="addOtherName"
+                                label="Add"
+                                class="inline-block"
+                                @click="saveArchitectOrBuilder"
+                            ></Button>
+                        </div>
+                    </LabelledInput>
+                </FormField>
+            </div>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="Architect(s) / Builder(s)"
+                :showDeleteButton="true"
+                :displayValues="architectsOrBuilders"
+                :deleteCallback="deleteArchitectBuilderCallback"
+            >
+                <div
+                    v-for="slot in slotProps"
+                    :key="slot"
+                    class="parent value"
+                >
+                    {{ slot.architectOrBuilderType }}
+                    {{ slot.architectOrBuilderName }}
+                    {{ slot.architectOrBuilderNotes }}
+                </div>
+            </MultiValuePlaceholder>
+        </Fieldset>
+        <Fieldset
+            id="relatedURLsFieldset"
+            class="p-fieldset p-component mt-2"
+            legend="Related URLs"
+        >
+            <div class="flex flex-row">
+                <FormField
+                    :resolver="resolver"
+                    name="urlType"
+                >
+                    <LabelledInput
+                        label="URL Type"
+                        hint="Acceptable URL Types"
+                        input-name="urlType"
+                        :error-message="errors.urlType?.join(',')"
+                        :required="true"
+                    >
+                        <ConceptSelect
+                            id="urlType"
+                            ref="urlTypeField"
+                            v-model="currentURL.urlType"
+                            graph-slug="heritage_site"
+                            node-alias="external_url_type"
+                            placeholder="Select URL Type"
+                        />
+                    </LabelledInput>
+                </FormField>
+                <FormField
+                    :resolver="resolver"
+                    name="linkText"
+                >
+                    <LabelledInput
+                        label="Link Text"
+                        hint="Enter text that describes the link"
+                        input-name="linkText"
+                        :error-message="errors.linkText?.join(',')"
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <InputText
+                                id="linkText"
+                                ref="linkTextField"
+                                v-model="currentURL.linkText"
+                                aria-describedby="link-text-help"
+                                aria-required="true"
+                                fluid
+                            />
+                        </div>
+                    </LabelledInput>
+                </FormField>
+            </div>
+            <div class="p-inputtext-fluid">
+                <FormField
+                    :resolver="resolver"
+                    name="url"
+                >
+                    <LabelledInput
+                        label="URL"
+                        hint="URL must be stable and publicly accessible"
+                        input-name="url"
+                        :error-message="errors.url?.join(',')"
+                        :required="true"
+                    >
+                        <div class="flex flex-row full-width">
+                            <InputText
+                                id="url"
+                                ref="urlField"
+                                v-model="currentURL.url"
+                                aria-describedby="url-help"
+                                aria-required="true"
+                                fluid
+                                class="inline-block"
+                            />
+                            <Button
+                                id="saveURL"
+                                label="Add"
+                                class="inline-block"
+                                @click="saveURL"
+                            ></Button>
+                        </div>
+                    </LabelledInput>
+                </FormField>
+                <MultiValuePlaceholder
+                    v-slot="slotProps"
+                    label="URL(s)"
+                    :showDeleteButton="true"
+                    :displayValues="urls"
+                    :deleteCallback="deleteURLCallback"
+                >
+                    <div
+                        v-for="slot in slotProps"
+                        :key="slot"
+                        class="parent value"
+                    >
+                        {{ slot.urlType }} {{ slot.url }} {{ slot.linkText }}
+                    </div>
+                </MultiValuePlaceholder>
+            </div>
+        </Fieldset>
+    </Form>
 </template>
 
 <style>

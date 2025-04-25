@@ -7,7 +7,7 @@ const SiteClassificationSchema = z.object({
 });
 const HeritageClassSchema = z.object({
     contributingResources: z
-        .number()
+        .string()
         .min(1, { message: 'Number of Contributing Resources is required.' })
         .max(250),
     heritageCategory: z
@@ -75,11 +75,11 @@ class SiteClassification implements SiteClassificationType {
 
 class HeritageClass implements HeritageClassType {
     constructor() {
-        this.contributingResources = 0;
+        this.contributingResources = '';
         this.heritageCategory = '';
         this.ownership = '';
     }
-    contributingResources: number;
+    contributingResources: string;
     heritageCategory: string;
     ownership: string;
 }
