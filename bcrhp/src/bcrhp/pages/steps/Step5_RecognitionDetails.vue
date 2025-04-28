@@ -7,12 +7,13 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
-import Select from 'primevue/select';
 import { Form, FormField } from '@primevue/forms';
 import type { FormFieldResolverOptions } from '@primevue/forms';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
+import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     RecognitionDetails,
@@ -32,10 +33,6 @@ const showInactiveHistoricActs = ref(false);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 
 const errors: Ref<FormErrors> = ref<FormErrors>({});
-const legislativeActOptions = ref([
-    { name: 'Legislative Act 1', code: 'legislative_act_1' },
-    { name: 'Legislative Act 2', code: 'legislative_act_2' },
-]);
 const totalRecognitionDetails = ref([] as Array<string>);
 const addOtherReferenceNumberDisabled = ref(false);
 
@@ -44,6 +41,14 @@ const fields = {
     designationDateField: useTemplateRef('designationDateField'),
     referenceNumberField: useTemplateRef('referenceNumberField'),
     legislativeActField: useTemplateRef('legislativeActField'),
+};
+
+const updateSelectValue = function (
+    newValue: string,
+    selectField: typeof ConceptSelect,
+) {
+    console.log(`New value ${newValue}`);
+    validateField(selectField);
 };
 
 const isValid = () => {
@@ -169,19 +174,13 @@ onMounted(() => {
                     :required="true"
                 >
                     <div class="p-inputtext-fluid flex">
-                        <Select
+                        <ConceptSelect
                             id="legislativeAct"
                             ref="legislativeActField"
                             v-model="currentRecognitionDetails.legislativeAct"
-                            name="legislativeAct"
-                            optionValue="code"
-                            optionLabel="name"
-                            placeholder="Select Legislative Act"
-                            :options="legislativeActOptions"
-                            aria-describedby="legislative-act-help"
-                            aria-required="true"
-                            fluid
-                            class="w-full md:w-14rem"
+                            graph-slug="heritage_site"
+                            node-alias="legislative_act"
+                            @value-updated="updateSelectValue"
                         />
                         <div class="inline-block">
                             <LabelledCheckboxInput
