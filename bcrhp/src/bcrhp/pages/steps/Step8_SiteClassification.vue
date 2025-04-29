@@ -128,7 +128,9 @@ const validateHeritageClassField = function (
     const key: keyof typeof HeritageClass =
         event.name as keyof typeof HeritageClass;
     const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        currentHeritageClass.value[key],
+        key === 'contributingResources'
+            ? parseInt(currentHeritageClass.value[key])
+            : currentHeritageClass.value[key],
     );
     if (fieldValidation.success) {
         errors.value[key] = [];
