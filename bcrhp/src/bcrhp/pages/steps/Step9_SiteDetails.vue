@@ -171,6 +171,12 @@ const saveChronology = function () {
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
 
+    currentChronology.value.eventType = '';
+    currentChronology.value.startYear = null;
+    currentChronology.value.endYear = null;
+    currentChronology.value.circa = false;
+    currentChronology.value.chronologyNotes = '';
+
     updateAddChronology();
 };
 
@@ -185,6 +191,10 @@ const saveArchitectOrBuilder = function () {
             currentArchitectOrBuilder.value.architectOrBuilderNotes,
     });
 
+    currentArchitectOrBuilder.value.architectOrBuilderName = '';
+    currentArchitectOrBuilder.value.architectOrBuilderType = '';
+    currentArchitectOrBuilder.value.architectOrBuilderNotes = '';
+
     updateAddOtherArchitectOrBuilder();
 };
 const saveURL = function () {
@@ -194,6 +204,10 @@ const saveURL = function () {
         linkText: currentURL.value.linkText,
         url: currentURL.value.url,
     });
+
+    currentURL.value.urlType = '';
+    currentURL.value.linkText = '';
+    currentURL.value.url = '';
 
     updateAddOtherURL();
 };
