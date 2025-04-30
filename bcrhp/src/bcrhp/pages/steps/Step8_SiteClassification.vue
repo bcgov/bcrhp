@@ -69,7 +69,10 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
-        valid = resolver(field?.value.$el as FormFieldResolverOptions) && valid;
+        valid =
+            resolver({
+                name: field?.value.$el.id,
+            } as FormFieldResolverOptions) && valid;
     }
     return valid;
 };

@@ -49,9 +49,16 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
+        let id = '';
+        // Workaround needed for back button error bug. Id gets set to pv_id for unknown reason
+        // Only in this component
+        if (field?.value.$el.id.startsWith('pv_id_')) {
+            id = 'imageType';
+        } else {
+            id = field?.value.$el.id;
+        }
         valid =
-            validateField(field?.value.$el as FormFieldResolverOptions) &&
-            valid;
+            validateField({ name: id } as FormFieldResolverOptions) && valid;
     }
     return valid;
 };

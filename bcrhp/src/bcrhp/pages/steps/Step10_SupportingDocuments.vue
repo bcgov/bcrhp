@@ -36,7 +36,9 @@ const isValid = () => {
     let valid = true;
 
     for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
+        valid =
+            validateField({ name: field?.value.$el.id } as HTMLInputElement) &&
+            valid;
     }
     return valid;
 };
