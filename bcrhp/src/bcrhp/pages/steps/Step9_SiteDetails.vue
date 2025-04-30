@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -47,8 +47,20 @@ const updateSelectValue = function (
     // validateField(selectField);
 };
 
+watch(currentChronology.value, () => {
+    updateAddChronology();
+});
+watch(currentArchitectOrBuilder.value, () => {
+    updateAddOtherArchitectOrBuilder();
+});
+watch(currentURL.value, () => {
+    updateAddOtherURL();
+});
+
 const architectsOrBuilders = ref([] as Array<string>);
 const urls = ref([] as Array<string>);
+const addChronologyDisabled = ref(false);
+const addArchitectOrBuilderDisabled = ref(false);
 const addURLDisabled = ref(false);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
@@ -145,20 +157,28 @@ const validateURLField = function (field) {
 };
 
 const updateAddChronology = function () {
-    addURLDisabled.value =
-        chronologies.value.length < 1 ||
-        heritageSiteRef.value.siteDetails.chronologies.length > 4;
+    addChronologyDisabled.value =
+        !(
+            currentChronology.value.eventType &&
+            currentChronology.value.startYear &&
+            currentChronology.value.endYear
+        ) || heritageSiteRef.value.siteDetails.chronologies.length > 4;
 };
 const updateAddOtherArchitectOrBuilder = function () {
-    addURLDisabled.value =
-        architectsOrBuilders.value.length < 1 ||
-        heritageSiteRef.value.siteDetails.architectsOrBuilders.length > 4;
+    addArchitectOrBuilderDisabled.value =
+        !(
+            currentArchitectOrBuilder.value.architectOrBuilderName &&
+            currentArchitectOrBuilder.value.architectOrBuilderType
+        ) || heritageSiteRef.value.siteDetails.architectsOrBuilders.length > 4;
 };
 
 const updateAddOtherURL = function () {
     addURLDisabled.value =
-        urls.value.length < 1 ||
-        heritageSiteRef.value.siteDetails.urls.length > 4;
+        !(
+            currentURL.value.urlType &&
+            currentURL.value.linkText &&
+            currentURL.value.url
+        ) || heritageSiteRef.value.siteDetails.urls.length > 4;
 };
 
 const saveChronology = function () {
@@ -304,6 +324,7 @@ onMounted(() => {
                         id="saveChronology"
                         label="Add"
                         class="inline-block"
+                        :disabled="addChronologyDisabled"
                         @click="saveChronology"
                     ></Button>
                 </div>
@@ -395,6 +416,7 @@ onMounted(() => {
                         id="addOtherName"
                         label="Add"
                         class="inline-block"
+                        :disabled="addArchitectOrBuilderDisabled"
                         @click="saveArchitectOrBuilder"
                     ></Button>
                 </div>
@@ -484,6 +506,7 @@ onMounted(() => {
                         id="saveURL"
                         label="Add"
                         class="inline-block"
+                        :disabled="addURLDisabled"
                         @click="saveURL"
                     ></Button>
                 </div>
