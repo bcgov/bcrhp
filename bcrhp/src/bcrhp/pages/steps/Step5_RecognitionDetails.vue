@@ -60,8 +60,9 @@ const isValid = () => {
 
     for (const field of Object.values(fields) as Array<Ref>) {
         valid =
-            validateField(field?.value.$el as FormFieldResolverOptions) &&
-            valid;
+            validateField({
+                name: field?.value.$el.id,
+            } as FormFieldResolverOptions) && valid;
     }
     return valid;
 };
@@ -142,6 +143,8 @@ onMounted(() => {
     >
         <FieldSet id="recognitionDetailsFieldset">
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="designationDate"
             >
@@ -166,6 +169,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="legislativeAct"
             >
@@ -214,6 +219,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="referenceNumber"
             >
