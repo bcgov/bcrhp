@@ -20,6 +20,8 @@ import type { ZodError } from 'zod';
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
+const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
@@ -63,7 +65,7 @@ const validateField = function (
 ): Record<string, any> {
     const key: keyof typeof SiteImages = event.name as keyof typeof SiteImages;
     const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
-        currentSiteImage.value[key],
+        heritageSiteRef.value.siteImages[key],
     );
 
     if (fieldValidation.success) {

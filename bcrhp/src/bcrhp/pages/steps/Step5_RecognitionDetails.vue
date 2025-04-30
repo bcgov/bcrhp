@@ -134,6 +134,8 @@ onMounted(() => {
     >
         <FieldSet id="recognitionDetailsFieldset">
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="designationDate"
             >
@@ -158,6 +160,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="legislativeAct"
             >
@@ -206,6 +210,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="referenceNumber"
             >

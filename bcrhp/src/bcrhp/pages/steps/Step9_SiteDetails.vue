@@ -186,7 +186,7 @@ const saveChronology = function () {
         eventType: currentChronology.value.eventType,
         startYear: currentChronology.value.startYear,
         endYear: currentChronology.value.endYear,
-        circa: currentChronology.value.circa,
+        circa: currentChronology.value.circa?.toString(),
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
 
