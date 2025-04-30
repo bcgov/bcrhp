@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -39,9 +39,9 @@ const currentHeritageTheme = ref(getHeritageThemeSchema());
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
 const heritageThemes = ref([] as Array<string>);
-const addContributingResourcesDisabled = ref(false);
-const addOtherFunctionCategoryDisabled = ref(false);
-const addOtherHeritageSiteDisabled = ref(false);
+const addOtherHeritageClassDisabled = ref(false);
+const addOtherHeritageFunctionDisabled = ref(false);
+const addOtherHeritageThemeDisabled = ref(false);
 
 const updateSelectValue = function (
     newValue: string,
@@ -50,6 +50,16 @@ const updateSelectValue = function (
     console.log(`New value ${newValue}`);
     validateField(selectField);
 };
+
+watch(currentHeritageClass.value, () => {
+    updateAddOtherHeritageClass();
+});
+watch(currentHeritageFunction.value, () => {
+    updateAddOtherHeritageFunction();
+});
+watch(currentHeritageTheme.value, () => {
+    updateAddOtherHeritageTheme();
+});
 
 const validateField = function (
     inputField: typeof Select | typeof RadioButton,
@@ -63,21 +73,28 @@ const validateField = function (
     }
 };
 
-const updateAddHeritageClassCategory = function () {
-    addContributingResourcesDisabled.value =
-        heritageClasses.value.length < 1 ||
+const updateAddOtherHeritageClass = function () {
+    addOtherHeritageClassDisabled.value =
+        !(
+            currentHeritageClass.value.contributingResources &&
+            currentHeritageClass.value.heritageCategory &&
+            currentHeritageClass.value.ownership
+        ) ||
         heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
 };
 
-const updateAddOtherFunctionCategory = function () {
-    addOtherFunctionCategoryDisabled.value =
-        heritageFunctions.value.length < 1 ||
+const updateAddOtherHeritageFunction = function () {
+    addOtherHeritageFunctionDisabled.value =
+        !(
+            currentHeritageFunction.value.functionCategory &&
+            currentHeritageFunction.value.functionCategoryType
+        ) ||
         heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
 };
 
-const updateAddOtherHeritageSite = function () {
-    addOtherHeritageSiteDisabled.value =
-        heritageThemes.value.length < 1 ||
+const updateAddOtherHeritageTheme = function () {
+    addOtherHeritageThemeDisabled.value =
+        !currentHeritageTheme.value.heritageTheme ||
         heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
 };
 
@@ -165,18 +182,18 @@ const saveHeritageClass = function () {
         ownership: currentHeritageClass.value.ownership,
     });
 
-    updateAddHeritageClassCategory();
+    updateAddOtherHeritageClass();
 };
 
-const saveFunctionCategory = function () {
-    console.log('saveFunctionCategory');
+const saveHeritageFunction = function () {
+    console.log('saveHeritageFunction');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
         functionCategory: currentHeritageFunction.value.functionCategory,
         functionCategoryType:
             currentHeritageFunction.value.functionCategoryType,
     });
 
-    updateAddOtherFunctionCategory();
+    updateAddOtherHeritageFunction();
 };
 
 const saveHeritageTheme = function () {
@@ -185,25 +202,25 @@ const saveHeritageTheme = function () {
         currentHeritageTheme.value.heritageTheme,
     );
 
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageTheme();
 };
 
-const deleteContributingResourcesCallback = function (index: number) {
+const deleteHeritageClassCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageClasses.splice(index, 1);
 
-    updateAddHeritageClassCategory();
+    updateAddOtherHeritageClass();
 };
 
-const deleteFunctionCategoryCallback = function (index: number) {
+const deleteHeritageFunctionCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageFunctions.splice(index, 1);
 
-    updateAddOtherFunctionCategory();
+    updateAddOtherHeritageFunction();
 };
 
 const deleteHeritageThemeCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
 
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageTheme();
 };
 
 onMounted(() => {
@@ -212,9 +229,9 @@ onMounted(() => {
         heritageFunctions;
     heritageSiteRef.value.siteClassification.heritageThemes = heritageThemes;
 
-    updateAddHeritageClassCategory();
-    updateAddOtherFunctionCategory();
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageClass();
+    updateAddOtherHeritageFunction();
+    updateAddOtherHeritageTheme();
 });
 </script>
 <template>
@@ -240,8 +257,8 @@ onMounted(() => {
                 />
                 <Button
                     id="saveHeritageClass"
-                    :disabled="addContributingResourcesDisabled"
-                    :aria-disabled="addContributingResourcesDisabled"
+                    :disabled="addOtherHeritageClassDisabled"
+                    :aria-disabled="addOtherHeritageClassDisabled"
                     label="Add"
                     class="inline-block"
                     @click="saveHeritageClass"
@@ -279,7 +296,7 @@ onMounted(() => {
             :showDeleteButton="true"
             :displayValues="heritageClasses"
             label="Heritage Class/Classes"
-            :deleteCallback="deleteContributingResourcesCallback"
+            :deleteCallback="deleteHeritageClassCallback"
         >
             <div
                 v-for="slot in slotProps"
@@ -324,12 +341,12 @@ onMounted(() => {
                 </div>
             </div>
             <Button
-                id="saveFunctionCategory"
+                id="saveHeritageFunction"
                 label="Add"
                 class="inline-block"
-                :disabled="addOtherFunctionCategoryDisabled"
-                :aria-disabled="addOtherFunctionCategoryDisabled"
-                @click="saveFunctionCategory"
+                :disabled="addOtherHeritageFunctionDisabled"
+                :aria-disabled="addOtherHeritageFunctionDisabled"
+                @click="saveHeritageFunction"
             ></Button>
         </LabelledInput>
         <MultiValuePlaceholder
@@ -337,7 +354,7 @@ onMounted(() => {
             :showDeleteButton="true"
             :displayValues="heritageFunctions"
             label="Category/Categories"
-            :deleteCallback="deleteFunctionCategoryCallback"
+            :deleteCallback="deleteHeritageFunctionCallback"
         >
             <div
                 v-for="slot in slotProps"
@@ -374,8 +391,8 @@ onMounted(() => {
                 id="addHeritageTheme"
                 label="Add"
                 class="inline-block"
-                :disabled="addOtherHeritageSiteDisabled"
-                :aria_disabled="addOtherHeritageSiteDisabled"
+                :disabled="addOtherHeritageThemeDisabled"
+                :aria_disabled="addOtherHeritageThemeDisabled"
                 @click="saveHeritageTheme"
             ></Button>
         </LabelledInput>
