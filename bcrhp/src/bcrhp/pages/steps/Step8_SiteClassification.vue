@@ -204,6 +204,10 @@ const saveHeritageClass = function () {
         ownership: currentHeritageClass.value.ownership,
     });
 
+    currentHeritageClass.value.contributingResources = 0;
+    currentHeritageClass.value.heritageCategory = '';
+    currentHeritageClass.value.ownership = '';
+
     updateAddOtherHeritageClass();
 };
 
@@ -214,6 +218,10 @@ const saveHeritageFunction = function () {
         functionCategoryType:
             currentHeritageFunction.value.functionCategoryType,
     });
+
+    currentHeritageFunction.value.functionCategory = '';
+    currentHeritageFunction.value.functionCategoryType = '';
+
     updateAddOtherHeritageFunction();
 };
 
@@ -222,6 +230,8 @@ const saveHeritageTheme = function () {
     heritageSiteRef.value.siteClassification.heritageThemes.push(
         currentHeritageTheme.value.heritageTheme,
     );
+
+    currentHeritageTheme.value.heritageTheme = '';
 
     updateAddOtherHeritageTheme();
 };
