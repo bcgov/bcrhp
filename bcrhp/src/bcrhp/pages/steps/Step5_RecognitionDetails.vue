@@ -110,6 +110,10 @@ const saveRecognitionDetails = function () {
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
+    currentRecognitionDetails.value.designationDate = null;
+    currentRecognitionDetails.value.legislativeAct = '';
+    currentRecognitionDetails.value.referenceNumber = '';
+
     updateAddOtherRecognitionDetails();
 };
 
