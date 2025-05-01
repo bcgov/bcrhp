@@ -10,10 +10,7 @@ const SiteImagesSchema = z.object({
         .min(1, { message: 'Image View is required.' })
         .max(250),
     imageFeatures: z.string().max(250),
-    imageDate: z
-        .string()
-        .min(1, { message: 'Image Date is required.' })
-        .max(250),
+    imageDate: z.date(),
     imageDescription: z
         .string()
         .min(1, { message: 'Image Description is required.' })
@@ -37,7 +34,7 @@ class SiteImages implements SiteImagesType {
         this.imageType = '';
         this.imageView = '';
         this.imageFeatures = '';
-        this.imageDate = '';
+        this.imageDate = null;
         this.imageDescription = '';
         this.photographer = '';
         this.copyright = '';
@@ -46,7 +43,7 @@ class SiteImages implements SiteImagesType {
     imageType: string;
     imageView: string;
     imageFeatures: string;
-    imageDate: string;
+    imageDate: Date | null;
     imageDescription: string;
     photographer: string;
     copyright: string;
