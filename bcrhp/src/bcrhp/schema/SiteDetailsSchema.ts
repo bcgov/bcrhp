@@ -26,9 +26,8 @@ const ArchitectBuilderSchema = z.object({
 });
 
 const RequiredURLsSchema = z.object({
-    urlType: z.array(z.string()).max(250),
-    urlText: z.string().min(1, { message: 'URL Type is required.' }).max(250),
-    linkText: z.string().min(1, { message: 'URL Text is required.' }).max(250),
+    urlType: z.string().min(1, { message: 'URL Type is required.' }).max(250),
+    linkText: z.string().min(1, { message: 'Link Text is required.' }).max(250),
     url: z.string().min(1, { message: 'URL is required.' }).max(250),
 });
 
