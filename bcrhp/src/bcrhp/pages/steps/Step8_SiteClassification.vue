@@ -383,7 +383,7 @@ onMounted(() => {
                             ref="functionCategoryField"
                             v-model="currentHeritageFunction.functionCategory"
                             graph-slug="heritage_site"
-                            node-alias="function_category"
+                            node-alias="functional_category"
                         />
                     </FormField>
                     <div class="inline-block">
@@ -398,7 +398,7 @@ onMounted(() => {
                                     currentHeritageFunction.functionCategoryType
                                 "
                                 graph-slug="heritage_site"
-                                node-alias="functional_category"
+                                node-alias="functional_state"
                                 group-direction="column"
                             />
                         </FormField>
