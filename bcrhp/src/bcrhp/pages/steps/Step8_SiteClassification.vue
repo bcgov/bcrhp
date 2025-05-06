@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
-import RadioButton from 'primevue/radiobutton';
-import Select from 'primevue/select';
+import { Form, FormField } from '@primevue/forms';
+import type { FormFieldResolverOptions } from '@primevue/forms';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
@@ -39,60 +39,100 @@ const currentHeritageTheme = ref(getHeritageThemeSchema());
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
 const heritageThemes = ref([] as Array<string>);
-const addContributingResourcesDisabled = ref(false);
-const addOtherFunctionCategoryDisabled = ref(false);
-const addOtherHeritageSiteDisabled = ref(false);
+const addOtherHeritageClassDisabled = ref(false);
+const addOtherHeritageFunctionDisabled = ref(false);
+const addOtherHeritageThemeDisabled = ref(false);
 
-const updateSelectValue = function (
-    newValue: string,
-    selectField: typeof RadioButton | typeof ConceptSelect,
-) {
-    console.log(`New value ${newValue}`);
-    validateField(selectField);
+// const updateSelectValue = function (
+//     newValue: string,
+//     selectField: typeof RadioButton | typeof ConceptSelect,
+// ) {
+//     console.log(`New value ${newValue}`);
+//     validateField(selectField);
+// };
+
+watch(currentHeritageClass.value, () => {
+    updateAddOtherHeritageClass();
+});
+watch(currentHeritageFunction.value, () => {
+    updateAddOtherHeritageFunction();
+});
+watch(currentHeritageTheme.value, () => {
+    updateAddOtherHeritageTheme();
+});
+
+const fields = {
+    numberOfResourcesField: useTemplateRef('numberOfResourcesField'),
+    heritageCategoryField: useTemplateRef('heritageCategoryField'),
+    ownershipField: useTemplateRef('ownershipField'),
+    functionCategoryField: useTemplateRef('functionCategoryField'),
+    functionCategoryTypeRef: useTemplateRef('functionCategoryTypeRef'),
+    heritageThemeField: useTemplateRef('heritageThemeField'),
 };
 
-const validateField = function (
-    inputField: typeof Select | typeof RadioButton,
-) {
-    if (Object.hasOwn(currentHeritageClass, inputField?.inputId)) {
-        validateHeritageClassField(inputField as HTMLInputElement);
-    } else if (Object.hasOwn(currentHeritageFunction, inputField?.inputId)) {
-        validateHeritageFunctionField(inputField as HTMLInputElement);
-    } else if (Object.hasOwn(currentHeritageTheme, inputField?.inputId)) {
-        validateHeritageThemeField(inputField as HTMLInputElement);
+const isValid = () => {
+    // We don't want to validate fields the first time we show the step
+    if (!validateFields) {
+        validateFields = true;
+        return true;
     }
+    let valid = true;
+
+    for (const field of Object.values(fields) as Array<Ref>) {
+        valid =
+            resolver({
+                name: field?.value.$el.id,
+            } as FormFieldResolverOptions) && valid;
+    }
+    return valid;
 };
 
-const updateAddHeritageClassCategory = function () {
-    addContributingResourcesDisabled.value =
-        heritageClasses.value.length < 1 ||
+const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
+    if (Object.hasOwn(currentHeritageClass.value, e.name ?? '')) {
+        return validateHeritageClassField(e as FormFieldResolverOptions);
+    } else if (Object.hasOwn(currentHeritageFunction.value, e.name ?? '')) {
+        return validateHeritageFunctionField(e as FormFieldResolverOptions);
+    } else if (Object.hasOwn(currentHeritageTheme.value, e.name ?? '')) {
+        return validateHeritageThemeField(e as FormFieldResolverOptions);
+    }
+
+    return {};
+};
+
+const updateAddOtherHeritageClass = function () {
+    addOtherHeritageClassDisabled.value =
+        !(
+            currentHeritageClass.value.contributingResources &&
+            currentHeritageClass.value.heritageCategory &&
+            currentHeritageClass.value.ownership
+        ) ||
         heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
 };
-
-const updateAddOtherFunctionCategory = function () {
-    addOtherFunctionCategoryDisabled.value =
-        heritageFunctions.value.length < 1 ||
+const updateAddOtherHeritageFunction = function () {
+    addOtherHeritageFunctionDisabled.value =
+        !(
+            currentHeritageFunction.value.functionCategory &&
+            currentHeritageFunction.value.functionCategoryType
+        ) ||
         heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
 };
-
-const updateAddOtherHeritageSite = function () {
-    addOtherHeritageSiteDisabled.value =
-        heritageThemes.value.length < 1 ||
+const updateAddOtherHeritageTheme = function () {
+    addOtherHeritageThemeDisabled.value =
+        !currentHeritageTheme.value.heritageTheme ||
         heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
 };
 
-const validateSiteClassificationFields = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateSiteClassificationFields = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof SiteClassification =
-        field.id as keyof typeof SiteClassification;
+        event.name as keyof typeof SiteClassification;
     const fieldValidation = requiredSiteClassificationSchema.shape[
         key
     ].safeParse(heritageSiteRef.value[key]);
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -100,18 +140,19 @@ const validateSiteClassificationFields = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateHeritageClassField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateHeritageClassField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof HeritageClass =
-        field.id as keyof typeof HeritageClass;
+        event.name as keyof typeof HeritageClass;
     const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        currentHeritageClass.value[field.id],
+        key === 'contributingResources'
+            ? parseInt(currentHeritageClass.value[key])
+            : currentHeritageClass.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -119,18 +160,17 @@ const validateHeritageClassField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateHeritageFunctionField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateHeritageFunctionField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof HeritageFunction =
-        field.id as keyof typeof HeritageFunction;
+        event.name as keyof typeof HeritageFunction;
     const fieldValidation = requiredHeritageFunctionSchema.shape[key].safeParse(
-        currentHeritageFunction.value[field.id],
+        currentHeritageFunction.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -138,18 +178,17 @@ const validateHeritageFunctionField = function (field: HTMLInputElement) {
     return fieldValidation.success;
 };
 
-const validateHeritageThemeField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
+const validateHeritageThemeField = function (
+    event: FormFieldResolverOptions,
+): Record<string, any> {
     const key: keyof typeof HeritageTheme =
-        field.id as keyof typeof HeritageTheme;
+        event.name as keyof typeof HeritageTheme;
     const fieldValidation = requiredHeritageThemeSchema.shape[key].safeParse(
-        currentHeritageTheme.value[field.id],
+        currentHeritageTheme.value[key],
     );
     if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
         errors.value[key] = [];
     } else {
-        field.classList.add('p-invalid');
         errors.value[key] = (
             fieldValidation.error as typeof ZodError
         ).flatten().formErrors;
@@ -169,11 +208,11 @@ const saveHeritageClass = function () {
     currentHeritageClass.value.heritageCategory = '';
     currentHeritageClass.value.ownership = '';
 
-    updateAddHeritageClassCategory();
+    updateAddOtherHeritageClass();
 };
 
-const saveFunctionCategory = function () {
-    console.log('saveFunctionCategory');
+const saveHeritageFunction = function () {
+    console.log('saveHeritageFunction');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
         functionCategory: currentHeritageFunction.value.functionCategory,
         functionCategoryType:
@@ -183,37 +222,43 @@ const saveFunctionCategory = function () {
     currentHeritageFunction.value.functionCategory = '';
     currentHeritageFunction.value.functionCategoryType = '';
 
-    updateAddOtherFunctionCategory();
+    updateAddOtherHeritageFunction();
 };
 
 const saveHeritageTheme = function () {
-    console.log('saveHeritageThemes');
+    console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
         currentHeritageTheme.value.heritageTheme,
     );
 
     currentHeritageTheme.value.heritageTheme = '';
 
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageTheme();
 };
 
-const deleteContributingResourcesCallback = function (index: number) {
+const deleteHeritageClassCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageClasses.splice(index, 1);
 
-    updateAddHeritageClassCategory();
+    updateAddOtherHeritageClass();
 };
 
-const deleteFunctionCategoryCallback = function (index: number) {
+const deleteHeritageFunctionCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageFunctions.splice(index, 1);
 
-    updateAddOtherFunctionCategory();
+    updateAddOtherHeritageFunction();
 };
 
 const deleteHeritageThemeCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
 
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageTheme();
 };
+
+let validateFields = false;
+
+// This needs to be removed - added because ESLint was complaining. Need to figure out
+// configuration so API methods are not
+defineExpose({ isValid });
 
 onMounted(() => {
     heritageSiteRef.value.siteClassification.heritageClasses = heritageClasses;
@@ -221,183 +266,215 @@ onMounted(() => {
         heritageFunctions;
     heritageSiteRef.value.siteClassification.heritageThemes = heritageThemes;
 
-    updateAddHeritageClassCategory();
-    updateAddOtherFunctionCategory();
-    updateAddOtherHeritageSite();
+    updateAddOtherHeritageClass();
+    updateAddOtherHeritageFunction();
+    updateAddOtherHeritageTheme();
 });
 </script>
 <template>
-    <FieldSet
-        id="heritageDetailsFieldset"
-        legend="Heritage Class"
+    <Form
+        ref="siteClassificationRef"
+        name="siteClassificationRef"
     >
-        <LabelledInput
-            label="Number of Contributing Resources"
-            input-name="contributingResources"
-            :error-message="errors.contributingResources?.join(',')"
-            :required="true"
+        <FieldSet
+            id="heritageDetailsFieldset"
+            legend="Heritage Class"
         >
-            <div>
-                <InputText
-                    id="contributingResources"
-                    ref="numberOfResourcesField"
-                    v-model="currentHeritageClass.contributingResources"
-                    aria-describedby="contributing-resources-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
-                />
-                <Button
-                    id="saveHeritageClass"
-                    :disabled="addContributingResourcesDisabled"
-                    :aria-disabled="addContributingResourcesDisabled"
-                    label="Add"
-                    class="inline-block"
-                    @click="saveHeritageClass"
-                ></Button>
-            </div>
-        </LabelledInput>
-        <div class="flex flex-col">
-            <p class="mb-1">Heritage Category</p>
-            <div class="flex flex-col">
-                <ConceptRadioButtons
-                    id="heritageCategory"
-                    ref="heritageCategoryField"
-                    v-model="currentHeritageClass.heritageCategory"
-                    graph-slug="heritage_site"
-                    node-alias="heritage_category"
-                    group-direction="column"
-                    @value-updated="updateSelectValue"
-                />
-            </div>
-            <p class="mb-1">Ownership</p>
-            <div class="flex flex-col">
-                <ConceptRadioButtons
-                    id="ownership"
-                    ref="ownershipField"
-                    v-model="currentHeritageClass.ownership"
-                    graph-slug="heritage_site"
-                    node-alias="ownership"
-                    group-direction="column"
-                    @value-updated="updateSelectValue"
-                />
-            </div>
-        </div>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            :showDeleteButton="true"
-            :displayValues="heritageClasses"
-            label="Heritage Class/Classes"
-            :deleteCallback="deleteContributingResourcesCallback"
-        >
-            <div
-                v-for="slot in slotProps"
-                :key="slot"
-                class="parent value"
+            <FormField
+                :resolver="resolver"
+                name="contributingResources"
             >
-                {{ slot.heritageCategory }} {{ slot.ownership }}
-                {{ slot.contributingResources }}
-            </div>
-        </MultiValuePlaceholder>
-    </FieldSet>
-    <Fieldset
-        id="heritageFunctionFieldset"
-        class="p-fieldset p-component mt-2"
-        legend="Heritage Function"
-    >
-        <LabelledInput
-            label="Function Category"
-            input-name="heritageTheme"
-            :error-message="errors.functionCategories?.join(',')"
-            :required="true"
-        >
-            <div class="p-inputtext-fluid flex flex-row">
-                <ConceptSelect
-                    id="functionCategory"
-                    ref="functionCategoryField"
-                    v-model="currentHeritageFunction.functionCategory"
-                    graph-slug="heritage_site"
-                    node-alias="function_category"
-                    @value-updated="updateSelectValue"
-                />
-                <div class="inline-block">
-                    <ConceptRadioButtons
-                        id="functionCategoryType"
-                        ref="functionCategoryTypeRef"
-                        v-model="currentHeritageFunction.functionCategoryType"
-                        graph-slug="heritage_site"
-                        node-alias="functional_category"
-                        group-direction="column"
-                        @value-updated="updateSelectValue"
-                    />
+                <LabelledInput
+                    label="Number of Contributing Resources"
+                    input-name="contributingResources"
+                    :error-message="errors.contributingResources?.join(',')"
+                    :required="true"
+                >
+                    <div>
+                        <InputText
+                            id="contributingResources"
+                            ref="numberOfResourcesField"
+                            v-model="currentHeritageClass.contributingResources"
+                            aria-describedby="contributing-resources-help"
+                            aria-required="true"
+                            fluid
+                            class="inline-block"
+                        />
+                        <Button
+                            id="saveHeritageClass"
+                            :disabled="addOtherHeritageClassDisabled"
+                            :aria-disabled="addOtherHeritageClassDisabled"
+                            label="Add"
+                            class="inline-block"
+                            @click="saveHeritageClass"
+                        ></Button>
+                    </div>
+                </LabelledInput>
+            </FormField>
+            <div class="flex flex-col">
+                <p class="mb-1">Heritage Category</p>
+                <div class="flex flex-col">
+                    <FormField
+                        :resolver="resolver"
+                        name="heritageCategory"
+                    >
+                        <ConceptRadioButtons
+                            id="heritageCategory"
+                            ref="heritageCategoryField"
+                            v-model="currentHeritageClass.heritageCategory"
+                            graph-slug="heritage_site"
+                            node-alias="heritage_category"
+                            group-direction="column"
+                        />
+                    </FormField>
+                </div>
+                <p class="mb-1">Ownership</p>
+                <div class="flex flex-col">
+                    <FormField
+                        :resolver="resolver"
+                        name="ownership"
+                    >
+                        <ConceptRadioButtons
+                            id="ownership"
+                            ref="ownershipField"
+                            v-model="currentHeritageClass.ownership"
+                            graph-slug="heritage_site"
+                            node-alias="ownership"
+                            group-direction="column"
+                        />
+                    </FormField>
                 </div>
             </div>
-            <Button
-                id="saveFunctionCategory"
-                label="Add"
-                class="inline-block"
-                :disabled="addOtherFunctionCategoryDisabled"
-                :aria-disabled="addOtherFunctionCategoryDisabled"
-                @click="saveFunctionCategory"
-            ></Button>
-        </LabelledInput>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            :showDeleteButton="true"
-            :displayValues="heritageFunctions"
-            label="Category/Categories"
-            :deleteCallback="deleteFunctionCategoryCallback"
-        >
-            <div
-                v-for="slot in slotProps"
-                :key="slot"
-                class="parent value"
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                :showDeleteButton="true"
+                :displayValues="heritageClasses"
+                label="Heritage Class/Classes"
+                :deleteCallback="deleteHeritageClassCallback"
             >
-                {{ slot.functionCategory }}
-                {{ slot.functionCategoryType }}
-            </div>
-        </MultiValuePlaceholder>
-    </Fieldset>
-    <Fieldset
-        id="heritageThemeFieldset"
-        class="p-fieldset p-component mt-2"
-        legend="Heritage Theme"
-    >
-        <LabelledInput
-            label="Heritage Theme"
-            input-name="heritageTheme"
-            :error-message="errors.heritageThemes?.join(',')"
-            :required="true"
+                <div
+                    v-for="slot in slotProps"
+                    :key="slot"
+                    class="parent value"
+                >
+                    {{ slot.heritageCategory }} {{ slot.ownership }}
+                    {{ slot.contributingResources }}
+                </div>
+            </MultiValuePlaceholder>
+        </FieldSet>
+        <Fieldset
+            id="heritageFunctionFieldset"
+            class="p-fieldset p-component mt-2"
+            legend="Heritage Function"
         >
-            <div class="p-inputtext-fluid">
-                <ConceptSelect
-                    id="heritageTheme"
-                    ref="heritageThemeField"
-                    v-model="currentHeritageTheme.heritageTheme"
-                    graph-slug="heritage_site"
-                    node-alias="heritage_theme"
-                    @value-updated="updateSelectValue"
-                />
-            </div>
-            <Button
-                id="addHeritageTheme"
-                label="Add"
-                class="inline-block"
-                :disabled="addOtherHeritageSiteDisabled"
-                :aria_disabled="addOtherHeritageSiteDisabled"
-                @click="saveHeritageTheme"
-            ></Button>
-        </LabelledInput>
-        <MultiValuePlaceholder
-            v-slot="slotProps"
-            :showDeleteButton="true"
-            :displayValues="heritageThemes"
-            label="Theme(s)"
-            :deleteCallback="deleteHeritageThemeCallback"
+            <LabelledInput
+                label="Function Category"
+                input-name="heritageTheme"
+                :error-message="errors.functionCategories?.join(',')"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid flex flex-row">
+                    <FormField
+                        :resolver="resolver"
+                        name="functionCategory"
+                    >
+                        <ConceptSelect
+                            id="functionCategory"
+                            ref="functionCategoryField"
+                            v-model="currentHeritageFunction.functionCategory"
+                            graph-slug="heritage_site"
+                            node-alias="functional_category"
+                        />
+                    </FormField>
+                    <div class="inline-block">
+                        <FormField
+                            :resolver="resolver"
+                            name="functionCategoryType"
+                        >
+                            <ConceptRadioButtons
+                                id="functionCategoryType"
+                                ref="functionCategoryTypeRef"
+                                v-model="
+                                    currentHeritageFunction.functionCategoryType
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="functional_state"
+                                group-direction="column"
+                            />
+                        </FormField>
+                    </div>
+                </div>
+                <Button
+                    id="saveFunctionCategory"
+                    label="Add"
+                    class="inline-block"
+                    :disabled="addOtherHeritageFunctionDisabled"
+                    :aria-disabled="addOtherHeritageFunctionDisabled"
+                    @click="saveHeritageFunction"
+                ></Button>
+            </LabelledInput>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                :showDeleteButton="true"
+                :displayValues="heritageFunctions"
+                label="Category/Categories"
+                :deleteCallback="deleteHeritageFunctionCallback"
+            >
+                <div
+                    v-for="slot in slotProps"
+                    :key="slot"
+                    class="parent value"
+                >
+                    {{ slot.functionCategory }}
+                    {{ slot.functionCategoryType }}
+                </div>
+            </MultiValuePlaceholder>
+        </Fieldset>
+        <Fieldset
+            id="heritageThemeFieldset"
+            class="p-fieldset p-component mt-2"
+            legend="Heritage Theme"
         >
-            <div class="parent value">{{ slotProps.value }}</div>
-        </MultiValuePlaceholder>
-    </Fieldset>
+            <LabelledInput
+                label="Heritage Theme"
+                input-name="heritageTheme"
+                :error-message="errors.heritageThemes?.join(',')"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid">
+                    <FormField
+                        :resolver="resolver"
+                        name="heritageTheme"
+                    >
+                        <ConceptSelect
+                            id="heritageTheme"
+                            ref="heritageThemeField"
+                            v-model="currentHeritageTheme.heritageTheme"
+                            graph-slug="heritage_site"
+                            node-alias="heritage_theme"
+                        />
+                    </FormField>
+                </div>
+                <Button
+                    id="addHeritageTheme"
+                    label="Add"
+                    class="inline-block"
+                    :disabled="addOtherHeritageThemeDisabled"
+                    :aria_disabled="addOtherHeritageThemeDisabled"
+                    @click="saveHeritageTheme"
+                ></Button>
+            </LabelledInput>
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                :showDeleteButton="true"
+                :displayValues="heritageThemes"
+                label="Theme(s)"
+                :deleteCallback="deleteHeritageThemeCallback"
+            >
+                <div class="parent value">{{ slotProps.value }}</div>
+            </MultiValuePlaceholder>
+        </Fieldset>
+    </Form>
 </template>
 
 <style>

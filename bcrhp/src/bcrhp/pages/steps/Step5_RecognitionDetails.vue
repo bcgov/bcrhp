@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -46,6 +46,10 @@ const fields = {
     legislativeActField: useTemplateRef('legislativeActField'),
 };
 
+watch(currentRecognitionDetails.value, () => {
+    updateAddOtherRecognitionDetails();
+});
+
 const isValid = () => {
     // We don't want to validate fields the first time we show the step
     if (!validateFields) {
@@ -56,15 +60,20 @@ const isValid = () => {
 
     for (const field of Object.values(fields) as Array<Ref>) {
         valid =
-            validateField(field?.value.$el as FormFieldResolverOptions) &&
-            valid;
+            validateField({
+                name: field?.value.$el.id,
+            } as FormFieldResolverOptions) && valid;
     }
     return valid;
 };
 
 const updateAddOtherRecognitionDetails = function () {
     addOtherReferenceNumberDisabled.value =
-        totalRecognitionDetails.value.length < 1 ||
+        !(
+            currentRecognitionDetails.value.designationDate &&
+            currentRecognitionDetails.value.legislativeAct &&
+            currentRecognitionDetails.value.referenceNumber
+        ) ||
         heritageSiteRef.value.recognitionDetails.totalRecognitionDetails
             .length > 4;
 };
@@ -138,6 +147,8 @@ onMounted(() => {
     >
         <FieldSet id="recognitionDetailsFieldset">
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="designationDate"
             >
@@ -162,6 +173,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="legislativeAct"
             >
@@ -210,6 +223,8 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
+                :validateOnValueUpdate="false"
+                :validateOnBlur="true"
                 :resolver="resolver"
                 name="referenceNumber"
             >
@@ -234,6 +249,7 @@ onMounted(() => {
                         id="saveRecognitionDetails"
                         label="Add"
                         class="inline-block"
+                        :disabled="addOtherReferenceNumberDisabled"
                         :aria-disabled="addOtherReferenceNumberDisabled"
                         @click="saveRecognitionDetails"
                     ></Button>
