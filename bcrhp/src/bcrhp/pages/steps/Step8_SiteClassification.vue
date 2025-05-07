@@ -100,25 +100,61 @@ const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
 };
 
 const updateAddOtherHeritageClass = function () {
+    const isValidContributingResources = currentHeritageClass.value
+        .contributingResources
+        ? requiredHeritageClassSchema.shape['contributingResources'].safeParse(
+              parseInt(currentHeritageClass.value.contributingResources),
+          )
+        : { success: false };
+    const isValidHeritageCategory = currentHeritageClass.value.heritageCategory
+        ? requiredHeritageClassSchema.shape['heritageCategory'].safeParse(
+              currentHeritageClass.value.heritageCategory,
+          )
+        : { success: false };
+    const isValidOwnership = currentHeritageClass.value.ownership
+        ? requiredHeritageClassSchema.shape['ownership'].safeParse(
+              currentHeritageClass.value.ownership,
+          )
+        : { success: false };
+
     addOtherHeritageClassDisabled.value =
         !(
-            currentHeritageClass.value.contributingResources &&
-            currentHeritageClass.value.heritageCategory &&
-            currentHeritageClass.value.ownership
+            isValidContributingResources.success &&
+            isValidHeritageCategory.success &&
+            isValidOwnership.success
         ) ||
         heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
 };
 const updateAddOtherHeritageFunction = function () {
+    const isValidFunctionCategory = currentHeritageFunction.value
+        .functionCategory
+        ? requiredHeritageClassSchema.shape['functionCategory'].safeParse(
+              currentHeritageFunction.value.functionCategory,
+          )
+        : { success: false };
+    const isValidFunctionCategoryType = currentHeritageFunction.value
+        .functionCategoryType
+        ? requiredHeritageClassSchema.shape['functionCategoryType'].safeParse(
+              currentHeritageFunction.value.functionCategoryType,
+          )
+        : { success: false };
+
     addOtherHeritageFunctionDisabled.value =
         !(
-            currentHeritageFunction.value.functionCategory &&
-            currentHeritageFunction.value.functionCategoryType
+            isValidFunctionCategory.success &&
+            isValidFunctionCategoryType.success
         ) ||
         heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
 };
 const updateAddOtherHeritageTheme = function () {
+    const isValidHeritageTheme = currentHeritageTheme.value.heritageTheme
+        ? requiredHeritageClassSchema.shape['heritageTheme'].safeParse(
+              currentHeritageTheme.value.heritageTheme,
+          )
+        : { success: false };
+
     addOtherHeritageThemeDisabled.value =
-        !currentHeritageTheme.value.heritageTheme ||
+        !isValidHeritageTheme.success ||
         heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
 };
 

@@ -17,14 +17,14 @@ import {
     SiteDetails,
     Chronology,
     ArchitectOrBuilder,
-    RequiredURLs,
+    URLs,
     requiredSiteDetailsSchema,
     requiredChronologySchema,
     requiredArchitectBuilderSchema,
-    requiredRequiredURLsSchema,
+    requiredURLsSchema,
     getArchitectOrBuilderSchema,
     getChronologySchema,
-    getRequiredURLsSchema,
+    getURLsSchema,
 } from '@/bcrhp/schema/SiteDetailsSchema.ts';
 import type { ZodError } from 'zod';
 
@@ -36,7 +36,7 @@ const chronologies = ref([] as Array<string>);
 
 const currentChronology = ref(getChronologySchema());
 const currentArchitectOrBuilder = ref(getArchitectOrBuilderSchema());
-const currentURL = ref(getRequiredURLsSchema());
+const currentURL = ref(getURLsSchema());
 
 // const updateSelectValue = function (
 //     newValue: string,
@@ -163,9 +163,8 @@ const validateArchitectOrBuilderField = function (
 const validateURLField = function (
     event: FormFieldResolverOptions,
 ): Record<string, any> {
-    const key: keyof typeof RequiredURLs =
-        event.name as keyof typeof RequiredURLs;
-    const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
+    const key: keyof typeof URLs = event.name as keyof typeof URLs;
+    const fieldValidation = requiredURLsSchema.shape[key].safeParse(
         currentURL.value[key],
     );
     if (fieldValidation.success) {
@@ -179,26 +178,69 @@ const validateURLField = function (
 };
 
 const updateAddChronology = function () {
+    const isValidEventType = currentChronology.value.eventType
+        ? requiredChronologySchema.shape['eventType'].safeParse(
+              currentChronology.value.eventType,
+          )
+        : { success: false };
+    const isValidStartYear = currentChronology.value.startYear
+        ? requiredChronologySchema.shape['startYear'].safeParse(
+              currentChronology.value.startYear,
+          )
+        : { success: false };
+    const isValidEndYear = currentChronology.value.endYear
+        ? requiredChronologySchema.shape['endYear'].safeParse(
+              currentChronology.value.endYear,
+          )
+        : { success: false };
+
     addChronologyDisabled.value =
         !(
-            currentChronology.value.eventType &&
-            currentChronology.value.startYear &&
-            currentChronology.value.endYear
+            isValidEventType.success &&
+            isValidStartYear.success &&
+            isValidEndYear.success
         ) || heritageSiteRef.value.siteDetails.chronologies.length > 4;
 };
 const updateAddOtherArchitectOrBuilder = function () {
+    const isValidArchitectOrBuilderName = currentArchitectOrBuilder.value
+        .architectOrBuilderName
+        ? requiredArchitectBuilderSchema.shape[
+              'architectOrBuilderName'
+          ].safeParse(currentArchitectOrBuilder.value.architectOrBuilderName)
+        : { success: false };
+    const isValidArchitectOrBuilderType = currentArchitectOrBuilder.value
+        .architectOrBuilderType
+        ? requiredArchitectBuilderSchema.shape[
+              'architectOrBuilderType'
+          ].safeParse(currentArchitectOrBuilder.value.architectOrBuilderType)
+        : { success: false };
+
     addArchitectOrBuilderDisabled.value =
         !(
-            currentArchitectOrBuilder.value.architectOrBuilderName &&
-            currentArchitectOrBuilder.value.architectOrBuilderType
+            isValidArchitectOrBuilderName.success &&
+            isValidArchitectOrBuilderType.success
         ) || heritageSiteRef.value.siteDetails.architectsOrBuilders.length > 4;
 };
 const updateAddOtherURL = function () {
+    const isValidURLType = currentURL.value.urlType
+        ? requiredURLsSchema.shape['urlType'].safeParse(
+              currentURL.value.urlType,
+          )
+        : { success: false };
+    const isValidLinkText = currentURL.value.linkText
+        ? requiredURLsSchema.shape['linkText'].safeParse(
+              currentURL.value.linkText,
+          )
+        : { success: false };
+    const isValidURL = currentURL.value.url
+        ? requiredURLsSchema.shape['url'].safeParse(currentURL.value.url)
+        : { success: false };
+
     addURLDisabled.value =
         !(
-            currentURL.value.urlType &&
-            currentURL.value.linkText &&
-            currentURL.value.url
+            isValidURLType.success &&
+            isValidLinkText.success &&
+            isValidURL.success
         ) || heritageSiteRef.value.siteDetails.urls.length > 4;
 };
 

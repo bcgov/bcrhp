@@ -25,7 +25,7 @@ const ArchitectBuilderSchema = z.object({
         .max(250),
 });
 
-const RequiredURLsSchema = z.object({
+const URLsSchema = z.object({
     urlType: z.string().min(1, { message: 'URL Type is required.' }).max(250),
     linkText: z.string().min(1, { message: 'Link Text is required.' }).max(250),
     url: z.string().min(1, { message: 'URL is required.' }).max(250),
@@ -34,7 +34,7 @@ const RequiredURLsSchema = z.object({
 const requiredSiteDetailsSchema = SiteDetailsSchema.partial({});
 const requiredChronologySchema = ChronologySchema.partial({});
 const requiredArchitectBuilderSchema = ArchitectBuilderSchema.partial({});
-const requiredRequiredURLsSchema = RequiredURLsSchema.partial({});
+const requiredURLsSchema = URLsSchema.partial({});
 
 // @ts-ignore
 type SiteDetailsType = z.infer<typeof SiteDetailsSchema>;
@@ -43,7 +43,7 @@ type ChronologyType = z.infer<typeof ChronologySchema>;
 // @ts-ignore
 type ArchitectOrBuilderType = z.infer<typeof ArchitectOrBuilderSchema>;
 // @ts-ignore
-type RequiredURLsType = z.infer<typeof RequiredURLsSchema>;
+type URLsType = z.infer<typeof URLsSchema>;
 
 function getSiteDetailsSchema(): SiteDetailsType {
     return new SiteDetails();
@@ -54,8 +54,8 @@ function getChronologySchema(): ChronologyType {
 function getArchitectOrBuilderSchema(): ArchitectOrBuilderType {
     return new ArchitectOrBuilder();
 }
-function getRequiredURLsSchema(): RequiredURLsType {
-    return new RequiredURLs();
+function getURLsSchema(): URLsType {
+    return new URLs();
 }
 
 // @todo - Figure out object state - New/Updated/Deleted
@@ -93,7 +93,7 @@ class ArchitectOrBuilder implements ArchitectOrBuilderType {
     architectOrBuilderNotes: string;
     architectOrBuilderType: string;
 }
-class RequiredURLs implements RequiredURLsType {
+class URLs implements URLsType {
     constructor() {
         this.urlType = '';
         this.linkText = '';
@@ -117,8 +117,8 @@ export {
     ArchitectBuilderSchema,
     getArchitectOrBuilderSchema,
     requiredArchitectBuilderSchema,
-    RequiredURLs,
-    RequiredURLsSchema,
-    getRequiredURLsSchema,
-    requiredRequiredURLsSchema,
+    URLs,
+    URLsSchema,
+    getURLsSchema,
+    requiredURLsSchema,
 };

@@ -22,6 +22,7 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
+const commonName = ref('');
 const otherName = ref('');
 const otherNames = ref([] as Array<string>);
 
@@ -31,6 +32,9 @@ const fields = {
     otherNameField: useTemplateRef('otherNameField'),
 };
 
+watch(commonName, () => {
+    updateAddOtherState();
+});
 watch(otherName, () => {
     updateAddOtherState();
 });
@@ -53,8 +57,13 @@ const isValid = () => {
 };
 
 const updateAddOtherState = function () {
+    const isValidCommonName = commonName.value
+        ? requiredHeritageSiteSchema.shape['commonName'].safeParse(
+              commonName.value,
+          )
+        : { success: false };
     addOtherNameDisabled.value =
-        otherName.value.length < 1 ||
+        !isValidCommonName.success ||
         heritageSiteRef.value.otherNames.length > 4;
 };
 
@@ -68,9 +77,8 @@ const validateField = function (
     const key: keyof typeof HeritageSite =
         event.name as keyof typeof HeritageSite;
     const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
+        commonName.value,
     );
-
     if (fieldValidation.success) {
         errors.value[key] = [];
     } else {
@@ -84,8 +92,11 @@ const validateField = function (
 
 const saveOtherName = function () {
     console.log('saveOtherName');
+    heritageSiteRef.value.commonName = commonName.value;
     heritageSiteRef.value.otherNames.push(otherName.value);
+    commonName.value = '';
     otherName.value = '';
+
     updateAddOtherState();
 };
 
@@ -126,7 +137,7 @@ onMounted(() => {
                         <InputText
                             id="commonName"
                             ref="commonNameField"
-                            v-model="heritageSite.commonName"
+                            v-model="commonName"
                             name="commonName"
                             aria-describedby="username-help"
                             aria-required="true"
@@ -136,7 +147,6 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
-                v-slot="$field"
                 :resolver="resolver"
                 name="otherName"
             >
@@ -144,7 +154,6 @@ onMounted(() => {
                     label="Other Names (Optional)"
                     hint="Click Add to enter one or more additional names as applicable"
                     input-name="otherName"
-                    :error-message="$field.error?.message"
                 >
                     <InputText
                         id="otherName"

@@ -68,11 +68,29 @@ const isValid = () => {
 };
 
 const updateAddOtherRecognitionDetails = function () {
+    const isValidDesignationDate = currentRecognitionDetails.value
+        .designationDate
+        ? requiredRecognitionDetailsSchema.shape['designationDate'].safeParse(
+              heritageSiteRef.value.recognitionDetails['designationDate'],
+          )
+        : { success: false };
+    const isValidLegislativeAct = currentRecognitionDetails.value.legislativeAct
+        ? requiredRecognitionDetailsSchema.shape['legislativeAct'].safeParse(
+              heritageSiteRef.value.recognitionDetails['legislativeAct'],
+          )
+        : { success: false };
+    const isValidReferenceNumber = currentRecognitionDetails.value
+        .referenceNumber
+        ? requiredRecognitionDetailsSchema.shape['referenceNumber'].safeParse(
+              heritageSiteRef.value.recognitionDetails['referenceNumber'],
+          )
+        : { success: false };
+
     addOtherReferenceNumberDisabled.value =
         !(
-            currentRecognitionDetails.value.designationDate &&
-            currentRecognitionDetails.value.legislativeAct &&
-            currentRecognitionDetails.value.referenceNumber
+            isValidDesignationDate.success &&
+            isValidLegislativeAct.success &&
+            isValidReferenceNumber.success
         ) ||
         heritageSiteRef.value.recognitionDetails.totalRecognitionDetails
             .length > 4;
@@ -90,7 +108,6 @@ const validateField = function (
     const fieldValidation = requiredRecognitionDetailsSchema.shape[
         key
     ].safeParse(heritageSiteRef.value.recognitionDetails[key]);
-
     if (fieldValidation.success) {
         errors.value[key] = [];
     } else {
