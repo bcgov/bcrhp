@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
@@ -22,10 +22,6 @@ const siteNamesForm: Ref<FormInstance> = useTemplateRef('siteNamesForm');
 const zodCommonNameResolver = zodResolver(HeritageSiteSchema.shape.commonName);
 const zodOtherNameResolver = zodResolver(HeritageSiteSchema.shape.otherName);
 
-watch(otherName, () => {
-    updateAddOtherState();
-});
-
 const isValid = () => {
     return siteNamesForm.value.valid;
 };
@@ -45,7 +41,13 @@ const saveOtherName = function () {
     updateAddOtherState();
 };
 
-const addOtherNameDisabled = ref(true);
+const addOtherNameDisabled = computed(
+    () =>
+        siteNamesForm.value?.states.otherName.invalid ||
+        siteNamesForm.value?.states.otherName.value == null ||
+        siteNamesForm.value?.states.otherName.value.length < 1 ||
+        heritageSiteRef.value?.otherNames.length > 4,
+);
 
 const deleteOtherNameCallback = function (index: number) {
     heritageSiteRef.value.otherNames.splice(index, 1);
