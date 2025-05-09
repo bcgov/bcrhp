@@ -26,19 +26,10 @@ const isValid = () => {
     return siteNamesForm.value.valid;
 };
 
-const updateAddOtherState = function () {
-    addOtherNameDisabled.value =
-        siteNamesForm.value.states.otherName.invalid ||
-        siteNamesForm.value.states.otherName.value == null ||
-        siteNamesForm.value.states.otherName.value.length < 1 ||
-        heritageSiteRef.value.otherNames.length > 4;
-};
-
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSiteRef.value.otherNames.push(otherName.value);
     otherName.value = '';
-    updateAddOtherState();
 };
 
 const addOtherNameDisabled = computed(
@@ -51,14 +42,12 @@ const addOtherNameDisabled = computed(
 
 const deleteOtherNameCallback = function (index: number) {
     heritageSiteRef.value.otherNames.splice(index, 1);
-    updateAddOtherState();
 };
 
 defineExpose({ isValid });
 
 onMounted(() => {
     heritageSiteRef.value.otherNames = otherNames;
-    updateAddOtherState();
 });
 </script>
 <template>
