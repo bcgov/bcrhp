@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -48,25 +48,21 @@ const referenceNumberResolver = zodResolver(
     RecognitionDetailsSchema.shape.referenceNumber,
 );
 const totalRecognitionDetails = ref([] as Array<string>);
-const addOtherReferenceNumberDisabled = ref(false);
 
-watch(currentRecognitionDetails.value, () => {
-    updateAddOtherRecognitionDetails();
-});
+const addOtherReferenceNumberDisabled = computed(
+    () =>
+        recognitionDetailsForm.value?.states?.designationDate?.pristine ||
+        recognitionDetailsForm.value?.states?.legislativeAct?.pristine ||
+        recognitionDetailsForm.value?.states?.referenceNumber?.pristine ||
+        recognitionDetailsForm.value?.states?.designationDate?.invalid ||
+        recognitionDetailsForm.value?.states?.legislativeAct?.invalid ||
+        recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
+        heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
+            ?.length > 4,
+);
 
 const isValid = () => {
     return recognitionDetailsForm.value.valid;
-};
-
-const updateAddOtherRecognitionDetails = function () {
-    addOtherReferenceNumberDisabled.value =
-        !(
-            currentRecognitionDetails.value.designationDate &&
-            currentRecognitionDetails.value.legislativeAct &&
-            currentRecognitionDetails.value.referenceNumber
-        ) ||
-        heritageSiteRef.value.recognitionDetails.totalRecognitionDetails
-            .length > 4;
 };
 
 const saveRecognitionDetails = function () {
@@ -80,8 +76,6 @@ const saveRecognitionDetails = function () {
     currentRecognitionDetails.value.designationDate = null;
     currentRecognitionDetails.value.legislativeAct = '';
     currentRecognitionDetails.value.referenceNumber = '';
-
-    updateAddOtherRecognitionDetails();
 };
 
 const deleteRecognitionDetailsCallback = function (index: number) {
@@ -89,8 +83,6 @@ const deleteRecognitionDetailsCallback = function (index: number) {
         index,
         1,
     );
-
-    updateAddOtherRecognitionDetails();
 };
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
@@ -101,8 +93,6 @@ onMounted(() => {
     heritageSiteRef.value.recognitionDetails = currentRecognitionDetails;
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails =
         totalRecognitionDetails;
-
-    updateAddOtherRecognitionDetails();
 });
 </script>
 <template>
