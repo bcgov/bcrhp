@@ -17,11 +17,13 @@ const HeritageSiteSchema = z.object({
             'Invalid Borden Number format.',
         ),
     commonName: z
-        .string()
+        .string({
+            invalid_type_error: 'Common Name is required.',
+        })
         .min(1, { message: 'Common Name is required.' })
-        .max(10),
+        .max(250),
     otherNames: z.array(z.string()).max(5),
-    otherName: z.string().max(250), // @todo - This shouldn't live here. Push names into own schema?
+    otherName: z.string().max(250).nullable(), // @todo - This shouldn't live here. Push names into own schema?
     civicAddress: z.array(CivicAddressSchema),
     siteImages: z.array(SiteImagesSchema),
     recognitionDetails: z.array(RecognitionDetails),
