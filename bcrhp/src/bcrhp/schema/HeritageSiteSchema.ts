@@ -16,8 +16,14 @@ const HeritageSiteSchema = z.object({
                 /^[A-Z][a-z][A-Z][a-z]-[0-9]{1-4}$/.test(value ?? ''),
             'Invalid Borden Number format.',
         ),
-    commonName: z.string().min(1, { message: 'Common Name is required.' }),
+    commonName: z
+        .string({
+            invalid_type_error: 'Common Name is required.',
+        })
+        .min(1, { message: 'Common Name is required.' })
+        .max(250),
     otherNames: z.array(z.string()).max(5),
+    otherName: z.string().max(250).nullable(), // @todo - This shouldn't live here. Push names into own schema?
     civicAddress: z.array(CivicAddressSchema),
     siteImages: z.array(SiteImagesSchema),
     recognitionDetails: z.array(RecognitionDetails),
@@ -26,7 +32,6 @@ const HeritageSiteSchema = z.object({
     siteDetails: z.array(SiteDetails),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
     siteBoundaryIncorrect: z.boolean().default(false), // If the geometry from the PID isn't right this flags it
-    otherName: z.array(z.string()).max(12),
     documentDescription: z.string().max(250),
     submissionNotes: z.string().max(250),
 });
@@ -81,4 +86,9 @@ class HeritageSite implements HeritageSiteType {
 
 console.log(requiredHeritageSiteSchema);
 
-export { HeritageSite, getHeritageSite, requiredHeritageSiteSchema };
+export {
+    HeritageSiteSchema,
+    HeritageSite,
+    getHeritageSite,
+    requiredHeritageSiteSchema,
+};

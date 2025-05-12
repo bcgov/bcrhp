@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -8,98 +8,61 @@ import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import Select from 'primevue/select';
-import { Form, FormField } from '@primevue/forms';
-import type { FormFieldResolverOptions } from '@primevue/forms';
+import { Form, FormField, type FormInstance } from '@primevue/forms';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import {
+    RecognitionDetailsSchema,
     RecognitionDetails,
-    requiredRecognitionDetailsSchema,
     getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
 
-import type { ZodError } from 'zod';
+const recognitionDetailsForm: Ref<FormInstance> = useTemplateRef(
+    'recognitionDetailsRef',
+);
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-const currentRecognitionDetails = ref(getRecognitionDetails());
+const currentRecognitionDetails: typeof RecognitionDetails = ref(
+    getRecognitionDetails(),
+);
 const showInactiveHistoricActs = ref(false);
 
-type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-
-const errors: Ref<FormErrors> = ref<FormErrors>({});
 const legislativeActOptions = ref([
     { name: 'Legislative Act 1', code: 'legislative_act_1' },
     { name: 'Legislative Act 2', code: 'legislative_act_2' },
 ]);
+
+const designationDateResolver = zodResolver(
+    RecognitionDetailsSchema.shape.designationDate,
+);
+const legislativeDateResolver = zodResolver(
+    RecognitionDetailsSchema.shape.legislativeAct,
+);
+const referenceNumberResolver = zodResolver(
+    RecognitionDetailsSchema.shape.referenceNumber,
+);
 const totalRecognitionDetails = ref([] as Array<string>);
-const addOtherReferenceNumberDisabled = ref(false);
 
-// These names need to match the Zog schema
-const fields = {
-    designationDateField: useTemplateRef('designationDateField'),
-    referenceNumberField: useTemplateRef('referenceNumberField'),
-    legislativeActField: useTemplateRef('legislativeActField'),
-};
-
-watch(currentRecognitionDetails.value, () => {
-    updateAddOtherRecognitionDetails();
-});
+const addOtherReferenceNumberDisabled = computed(
+    () =>
+        recognitionDetailsForm.value?.states?.designationDate?.pristine ||
+        recognitionDetailsForm.value?.states?.legislativeAct?.pristine ||
+        recognitionDetailsForm.value?.states?.referenceNumber?.pristine ||
+        recognitionDetailsForm.value?.states?.designationDate?.invalid ||
+        recognitionDetailsForm.value?.states?.legislativeAct?.invalid ||
+        recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
+        heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
+            ?.length > 4,
+);
 
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid =
-            validateField({
-                name: field?.value.$el.id,
-            } as FormFieldResolverOptions) && valid;
-    }
-    return valid;
-};
-
-const updateAddOtherRecognitionDetails = function () {
-    addOtherReferenceNumberDisabled.value =
-        !(
-            currentRecognitionDetails.value.designationDate &&
-            currentRecognitionDetails.value.legislativeAct &&
-            currentRecognitionDetails.value.referenceNumber
-        ) ||
-        heritageSiteRef.value.recognitionDetails.totalRecognitionDetails
-            .length > 4;
-};
-
-const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
-    return validateField(e as FormFieldResolverOptions);
-};
-
-const validateField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof RecognitionDetails =
-        event.name as keyof typeof RecognitionDetails;
-    const fieldValidation = requiredRecognitionDetailsSchema.shape[
-        key
-    ].safeParse(heritageSiteRef.value.recognitionDetails[key]);
-
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-
-    return fieldValidation.success;
+    return recognitionDetailsForm.value.valid;
 };
 
 const saveRecognitionDetails = function () {
@@ -113,8 +76,6 @@ const saveRecognitionDetails = function () {
     currentRecognitionDetails.value.designationDate = null;
     currentRecognitionDetails.value.legislativeAct = '';
     currentRecognitionDetails.value.referenceNumber = '';
-
-    updateAddOtherRecognitionDetails();
 };
 
 const deleteRecognitionDetailsCallback = function (index: number) {
@@ -122,11 +83,7 @@ const deleteRecognitionDetailsCallback = function (index: number) {
         index,
         1,
     );
-
-    updateAddOtherRecognitionDetails();
 };
-
-let validateFields = false;
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
@@ -136,27 +93,25 @@ onMounted(() => {
     heritageSiteRef.value.recognitionDetails = currentRecognitionDetails;
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails =
         totalRecognitionDetails;
-
-    updateAddOtherRecognitionDetails();
 });
 </script>
 <template>
     <Form
         ref="recognitionDetailsRef"
+        v-slot="$form"
         name="recognitionDetailsRef"
+        :validateOnBlur="true"
     >
         <FieldSet id="recognitionDetailsFieldset">
             <FormField
-                :validateOnValueUpdate="false"
-                :validateOnBlur="true"
-                :resolver="resolver"
+                :resolver="designationDateResolver"
                 name="designationDate"
             >
                 <LabelledInput
                     label="Designation or Recognition Start Date"
                     hint="The date the designation or recognition was brought into effect"
                     input-name="designationDate"
-                    :error-message="errors.designationDate?.join(',')"
+                    :error-message="$form.designationDate?.error?.message"
                     :required="true"
                 >
                     <div class="p-inputtext-fluid">
@@ -173,16 +128,14 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
-                :validateOnValueUpdate="false"
-                :validateOnBlur="true"
-                :resolver="resolver"
+                :resolver="legislativeDateResolver"
                 name="legislativeAct"
             >
                 <LabelledInput
                     label="Legislative Act"
                     hint="Designation or recognition type that applies to the site"
                     input-name="legislativeAct"
-                    :error-message="errors.legislativeAct?.join(',')"
+                    :error-message="$form.legislativeAct?.error?.message"
                     :required="true"
                 >
                     <div class="p-inputtext-fluid flex">
@@ -223,16 +176,14 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <FormField
-                :validateOnValueUpdate="false"
-                :validateOnBlur="true"
-                :resolver="resolver"
+                :resolver="referenceNumberResolver"
                 name="referenceNumber"
             >
                 <LabelledInput
                     label="Reference Number"
                     hint="The bylaw or resolution number"
                     input-name="referenceNumber"
-                    :error-message="errors.referenceNumber?.join(',')"
+                    :error-message="$form.referenceNumber?.error?.message"
                     :required="true"
                 >
                     <InputText
