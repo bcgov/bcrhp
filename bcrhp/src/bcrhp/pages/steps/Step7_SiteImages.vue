@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, provide } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -15,6 +15,8 @@ import {
     requiredSiteImagesSchema,
     getSiteImages,
 } from '@/bcrhp/schema/SiteImagesSchema.ts';
+import { datePickerFormat } from '@/bcrhp/constants.ts';
+
 import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -22,10 +24,13 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
+provide('datePickerFormat', datePickerFormat);
+
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
 
 const currentSiteImage = ref(getSiteImages());
+const imageDate = ref();
 currentSiteImage.value.imageTypes = [];
 heritageSite.value.siteImages[currentSiteImage.value.id] = currentSiteImage;
 
@@ -74,6 +79,10 @@ const validateField = function (
     const fieldValidation = requiredSiteImagesSchema.shape[key].safeParse(
         heritageSiteRef.value.siteImages[key],
     );
+    if (imageDate.value instanceof Date) {
+        heritageSite.value.siteImages[currentSiteImage.value.id].imageDate =
+            imageDate.value.toLocaleDateString('en-CA');
+    }
 
     if (fieldValidation.success) {
         errors.value[key] = [];
@@ -101,8 +110,6 @@ const updateImageType = function (
     console.log(`New value ${newValue}`);
     currentSiteImage.value[selectField.id] = newValue;
 };
-
-onMounted(() => {});
 </script>
 <template>
     <Form
@@ -185,7 +192,7 @@ onMounted(() => {});
                     <InputText
                         id="imageFeatures"
                         ref="imageFeaturesField"
-                        v-model="heritageSite.siteImages.imageFeatures"
+                        v-model="currentSiteImage.imageFeatures"
                         aria-describedby="image-features-help"
                         fluid
                         class="inline-block"
@@ -207,8 +214,9 @@ onMounted(() => {});
                 <DatePicker
                     id="imageDate"
                     ref="imageDateField"
-                    v-model="heritageSite.siteImages.imageDate"
-                    show-icon
+                    v-model="imageDate"
+                    :dateFormat="datePickerFormat"
+                    showIcon
                     aria-describedby="image-date-help"
                     aria-required="true"
                 />
@@ -229,7 +237,7 @@ onMounted(() => {});
                     <Editor
                         id="imageDescription"
                         ref="imageDescriptionField"
-                        v-model="heritageSite.siteImages.imageDescription"
+                        v-model="currentSiteImage.imageDescription"
                         theme="snow"
                         aria-describedby="image-description-help"
                         aria-required="true"
@@ -252,7 +260,7 @@ onMounted(() => {});
                     <InputText
                         id="photographer"
                         ref="photographerField"
-                        v-model="heritageSite.siteImages.photographer"
+                        v-model="currentSiteImage.photographer"
                         aria-describedby="image-features-help"
                         aria-required="true"
                         fluid
@@ -275,7 +283,7 @@ onMounted(() => {});
                     <InputText
                         id="copyright"
                         ref="copyrightField"
-                        v-model="heritageSite.siteImages.copyright"
+                        v-model="currentSiteImage.copyright"
                         aria-describedby="copyright-help"
                         aria-required="true"
                         fluid
