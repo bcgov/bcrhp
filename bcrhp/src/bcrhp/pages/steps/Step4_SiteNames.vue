@@ -55,15 +55,12 @@ onMounted(() => {
         ref="siteNamesForm"
         v-slot="$form"
         name="siteNamesForm"
-        :validateOnValueUpdate="true"
         :validateOnBlur="true"
     >
         <div class="flex flex-col">
             <FormField
                 :resolver="zodCommonNameResolver"
                 name="commonName"
-                :validateOnValueUpdate="true"
-                :validateOnBlur="true"
             >
                 <LabelledInput
                     label="Common Name"
