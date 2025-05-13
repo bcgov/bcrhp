@@ -206,8 +206,15 @@ const saveChronology = function () {
     console.log('saveChronology');
     heritageSiteRef.value.siteDetails.chronologies.push({
         eventType: currentChronology.value.eventType,
-        startYear: currentChronology.value.startYear,
-        endYear: currentChronology.value.endYear,
+        startYear: currentChronology.value.startYear.toLocaleDateString(
+            'en-CA',
+            {
+                year: 'numeric',
+            },
+        ),
+        endYear: currentChronology.value.endYear.toLocaleDateString('en-CA', {
+            year: 'numeric',
+        }),
         circa: currentChronology.value.circa?.toString(),
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
@@ -327,7 +334,7 @@ onMounted(() => {
                         class="flex-shrink"
                         dateFormat="yy"
                         view="year"
-                        show-icon
+                        showIcon
                         aria-describedby="start-year-help"
                         aria-required="true"
                     />
@@ -343,7 +350,7 @@ onMounted(() => {
                         v-model="currentChronology.endYear"
                         dateFormat="yy"
                         view="year"
-                        show-icon
+                        showIcon
                         aria-describedby="end-year-help"
                         aria-required="true"
                     />

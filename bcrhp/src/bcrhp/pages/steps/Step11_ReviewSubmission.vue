@@ -90,21 +90,23 @@ const heritageSite: typeof HeritageSite = inject(
         >
             <div display="flex flex-col">
                 <div>Type</div>
-                <div class="justify-self-center">{{ image.imageType }}</div>
+                <div class="justify-self-center">{{ image?.imageType }}</div>
                 <div>View</div>
-                <div class="justify-self-center">{{ image.imageView }}</div>
+                <div class="justify-self-center">{{ image?.imageView }}</div>
                 <div>Features</div>
-                <div class="justify-self-center">{{ image.imageFeatures }}</div>
+                <div class="justify-self-center">
+                    {{ image?.imageFeatures }}
+                </div>
                 <div>Date</div>
-                <div class="justify-self-center">{{ image.imageDate }}</div>
+                <div class="justify-self-center">{{ image?.imageDate }}</div>
                 <div>Description</div>
                 <div class="justify-self-center">
-                    {{ image.imageDescription }}
+                    {{ image?.imageDescription }}
                 </div>
                 <div>Photographer</div>
-                <div class="justify-self-center">{{ image.photographer }}</div>
+                <div class="justify-self-center">{{ image?.photographer }}</div>
                 <div>Copyright</div>
-                <div class="justify-self-center">{{ image.copyright }}</div>
+                <div class="justify-self-center">{{ image?.copyright }}</div>
             </div>
         </div>
         <div>

@@ -19,6 +19,7 @@ import {
     RecognitionDetails,
     getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance> = useTemplateRef(
     'recognitionDetailsRef',
@@ -68,7 +69,15 @@ const isValid = () => {
 const saveRecognitionDetails = function () {
     console.log('saveRecognitionDetails');
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate: currentRecognitionDetails.value.designationDate,
+        designationDate:
+            currentRecognitionDetails.value.designationDate.toLocaleDateString(
+                'en-CA',
+                {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                },
+            ),
         legislativeAct: currentRecognitionDetails.value.legislativeAct,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
@@ -120,7 +129,8 @@ onMounted(() => {
                             ref="designationDateField"
                             v-model="currentRecognitionDetails.designationDate"
                             name="designationDate"
-                            dateFormat="mm/dd/yy"
+                            :dateFormat="DATE_FORMAT"
+                            showIcon
                             aria-describedby="designation-date-help"
                             aria-required="true"
                         />
