@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch, provide } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -19,11 +19,9 @@ import {
     requiredRecognitionDetailsSchema,
     getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
-import { datePickerFormat } from '@/bcrhp/constants.ts';
+import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 import type { ZodError } from 'zod';
-
-provide('datePickerFormat', datePickerFormat);
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -111,6 +109,11 @@ const saveRecognitionDetails = function () {
         designationDate:
             currentRecognitionDetails.value.designationDate.toLocaleDateString(
                 'en-CA',
+                {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                },
             ),
         legislativeAct: currentRecognitionDetails.value.legislativeAct,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
@@ -167,7 +170,7 @@ onMounted(() => {
                             ref="designationDateField"
                             v-model="currentRecognitionDetails.designationDate"
                             name="designationDate"
-                            :dateFormat="datePickerFormat"
+                            :dateFormat="DATE_FORMAT"
                             showIcon
                             aria-describedby="designation-date-help"
                             aria-required="true"

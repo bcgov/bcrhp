@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, provide } from 'vue';
+import { useTemplateRef, inject, ref } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -15,7 +15,7 @@ import {
     requiredSiteImagesSchema,
     getSiteImages,
 } from '@/bcrhp/schema/SiteImagesSchema.ts';
-import { datePickerFormat } from '@/bcrhp/constants.ts';
+import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 import type { ZodError } from 'zod';
 
@@ -23,8 +23,6 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-
-provide('datePickerFormat', datePickerFormat);
 
 type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
@@ -81,7 +79,11 @@ const validateField = function (
     );
     if (imageDate.value instanceof Date) {
         heritageSite.value.siteImages[currentSiteImage.value.id].imageDate =
-            imageDate.value.toLocaleDateString('en-CA');
+            imageDate.value.toLocaleDateString('en-CA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
     }
 
     if (fieldValidation.success) {
@@ -215,7 +217,7 @@ const updateImageType = function (
                     id="imageDate"
                     ref="imageDateField"
                     v-model="imageDate"
-                    :dateFormat="datePickerFormat"
+                    :dateFormat="DATE_FORMAT"
                     showIcon
                     aria-describedby="image-date-help"
                     aria-required="true"
