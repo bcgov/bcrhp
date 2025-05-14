@@ -2,7 +2,6 @@ from django.urls import include, path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
-from django.urls.resolvers import RegexPattern
 from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile
 from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
@@ -24,24 +23,6 @@ def bc_path_prefix(path):
     else:
         new_path = path_prefix_re.sub(r"\1%s\2", path)
         return new_path % settings.BCGOV_PROXY_PREFIX
-
-
-class BCRegexPattern(RegexPattern):
-    def __init__(self, regexpattern):
-        super().__init__(
-            bc_path_prefix(regexpattern.regex.pattern),
-            regexpattern.name,
-            regexpattern._is_endpoint,
-        )
-
-
-common_url_resolver = re_path(r"^", include("bcgov_arches_common.urls"))
-bc_url_resolver = re_path((r"^"), include("arches.urls"))
-
-for pattern in bc_url_resolver.url_patterns + common_url_resolver.url_patterns:
-    # print("Before: %s" % pattern.pattern)
-    pattern.pattern = BCRegexPattern(pattern.pattern)
-    # print("After: %s" % pattern.pattern)
 
 urlpatterns = [
     re_path(
