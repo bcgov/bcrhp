@@ -115,8 +115,9 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
-    common_url_resolver,
-    bc_url_resolver,
+    re_path(r'^bcrhp/', include('bcgov_arches_common.urls')),
+    path('bcrhp/', include("arches_component_lab.urls")),
+    path('bcrhp/', include("arches.urls")),
 ]
 
 # # Ensure Arches core urls are superseded by project-level urls
