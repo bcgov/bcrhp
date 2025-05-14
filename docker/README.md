@@ -1,13 +1,18 @@
 Developing in Docker instance.
 
+1. Branches:
+BCRHP: `brf/feat/1290_integrate_component_lab`
+BCGov Arches Common: `brf/feat/update_api`
+Arches Component Lab: `main`
+Arches: `stable/7.6.9_bcgov`
 
-1. Change the following lines in pyproject.json:
+
+2. Change the following lines in pyproject.json:
 ```shell
     "arches==7.6.9",
     "bcgov_arches_common @ git+https://github.com/bcgov/arches_common@release/1.1.0_add_vue_components",
     "arches-component-lab==0.0.1",
 ```
-
 to 
 ```shell
     "arches @ file:../arches",
@@ -15,7 +20,7 @@ to
     "arches-component-lab @ file:../arches-component-lab",
 ```
 
-2. Change the following lines in package.json:
+3. Change the following lines in package.json:
 ```shell
         "arches-component-lab": "latest",
         "bcgov_arches_common": "github:bcgov/arches_common#release/1.1.0_add_vue_components",
@@ -25,7 +30,7 @@ to
         "arches-component-lab": "file:../arches-component-lab",
         "bcgov_arches_common": "file:../arches_common",
 ```
-4. Update settings.py to run using Vite. Change the following line
+4. Update `bcrhp/settings.py` to run using Vite. Change the following line
 ```python
 DJANGO_VITE = {
     "default": {
