@@ -1,200 +1,94 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
-import { Form, FormField } from '@primevue/forms';
-import type { FormFieldResolverOptions } from '@primevue/forms';
+import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
 import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
-    SiteClassification,
+    HeritageClassSchema,
+    HeritageFunctionSchema,
+    HeritageThemeSchema,
     HeritageClass,
     HeritageFunction,
     HeritageTheme,
-    requiredSiteClassificationSchema,
-    requiredHeritageClassSchema,
-    requiredHeritageFunctionSchema,
-    requiredHeritageThemeSchema,
     getHeritageClassSchema,
     getHeritageFunctionSchema,
     getHeritageThemeSchema,
 } from '@/bcrhp/schema/SiteClassificationSchema.ts';
-import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
-const currentHeritageClass = ref(getHeritageClassSchema());
-const currentHeritageFunction = ref(getHeritageFunctionSchema());
-const currentHeritageTheme = ref(getHeritageThemeSchema());
+const siteClassificationForm: Ref<FormInstance> = useTemplateRef(
+    'siteClassificationForm',
+);
+const currentHeritageClass: typeof HeritageClass = ref(
+    getHeritageClassSchema(),
+);
+const currentHeritageFunction: typeof HeritageFunction = ref(
+    getHeritageFunctionSchema(),
+);
+const currentHeritageTheme: typeof HeritageTheme = ref(
+    getHeritageThemeSchema(),
+);
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
 const heritageThemes = ref([] as Array<string>);
-const addOtherHeritageClassDisabled = ref(false);
-const addOtherHeritageFunctionDisabled = ref(false);
-const addOtherHeritageThemeDisabled = ref(false);
 
-// const updateSelectValue = function (
-//     newValue: string,
-//     selectField: typeof RadioButton | typeof ConceptSelect,
-// ) {
-//     console.log(`New value ${newValue}`);
-//     validateField(selectField);
-// };
-
-watch(currentHeritageClass.value, () => {
-    updateAddOtherHeritageClass();
-});
-watch(currentHeritageFunction.value, () => {
-    updateAddOtherHeritageFunction();
-});
-watch(currentHeritageTheme.value, () => {
-    updateAddOtherHeritageTheme();
-});
-
-const fields = {
-    numberOfResourcesField: useTemplateRef('numberOfResourcesField'),
-    heritageCategoryField: useTemplateRef('heritageCategoryField'),
-    ownershipField: useTemplateRef('ownershipField'),
-    functionCategoryField: useTemplateRef('functionCategoryField'),
-    functionCategoryTypeRef: useTemplateRef('functionCategoryTypeRef'),
-    heritageThemeField: useTemplateRef('heritageThemeField'),
-};
+const zodContributingResourcesResolver = zodResolver(
+    HeritageClassSchema.shape.contributingResources,
+);
+const zodHeritageCategoryResolver = zodResolver(
+    HeritageClassSchema.shape.heritageCategory,
+);
+const zodOwnershipResolver = zodResolver(HeritageClassSchema.shape.ownership);
+const zodFunctionCategoryResolver = zodResolver(
+    HeritageFunctionSchema.shape.functionCategory,
+);
+const zodFunctionCategoryTypeResolver = zodResolver(
+    HeritageFunctionSchema.shape.functionCategoryType,
+);
+const zodHeritageThemeResolver = zodResolver(
+    HeritageThemeSchema.shape.heritageTheme,
+);
 
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid =
-            resolver({
-                name: field?.value.$el.id,
-            } as FormFieldResolverOptions) && valid;
-    }
-    return valid;
+    return siteClassificationForm.value.valid;
 };
 
-const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
-    if (Object.hasOwn(currentHeritageClass.value, e.name ?? '')) {
-        return validateHeritageClassField(e as FormFieldResolverOptions);
-    } else if (Object.hasOwn(currentHeritageFunction.value, e.name ?? '')) {
-        return validateHeritageFunctionField(e as FormFieldResolverOptions);
-    } else if (Object.hasOwn(currentHeritageTheme.value, e.name ?? '')) {
-        return validateHeritageThemeField(e as FormFieldResolverOptions);
-    }
-
-    return {};
-};
-
-const updateAddOtherHeritageClass = function () {
-    addOtherHeritageClassDisabled.value =
-        !(
-            currentHeritageClass.value.contributingResources &&
-            currentHeritageClass.value.heritageCategory &&
-            currentHeritageClass.value.ownership
-        ) ||
-        heritageSiteRef.value.siteClassification.heritageClasses.length > 4;
-};
-const updateAddOtherHeritageFunction = function () {
-    addOtherHeritageFunctionDisabled.value =
-        !(
-            currentHeritageFunction.value.functionCategory &&
-            currentHeritageFunction.value.functionCategoryType
-        ) ||
-        heritageSiteRef.value.siteClassification.heritageFunctions.length > 4;
-};
-const updateAddOtherHeritageTheme = function () {
-    addOtherHeritageThemeDisabled.value =
-        !currentHeritageTheme.value.heritageTheme ||
-        heritageSiteRef.value.siteClassification.heritageThemes.length > 4;
-};
-
-const validateSiteClassificationFields = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof SiteClassification =
-        event.name as keyof typeof SiteClassification;
-    const fieldValidation = requiredSiteClassificationSchema.shape[
-        key
-    ].safeParse(heritageSiteRef.value[key]);
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateHeritageClassField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof HeritageClass =
-        event.name as keyof typeof HeritageClass;
-    const fieldValidation = requiredHeritageClassSchema.shape[key].safeParse(
-        key === 'contributingResources'
-            ? parseInt(currentHeritageClass.value[key])
-            : currentHeritageClass.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateHeritageFunctionField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof HeritageFunction =
-        event.name as keyof typeof HeritageFunction;
-    const fieldValidation = requiredHeritageFunctionSchema.shape[key].safeParse(
-        currentHeritageFunction.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateHeritageThemeField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof HeritageTheme =
-        event.name as keyof typeof HeritageTheme;
-    const fieldValidation = requiredHeritageThemeSchema.shape[key].safeParse(
-        currentHeritageTheme.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
+const addOtherHeritageClassDisabled = computed(
+    () =>
+        siteClassificationForm.value?.states?.contributingResources?.pristine ||
+        siteClassificationForm.value?.states?.heritageCategory?.pristine ||
+        siteClassificationForm.value?.states?.ownership?.pristine ||
+        siteClassificationForm.value?.states?.contributingResources?.invalid ||
+        siteClassificationForm.value?.states?.heritageCategory?.invalid ||
+        siteClassificationForm.value?.states?.ownership?.invalid ||
+        heritageSiteRef.value.siteClassification?.heritageClasses?.length > 4,
+);
+const addOtherHeritageFunctionDisabled = computed(
+    () =>
+        siteClassificationForm.value?.states?.functionCategory?.pristine ||
+        siteClassificationForm.value?.states?.functionCategoryType?.pristine ||
+        siteClassificationForm.value?.states?.heritageCategory?.invalid ||
+        siteClassificationForm.value?.states?.functionCategoryType?.invalid ||
+        heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
+);
+const addOtherHeritageThemeDisabled = computed(
+    () =>
+        siteClassificationForm.value?.states?.heritageTheme?.pristine ||
+        siteClassificationForm.value?.states?.heritageTheme?.invalid ||
+        heritageSiteRef.value.siteClassification?.heritageThemes?.length > 4,
+);
 
 const saveHeritageClass = function () {
     console.log('saveHeritageClass');
@@ -207,8 +101,6 @@ const saveHeritageClass = function () {
     currentHeritageClass.value.contributingResources = 0;
     currentHeritageClass.value.heritageCategory = '';
     currentHeritageClass.value.ownership = '';
-
-    updateAddOtherHeritageClass();
 };
 
 const saveHeritageFunction = function () {
@@ -221,8 +113,6 @@ const saveHeritageFunction = function () {
 
     currentHeritageFunction.value.functionCategory = '';
     currentHeritageFunction.value.functionCategoryType = '';
-
-    updateAddOtherHeritageFunction();
 };
 
 const saveHeritageTheme = function () {
@@ -232,29 +122,19 @@ const saveHeritageTheme = function () {
     );
 
     currentHeritageTheme.value.heritageTheme = '';
-
-    updateAddOtherHeritageTheme();
 };
 
 const deleteHeritageClassCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageClasses.splice(index, 1);
-
-    updateAddOtherHeritageClass();
 };
 
 const deleteHeritageFunctionCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageFunctions.splice(index, 1);
-
-    updateAddOtherHeritageFunction();
 };
 
 const deleteHeritageThemeCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
-
-    updateAddOtherHeritageTheme();
 };
-
-let validateFields = false;
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
@@ -265,29 +145,27 @@ onMounted(() => {
     heritageSiteRef.value.siteClassification.heritageFunctions =
         heritageFunctions;
     heritageSiteRef.value.siteClassification.heritageThemes = heritageThemes;
-
-    updateAddOtherHeritageClass();
-    updateAddOtherHeritageFunction();
-    updateAddOtherHeritageTheme();
 });
 </script>
 <template>
     <Form
-        ref="siteClassificationRef"
-        name="siteClassificationRef"
+        ref="siteClassificationForm"
+        v-slot="$form"
+        name="siteClassificationForm"
+        :validateOnBlur="true"
     >
         <FieldSet
             id="heritageDetailsFieldset"
             legend="Heritage Class"
         >
             <FormField
-                :resolver="resolver"
+                :resolver="zodContributingResourcesResolver"
                 name="contributingResources"
             >
                 <LabelledInput
                     label="Number of Contributing Resources"
                     input-name="contributingResources"
-                    :error-message="errors.contributingResources?.join(',')"
+                    :error-message="$form.contributingResources?.error?.message"
                     :required="true"
                 >
                     <div>
@@ -315,7 +193,7 @@ onMounted(() => {
                 <p class="mb-1">Heritage Category</p>
                 <div class="flex flex-col">
                     <FormField
-                        :resolver="resolver"
+                        :resolver="zodHeritageCategoryResolver"
                         name="heritageCategory"
                     >
                         <ConceptRadioButtons
@@ -331,7 +209,7 @@ onMounted(() => {
                 <p class="mb-1">Ownership</p>
                 <div class="flex flex-col">
                     <FormField
-                        :resolver="resolver"
+                        :resolver="zodOwnershipResolver"
                         name="ownership"
                     >
                         <ConceptRadioButtons
@@ -370,12 +248,12 @@ onMounted(() => {
             <LabelledInput
                 label="Function Category"
                 input-name="heritageTheme"
-                :error-message="errors.functionCategories?.join(',')"
+                :error-message="$form.functionCategory?.error?.message"
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex flex-row">
                     <FormField
-                        :resolver="resolver"
+                        :resolver="zodFunctionCategoryResolver"
                         name="functionCategory"
                     >
                         <ConceptSelect
@@ -388,7 +266,7 @@ onMounted(() => {
                     </FormField>
                     <div class="inline-block">
                         <FormField
-                            :resolver="resolver"
+                            :resolver="zodFunctionCategoryTypeResolver"
                             name="functionCategoryType"
                         >
                             <ConceptRadioButtons
@@ -438,12 +316,12 @@ onMounted(() => {
             <LabelledInput
                 label="Heritage Theme"
                 input-name="heritageTheme"
-                :error-message="errors.heritageThemes?.join(',')"
+                :error-message="$form.heritageTheme?.error?.message"
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
                     <FormField
-                        :resolver="resolver"
+                        :resolver="zodHeritageThemeResolver"
                         name="heritageTheme"
                     >
                         <ConceptSelect

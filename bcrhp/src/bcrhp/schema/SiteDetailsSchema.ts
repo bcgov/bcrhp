@@ -15,26 +15,39 @@ const ChronologySchema = z.object({
 
 const ArchitectBuilderSchema = z.object({
     architectOrBuilderName: z
-        .string()
+        .string({
+            invalid_type_error: 'Architect or Builder Name is required.',
+        })
         .min(1, { message: 'Architect or Builder Name is required.' })
         .max(250),
     architectOrBuilderNotes: z.string().max(4000),
     architectOrBuilderType: z
-        .string()
+        .string({
+            invalid_type_error: 'Architect or Builder Name is required.',
+        })
         .min(1, { message: 'Architect or Builder Type is required.' })
         .max(250),
 });
 
-const RequiredURLsSchema = z.object({
-    urlType: z.string().min(1, { message: 'URL Type is required.' }).max(250),
-    linkText: z.string().min(1, { message: 'Link Text is required.' }).max(250),
-    url: z.string().min(1, { message: 'URL is required.' }).max(250),
+const URLsSchema = z.object({
+    urlType: z
+        .string({ invalid_type_error: 'URL Type is required.' })
+        .min(1, { message: 'URL Type is required.' })
+        .max(250),
+    linkText: z
+        .string({ invalid_type_error: 'Link Text is required.' })
+        .min(1, { message: 'Link Text is required.' })
+        .max(250),
+    url: z
+        .string({ invalid_type_error: 'URL is required.' })
+        .min(1, { message: 'URL is required.' })
+        .max(250),
 });
 
 const requiredSiteDetailsSchema = SiteDetailsSchema.partial({});
 const requiredChronologySchema = ChronologySchema.partial({});
 const requiredArchitectBuilderSchema = ArchitectBuilderSchema.partial({});
-const requiredRequiredURLsSchema = RequiredURLsSchema.partial({});
+const requiredURLsSchema = URLsSchema.partial({});
 
 // @ts-ignore
 type SiteDetailsType = z.infer<typeof SiteDetailsSchema>;
@@ -43,7 +56,7 @@ type ChronologyType = z.infer<typeof ChronologySchema>;
 // @ts-ignore
 type ArchitectOrBuilderType = z.infer<typeof ArchitectOrBuilderSchema>;
 // @ts-ignore
-type RequiredURLsType = z.infer<typeof RequiredURLsSchema>;
+type URLsType = z.infer<typeof URLsSchema>;
 
 function getSiteDetailsSchema(): SiteDetailsType {
     return new SiteDetails();
@@ -54,8 +67,8 @@ function getChronologySchema(): ChronologyType {
 function getArchitectOrBuilderSchema(): ArchitectOrBuilderType {
     return new ArchitectOrBuilder();
 }
-function getRequiredURLsSchema(): RequiredURLsType {
-    return new RequiredURLs();
+function getURLsSchema(): URLsType {
+    return new URLs();
 }
 
 // @todo - Figure out object state - New/Updated/Deleted
@@ -93,7 +106,7 @@ class ArchitectOrBuilder implements ArchitectOrBuilderType {
     architectOrBuilderNotes: string;
     architectOrBuilderType: string;
 }
-class RequiredURLs implements RequiredURLsType {
+class URLs implements URLsType {
     constructor() {
         this.urlType = '';
         this.linkText = '';
@@ -117,8 +130,8 @@ export {
     ArchitectBuilderSchema,
     getArchitectOrBuilderSchema,
     requiredArchitectBuilderSchema,
-    RequiredURLs,
-    RequiredURLsSchema,
-    getRequiredURLsSchema,
-    requiredRequiredURLsSchema,
+    URLs,
+    URLsSchema,
+    getURLsSchema,
+    requiredURLsSchema,
 };
