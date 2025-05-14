@@ -17,7 +17,11 @@ import {
 } from '@/bcgov_arches_common/constants.ts';
 
 import { routeNames } from '@/bcrhp/routes.ts';
-import { fetchUser, setUrlPrefix } from '@/bcgov_arches_common/api.ts';
+import {
+    fetchUser,
+    setUrlPrefix,
+    setUrlContextRoot,
+} from '@/bcgov_arches_common/api.ts';
 import PageHeader from '@/bcgov_arches_common/components/header/PageHeader.vue';
 import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 
@@ -41,7 +45,8 @@ const toast = useToast();
 const { $gettext } = useGettext();
 
 // @todo - Get this from config
-setUrlPrefix('http://localhost/bcrhp');
+setUrlPrefix('http://localhost');
+setUrlContextRoot('/bcrhp');
 
 router.beforeEach(async (to, _from, next) => {
     try {

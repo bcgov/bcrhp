@@ -55,6 +55,7 @@ COPY ./arches_common ${ARCHES_COMMON_ROOT}
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \
     pip install python-dotenv boto3==1.26 django-storages==1.13 oracledb html2text cffi redis && \
+    pip install django_vite && \
     pip install --upgrade cryptography PyJWT
 
 # Install BCGov Arches Common app

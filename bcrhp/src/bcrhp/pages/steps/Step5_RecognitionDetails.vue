@@ -7,8 +7,8 @@ import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
-import Select from 'primevue/select';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
+import ResourceInstanceMultiSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceMultiSelectWidget/ResourceInstanceMultiSelectWidget.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -149,19 +149,15 @@ onMounted(() => {
                     :required="true"
                 >
                     <div class="p-inputtext-fluid flex">
-                        <Select
+                        <ResourceInstanceMultiSelectWidget
                             id="legislativeAct"
                             ref="legislativeActField"
                             v-model="currentRecognitionDetails.legislativeAct"
-                            name="legislativeAct"
-                            optionValue="code"
-                            optionLabel="name"
+                            mode="edit"
+                            :initial-value="[]"
+                            graph-slug="heritage_site"
+                            node-alias="legislative_act"
                             placeholder="Select Legislative Act"
-                            :options="legislativeActOptions"
-                            aria-describedby="legislative-act-help"
-                            aria-required="true"
-                            fluid
-                            class="w-full md:w-14rem"
                         />
                         <div class="inline-block">
                             <LabelledCheckboxInput

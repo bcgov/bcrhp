@@ -11,6 +11,7 @@ services:
       - ../arches/:/web_root/arches
       - ./:/web_root/bcrhp
       - ../arches_common/:/web_root/arches_common
+      - ../arches-component-lab/:/web_root/arches-component-lab
     env_file:
       - ./docker/env_file.env
     ports:
