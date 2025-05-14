@@ -8,6 +8,8 @@ ENV APP_ROOT=${WEB_ROOT}/${PROJECT_NAME}
 ENV ARCHES_ROOT=${WEB_ROOT}/arches
 # Arches Common App root
 ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/arches_common
+# Arches Component Lab root
+ENV ARCHES_COMPONENT_LAB_ROOT=${WEB_ROOT}/arches-component-lab
 
 ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
@@ -51,6 +53,7 @@ RUN rm -rf /root/.cache/pip/*
 # FIXME: ADD from github repository instead?
 COPY ./arches ${ARCHES_ROOT}
 COPY ./arches_common ${ARCHES_COMMON_ROOT}
+COPY ./arches-component-lab ${ARCHES_COMPONENT_LAB_ROOT}
 # From here, run commands from ARCHES_ROOT
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \
@@ -60,6 +63,10 @@ RUN pip install -e .[dev] && \
 
 # Install BCGov Arches Common app
 WORKDIR ${ARCHES_COMMON_ROOT}
+RUN pip install -e .
+
+# Install Arches Component Lab
+WORKDIR ${ARCHES_COMPONENT_LAB_ROOT}
 RUN pip install -e .
 
 COPY ./bcrhp/docker/entrypoint.sh ${WEB_ROOT}/entrypoint.sh
