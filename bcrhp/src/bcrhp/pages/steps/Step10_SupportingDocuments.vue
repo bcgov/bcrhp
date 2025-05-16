@@ -18,8 +18,9 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const ingredient = ref();
 
-const supportingDocumentsForm: Ref<FormInstance | null, FormInstance | null> =
-    useTemplateRef('supportingDocumentsForm');
+const supportingDocumentsForm: Ref<FormInstance | null> = useTemplateRef(
+    'supportingDocumentsForm',
+) as Ref<FormInstance | null>;
 const zodDocumentDescriptionResolver = zodResolver(
     HeritageSiteSchema.shape.documentDescription,
 );
@@ -28,7 +29,7 @@ const zodSubmissionNotesResolver = zodResolver(
 );
 
 const isValid = () => {
-    return supportingDocumentsForm.value.valid;
+    return supportingDocumentsForm.value?.valid;
 };
 
 const onAdvancedUpload = function () {};
