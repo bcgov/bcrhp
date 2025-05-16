@@ -1,32 +1,26 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, watch } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
-import { Form, FormField } from '@primevue/forms';
-import type { FormFieldResolverOptions } from '@primevue/forms';
+import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
 import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
-    SiteDetails,
-    Chronology,
-    ArchitectOrBuilder,
-    RequiredURLs,
-    requiredSiteDetailsSchema,
-    requiredChronologySchema,
-    requiredArchitectBuilderSchema,
-    requiredRequiredURLsSchema,
+    ChronologySchema,
+    ArchitectBuilderSchema,
+    URLsSchema,
     getArchitectOrBuilderSchema,
     getChronologySchema,
-    getRequiredURLsSchema,
+    getURLsSchema,
 } from '@/bcrhp/schema/SiteDetailsSchema.ts';
-import type { ZodError } from 'zod';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -36,171 +30,68 @@ const chronologies = ref([] as Array<string>);
 
 const currentChronology = ref(getChronologySchema());
 const currentArchitectOrBuilder = ref(getArchitectOrBuilderSchema());
-const currentURL = ref(getRequiredURLsSchema());
-
-// const updateSelectValue = function (
-//     newValue: string,
-//     selectField: typeof RadioButton | typeof ConceptSelect,
-// ) {
-//     console.log(`New value ${newValue}`);
-//     // validateField(selectField);
-// };
-
-watch(currentChronology.value, () => {
-    updateAddChronology();
-});
-watch(currentArchitectOrBuilder.value, () => {
-    updateAddOtherArchitectOrBuilder();
-});
-watch(currentURL.value, () => {
-    updateAddOtherURL();
-});
+const currentURL = ref(getURLsSchema());
 
 const architectsOrBuilders = ref([] as Array<string>);
 const urls = ref([] as Array<string>);
-const addChronologyDisabled = ref(false);
-const addArchitectOrBuilderDisabled = ref(false);
-const addURLDisabled = ref(false);
 
-type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
+const siteDetailsForm: Ref<FormInstance> = useTemplateRef('siteDetailsForm');
+const zodEventTypeResolver = zodResolver(ChronologySchema.shape.eventType);
+const zodStartYearResolver = zodResolver(ChronologySchema.shape.startYear);
+const zodEndYearResolver = zodResolver(ChronologySchema.shape.endYear);
+const zodCircaResolver = zodResolver(ChronologySchema.shape.circa);
+const zodChronologyNotesResolver = zodResolver(
+    ChronologySchema.shape.chronologyNotes,
+);
+const zodArchitectOrBuilderNameResolver = zodResolver(
+    ArchitectBuilderSchema.shape.architectOrBuilderName,
+);
+const zodArchitectOrBuilderTypeResolver = zodResolver(
+    ArchitectBuilderSchema.shape.architectOrBuilderType,
+);
+const zodArchitectOrBuilderNotesResolver = zodResolver(
+    ArchitectBuilderSchema.shape.architectOrBuilderNotes,
+);
+const zodURLTypeResolver = zodResolver(URLsSchema.shape.urlType);
+const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
+const zodURLResolver = zodResolver(URLsSchema.shape.url);
 
-const fields = {
-    eventTypeField: useTemplateRef('eventTypeField'),
-    startYearField: useTemplateRef('startYearField'),
-    endYearField: useTemplateRef('endYearField'),
-    chronologyNotesField: useTemplateRef('chronologyNotesField'),
-    architectOrBuilderNameField: useTemplateRef('architectOrBuilderNameField'),
-    architectOrBuilderTypeField: useTemplateRef('architectOrBuilderTypeField'),
-    architectOrBuilderNotesField: useTemplateRef(
-        'architectOrBuilderNotesField',
-    ),
-    urlTypeField: useTemplateRef('urlTypeField'),
-    linkTextField: useTemplateRef('linkTextField'),
-    urlField: useTemplateRef('urlField'),
-};
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid =
-            resolver({
-                name: field?.value.$el.id,
-            } as FormFieldResolverOptions) && valid;
-    }
-    return valid;
+    return siteDetailsForm.value.valid;
 };
 
-const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
-    if (Object.hasOwn(currentChronology.value, e.name ?? '')) {
-        return validateChronologyField(e as FormFieldResolverOptions);
-    } else if (Object.hasOwn(currentArchitectOrBuilder.value, e.name ?? '')) {
-        return validateArchitectOrBuilderField(e as FormFieldResolverOptions);
-    } else if (Object.hasOwn(currentURL.value, e.name ?? '')) {
-        return validateURLField(e as FormFieldResolverOptions);
-    }
-
-    return {};
-};
-const validateSiteDetailsFields = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof SiteDetails =
-        event.name as keyof typeof SiteDetails;
-    const fieldValidation = requiredSiteDetailsSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateChronologyField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof Chronology = event.name as keyof typeof Chronology;
-    const fieldValidation = requiredChronologySchema.shape[key].safeParse(
-        currentChronology.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateArchitectOrBuilderField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof ArchitectOrBuilder =
-        event.name as keyof typeof ArchitectOrBuilder;
-    const fieldValidation = requiredArchitectBuilderSchema.shape[key].safeParse(
-        currentArchitectOrBuilder.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const validateURLField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof RequiredURLs =
-        event.name as keyof typeof RequiredURLs;
-    const fieldValidation = requiredRequiredURLsSchema.shape[key].safeParse(
-        currentURL.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
-};
-
-const updateAddChronology = function () {
-    addChronologyDisabled.value =
-        !(
-            currentChronology.value.eventType &&
-            currentChronology.value.startYear &&
-            currentChronology.value.endYear
-        ) || heritageSiteRef.value.siteDetails.chronologies.length > 4;
-};
-const updateAddOtherArchitectOrBuilder = function () {
-    addArchitectOrBuilderDisabled.value =
-        !(
-            currentArchitectOrBuilder.value.architectOrBuilderName &&
-            currentArchitectOrBuilder.value.architectOrBuilderType
-        ) || heritageSiteRef.value.siteDetails.architectsOrBuilders.length > 4;
-};
-const updateAddOtherURL = function () {
-    addURLDisabled.value =
-        !(
-            currentURL.value.urlType &&
-            currentURL.value.linkText &&
-            currentURL.value.url
-        ) || heritageSiteRef.value.siteDetails.urls.length > 4;
-};
+const addChronologyDisabled = computed(
+    () =>
+        siteDetailsForm.value?.states?.eventType?.pristine ||
+        siteDetailsForm.value?.states?.startYear?.pristine ||
+        siteDetailsForm.value?.states?.endYear?.pristine ||
+        siteDetailsForm.value?.states?.chronologyNotes?.pristine ||
+        siteDetailsForm.value?.states?.eventType?.invalid ||
+        siteDetailsForm.value?.states?.startYear?.invalid ||
+        siteDetailsForm.value?.states?.endYear?.invalid ||
+        siteDetailsForm.value?.states?.chronologyNotes?.invalid ||
+        heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
+);
+const addArchitectOrBuilderDisabled = computed(
+    () =>
+        siteDetailsForm.value?.states?.architectOrBuilderName?.pristine ||
+        siteDetailsForm.value?.states?.architectOrBuilderNotes?.pristine ||
+        siteDetailsForm.value?.states?.architectOrBuilderType?.pristine ||
+        siteDetailsForm.value?.states?.architectOrBuilderName?.invalid ||
+        siteDetailsForm.value?.states?.architectOrBuilderNotes?.invalid ||
+        siteDetailsForm.value?.states?.architectOrBuilderType?.invalid ||
+        heritageSiteRef.value.siteDetails?.architectsOrBuilders?.length > 4,
+);
+const addURLDisabled = computed(
+    () =>
+        siteDetailsForm.value?.states?.urlType?.pristine ||
+        siteDetailsForm.value?.states?.linkText?.pristine ||
+        siteDetailsForm.value?.states?.url?.pristine ||
+        siteDetailsForm.value?.states?.urlType?.invalid ||
+        siteDetailsForm.value?.states?.linkText?.invalid ||
+        siteDetailsForm.value?.states?.url?.invalid ||
+        heritageSiteRef.value.siteDetails?.urls?.length > 4,
+);
 
 const saveChronology = function () {
     console.log('saveChronology');
@@ -224,8 +115,6 @@ const saveChronology = function () {
     currentChronology.value.endYear = null;
     currentChronology.value.circa = false;
     currentChronology.value.chronologyNotes = '';
-
-    updateAddChronology();
 };
 
 const saveArchitectOrBuilder = function () {
@@ -242,8 +131,6 @@ const saveArchitectOrBuilder = function () {
     currentArchitectOrBuilder.value.architectOrBuilderName = '';
     currentArchitectOrBuilder.value.architectOrBuilderType = '';
     currentArchitectOrBuilder.value.architectOrBuilderNotes = '';
-
-    updateAddOtherArchitectOrBuilder();
 };
 const saveURL = function () {
     console.log('saveURL');
@@ -256,29 +143,19 @@ const saveURL = function () {
     currentURL.value.urlType = '';
     currentURL.value.linkText = '';
     currentURL.value.url = '';
-
-    updateAddOtherURL();
 };
 
 const deleteChronologyCallback = function (index: number) {
     heritageSiteRef.value.siteDetails.chronologies.splice(index, 1);
-
-    updateAddOtherArchitectOrBuilder();
 };
 
 const deleteArchitectBuilderCallback = function (index: number) {
     heritageSiteRef.value.siteDetails.architectsOrBuilders.splice(index, 1);
-
-    updateAddOtherArchitectOrBuilder();
 };
 
 const deleteURLCallback = function (index: number) {
     heritageSiteRef.value.siteDetails.urls.splice(index, 1);
-
-    updateAddOtherURL();
 };
-
-let validateFields = false;
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
@@ -289,16 +166,14 @@ onMounted(() => {
     heritageSiteRef.value.siteDetails.architectsOrBuilders =
         architectsOrBuilders;
     heritageSiteRef.value.siteDetails.urls = urls;
-
-    updateAddChronology();
-    updateAddOtherArchitectOrBuilder();
-    updateAddOtherURL();
 });
 </script>
 <template>
     <Form
-        ref="siteDetailsRef"
-        name="siteDetailsRef"
+        ref="siteDetailsForm"
+        v-slot="$form"
+        name="siteDetailsForm"
+        :validateOnBlur="true"
     >
         <FieldSet
             id="chronologyFieldset"
@@ -308,7 +183,7 @@ onMounted(() => {
                 <div class="inline-block">
                     <div class="flex flex-col">
                         <FormField
-                            :resolver="resolver"
+                            :resolver="zodEventTypeResolver"
                             name="eventType"
                         >
                             <ConceptRadioButtons
@@ -324,7 +199,7 @@ onMounted(() => {
                 </div>
                 <label for="startYear">Start Year</label>
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodStartYearResolver"
                     name="startYear"
                 >
                     <DatePicker
@@ -341,7 +216,7 @@ onMounted(() => {
                 </FormField>
                 <label for="endYear">End Year</label>
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodEndYearResolver"
                     name="endYear"
                 >
                     <DatePicker
@@ -357,7 +232,7 @@ onMounted(() => {
                 </FormField>
                 <div class="inline-block">
                     <FormField
-                        :resolver="resolver"
+                        :resolver="zodCircaResolver"
                         name="circa"
                     >
                         <Checkbox
@@ -371,14 +246,14 @@ onMounted(() => {
             </div>
             <div class="p-inputtext-fluid">
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodChronologyNotesResolver"
                     name="chronologyNotes"
                 >
                     <LabelledInput
                         label="Chronology Notes (Optional)"
                         hint="Enter details about the significant event"
                         input-name="chronologyNotes"
-                        :error-message="errors.chronologyNotes?.join(',')"
+                        :error-message="$form.chronologyNotes?.error?.message"
                     >
                         <div class="">
                             <InputText
@@ -425,7 +300,7 @@ onMounted(() => {
         >
             <div class="p-inputtext-fluid flex">
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodArchitectOrBuilderNameResolver"
                     name="architectOrBuilderName"
                 >
                     <LabelledInput
@@ -434,7 +309,7 @@ onMounted(() => {
                         input-name="architectOrBuilderName"
                         class="inline-block"
                         :error-message="
-                            errors.architectOrBuilderName?.join(',')
+                            $form.architectOrBuilderName?.error?.message
                         "
                         :required="true"
                     >
@@ -453,14 +328,14 @@ onMounted(() => {
                     </LabelledInput>
                 </FormField>
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodArchitectOrBuilderTypeResolver"
                     name="architectOrBuilderType"
                 >
                     <LabelledInput
                         label="Type"
                         input-name="architectOrBuilderType"
                         :error-message="
-                            errors.architectOrBuilderType?.join(',')
+                            $form.architectOrBuilderType?.error?.message
                         "
                         :required="true"
                     >
@@ -478,7 +353,7 @@ onMounted(() => {
             </div>
             <div class="p-inputtext-fluid">
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodArchitectOrBuilderNotesResolver"
                     name="architectOrBuilderNotes"
                 >
                     <LabelledInput
@@ -486,7 +361,7 @@ onMounted(() => {
                         hint="Provide any additional comments about the architect/builder"
                         input-name="architectOrBuilderNotes"
                         :error-message="
-                            errors.architectOrBuilderNotes?.join(',')
+                            $form.architectOrBuilderNotes?.error?.message
                         "
                         :required="false"
                     >
@@ -538,14 +413,14 @@ onMounted(() => {
         >
             <div class="flex flex-row">
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodURLTypeResolver"
                     name="urlType"
                 >
                     <LabelledInput
                         label="URL Type"
                         hint="Acceptable URL Types"
                         input-name="urlType"
-                        :error-message="errors.urlType?.join(',')"
+                        :error-message="$form.urlType?.error?.message"
                         :required="true"
                     >
                         <ConceptSelect
@@ -559,14 +434,14 @@ onMounted(() => {
                     </LabelledInput>
                 </FormField>
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodLinkTextResolver"
                     name="linkText"
                 >
                     <LabelledInput
                         label="Link Text"
                         hint="Enter text that describes the link"
                         input-name="linkText"
-                        :error-message="errors.linkText?.join(',')"
+                        :error-message="$form.linkText?.error?.message"
                         :required="true"
                     >
                         <div class="p-inputtext-fluid">
@@ -584,14 +459,14 @@ onMounted(() => {
             </div>
             <div class="p-inputtext-fluid">
                 <FormField
-                    :resolver="resolver"
+                    :resolver="zodURLResolver"
                     name="url"
                 >
                     <LabelledInput
                         label="URL"
                         hint="URL must be stable and publicly accessible"
                         input-name="url"
-                        :error-message="errors.url?.join(',')"
+                        :error-message="$form.url?.error?.message"
                         :required="true"
                     >
                         <div class="flex flex-row full-width">

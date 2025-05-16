@@ -7,67 +7,32 @@ import InputText from 'primevue/inputtext';
 import FileUpload from 'primevue/fileupload';
 import RadioButton from 'primevue/radiobutton';
 import Editor from 'primevue/editor';
-import { Form, FormField } from '@primevue/forms';
-import type { FormFieldResolverOptions } from '@primevue/forms';
+import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { requiredHeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import type { ZodError } from 'zod';
+import { HeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-
-type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
 const ingredient = ref();
 
-const fields = {
-    documentDescriptionField: useTemplateRef('documentDescriptionField'),
-    submissionNotesField: useTemplateRef('submissionNotesField'),
-};
+const supportingDocumentsForm: Ref<FormInstance> = useTemplateRef(
+    'supportingDocumentsForm',
+);
+const zodDocumentDescriptionResolver = zodResolver(
+    HeritageSiteSchema.shape.documentDescription,
+);
+const zodSubmissionNotesResolver = zodResolver(
+    HeritageSiteSchema.shape.submissionNotes,
+);
+
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid =
-            validateField({ name: field?.value.$el.id } as HTMLInputElement) &&
-            valid;
-    }
-    return valid;
-};
-
-const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
-    return validateField(e as FormFieldResolverOptions);
-};
-
-const validateField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof HeritageSite =
-        event.name as keyof typeof HeritageSite;
-    const fieldValidation = requiredHeritageSiteSchema.shape[key].safeParse(
-        heritageSiteRef.value[key],
-    );
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
+    return supportingDocumentsForm.value.valid;
 };
 
 const onAdvancedUpload = function () {};
-
-let validateFields = false;
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
@@ -75,8 +40,10 @@ defineExpose({ isValid });
 </script>
 <template>
     <Form
-        ref="supportingDocumentsRef"
-        name="supportingDocumentsRef"
+        ref="supportingDocumentsForm"
+        v-slot="$form"
+        name="supportingDocumentsForm"
+        :validateOnBlur="true"
     >
         <FieldSet
             id="documentsFieldset"
@@ -129,7 +96,7 @@ defineExpose({ isValid });
                         </div>
                         <div class="flex items-center">
                             <FormField
-                                :resolver="resolver"
+                                :resolver="zodDocumentDescriptionResolver"
                                 name="documentDescription"
                             >
                                 <LabelledInput
@@ -137,7 +104,8 @@ defineExpose({ isValid });
                                     hint="Provide short description of document content"
                                     input-name="documentDescription"
                                     :error-message="
-                                        errors.documentDescription?.join(',')
+                                        $form.documentDescription?.error
+                                            ?.message
                                     "
                                 >
                                     <div class="p-inputtext-fluid">
@@ -165,7 +133,7 @@ defineExpose({ isValid });
             legend="Submission Notes (Optional)"
         >
             <FormField
-                :resolver="resolver"
+                :resolver="zodSubmissionNotesResolver"
                 name="submissionNotes"
             >
                 <LabelledInput

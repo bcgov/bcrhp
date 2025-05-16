@@ -7,28 +7,53 @@ const SiteClassificationSchema = z.object({
 });
 const HeritageClassSchema = z.object({
     contributingResources: z
-        .number()
-        .min(1, { message: 'Number of Contributing Resources is required.' })
-        .max(250),
-    heritageCategory: z
         .string()
+        .transform((val: string, ctx: any) => {
+            const parsed = parseInt(val, 10);
+
+            if (isNaN(parsed)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Contributing Resources must be a valid number.',
+                });
+                return z.NEVER;
+            }
+
+            return parsed;
+        })
+        .refine((val: number) => val >= 1, {
+            message: 'Number of Contributing Resources is required.',
+        })
+        .refine((val: number) => val <= 250, {
+            message: 'Number of Contributing Resources must be 250 or less.',
+        }),
+    heritageCategory: z
+        .string({
+            invalid_type_error: 'Heritage Category is required.',
+        })
         .min(1, { message: 'Heritage Category is required.' })
         .max(250),
     ownership: z
-        .string()
+        .string({
+            invalid_type_error: 'Ownership is required.',
+        })
         .min(1, { message: 'Ownership is required.' })
         .max(250),
 });
 const HeritageFunctionSchema = z.object({
     functionCategory: z
-        .string()
+        .string({
+            invalid_type_error: 'Function Category is required.',
+        })
         .min(1, { message: 'Function Category is required.' })
         .max(250),
     functionCategoryType: z.string().max(12),
 });
 const HeritageThemeSchema = z.object({
     heritageTheme: z
-        .string()
+        .string({
+            invalid_type_error: 'Heritage Theme is required.',
+        })
         .min(1, { message: 'Heritage Theme is required.' })
         .max(250),
 });
