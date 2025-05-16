@@ -25,7 +25,7 @@ const zodCommonNameResolver = zodResolver(HeritageSiteSchema.shape.commonName);
 const zodOtherNameResolver = zodResolver(HeritageSiteSchema.shape.otherName);
 
 const isValid = () => {
-    return siteNamesForm.value.valid;
+    return siteNamesForm.value?.valid;
 };
 
 const saveOtherName = function () {

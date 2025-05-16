@@ -58,7 +58,7 @@ const addOtherReferenceNumberDisabled = computed(
 );
 
 const isValid = () => {
-    return recognitionDetailsForm.value.valid;
+    return recognitionDetailsForm.value?.valid;
 };
 
 const saveRecognitionDetails = function () {
@@ -74,7 +74,7 @@ const saveRecognitionDetails = function () {
                 },
             ),
         legislativeAct:
-            recognitionDetailsForm?.value.states.legislative_act.value[0],
+            recognitionDetailsForm?.value?.states.legislative_act.value[0],
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 

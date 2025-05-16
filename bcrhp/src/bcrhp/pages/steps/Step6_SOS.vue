@@ -31,7 +31,7 @@ const zodDocumentLocationResolver = zodResolver(
 );
 
 const isValid = () => {
-    return statementOfSignificanceForm.value.valid;
+    return statementOfSignificanceForm.value?.valid;
 };
 
 defineExpose({ isValid });

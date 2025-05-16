@@ -43,7 +43,7 @@ const zodPhotographerResolver = zodResolver(
 const zodCopyrightResolver = zodResolver(SiteImagesSchema.shape.copyright);
 
 const isValid = () => {
-    return siteImageForm.value.valid;
+    return siteImageForm.value?.valid;
 };
 
 const onImageUpload = function () {};

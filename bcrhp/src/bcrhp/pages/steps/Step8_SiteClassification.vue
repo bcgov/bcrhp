@@ -62,7 +62,7 @@ const zodHeritageThemeResolver = zodResolver(
 );
 
 const isValid = () => {
-    return siteClassificationForm.value.valid;
+    return siteClassificationForm.value?.valid;
 };
 
 const addOtherHeritageClassDisabled = computed(

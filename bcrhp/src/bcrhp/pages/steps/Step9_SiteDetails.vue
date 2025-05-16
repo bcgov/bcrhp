@@ -59,7 +59,7 @@ const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
 const zodURLResolver = zodResolver(URLsSchema.shape.url);
 
 const isValid = () => {
-    return siteDetailsForm.value.valid;
+    return siteDetailsForm.value?.valid;
 };
 
 const addChronologyDisabled = computed(
