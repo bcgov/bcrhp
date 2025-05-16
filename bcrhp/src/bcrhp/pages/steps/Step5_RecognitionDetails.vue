@@ -148,6 +148,7 @@ onMounted(() => {
                         :initial-value="[]"
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
+                        :business-validator="legislativeActResolver"
                     />
                     <div class="inline-block">
                         <LabelledCheckboxInput
