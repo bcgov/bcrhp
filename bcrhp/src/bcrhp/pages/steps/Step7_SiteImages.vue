@@ -25,7 +25,7 @@ const imageDate = ref();
 currentSiteImage.value.imageTypes = [];
 heritageSite.value.siteImages[currentSiteImage.value.id] = currentSiteImage;
 
-const siteImageForm: Ref<FormInstance> = useTemplateRef(
+const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
 ) as Ref<FormInstance | null>;
 const zodImageTypeResolver = zodResolver(SiteImagesSchema.shape.imageType);

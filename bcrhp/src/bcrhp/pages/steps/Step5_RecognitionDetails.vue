@@ -21,7 +21,7 @@ import {
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
 import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
-const recognitionDetailsForm: Ref<FormInstance> = useTemplateRef(
+const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsRef',
 ) as Ref<FormInstance | null>;
 

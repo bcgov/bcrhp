@@ -18,7 +18,7 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 const otherName = ref('');
 const otherNames = ref([] as Array<string>);
 
-const siteNamesForm: Ref<FormInstance> = useTemplateRef(
+const siteNamesForm: Ref<FormInstance | null> = useTemplateRef(
     'siteNamesForm',
 ) as Ref<FormInstance | null>;
 const zodCommonNameResolver = zodResolver(HeritageSiteSchema.shape.commonName);
