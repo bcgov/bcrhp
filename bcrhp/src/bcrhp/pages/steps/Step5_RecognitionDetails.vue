@@ -37,7 +37,7 @@ const showInactiveHistoricActs = ref(false);
 const designationDateResolver = zodResolver(
     RecognitionDetailsSchema.shape.designationDate,
 );
-const legislativeDateResolver = zodResolver(
+const legislativeActResolver = zodResolver(
     RecognitionDetailsSchema.shape.legislativeAct,
 );
 const referenceNumberResolver = zodResolver(
@@ -48,10 +48,10 @@ const totalRecognitionDetails = ref([] as Array<string>);
 const addOtherReferenceNumberDisabled = computed(
     () =>
         recognitionDetailsForm.value?.states?.designationDate?.pristine ||
-        recognitionDetailsForm.value?.states?.legislativeAct?.pristine ||
+        recognitionDetailsForm.value?.states?.legislative_act?.pristine ||
         recognitionDetailsForm.value?.states?.referenceNumber?.pristine ||
         recognitionDetailsForm.value?.states?.designationDate?.invalid ||
-        recognitionDetailsForm.value?.states?.legislativeAct?.invalid ||
+        recognitionDetailsForm.value?.states?.legislative_act?.invalid ||
         recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
         heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
             ?.length > 4,
@@ -73,7 +73,8 @@ const saveRecognitionDetails = function () {
                     day: 'numeric',
                 },
             ),
-        legislativeAct: currentRecognitionDetails.value.legislativeAct,
+        legislativeAct:
+            recognitionDetailsForm?.value.states.legislative_act.value[0],
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
@@ -132,50 +133,43 @@ onMounted(() => {
                     </div>
                 </LabelledInput>
             </FormField>
-            <FormField
-                :resolver="legislativeDateResolver"
-                name="legislativeAct"
+            <LabelledInput
+                label="Legislative Act"
+                hint="Designation or recognition type that applies to the site"
+                input-name="legislativeAct"
+                :error-message="$form.legislativeAct?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Legislative Act"
-                    hint="Designation or recognition type that applies to the site"
-                    input-name="legislativeAct"
-                    :error-message="$form.legislativeAct?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid flex">
-                        <ResourceInstanceMultiSelectWidget
-                            id="legislativeAct"
-                            ref="legislativeActField"
-                            v-model="currentRecognitionDetails.legislativeAct"
-                            mode="edit"
-                            :initial-value="[]"
-                            graph-slug="heritage_site"
-                            node-alias="legislative_act"
-                            placeholder="Select Legislative Act"
-                        />
-                        <div class="inline-block">
-                            <LabelledCheckboxInput
-                                label="Historic Acts"
-                                hint="Show inactive acts"
-                                input-name="showInactiveHistoricActs"
-                            >
-                                <Checkbox
-                                    id="showInactiveHistoricActs"
-                                    ref="showInactiveHistoricActs"
-                                    :model-value="showInactiveHistoricActs"
-                                    aria-describedby="show-inactive-historic-acts-help"
-                                    aria-required="false"
-                                    class="inline-block"
-                                    fluid
-                                    binary
-                                    small
-                                />
-                            </LabelledCheckboxInput>
-                        </div>
+                <div class="p-inputtext-fluid flex">
+                    <ResourceInstanceMultiSelectWidget
+                        ref="legislativeActField"
+                        :show-label="false"
+                        mode="edit"
+                        :initial-value="[]"
+                        graph-slug="heritage_site"
+                        node-alias="legislative_act"
+                    />
+                    <div class="inline-block">
+                        <LabelledCheckboxInput
+                            label="Historic Acts"
+                            hint="Show inactive acts"
+                            input-name="showInactiveHistoricActs"
+                        >
+                            <Checkbox
+                                id="showInactiveHistoricActs"
+                                ref="showInactiveHistoricActs"
+                                :model-value="showInactiveHistoricActs"
+                                aria-describedby="show-inactive-historic-acts-help"
+                                aria-required="false"
+                                class="inline-block"
+                                fluid
+                                binary
+                                small
+                            />
+                        </LabelledCheckboxInput>
                     </div>
-                </LabelledInput>
-            </FormField>
+                </div>
+            </LabelledInput>
             <FormField
                 :resolver="referenceNumberResolver"
                 name="referenceNumber"
