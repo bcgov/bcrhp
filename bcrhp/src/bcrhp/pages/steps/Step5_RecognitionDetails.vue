@@ -34,11 +34,6 @@ const currentRecognitionDetails: typeof RecognitionDetails = ref(
 );
 const showInactiveHistoricActs = ref(false);
 
-const legislativeActOptions = ref([
-    { name: 'Legislative Act 1', code: 'legislative_act_1' },
-    { name: 'Legislative Act 2', code: 'legislative_act_2' },
-]);
-
 const designationDateResolver = zodResolver(
     RecognitionDetailsSchema.shape.designationDate,
 );
