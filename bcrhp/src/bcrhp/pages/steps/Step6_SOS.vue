@@ -1,97 +1,58 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref } from 'vue';
+import { useTemplateRef, inject } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import Editor from 'primevue/editor';
-import { Form, FormField } from '@primevue/forms';
-import type { FormFieldResolverOptions } from '@primevue/forms';
+import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import {
-    StatementOfSignificance,
-    requiredStatementOfSignificanceSchema,
-} from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
-import type { ZodError } from 'zod';
+import { StatementOfSignificanceSchema } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-type FormErrors = Partial<Record<keyof typeof HeritageSite, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
-
-// These names need to match the Zog schema
-const fields = {
-    descriptionField: useTemplateRef('descriptionField'),
-    heritageValueField: useTemplateRef('heritageValueField'),
-    definingElementsField: useTemplateRef('definingElementsField'),
-    documentLocationField: useTemplateRef('documentLocationField'),
-};
+const statementOfSignificanceForm: Ref<FormInstance> = useTemplateRef(
+    'statementOfSignificanceForm',
+);
+const zodDescriptionResolver = zodResolver(
+    StatementOfSignificanceSchema.shape.description,
+);
+const zodHeritageValueResolver = zodResolver(
+    StatementOfSignificanceSchema.shape.heritageValue,
+);
+const zodDefiningElementsResolver = zodResolver(
+    StatementOfSignificanceSchema.shape.definingElements,
+);
+const zodDocumentLocationResolver = zodResolver(
+    StatementOfSignificanceSchema.shape.documentLocation,
+);
 
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    let valid = true;
-
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid =
-            validateField({
-                name: field?.value.$el.id,
-            } as FormFieldResolverOptions) && valid;
-    }
-    return valid;
+    return statementOfSignificanceForm.value.valid;
 };
 
-const resolver = function (e: FormFieldResolverOptions): Record<string, any> {
-    return validateField(e as FormFieldResolverOptions);
-};
-
-const validateField = function (
-    event: FormFieldResolverOptions,
-): Record<string, any> {
-    const key: keyof typeof StatementOfSignificance =
-        event.name as keyof typeof StatementOfSignificance;
-    const fieldValidation = requiredStatementOfSignificanceSchema.shape[
-        key
-    ].safeParse(heritageSiteRef.value.statementOfSignificance[key]);
-
-    if (fieldValidation.success) {
-        errors.value[key] = [];
-    } else {
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-
-    return fieldValidation.success;
-};
-
-let validateFields = false;
-
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
 defineExpose({ isValid });
 </script>
 <template>
     <Form
-        ref="siteNamesRef"
-        name="siteNamesRef"
+        ref="statementOfSignificanceForm"
+        v-slot="$form"
+        name="statementOfSignificanceForm"
+        :validateOnBlur="true"
     >
         <div>
             <FormField
-                :resolver="resolver"
+                :resolver="zodDescriptionResolver"
                 name="description"
             >
                 <LabelledInput
                     label="Description"
                     hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
                     input-name="description"
-                    :error-message="errors.description?.join(',')"
+                    :error-message="$form.description?.error?.message"
                     :required="true"
                 >
                     <div class="p-inputtext-fluid">
@@ -110,14 +71,14 @@ defineExpose({ isValid });
                 </LabelledInput>
             </FormField>
             <FormField
-                :resolver="resolver"
+                :resolver="zodHeritageValueResolver"
                 name="heritageValue"
             >
                 <LabelledInput
                     label="Heritage Value"
                     hint="Describe why the place is valued by the community and identify which heritage values the official recognition is based on"
                     input-name="heritageValue"
-                    :error-message="errors.heritageValue?.join(',')"
+                    :error-message="$form.heritageValue?.error?.message"
                     :required="true"
                 >
                     <div class="p-inputtext-fluid">
@@ -137,14 +98,14 @@ defineExpose({ isValid });
                 </LabelledInput>
             </FormField>
             <FormField
-                :resolver="resolver"
+                :resolver="zodDefiningElementsResolver"
                 name="definingElements"
             >
                 <LabelledInput
                     label="Character-Defining Elements"
                     hint="List the key features of the heritage site that contribute to its heritage value in bullet-point format"
                     input-name="definingElements"
-                    :error-message="errors.definingElements?.join(',')"
+                    :error-message="$form.definingElements?.error?.message"
                     :required="true"
                 >
                     <div class="p-inputtext-fluid">
@@ -164,14 +125,14 @@ defineExpose({ isValid });
                 </LabelledInput>
             </FormField>
             <FormField
-                :resolver="resolver"
+                :resolver="zodDocumentLocationResolver"
                 name="documentLocation"
             >
                 <LabelledInput
                     label="Document Location"
                     hint="Enter the government or department name where the original document was created"
                     input-name="documentLocation"
-                    :error-message="errors.documentLocation?.join(',')"
+                    :error-message="$form.documentLocation?.error?.message"
                     :required="true"
                 >
                     <div>
