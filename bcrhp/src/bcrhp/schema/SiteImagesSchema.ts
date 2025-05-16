@@ -9,14 +9,14 @@ const SiteImagesSchema = z.object({
         .string({ invalid_type_error: 'Image Type is required.' })
         .min(1, { message: 'Image View is required.' })
         .max(250),
-    imageFeatures: z.string().max(250),
+    imageFeatures: z.string().max(250).nullable(),
     imageDate: z.date(),
     imageDescription: z
         .string({ invalid_type_error: 'Image Type is required.' })
         .min(1, { message: 'Image Description is required.' })
         .max(250),
-    photographer: z.string().max(250),
-    copyright: z.string().max(250),
+    photographer: z.string().max(250).nullable(),
+    copyright: z.string().max(250).nullable(),
 });
 
 const requiredSiteImagesSchema = SiteImagesSchema.partial({});

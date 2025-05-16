@@ -47,10 +47,10 @@ const zodArchitectOrBuilderNameResolver = zodResolver(
     ArchitectBuilderSchema.shape.architectOrBuilderName,
 );
 const zodArchitectOrBuilderTypeResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderNotes,
+    ArchitectBuilderSchema.shape.architectOrBuilderType,
 );
 const zodArchitectOrBuilderNotesResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderType,
+    ArchitectBuilderSchema.shape.architectOrBuilderNotes,
 );
 const zodURLTypeResolver = zodResolver(URLsSchema.shape.urlType);
 const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
