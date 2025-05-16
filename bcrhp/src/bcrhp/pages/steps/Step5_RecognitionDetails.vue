@@ -23,7 +23,7 @@ import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance> = useTemplateRef(
     'recognitionDetailsRef',
-);
+) as Ref<FormInstance | null>;
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',

@@ -16,7 +16,7 @@ const heritageSite: typeof HeritageSite = inject(
 
 const statementOfSignificanceForm: Ref<FormInstance> = useTemplateRef(
     'statementOfSignificanceForm',
-);
+) as Ref<FormInstance | null>;
 const zodDescriptionResolver = zodResolver(
     StatementOfSignificanceSchema.shape.description,
 );

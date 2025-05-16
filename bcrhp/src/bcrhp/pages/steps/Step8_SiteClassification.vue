@@ -30,7 +30,7 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
 const siteClassificationForm: Ref<FormInstance> = useTemplateRef(
     'siteClassificationForm',
-);
+) as Ref<FormInstance | null>;
 const currentHeritageClass: typeof HeritageClass = ref(
     getHeritageClassSchema(),
 );

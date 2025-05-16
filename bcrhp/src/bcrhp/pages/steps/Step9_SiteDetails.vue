@@ -35,7 +35,9 @@ const currentURL = ref(getURLsSchema());
 const architectsOrBuilders = ref([] as Array<string>);
 const urls = ref([] as Array<string>);
 
-const siteDetailsForm: Ref<FormInstance> = useTemplateRef('siteDetailsForm');
+const siteDetailsForm: Ref<FormInstance> = useTemplateRef(
+    'siteDetailsForm',
+) as Ref<FormInstance | null>;
 const zodEventTypeResolver = zodResolver(ChronologySchema.shape.eventType);
 const zodStartYearResolver = zodResolver(ChronologySchema.shape.startYear);
 const zodEndYearResolver = zodResolver(ChronologySchema.shape.endYear);
