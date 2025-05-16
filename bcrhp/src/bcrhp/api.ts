@@ -22,13 +22,6 @@ export const arches = {
         get_resource_search_url: '/resource_search_string_for_node',
     },
 };
-function getToken() {
-    // const token = Cookies.get('csrftoken');
-    // if (!token) {
-    //     throw new Error('Missing csrftoken');
-    // }
-    return '';
-}
 
 // export const login = async (username: string, password: string) => {
 //     const response = await fetch(arches.urls.api_login, {

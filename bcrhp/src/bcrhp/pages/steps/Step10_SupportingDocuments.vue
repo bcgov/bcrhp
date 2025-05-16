@@ -18,9 +18,8 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const ingredient = ref();
 
-const supportingDocumentsForm: Ref<FormInstance> = useTemplateRef(
-    'supportingDocumentsForm',
-);
+const supportingDocumentsForm: Ref<FormInstance | null, FormInstance | null> =
+    useTemplateRef('supportingDocumentsForm');
 const zodDocumentDescriptionResolver = zodResolver(
     HeritageSiteSchema.shape.documentDescription,
 );
