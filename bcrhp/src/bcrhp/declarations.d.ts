@@ -8,6 +8,7 @@ import('@/arches-component-lab/declarations.d.ts');
 declare module 'zod';
 declare module 'bcrhp';
 
+declare module '@/arches_component_lab';
 declare module '@/bcgov_arches_common';
 declare module '@/bcrhp';
 
