@@ -25,7 +25,7 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "arches==7.6.9",
-    "bcgov_arches_common @ git+https://github.com/bcgov/arches_common@release/1.1.0_add_vue_components",
+    "bcgov_arches_common @ git+https://github.com/bcgov/arches_common@brf/feat/update_api",
     "arches-component-lab @ git+https://github.com/archesproject/arches-component-lab@main",
     "django-storages==1.13",
     "python-dotenv",
