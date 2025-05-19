@@ -3,7 +3,7 @@
 
 import('@/arches/arches/declarations.d.ts');
 import('@/bcgov_arches_common/declarations.d.ts');
-import('@/arches-component-lab/declarations.d.ts');
+import('@/arches_component_lab/declarations.d.ts');
 
 declare module 'zod';
 declare module 'bcrhp';
