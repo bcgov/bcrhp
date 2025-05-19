@@ -24,6 +24,7 @@ def bc_path_prefix(path):
         new_path = path_prefix_re.sub(r"\1%s\2", path)
         return new_path % settings.BCGOV_PROXY_PREFIX
 
+
 urlpatterns = [
     re_path(
         bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"
@@ -96,9 +97,9 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
-    re_path(r'^bcrhp/', include('bcgov_arches_common.urls')),
-    path('bcrhp/', include("arches_component_lab.urls")),
-    path('bcrhp/', include("arches.urls")),
+    re_path(r"^bcrhp/", include("bcgov_arches_common.urls")),
+    path("bcrhp/", include("arches_component_lab.urls")),
+    path("bcrhp/", include("arches.urls")),
 ]
 
 # # Ensure Arches core urls are superseded by project-level urls
