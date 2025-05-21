@@ -276,7 +276,7 @@ const showDebug = ref(false);
                                 <StepperNavigation
                                     :step-number="6"
                                     :validate-fn="isValid"
-                                    next-label="Submit"
+                                    next-label="Next"
                                     @next-click="activateCallback(7)"
                                     @previous-click="activateCallback(5)"
                                 >
@@ -299,7 +299,7 @@ const showDebug = ref(false);
                             <SiteImages ref="step7"></SiteImages>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="6"
+                                    :step-number="7"
                                     :validate-fn="isValid"
                                     next-label="Next"
                                     @next-click="activateCallback(8)"
@@ -322,7 +322,7 @@ const showDebug = ref(false);
                             ></SiteClassification>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="6"
+                                    :step-number="8"
                                     :validate-fn="isValid"
                                     next-label="Next"
                                     @next-click="activateCallback(9)"
@@ -341,7 +341,7 @@ const showDebug = ref(false);
                             <SiteDetails ref="step9"></SiteDetails>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="6"
+                                    :step-number="9"
                                     :validate-fn="isValid"
                                     next-label="Next"
                                     @next-click="activateCallback(10)"
@@ -364,7 +364,7 @@ const showDebug = ref(false);
                             ></SupportingDocuments>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="6"
+                                    :step-number="10"
                                     :validate-fn="isValid"
                                     next-label="Next"
                                     @next-click="activateCallback(11)"
@@ -383,7 +383,7 @@ const showDebug = ref(false);
                             <ReviewSubmission ref="step11"></ReviewSubmission>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="6"
+                                    :step-number="11"
                                     :validate-fn="isValid"
                                     next-label="Submit"
                                     @next-click="activateCallback(12)"
@@ -400,7 +400,7 @@ const showDebug = ref(false);
                             </div>
                             <div class="">
                                 <StepperNavigation
-                                    :step-number="7"
+                                    :step-number="12"
                                     :validate-fn="isValid"
                                     :show-previous="false"
                                     next-label="Print"

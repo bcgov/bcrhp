@@ -82,17 +82,17 @@ defineExpose({ isValid });
 onMounted(() => {});
 </script>
 <template>
-    <div class="flex flex-col container">
+    <div class="flex flex-col container-width">
         <div style="display: none">Child {{ currentCivicAddress }}</div>
         <FieldSet
             id="siteBoundaryFieldSet"
             legend="Site Boundary"
-            style="width: 45%; display: inline-block"
+            style="width: 55%; display: inline-block"
         >
-            <div class="flex flex-row container">
+            <div class="flex flex-row container-width">
                 <div>
                     <LabelledCheckboxInput
-                        label="Site Boundary icorrect"
+                        label="Site Boundary incorrect"
                         hint="Update the geometry"
                         input-name="hasCivicAddress"
                     >
@@ -138,6 +138,7 @@ onMounted(() => {});
                         display: inline-block;
                         background-color: darkgoldenrod;
                         height: 400px;
+                        margin-left: 6rem;
                     "
                 ></div>
             </div>
@@ -149,5 +150,9 @@ onMounted(() => {});
 .inline-block {
     display: inline-block;
     width: unset;
+}
+
+.container-width {
+    width: 1058;
 }
 </style>
