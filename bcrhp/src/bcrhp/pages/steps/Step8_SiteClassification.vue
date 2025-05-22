@@ -28,9 +28,9 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-const siteClassificationForm: Ref<FormInstance> = useTemplateRef(
+const siteClassificationForm: Ref<FormInstance | null> = useTemplateRef(
     'siteClassificationForm',
-);
+) as Ref<FormInstance | null>;
 const currentHeritageClass: typeof HeritageClass = ref(
     getHeritageClassSchema(),
 );
@@ -62,7 +62,7 @@ const zodHeritageThemeResolver = zodResolver(
 );
 
 const isValid = () => {
-    return siteClassificationForm.value.valid;
+    return siteClassificationForm.value?.valid;
 };
 
 const addOtherHeritageClassDisabled = computed(

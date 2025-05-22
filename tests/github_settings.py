@@ -206,6 +206,7 @@ INSTALLED_APPS = (
     # "silk",
     "storages",
     "bcrhp",
+    "arches_component_lab",
     "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app",)

@@ -25,7 +25,9 @@ const imageDate = ref();
 currentSiteImage.value.imageTypes = [];
 heritageSite.value.siteImages[currentSiteImage.value.id] = currentSiteImage;
 
-const siteImageForm: Ref<FormInstance> = useTemplateRef('siteImageForm');
+const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
+    'siteImageForm',
+) as Ref<FormInstance | null>;
 const zodImageTypeResolver = zodResolver(SiteImagesSchema.shape.imageType);
 const zodImageViewResolver = zodResolver(SiteImagesSchema.shape.imageView);
 const zodImageFeaturesResolver = zodResolver(
@@ -41,7 +43,7 @@ const zodPhotographerResolver = zodResolver(
 const zodCopyrightResolver = zodResolver(SiteImagesSchema.shape.copyright);
 
 const isValid = () => {
-    return siteImageForm.value.valid;
+    return siteImageForm.value?.valid;
 };
 
 const onImageUpload = function () {};

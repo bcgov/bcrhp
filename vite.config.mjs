@@ -84,6 +84,15 @@ export default defineConfig({
                 replacement: path.resolve(path.join(appRoot, 'node_modules')),
             },
             {
+                find: '@/arches_component_lab',
+                replacement: path.resolve(
+                    path.join(
+                        __dirname,
+                        './node_modules/arches-component-lab/arches_component_lab/src/arches_component_lab',
+                    ),
+                ),
+            },
+            {
                 find: '@/arches',
                 replacement: path.resolve(
                     path.join(
@@ -97,6 +106,57 @@ export default defineConfig({
                     ),
                 ),
             },
+            // This is to override the arches core AMD module with an ESM version
+            {
+                find: 'arches',
+                replacement: path.resolve(
+                    path.join(appRoot, 'bcrhp', 'media', 'js', 'arches_esm'),
+                ),
+            },
+            {
+                find: 'utils/set-csrf-token_esm',
+                replacement: path.resolve(
+                    path.join(
+                        appRoot,
+                        'bcrhp',
+                        'media',
+                        'js',
+                        'utils',
+                        'set-csrf-token_esm',
+                    ),
+                ),
+            },
+            // {
+            //     find: 'arches2',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             '..',
+            //             'arches',
+            //             'arches',
+            //             'app',
+            //             'media',
+            //             'js',
+            //             'arches_esm',
+            //         ),
+            //     ),
+            // },
+            // {
+            //     find: 'utils/set-csrf-token2',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             '..',
+            //             'arches',
+            //             'arches',
+            //             'app',
+            //             'media',
+            //             'js',
+            //             'utils',
+            //             'set-csrf-token2',
+            //         ),
+            //     ),
+            // },
             {
                 find: '@/bcgov_arches_common',
                 replacement: path.resolve(
@@ -106,7 +166,6 @@ export default defineConfig({
                     ),
                 ),
             },
-
             {
                 find: '@/bcrhp',
                 replacement: path.resolve(
@@ -138,6 +197,11 @@ export default defineConfig({
         },
         deps: {
             inline: ['node', 'arches'],
+        },
+        // Force all API calls back to the Arches Dev server
+        proxy: {
+            '/bcrhp/arches-component-lab/api': 'http://localhost:80',
+            '/bcrhp/api': 'http://localhost:80',
         },
         fs: {
             allow: [

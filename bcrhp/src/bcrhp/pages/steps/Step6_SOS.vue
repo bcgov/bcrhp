@@ -14,9 +14,9 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 
-const statementOfSignificanceForm: Ref<FormInstance> = useTemplateRef(
+const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',
-);
+) as Ref<FormInstance | null>;
 const zodDescriptionResolver = zodResolver(
     StatementOfSignificanceSchema.shape.description,
 );
@@ -31,7 +31,7 @@ const zodDocumentLocationResolver = zodResolver(
 );
 
 const isValid = () => {
-    return statementOfSignificanceForm.value.valid;
+    return statementOfSignificanceForm.value?.valid;
 };
 
 defineExpose({ isValid });
