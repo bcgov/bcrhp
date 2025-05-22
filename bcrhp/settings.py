@@ -55,7 +55,7 @@ SEARCH_COMPONENT_LOCATIONS.append("bcrhp.search_components")
 
 LOCALE_PATHS.insert(0, os.path.join(APP_ROOT, "locale"))
 
-FILE_TYPE_CHECKING = "Lenient"
+FILE_TYPE_CHECKING = "strict"
 FILE_TYPES = [
     "bmp",
     "gif",
@@ -209,6 +209,7 @@ INSTALLED_APPS = (
     "django_vite",
     "storages",
     "bcrhp",
+    "arches_component_lab",
     "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app",)

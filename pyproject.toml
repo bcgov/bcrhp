@@ -26,6 +26,7 @@ requires-python = ">=3.10"
 dependencies = [
     "arches @ git+https://github.com/bcgov/arches@v7.6.12_bcgov",
     "bcgov-arches-common @ git+https://github.com/bcgov/bcgov-arches-common@v1.2.1",
+    "arches-component-lab @ git+https://github.com/archesproject/arches-component-lab@main",
     "django-storages==1.13",
     "python-dotenv",
     "html2text",
