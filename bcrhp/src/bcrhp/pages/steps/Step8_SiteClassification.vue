@@ -258,18 +258,15 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex flex-row">
-                    <FormField
-                        :resolver="zodFunctionCategoryResolver"
-                        name="functionCategory"
-                    >
-                        <ConceptSelect
-                            id="functionCategory"
-                            ref="functionCategoryField"
-                            v-model="currentHeritageFunction.functionCategory"
-                            graph-slug="heritage_site"
-                            node-alias="functional_category"
-                        />
-                    </FormField>
+                    <ConceptSelectWidget
+                        id="functionCategory"
+                        ref="functionCategoryField"
+                        :show-label="false"
+                        :mode="EDIT"
+                        graph-slug="heritage_site"
+                        node-alias="functional_category"
+                        initial-value=""
+                    />
                     <div class="inline-block">
                         <FormField
                             :resolver="zodFunctionCategoryTypeResolver"
@@ -326,18 +323,16 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
-                    <FormField
-                        :resolver="zodHeritageThemeResolver"
-                        name="heritageTheme"
-                    >
-                        <ConceptSelect
-                            id="heritageTheme"
-                            ref="heritageThemeField"
-                            v-model="currentHeritageTheme.heritageTheme"
-                            graph-slug="heritage_site"
-                            node-alias="heritage_theme"
-                        />
-                    </FormField>
+                    <ConceptSelectWidget
+                        id="heritageTheme"
+                        ref="heritageThemeField"
+                        :show-label="false"
+                        :mode="EDIT"
+                        graph-slug="heritage_site"
+                        node-alias="heritage_theme"
+                        initial-value=""
+                        :business-validator="isValid"
+                    />
                 </div>
                 <Button
                     id="addHeritageTheme"
