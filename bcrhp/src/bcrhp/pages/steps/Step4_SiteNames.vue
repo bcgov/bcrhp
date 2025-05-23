@@ -31,7 +31,8 @@ const isValid = () => {
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSiteRef.value.otherNames.push(otherName.value);
-    otherName.value = '';
+
+    siteNamesForm.value?.reset();
 };
 
 const addOtherNameDisabled = computed(

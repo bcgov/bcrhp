@@ -6,11 +6,16 @@ const SiteDetailsSchema = z.object({
     urls: z.array(z.string()).max(5),
 });
 const ChronologySchema = z.object({
-    eventType: z.string().max(20),
+    eventType: z
+        .string({
+            invalid_type_error: 'Event Type is required.',
+        })
+        .min(1, { message: 'Event Type is required.' })
+        .max(250),
     startYear: z.date(),
     endYear: z.date(),
-    circa: z.string().max(20),
-    chronologyNotes: z.string().max(1000),
+    circa: z.string().max(20).nullable(),
+    chronologyNotes: z.string().max(1000).nullable(),
 });
 
 const ArchitectBuilderSchema = z.object({
@@ -20,10 +25,10 @@ const ArchitectBuilderSchema = z.object({
         })
         .min(1, { message: 'Architect or Builder Name is required.' })
         .max(250),
-    architectOrBuilderNotes: z.string().max(4000),
+    architectOrBuilderNotes: z.string().max(4000).nullable(),
     architectOrBuilderType: z
         .string({
-            invalid_type_error: 'Architect or Builder Name is required.',
+            invalid_type_error: 'Architect or Builder Type is required.',
         })
         .min(1, { message: 'Architect or Builder Type is required.' })
         .max(250),
