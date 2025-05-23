@@ -8,7 +8,8 @@ import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
-import ResourceInstanceMultiSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceMultiSelectWidget/ResourceInstanceMultiSelectWidget.vue';
+import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -24,6 +25,11 @@ import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsRef',
 ) as Ref<FormInstance | null>;
+
+const legislativeActField: Ref<typeof ResourceInstanceSelectWidget | null> =
+    useTemplateRef('legislativeActField') as Ref<
+        typeof ResourceInstanceSelectWidget | null
+    >;
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -74,12 +80,15 @@ const saveRecognitionDetails = function () {
                 },
             ),
         legislativeAct:
-            recognitionDetailsForm?.value?.states.legislative_act.value[0],
+            recognitionDetailsForm?.value?.states.legislative_act.value,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
     currentRecognitionDetails.value.designationDate = null;
     currentRecognitionDetails.value.legislativeAct = '';
+    if (recognitionDetailsForm.value) {
+        recognitionDetailsForm.value.fields.legislative_act.states.value = null;
+    }
     currentRecognitionDetails.value.referenceNumber = '';
 };
 
@@ -141,14 +150,14 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex">
-                    <ResourceInstanceMultiSelectWidget
+                    <ResourceInstanceSelectWidget
                         ref="legislativeActField"
                         :show-label="false"
-                        mode="edit"
-                        :initial-value="[]"
+                        :mode="EDIT"
+                        :initial-value="null"
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
-                        :business-validator="legislativeActResolver"
+                        :business-validator="isValid"
                     />
                     <div class="inline-block">
                         <LabelledCheckboxInput

@@ -8,7 +8,8 @@ import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
-import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+import ConceptSelectWidget from '@/arches_component_lab/widgets/ConceptSelectWidget/ConceptSelectWidget.vue';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
@@ -77,16 +78,16 @@ const addOtherHeritageClassDisabled = computed(
 );
 const addOtherHeritageFunctionDisabled = computed(
     () =>
-        siteClassificationForm.value?.states?.functionCategory?.pristine ||
-        siteClassificationForm.value?.states?.functionCategoryType?.pristine ||
-        siteClassificationForm.value?.states?.heritageCategory?.invalid ||
+        !siteClassificationForm.value?.states?.functional_category?.value ||
+        !siteClassificationForm.value?.states?.functionCategoryType?.value ||
+        siteClassificationForm.value?.states?.functional_category?.invalid ||
         siteClassificationForm.value?.states?.functionCategoryType?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
 );
 const addOtherHeritageThemeDisabled = computed(
     () =>
-        siteClassificationForm.value?.states?.heritageTheme?.pristine ||
-        siteClassificationForm.value?.states?.heritageTheme?.invalid ||
+        !siteClassificationForm.value?.states?.heritage_theme?.value ||
+        siteClassificationForm.value?.states?.heritage_theme?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageThemes?.length > 4,
 );
 
@@ -106,7 +107,9 @@ const saveHeritageClass = function () {
 const saveHeritageFunction = function () {
     console.log('saveHeritageFunction');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
-        functionCategory: currentHeritageFunction.value.functionCategory,
+        functionCategory: Object.keys(
+            siteClassificationForm.value?.states?.functional_category?.value,
+        )[0],
         functionCategoryType:
             currentHeritageFunction.value.functionCategoryType,
     });
@@ -118,10 +121,13 @@ const saveHeritageFunction = function () {
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
-        currentHeritageTheme.value.heritageTheme,
+        Object.keys(
+            siteClassificationForm.value?.states?.heritage_theme?.value,
+        )[0],
     );
-
-    currentHeritageTheme.value.heritageTheme = '';
+    if (siteClassificationForm.value) {
+        siteClassificationForm.value.states.heritage_theme.value = null;
+    }
 };
 
 const deleteHeritageClassCallback = function (index: number) {
