@@ -35,8 +35,14 @@ const currentURL = ref(getURLsSchema());
 const architectsOrBuilders = ref([] as Array<string>);
 const urls = ref([] as Array<string>);
 
-const siteDetailsForm: Ref<FormInstance | null> = useTemplateRef(
-    'siteDetailsForm',
+const chronologyForm: Ref<FormInstance | null> = useTemplateRef(
+    'chronologyForm',
+) as Ref<FormInstance | null>;
+const architectOrBuilderForm: Ref<FormInstance | null> = useTemplateRef(
+    'architectOrBuilderForm',
+) as Ref<FormInstance | null>;
+const relatedURLsForm: Ref<FormInstance | null> = useTemplateRef(
+    'relatedURLsForm',
 ) as Ref<FormInstance | null>;
 const zodEventTypeResolver = zodResolver(ChronologySchema.shape.eventType);
 const zodStartYearResolver = zodResolver(ChronologySchema.shape.startYear);
@@ -58,40 +64,44 @@ const zodURLTypeResolver = zodResolver(URLsSchema.shape.urlType);
 const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
 const zodURLResolver = zodResolver(URLsSchema.shape.url);
 
-const isValid = () => {
-    return siteDetailsForm.value?.valid;
+const isValidChronology = () => {
+    return chronologyForm.value?.valid;
+};
+const isValidArchitectOrBuilder = () => {
+    return architectOrBuilderForm.value?.valid;
+};
+const isValidRelatedURLs = () => {
+    return relatedURLsForm.value?.valid;
 };
 
 const addChronologyDisabled = computed(
     () =>
-        siteDetailsForm.value?.states?.eventType?.pristine ||
-        siteDetailsForm.value?.states?.startYear?.pristine ||
-        siteDetailsForm.value?.states?.endYear?.pristine ||
-        siteDetailsForm.value?.states?.chronologyNotes?.pristine ||
-        siteDetailsForm.value?.states?.eventType?.invalid ||
-        siteDetailsForm.value?.states?.startYear?.invalid ||
-        siteDetailsForm.value?.states?.endYear?.invalid ||
-        siteDetailsForm.value?.states?.chronologyNotes?.invalid ||
+        chronologyForm.value?.states?.eventType?.pristine ||
+        chronologyForm.value?.states?.startYear?.pristine ||
+        chronologyForm.value?.states?.endYear?.pristine ||
+        chronologyForm.value?.states?.eventType?.invalid ||
+        chronologyForm.value?.states?.startYear?.invalid ||
+        chronologyForm.value?.states?.endYear?.invalid ||
         heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
 );
 const addArchitectOrBuilderDisabled = computed(
     () =>
-        siteDetailsForm.value?.states?.architectOrBuilderName?.pristine ||
-        siteDetailsForm.value?.states?.architectOrBuilderNotes?.pristine ||
-        siteDetailsForm.value?.states?.architectOrBuilderType?.pristine ||
-        siteDetailsForm.value?.states?.architectOrBuilderName?.invalid ||
-        siteDetailsForm.value?.states?.architectOrBuilderNotes?.invalid ||
-        siteDetailsForm.value?.states?.architectOrBuilderType?.invalid ||
+        architectOrBuilderForm.value?.states?.architectOrBuilderName
+            ?.pristine ||
+        architectOrBuilderForm.value?.states?.architectOrBuilderType
+            ?.pristine ||
+        architectOrBuilderForm.value?.states?.architectOrBuilderName?.invalid ||
+        architectOrBuilderForm.value?.states?.architectOrBuilderType?.invalid ||
         heritageSiteRef.value.siteDetails?.architectsOrBuilders?.length > 4,
 );
 const addURLDisabled = computed(
     () =>
-        siteDetailsForm.value?.states?.urlType?.pristine ||
-        siteDetailsForm.value?.states?.linkText?.pristine ||
-        siteDetailsForm.value?.states?.url?.pristine ||
-        siteDetailsForm.value?.states?.urlType?.invalid ||
-        siteDetailsForm.value?.states?.linkText?.invalid ||
-        siteDetailsForm.value?.states?.url?.invalid ||
+        relatedURLsForm.value?.states?.urlType?.pristine ||
+        relatedURLsForm.value?.states?.linkText?.pristine ||
+        relatedURLsForm.value?.states?.url?.pristine ||
+        relatedURLsForm.value?.states?.urlType?.invalid ||
+        relatedURLsForm.value?.states?.linkText?.invalid ||
+        relatedURLsForm.value?.states?.url?.invalid ||
         heritageSiteRef.value.siteDetails?.urls?.length > 4,
 );
 
@@ -112,11 +122,7 @@ const saveChronology = function () {
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
 
-    currentChronology.value.eventType = '';
-    currentChronology.value.startYear = null;
-    currentChronology.value.endYear = null;
-    currentChronology.value.circa = false;
-    currentChronology.value.chronologyNotes = '';
+    chronologyForm.value?.reset();
 };
 
 const saveArchitectOrBuilder = function () {
@@ -130,9 +136,7 @@ const saveArchitectOrBuilder = function () {
             currentArchitectOrBuilder.value.architectOrBuilderNotes,
     });
 
-    currentArchitectOrBuilder.value.architectOrBuilderName = '';
-    currentArchitectOrBuilder.value.architectOrBuilderType = '';
-    currentArchitectOrBuilder.value.architectOrBuilderNotes = '';
+    architectOrBuilderForm.value?.reset();
 };
 const saveURL = function () {
     console.log('saveURL');
@@ -142,9 +146,7 @@ const saveURL = function () {
         url: currentURL.value.url,
     });
 
-    currentURL.value.urlType = '';
-    currentURL.value.linkText = '';
-    currentURL.value.url = '';
+    relatedURLsForm.value?.reset();
 };
 
 const deleteChronologyCallback = function (index: number) {
@@ -161,7 +163,11 @@ const deleteURLCallback = function (index: number) {
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
-defineExpose({ isValid });
+defineExpose({
+    isValidChronology,
+    isValidArchitectOrBuilder,
+    isValidRelatedURLs,
+});
 
 onMounted(() => {
     heritageSiteRef.value.siteDetails.chronologies = chronologies;
@@ -172,9 +178,9 @@ onMounted(() => {
 </script>
 <template>
     <Form
-        ref="siteDetailsForm"
+        ref="chronologyForm"
         v-slot="$form"
-        name="siteDetailsForm"
+        name="chronologyForm"
         :validateOnBlur="true"
     >
         <FieldSet
@@ -295,6 +301,13 @@ onMounted(() => {
                 </div>
             </MultiValuePlaceholder>
         </FieldSet>
+    </Form>
+    <Form
+        ref="architectOrBuilderForm"
+        v-slot="$form"
+        name="architectOrBuilderForm"
+        :validateOnBlur="true"
+    >
         <Fieldset
             id="architectsBuildersFieldset"
             class="p-fieldset p-component mt-2"
@@ -408,6 +421,13 @@ onMounted(() => {
                 </div>
             </MultiValuePlaceholder>
         </Fieldset>
+    </Form>
+    <Form
+        ref="relatedURLsForm"
+        v-slot="$form"
+        name="relatedURLsForm"
+        :validateOnBlur="true"
+    >
         <Fieldset
             id="relatedURLsFieldset"
             class="p-fieldset p-component mt-2"

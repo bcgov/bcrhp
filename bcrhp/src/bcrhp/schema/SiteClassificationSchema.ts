@@ -47,7 +47,12 @@ const HeritageFunctionSchema = z.object({
         })
         .min(1, { message: 'Function Category is required.' })
         .max(250),
-    functionCategoryType: z.string().max(12),
+    functionCategoryType: z
+        .string({
+            invalid_type_error: 'Heritage Category Type is required.',
+        })
+        .min(1, { message: 'Heritage Category Type is required.' })
+        .max(250),
 });
 const HeritageThemeSchema = z.object({
     heritageTheme: z

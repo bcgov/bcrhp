@@ -22,7 +22,7 @@ import {
 import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
-    'recognitionDetailsRef',
+    'recognitionDetailsForm',
 ) as Ref<FormInstance | null>;
 
 const heritageSite: typeof HeritageSite = inject(
@@ -78,9 +78,7 @@ const saveRecognitionDetails = function () {
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
-    currentRecognitionDetails.value.designationDate = null;
-    currentRecognitionDetails.value.legislativeAct = '';
-    currentRecognitionDetails.value.referenceNumber = '';
+    recognitionDetailsForm?.value?.reset();
 };
 
 const deleteRecognitionDetailsCallback = function (index: number) {
@@ -102,9 +100,9 @@ onMounted(() => {
 </script>
 <template>
     <Form
-        ref="recognitionDetailsRef"
+        ref="recognitionDetailsForm"
         v-slot="$form"
-        name="recognitionDetailsRef"
+        name="recognitionDetailsForm"
         :validateOnBlur="true"
     >
         <FieldSet id="recognitionDetailsFieldset">
