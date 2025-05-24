@@ -29,8 +29,14 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 
-const siteClassificationForm: Ref<FormInstance | null> = useTemplateRef(
-    'siteClassificationForm',
+const heritageClassForm: Ref<FormInstance | null> = useTemplateRef(
+    'heritageClassForm',
+) as Ref<FormInstance | null>;
+const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
+    'heritageFunctionForm',
+) as Ref<FormInstance | null>;
+const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
+    'heritageThemeForm',
 ) as Ref<FormInstance | null>;
 const currentHeritageClass: typeof HeritageClass = ref(
     getHeritageClassSchema(),
@@ -62,32 +68,38 @@ const zodHeritageThemeResolver = zodResolver(
     HeritageThemeSchema.shape.heritageTheme,
 );
 
-const isValid = () => {
-    return siteClassificationForm.value?.valid;
+const isValidHeritageClass = () => {
+    return heritageClassForm.value?.valid;
+};
+const isValidHeritageFunction = () => {
+    return heritageFunctionForm.value?.valid;
+};
+const isValidHeritageTheme = () => {
+    return heritageThemeForm.value?.valid;
 };
 
 const addOtherHeritageClassDisabled = computed(
     () =>
-        siteClassificationForm.value?.states?.contributingResources?.pristine ||
-        siteClassificationForm.value?.states?.heritageCategory?.pristine ||
-        siteClassificationForm.value?.states?.ownership?.pristine ||
-        siteClassificationForm.value?.states?.contributingResources?.invalid ||
-        siteClassificationForm.value?.states?.heritageCategory?.invalid ||
-        siteClassificationForm.value?.states?.ownership?.invalid ||
+        heritageClassForm.value?.states?.contributingResources?.pristine ||
+        heritageClassForm.value?.states?.heritageCategory?.pristine ||
+        heritageClassForm.value?.states?.ownership?.pristine ||
+        heritageClassForm.value?.states?.contributingResources?.invalid ||
+        heritageClassForm.value?.states?.heritageCategory?.invalid ||
+        heritageClassForm.value?.states?.ownership?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageClasses?.length > 4,
 );
 const addOtherHeritageFunctionDisabled = computed(
     () =>
-        !siteClassificationForm.value?.states?.functional_category?.value ||
-        !siteClassificationForm.value?.states?.functionCategoryType?.value ||
-        siteClassificationForm.value?.states?.functional_category?.invalid ||
-        siteClassificationForm.value?.states?.functionCategoryType?.invalid ||
+        !heritageFunctionForm.value?.states?.functional_category?.value ||
+        !heritageFunctionForm.value?.states?.functionCategoryType?.value ||
+        heritageFunctionForm.value?.states?.functional_category?.invalid ||
+        heritageFunctionForm.value?.states?.functionCategoryType?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
 );
 const addOtherHeritageThemeDisabled = computed(
     () =>
-        !siteClassificationForm.value?.states?.heritage_theme?.value ||
-        siteClassificationForm.value?.states?.heritage_theme?.invalid ||
+        !heritageThemeForm.value?.states?.heritage_theme?.value ||
+        heritageThemeForm.value?.states?.heritage_theme?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageThemes?.length > 4,
 );
 
@@ -99,35 +111,31 @@ const saveHeritageClass = function () {
         ownership: currentHeritageClass.value.ownership,
     });
 
-    currentHeritageClass.value.contributingResources = 0;
-    currentHeritageClass.value.heritageCategory = '';
-    currentHeritageClass.value.ownership = '';
+    heritageClassForm.value?.reset();
 };
 
 const saveHeritageFunction = function () {
     console.log('saveHeritageFunction');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
         functionCategory: Object.keys(
-            siteClassificationForm.value?.states?.functional_category?.value,
+            heritageFunctionForm.value?.states?.functional_category?.value,
         )[0],
         functionCategoryType:
             currentHeritageFunction.value.functionCategoryType,
     });
 
-    currentHeritageFunction.value.functionCategory = '';
-    currentHeritageFunction.value.functionCategoryType = '';
+    heritageFunctionForm.value?.reset();
 };
 
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
         Object.keys(
-            siteClassificationForm.value?.states?.heritage_theme?.value,
+            heritageThemeForm.value?.states?.heritage_theme?.value,
         )[0],
     );
-    if (siteClassificationForm.value) {
-        siteClassificationForm.value.states.heritage_theme.value = null;
-    }
+
+    heritageThemeForm.value?.reset();
 };
 
 const deleteHeritageClassCallback = function (index: number) {
@@ -144,7 +152,11 @@ const deleteHeritageThemeCallback = function (index: number) {
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
-defineExpose({ isValid });
+defineExpose({
+    isValidHeritageClass,
+    isValidHeritageFunction,
+    isValidHeritageTheme,
+});
 
 onMounted(() => {
     heritageSiteRef.value.siteClassification.heritageClasses = heritageClasses;
@@ -155,9 +167,9 @@ onMounted(() => {
 </script>
 <template>
     <Form
-        ref="siteClassificationForm"
+        ref="heritageClassForm"
         v-slot="$form"
-        name="siteClassificationForm"
+        name="heritageClassForm"
         :validateOnBlur="true"
     >
         <FieldSet
@@ -246,6 +258,13 @@ onMounted(() => {
                 </div>
             </MultiValuePlaceholder>
         </FieldSet>
+    </Form>
+    <Form
+        ref="heritageFunctionForm"
+        v-slot="$form"
+        name="heritageFunctionForm"
+        :validateOnBlur="true"
+    >
         <Fieldset
             id="heritageFunctionFieldset"
             class="p-fieldset p-component mt-2"
@@ -253,7 +272,7 @@ onMounted(() => {
         >
             <LabelledInput
                 label="Function Category"
-                input-name="heritageTheme"
+                input-name="functionCategory"
                 :error-message="$form.functionCategory?.error?.message"
                 :required="true"
             >
@@ -311,6 +330,13 @@ onMounted(() => {
                 </div>
             </MultiValuePlaceholder>
         </Fieldset>
+    </Form>
+    <Form
+        ref="heritageThemeForm"
+        v-slot="$form"
+        name="heritageThemeForm"
+        :validateOnBlur="true"
+    >
         <Fieldset
             id="heritageThemeFieldset"
             class="p-fieldset p-component mt-2"

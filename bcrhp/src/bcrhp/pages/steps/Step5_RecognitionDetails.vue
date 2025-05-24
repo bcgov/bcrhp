@@ -9,7 +9,7 @@ import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
-import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -23,13 +23,8 @@ import {
 import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
-    'recognitionDetailsRef',
+    'recognitionDetailsForm',
 ) as Ref<FormInstance | null>;
-
-const legislativeActField: Ref<typeof ResourceInstanceSelectWidget | null> =
-    useTemplateRef('legislativeActField') as Ref<
-        typeof ResourceInstanceSelectWidget | null
-    >;
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -84,12 +79,7 @@ const saveRecognitionDetails = function () {
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
-    currentRecognitionDetails.value.designationDate = null;
-    currentRecognitionDetails.value.legislativeAct = '';
-    if (recognitionDetailsForm.value) {
-        recognitionDetailsForm.value.fields.legislative_act.states.value = null;
-    }
-    currentRecognitionDetails.value.referenceNumber = '';
+    recognitionDetailsForm?.value?.reset();
 };
 
 const deleteRecognitionDetailsCallback = function (index: number) {
@@ -111,9 +101,9 @@ onMounted(() => {
 </script>
 <template>
     <Form
-        ref="recognitionDetailsRef"
+        ref="recognitionDetailsForm"
         v-slot="$form"
-        name="recognitionDetailsRef"
+        name="recognitionDetailsForm"
         :validateOnBlur="true"
     >
         <FieldSet id="recognitionDetailsFieldset">
@@ -151,13 +141,12 @@ onMounted(() => {
             >
                 <div class="p-inputtext-fluid flex">
                     <ResourceInstanceSelectWidget
-                        ref="legislativeActField"
                         :show-label="false"
                         :mode="EDIT"
                         :initial-value="null"
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
-                        :business-validator="isValid"
+                        :business-validator="legislativeActResolver"
                     />
                     <div class="inline-block">
                         <LabelledCheckboxInput
