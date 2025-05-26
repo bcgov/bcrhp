@@ -304,15 +304,15 @@ onMounted(() => {
                         </FormField>
                     </div>
                 </div>
-                <Button
-                    id="saveFunctionCategory"
-                    label="Add"
-                    class="inline-block"
-                    :disabled="addOtherHeritageFunctionDisabled"
-                    :aria-disabled="addOtherHeritageFunctionDisabled"
-                    @click="saveHeritageFunction"
-                ></Button>
             </LabelledInput>
+            <Button
+                id="saveFunctionCategory"
+                label="Add"
+                class="inline-block"
+                :disabled="addOtherHeritageFunctionDisabled"
+                :aria-disabled="addOtherHeritageFunctionDisabled"
+                @click="saveHeritageFunction"
+            ></Button>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 :showDeleteButton="true"
