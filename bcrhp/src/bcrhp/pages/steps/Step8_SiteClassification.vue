@@ -8,7 +8,8 @@ import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
-import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+import ConceptSelectWidget from '@/arches_component_lab/widgets/ConceptSelectWidget/ConceptSelectWidget.vue';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
@@ -89,16 +90,16 @@ const addOtherHeritageClassDisabled = computed(
 );
 const addOtherHeritageFunctionDisabled = computed(
     () =>
-        heritageFunctionForm.value?.states?.functionCategory?.pristine ||
-        heritageFunctionForm.value?.states?.functionCategoryType?.pristine ||
-        heritageFunctionForm.value?.states?.heritageCategory?.invalid ||
+        !heritageFunctionForm.value?.states?.functional_category?.value ||
+        !heritageFunctionForm.value?.states?.functionCategoryType?.value ||
+        heritageFunctionForm.value?.states?.functional_category?.invalid ||
         heritageFunctionForm.value?.states?.functionCategoryType?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
 );
 const addOtherHeritageThemeDisabled = computed(
     () =>
-        heritageThemeForm.value?.states?.heritageTheme?.pristine ||
-        heritageThemeForm.value?.states?.heritageTheme?.invalid ||
+        !heritageThemeForm.value?.states?.heritage_theme?.value ||
+        heritageThemeForm.value?.states?.heritage_theme?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageThemes?.length > 4,
 );
 
@@ -116,7 +117,9 @@ const saveHeritageClass = function () {
 const saveHeritageFunction = function () {
     console.log('saveHeritageFunction');
     heritageSiteRef.value.siteClassification.heritageFunctions.push({
-        functionCategory: currentHeritageFunction.value.functionCategory,
+        functionCategory: Object.keys(
+            heritageFunctionForm.value?.states?.functional_category?.value,
+        )[0],
         functionCategoryType:
             currentHeritageFunction.value.functionCategoryType,
     });
@@ -127,7 +130,9 @@ const saveHeritageFunction = function () {
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
-        currentHeritageTheme.value.heritageTheme,
+        Object.keys(
+            heritageThemeForm.value?.states?.heritage_theme?.value,
+        )[0],
     );
 
     heritageThemeForm.value?.reset();
@@ -272,18 +277,15 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex flex-row">
-                    <FormField
-                        :resolver="zodFunctionCategoryResolver"
-                        name="functionCategory"
-                    >
-                        <ConceptSelect
-                            id="functionCategory"
-                            ref="functionCategoryField"
-                            v-model="currentHeritageFunction.functionCategory"
-                            graph-slug="heritage_site"
-                            node-alias="functional_category"
-                        />
-                    </FormField>
+                    <ConceptSelectWidget
+                        id="functionCategory"
+                        ref="functionCategoryField"
+                        :show-label="false"
+                        :mode="EDIT"
+                        graph-slug="heritage_site"
+                        node-alias="functional_category"
+                        initial-value=""
+                    />
                     <div class="inline-block">
                         <FormField
                             :resolver="zodFunctionCategoryTypeResolver"
@@ -347,18 +349,16 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
-                    <FormField
-                        :resolver="zodHeritageThemeResolver"
-                        name="heritageTheme"
-                    >
-                        <ConceptSelect
-                            id="heritageTheme"
-                            ref="heritageThemeField"
-                            v-model="currentHeritageTheme.heritageTheme"
-                            graph-slug="heritage_site"
-                            node-alias="heritage_theme"
-                        />
-                    </FormField>
+                    <ConceptSelectWidget
+                        id="heritageTheme"
+                        ref="heritageThemeField"
+                        :show-label="false"
+                        :mode="EDIT"
+                        graph-slug="heritage_site"
+                        node-alias="heritage_theme"
+                        initial-value=""
+                        :business-validator="isValid"
+                    />
                 </div>
                 <Button
                     id="addHeritageTheme"

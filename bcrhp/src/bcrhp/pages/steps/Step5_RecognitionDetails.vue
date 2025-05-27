@@ -8,7 +8,8 @@ import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
-import ResourceInstanceMultiSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceMultiSelectWidget/ResourceInstanceMultiSelectWidget.vue';
+import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -74,7 +75,7 @@ const saveRecognitionDetails = function () {
                 },
             ),
         legislativeAct:
-            recognitionDetailsForm?.value?.states.legislative_act.value[0],
+            recognitionDetailsForm?.value?.states.legislative_act.value,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
     });
 
@@ -139,11 +140,10 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex">
-                    <ResourceInstanceMultiSelectWidget
-                        ref="legislativeActField"
+                    <ResourceInstanceSelectWidget
                         :show-label="false"
-                        mode="edit"
-                        :initial-value="[]"
+                        :mode="EDIT"
+                        :initial-value="null"
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
                         :business-validator="legislativeActResolver"
