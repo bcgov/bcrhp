@@ -18,28 +18,34 @@ const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
 const otherName = ref('');
 const otherNames = ref([] as Array<string>);
 
-const siteNamesForm: Ref<FormInstance | null> = useTemplateRef(
-    'siteNamesForm',
+const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
+    'commonNameForm',
+) as Ref<FormInstance | null>;
+const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
+    'otherNameForm',
 ) as Ref<FormInstance | null>;
 const zodCommonNameResolver = zodResolver(HeritageSiteSchema.shape.commonName);
 const zodOtherNameResolver = zodResolver(HeritageSiteSchema.shape.otherName);
 
-const isValid = () => {
-    return siteNamesForm.value?.valid;
+const isCommonNameValid = () => {
+    return commonNameForm.value?.valid;
+};
+const isOtherNameValid = () => {
+    return otherNameForm.value?.valid;
 };
 
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSiteRef.value.otherNames.push(otherName.value);
 
-    siteNamesForm.value?.reset();
+    otherNameForm.value?.reset();
 };
 
 const addOtherNameDisabled = computed(
     () =>
-        siteNamesForm.value?.states.otherName.invalid ||
-        siteNamesForm.value?.states.otherName.value == null ||
-        siteNamesForm.value?.states.otherName.value.length < 1 ||
+        otherNameForm.value?.states.otherName.invalid ||
+        otherNameForm.value?.states.otherName.value == null ||
+        otherNameForm.value?.states.otherName.value.length < 1 ||
         heritageSiteRef.value?.otherNames.length > 4,
 );
 
@@ -47,20 +53,20 @@ const deleteOtherNameCallback = function (index: number) {
     heritageSiteRef.value.otherNames.splice(index, 1);
 };
 
-defineExpose({ isValid });
+defineExpose({ isOtherNameValid, isCommonNameValid });
 
 onMounted(() => {
     heritageSiteRef.value.otherNames = otherNames;
 });
 </script>
 <template>
-    <Form
-        ref="siteNamesForm"
-        v-slot="$form"
-        name="siteNamesForm"
-        :validateOnBlur="true"
-    >
-        <div class="flex flex-col">
+    <div class="flex flex-col">
+        <Form
+            ref="commonNameForm"
+            v-slot="$form"
+            name="commonNameForm"
+            :validateOnBlur="true"
+        >
             <FormField
                 :resolver="zodCommonNameResolver"
                 name="commonName"
@@ -84,6 +90,13 @@ onMounted(() => {
                     </div>
                 </LabelledInput>
             </FormField>
+        </Form>
+        <Form
+            ref="otherNameForm"
+            v-slot="$form"
+            name="otherNameForm"
+            :validateOnBlur="true"
+        >
             <FormField
                 :resolver="zodOtherNameResolver"
                 name="otherName"
@@ -122,8 +135,8 @@ onMounted(() => {
             >
                 <div class="parent value">{{ slotProps.value }}</div>
             </MultiValuePlaceholder>
-        </div>
-    </Form>
+        </Form>
+    </div>
 </template>
 
 <style>
