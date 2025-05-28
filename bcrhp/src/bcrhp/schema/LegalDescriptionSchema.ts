@@ -9,8 +9,13 @@ const LegalDescriptionSchema = z.object({
     parcelId: z
         .string()
         .min(1, { message: 'Parcel Identifier is required.' })
-        .max(32),
-    legalAddress: z.string().max(250),
+        .max(32)
+        .nullable(),
+    legalAddress: z
+        .string()
+        .min(1, { message: 'Legal Address is required.' })
+        .max(80)
+        .nullable(),
 });
 // @ts-ignore
 type LegalDescriptionType = z.infer<typeof LegalDescriptionSchema>;

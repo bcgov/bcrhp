@@ -9,16 +9,31 @@ const heritageSite: typeof HeritageSite = inject(
 <template>
     <p class="mb-2 underline font-bold">Address</p>
     <div
-        v-for="address in heritageSite.civicAddress"
+        v-for="address in heritageSite.civicAddresses"
         :key="address"
     >
         <div display="flex flex-col">
             <div>Street Address</div>
-            <div class="justify-self-center">{{ address.streetAddress }}</div>
+            <div class="justify-self-center">
+                {{ address.streetAddress }}, {{ address.city }},
+                {{ address.postalCode }}
+            </div>
             <div>Detailed Location</div>
-            <div class="justify-self-center">{{ address.streetAddress }}</div>
+            <div class="justify-self-center">
+                {{ address.locationDescription }}
+            </div>
             <div>Legal Description</div>
-            <div class="justify-self-center">{{ address.streetAddress }}</div>
+            <div
+                v-for="legalDescription in heritageSite.civicAddress
+                    .legalDescriptions"
+                :key="legalDescription"
+                class="justify-self-center"
+            >
+                <div>PID:</div>
+                {{ legalDescription.parcelId }}
+                <div>Legal Address</div>
+                {{ legalDescription.legalAddress }}
+            </div>
         </div>
     </div>
     <div>
