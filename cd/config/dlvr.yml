@@ -1,0 +1,25 @@
+arches_server_port: "8012"
+tileserv_http_listen_port: "7811"
+
+celery_broker_url: "{{ default_cache_backend_location }}/10"
+
+webpack_internal_url: "https://dlvrapps-endowment.nrs.bcgov:8010"
+
+db_databc_user: "proxy_databc_dlvr"
+
+django_debug_mode: "True"
+
+# This gets the password from the <instance>_password.yml file
+hria_db:
+  user: "proxy_bcrhp"
+  password: "{{ hria_db_password }}"
+  host: "nrcdb02.bcgov"
+  service_name: "hriadlv1.nrs.bcgov"
+  port: "1521"
+  application_user: "{{ hria_application_user }}"
+
+
+oauth_auth_endpoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/auth"
+oauth_token_endpoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/token"
+oauth_jwks_uri: "https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/certs"
+oauth_server_metadata_url: "https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/.well-known/openid-configuration"
