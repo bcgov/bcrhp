@@ -36,7 +36,7 @@ load_dotenv(
     os.path.join(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0], ".env")
 )
 APP_NAME = "bcrhp"
-APP_VERSION = semantic_version.Version(major=1, minor=3, patch=0)
+APP_VERSION = semantic_version.Version(major=1, minor=3, patch=1)
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 # PROXY prefix used - NB - cannot have leading "/", and must have trailing "/"
@@ -55,7 +55,7 @@ SEARCH_COMPONENT_LOCATIONS.append("bcrhp.search_components")
 
 LOCALE_PATHS.insert(0, os.path.join(APP_ROOT, "locale"))
 
-FILE_TYPE_CHECKING = False
+FILE_TYPE_CHECKING = "Lenient"
 FILE_TYPES = [
     "bmp",
     "gif",
@@ -212,12 +212,8 @@ ROOT_HOSTCONF = "bcrhp.hosts"
 DEFAULT_HOST = "bcrhp"
 
 AUTHENTICATION_BACKENDS = (
-    # "arches.app.utils.email_auth_backend.EmailAuthenticationBackend", #Comment out for IDIR
     "oauth2_provider.backends.OAuth2Backend",
-    "bcrhp.util.external_oauth_backend.ExternalOauthAuthenticationBackend",
-    # "django.contrib.auth.backends.ModelBackend",  # this is default # Comment out for IDIR
-    # "django.contrib.auth.backends.RemoteUserBackend",
-    # "bcrhp.util.auth.backends.BCGovRemoteUserBackend",  # For IDIR authentication behind legacy siteminder
+    "django.contrib.auth.backends.ModelBackend",
     "guardian.backends.ObjectPermissionBackend",
     "arches.app.utils.permission_backend.PermissionBackend",
 )
@@ -234,8 +230,7 @@ MIDDLEWARE = [
     "arches.app.utils.middleware.ModifyAuthorizationHeader",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    # "bcrhp.util.auth.middleware.SiteminderMiddleware",
-    # "bcrhp.util.auth.auth_required_middleware.AuthRequiredMiddleware",
+    "bcgov_arches_common.util.auth.oauth_token_refresh.OAuthTokenRefreshMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "arches.app.utils.middleware.SetAnonymousUser",
@@ -369,25 +364,39 @@ TILE_CACHE_TIMEOUT = 600  # seconds
 CLUSTER_DISTANCE_MAX = 20000  # meters
 GRAPH_MODEL_CACHE_TIMEOUT = None
 
+# We are using a fork of the Arches Core and not publishing to PyPi so this needs to be silenced
+SILENCED_SYSTEM_CHECKS = ["arches.E002"]
+
 OAUTH_CLIENT_ID = ""  #'9JCibwrWQ4hwuGn5fu2u1oRZSs9V6gK8Vu8hpRC4'
 
 
-EXTERNAL_OAUTH_CONFIGURATION = {
-    # these groups will be assigned to OAuth authenticated users on their first login
-    # "default_user_groups": ["Guest", "Resource Exporter"],
-    # claim to be used to assign arches username from
-    "uid_claim": "preferred_username",
-    # application ID and secret assigned to your arches application
-    "app_id": get_env_variable("OAUTH_CLIENT_ID"),
-    "app_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
-    # provider scopes must at least give Arches access to openid, email and profile
-    "scopes": ["openid", "profile", "email"],
-    # authorization, token and jwks URIs must be configured for your provider
-    "authorization_endpoint": get_env_variable("OAUTH_AUTH_ENDPOINT"),
-    "token_endpoint": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
-    "jwks_uri": get_env_variable("OAUTH_JWKS_URI"),
-    # enforces token validation on authentication, AVOID setting this to False,
-    "validate_id_token": True,
+AUTHLIB_OAUTH_CLIENTS = {
+    "default": {
+        "client_id": get_env_variable("OAUTH_CLIENT_ID"),
+        "client_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
+        "authorize_url": get_env_variable("OAUTH_AUTH_ENDPOINT"),
+        "access_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
+        "refresh_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
+        "server_metadata_url": get_env_variable("OAUTH_SERVER_METADATA_URL"),
+        "client_kwargs": {
+            "scope": "openid profile email",
+            "token_endpoint_auth_method": "client_secret_post",
+        },
+        "urls": {
+            "home_page": "/bcrhp/",
+            "unauthorized_page": "/bcrhp/unauthorized",
+            "unauthorized_template": "unauthorized.htm",
+            "auth_exempt_pages": [
+                "/bcrhp",
+                "/bcrhp/search",
+                "/unauthorized",
+                "/bcrhp/index.htm",
+                "/bcrhp/auth",
+                "/bcrhp/auth/eoauth_start",
+                "/bcrhp/auth/eoauth_cb",
+            ],
+        },
+    }
 }
 
 APP_TITLE = "BC Government | Historic Place Inventory"
@@ -400,9 +409,11 @@ ENABLE_CAPTCHA = False
 # RECAPTCHA_USE_SSL = False
 NOCAPTCHA = True
 # RECAPTCHA_PROXY = 'http://127.0.0.1:8000'
-if DEBUG is True:
-    SILENCED_SYSTEM_CHECKS = ["captcha.recaptcha_test_key_error"]
 
+# We're not using this
+SILENCED_SYSTEM_CHECKS.append(
+    "captcha.recaptcha_test_key_error"
+)
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  #<-- Only need to uncomment this for testing without an actual email server
 # EMAIL_USE_TLS = True
