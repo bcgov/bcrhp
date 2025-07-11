@@ -11,6 +11,9 @@ oauth_client_id: "bcrhp-web"
 url_context_root: "bcrhp"
 force_script_name: "/{{ url_context_root }}/"
 
+hria_application_user: "BCRHP_ARCHES"
+hria_db_password: "{{ lookup('ansible.builtin.env', 'HRIA_DB_PASSWORD') }}"
+
 django_mode: "PROD"
 django_debug_mode: "False"
 
@@ -51,4 +54,3 @@ s3_secret_access_key: "{{ lookup('ansible.builtin.env', 'S3_SECRET_ACCESS_KEY') 
 planet_api_key: "{{ lookup('ansible.builtin.env', 'PLANET_API_KEY') }}"
 mapbox_key: "{{ lookup('ansible.builtin.env', 'MAPBOX_KEY') }}"
 oauth_client_secret: "{{ lookup('ansible.builtin.env', 'OAUTH_CLIENT_SECRET') }}"
-

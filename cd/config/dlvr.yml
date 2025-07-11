@@ -1,5 +1,4 @@
 arches_server_port: "8012"
-tileserv_http_listen_port: "7811"
 
 celery_broker_url: "{{ default_cache_backend_location }}/10"
 
