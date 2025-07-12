@@ -372,6 +372,7 @@ OAUTH_CLIENT_ID = ""  #'9JCibwrWQ4hwuGn5fu2u1oRZSs9V6gK8Vu8hpRC4'
 
 AUTHLIB_OAUTH_CLIENTS = {
     "default": {
+        "auth_required": False,
         "client_id": get_env_variable("OAUTH_CLIENT_ID"),
         "client_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
         "authorize_url": get_env_variable("OAUTH_AUTH_ENDPOINT"),
@@ -383,18 +384,10 @@ AUTHLIB_OAUTH_CLIENTS = {
             "token_endpoint_auth_method": "client_secret_post",
         },
         "urls": {
-            "home_page": "/bcrhp/",
+            "home_page": "/bcrhp/search",
             "unauthorized_page": "/bcrhp/unauthorized",
             "unauthorized_template": "unauthorized.htm",
-            "auth_exempt_pages": [
-                "/bcrhp",
-                "/bcrhp/search",
-                "/unauthorized",
-                "/bcrhp/index.htm",
-                "/bcrhp/auth",
-                "/bcrhp/auth/eoauth_start",
-                "/bcrhp/auth/eoauth_cb",
-            ],
+            "auth_exempt_pages": [],
         },
     }
 }

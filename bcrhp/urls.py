@@ -12,6 +12,7 @@ import re
 
 uuid_regex = settings.UUID_REGEX
 path_prefix_re = re.compile(r"^(\^)(.*)$")
+from arches.app.views.file import FileView
 
 
 def bc_path_prefix(path=""):
@@ -70,8 +71,8 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
-    path("bc_path_prefix()", include("bcgov_arches_common.urls")),
-    path("bc_path_prefix()", include("arches.urls")),
+    path(bc_path_prefix(), include("bcgov_arches_common.urls")),
+    path(bc_path_prefix(), include("arches.urls")),
 ]
 
 # Adds URL pattern to serve media files during development
