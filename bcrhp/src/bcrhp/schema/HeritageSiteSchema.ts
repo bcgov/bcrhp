@@ -25,6 +25,7 @@ const HeritageSiteSchema = z.object({
     otherNames: z.array(z.string()).max(5),
     otherName: z.string().max(250).nullable(), // @todo - This shouldn't live here. Push names into own schema?
     civicAddress: z.array(CivicAddressSchema),
+    civicAddresses: z.array(z.string()).max(5),
     siteImages: z.array(SiteImagesSchema),
     recognitionDetails: z.array(RecognitionDetails),
     statementOfSignificance: z.array(StatementOfSignificance),
@@ -55,6 +56,7 @@ class HeritageSite implements HeritageSiteType {
         this.otherNames = [];
         this.hasCivicAddress = true;
         this.civicAddress = {}; // Object of UUID -> CivicAddress objects
+        this.civicAddresses = [];
         this.siteImages = {};
         this.siteBoundary = {};
         this.recognitionDetails = {};
@@ -72,6 +74,7 @@ class HeritageSite implements HeritageSiteType {
     otherNames: string[];
     hasCivicAddress: boolean;
     civicAddress: object;
+    civicAddresses: string[];
     siteImages: object;
     recognitionDetails: object;
     statementOfSignificance: object;

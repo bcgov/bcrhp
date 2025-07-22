@@ -10,19 +10,28 @@ const CivicAddressSchema = z.object({
     streetAddress: z
         .string()
         .min(1, { message: 'Street Address is required.' })
-        .max(80),
-    city: z.string().min(1, { message: 'City is required.' }).max(80),
-    province: z.string().min(1, { message: 'City is required.' }).max(80),
+        .max(80)
+        .nullable(),
+    city: z
+        .string()
+        .min(1, { message: 'City is required.' })
+        .max(80)
+        .nullable(),
     postalCode: z
         .string()
         .max(7)
         .refine(
             (value: string) =>
                 /^[A-Z][0-9][A-Z] [0-9][A-Z][0-9]$/.test(value ?? ''),
-            'Postal Code must bie in the form "A0A A0A"',
-        ),
-    locality: z.string().max(50),
-    locationDescription: z.string().max(50),
+            'Postal Code must be in the form "A0A A0A"',
+        )
+        .nullable(),
+    locality: z.string().max(50).nullable(),
+    locationDescription: z
+        .string()
+        .min(1, { message: 'Location Description is required.' })
+        .max(50)
+        .nullable(),
     legalDescriptions: z.array(LegalDescriptionSchema),
 });
 
@@ -42,7 +51,6 @@ class CivicAddress implements CivicAddressType {
         this.overrideAddress = false;
         this.streetAddress = '';
         this.city = '';
-        this.province = '';
         this.postalCode = '';
         this.locality = '';
         this.locationDescription = '';
@@ -54,7 +62,6 @@ class CivicAddress implements CivicAddressType {
     overrideAddress: boolean;
     streetAddress: string;
     city: string;
-    province: string;
     postalCode: string;
     locality: string;
     locationDescription: string;
