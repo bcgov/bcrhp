@@ -17,6 +17,13 @@ PGPORT=5432
 PG_DATABC_USERNAME="proxy_databc"
 PG_DATABC_PASSWORD="databc_password"
 
+HRIADB_USER=proxy_bcrhp
+HRIADB_PASSWORD=unused_password
+HRIADB_HOST=hria_db_host
+HRIADB_PORT=1521
+HRIADB_SERVICE_NAME=oracle_service_name
+HRIADB_APPLICATION_USER=app_user
+
 CACHE_BACKEND=django.core.cache.backends.dummy.DummyCache
 CACHE_BACKEND_LOCATION=
 
