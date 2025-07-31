@@ -1,14 +1,25 @@
 import { z } from 'zod';
 
+const FormValueSchema = z.object({
+    display_value: z.string(),
+    node_value: z.array(z.any()),
+    details: z.array(z.any()),
+});
+type FormValueType = z.infer<typeof FormValueSchema>;
+
+const ConceptOptionSchema = z.object({
+    id: z.string(),
+    conceptid: z.string(),
+    depth: z.number(),
+    language: z.string(),
+    text: z.string(),
+    type: z.string(),
+});
+type ConceptOptionType = z.infer<typeof ConceptOptionSchema>;
+
 const SiteImagesSchema = z.object({
-    imageType: z
-        .string({ invalid_type_error: 'Image Type is required.' })
-        .min(1, { message: 'Image Type is required.' })
-        .max(250),
-    imageView: z
-        .string({ invalid_type_error: 'Image Type is required.' })
-        .min(1, { message: 'Image View is required.' })
-        .max(250),
+    imageType: FormValueSchema,
+    imageView: FormValueSchema,
     imageFeatures: z.string().max(250).nullable(),
     imageDate: z.date(),
     imageDescription: z
@@ -31,7 +42,7 @@ function getSiteImages(): SiteImagesType {
 class SiteImages implements SiteImagesType {
     constructor() {
         this.id = crypto.randomUUID();
-        this.imageType = '';
+        this.imageType = null;
         this.imageView = '';
         this.imageFeatures = '';
         this.imageDate = null;
@@ -40,8 +51,8 @@ class SiteImages implements SiteImagesType {
         this.copyright = '';
     }
     id: string;
-    imageType: string;
-    imageView: string;
+    imageType: FormValueType;
+    imageView: FormValueType;
     imageFeatures: string;
     imageDate: Date | null;
     imageDescription: string;

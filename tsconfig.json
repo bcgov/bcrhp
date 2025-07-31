@@ -93,6 +93,9 @@
       ],
       "@t:bcgov_arches_common/*": [
         "./../arches_common/bcgov_arches_common/templates/bcgov_arches_common/*"
+      ],
+      "@/arches-component-lab/*": [
+        "./../arches-component-lab/arches_component_lab/src/arches_component_lab/*"
       ]
     }
   }

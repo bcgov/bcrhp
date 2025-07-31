@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref } from 'vue';
+import { reactive, computed, useTemplateRef, inject, ref } from 'vue';
 import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
@@ -7,8 +7,10 @@ import Editor from 'primevue/editor';
 import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { camelCase } from 'lodash';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
+import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     SiteImagesSchema,
@@ -20,15 +22,14 @@ const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
 ) as typeof HeritageSite;
 
-const currentSiteImage = ref(getSiteImages());
+const currentSiteImage = reactive(getSiteImages());
 const imageDate = ref();
-currentSiteImage.value.imageTypes = [];
-heritageSite.value.siteImages[currentSiteImage.value.id] = currentSiteImage;
+currentSiteImage.imageType = null;
+heritageSite.value.siteImages[currentSiteImage.id] = currentSiteImage;
 
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
 ) as Ref<FormInstance | null>;
-const zodImageTypeResolver = zodResolver(SiteImagesSchema.shape.imageType);
 const zodImageViewResolver = zodResolver(SiteImagesSchema.shape.imageView);
 const zodImageFeaturesResolver = zodResolver(
     SiteImagesSchema.shape.imageFeatures,
@@ -52,12 +53,13 @@ const onImageUpload = function () {};
 // configuration so API methods are not
 defineExpose({ isValid });
 
-const updateImageType = function (
-    newValue: string,
-    selectField: typeof ConceptSelect,
-) {
-    console.log(`New value ${newValue}`);
-    currentSiteImage.value[selectField.id] = newValue;
+const updateModelValue = function (newValue: object, attribute_name: string) {
+    console.log('updateModelValue', attribute_name, newValue);
+    const validator = SiteImagesSchema.shape[camelCase(attribute_name)];
+    const result = validator.safeParse(newValue);
+    if (result.success) {
+        currentSiteImage[attribute_name] = result.data;
+    }
 };
 </script>
 <template>
@@ -80,54 +82,49 @@ const updateImageType = function (
                     <span>Drag and drop files to here to upload.</span>
                 </template>
             </FileUpload>
-            <FormField
-                :resolver="zodImageTypeResolver"
-                name="imageType"
+            <LabelledInput
+                label="Image Type"
+                hint="Select Historical or Contemporary image type"
+                input-name="imageType"
+                :error-message="$form.imageType?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Image Type"
-                    hint="Select Historical or Contemporary image type"
-                    input-name="imageType"
-                    :error-message="$form.imageType?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <ConceptSelect
-                            id="imageType"
-                            ref="imageTypeField"
-                            graph-slug="heritage_site"
-                            node-alias="image_type"
-                            model-value="currentSiteImage.imageType"
-                            placeholder="Select an Image Type"
-                            @value-updated="updateImageType"
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
-            <FormField
-                :resolver="zodImageViewResolver"
-                name="imageView"
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        id="imageType"
+                        ref="imageTypeField"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :value="null"
+                        graph-slug="heritage_site"
+                        node-alias="image_type"
+                        placeholder="Select an Image Type"
+                        group-direction="column"
+                        @update:value="updateModelValue($event, 'imageType')"
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Image View"
+                hint="Select the view that best describes the image"
+                input-name="imageView"
+                :error-message="$form.imageView?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Image View"
-                    hint="Select the view that best describes the image"
-                    input-name="imageView"
-                    :error-message="$form.imageView?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <ConceptSelect
-                            id="imageView"
-                            ref="imageViewField"
-                            graph-slug="heritage_site"
-                            node-alias="image_view"
-                            model-value="currentSiteImage.imageView"
-                            placeholder="Select an Image View"
-                            @value-updated="updateImageType"
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        id="imageView"
+                        ref="imageViewField"
+                        graph-slug="heritage_site"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        node-alias="image_view"
+                        model-value="currentSiteImage.imageView"
+                        placeholder="Select an Image View"
+                        @update:value="updateModelValue($event, 'imageView')"
+                    />
+                </div>
+            </LabelledInput>
         </div>
         <FormField
             :resolver="zodImageFeaturesResolver"
@@ -243,5 +240,19 @@ const updateImageType = function (
                 </div>
             </LabelledInput>
         </FormField>
+        <GenericWidget
+            :value="currentSiteImage.imageType"
+            :mode="VIEW"
+            :should-show-label="true"
+            graph-slug="heritage_site"
+            node-alias="image_type"
+        />
+        <GenericWidget
+            :value="currentSiteImage.imageView"
+            :mode="VIEW"
+            :should-show-label="true"
+            graph-slug="heritage_site"
+            node-alias="image_view"
+        />
     </Form>
 </template>
