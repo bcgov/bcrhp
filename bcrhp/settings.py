@@ -404,9 +404,7 @@ NOCAPTCHA = True
 # RECAPTCHA_PROXY = 'http://127.0.0.1:8000'
 
 # We're not using this
-SILENCED_SYSTEM_CHECKS.append(
-    "captcha.recaptcha_test_key_error"
-)
+SILENCED_SYSTEM_CHECKS.append("captcha.recaptcha_test_key_error")
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  #<-- Only need to uncomment this for testing without an actual email server
 # EMAIL_USE_TLS = True
