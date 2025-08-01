@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
     db_databc_password = DATABASES["default"]["DATABC_PASSWORD"]
     sql_dir = os.path.join(os.path.dirname(__file__), "sql", "2024")
 
-    dependencies = []
+    dependencies = [("models", "12008_alter_file_path")]
 
     operations = [
         migrations.CreateModel(
