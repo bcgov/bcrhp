@@ -14,8 +14,8 @@ PGPASSWORD=postgis
 PGDBNAME=$ARCHES_PROJECT
 PGHOST=localhost
 PGPORT=5432
-PG_DATABC_USERNAME="proxy_databc"
-PG_DATABC_PASSWORD="databc_password"
+DATABC_USERNAME=databc
+DATABC_PASSWORD=databc_password
 
 HRIADB_USER=proxy_bcrhp
 HRIADB_PASSWORD=unused_password
