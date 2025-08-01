@@ -2,8 +2,6 @@ import os
 
 from django.db import migrations, models
 from bcrhp.migrations.util.migration_util import format_files_into_sql
-from bcgov_arches_common.migrations.operations.privileged_sql import RunPrivilegedSQL
-from bcrhp.settings import DATABASES
 
 
 class Migration(migrations.Migration):
@@ -15,10 +13,6 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    arches_db_name = DATABASES["default"]["NAME"]
-    arches_db_user = DATABASES["default"]["USER"]
-    db_databc_user = DATABASES["default"]["DATABC_USERNAME"]
-    db_databc_password = DATABASES["default"]["DATABC_PASSWORD"]
     sql_dir = os.path.join(os.path.dirname(__file__), "sql", "2024")
 
     dependencies = [("models", "12008_alter_file_path")]
@@ -79,52 +73,4 @@ class Migration(migrations.Migration):
             """,
             migrations.RunSQL.noop,
         ),
-        RunPrivilegedSQL("create schema databc;", " drop schema databc;"),
-        RunPrivilegedSQL(
-            f"""
-                 grant all privileges on schema databc to {arches_db_user};
-                 """,
-            migrations.RunSQL.noop,
-        ),
-        RunPrivilegedSQL(
-            f"""
-                   DO
-                   $$
-                       DECLARE
-                           databc_role_exists boolean;
-                       BEGIN
-                           select count(*) > 0 into databc_role_exists from pg_roles where rolname = '{db_databc_user}';
-                           if not databc_role_exists then
-                               Raise NOTICE 'Creating role {db_databc_user}';
-                               create role {db_databc_user} password '{db_databc_password}';
-                           else
-                               Raise NOTICE 'Not creating role {db_databc_user} - it already exists';
-                           end if;
-                           alter role {db_databc_user} with login;
-                           alter role {db_databc_user} set search_path = databc,public;
-                           revoke all on schema public from {db_databc_user};
-                           grant connect on database {arches_db_name} to {db_databc_user};
-                           grant usage on schema databc to {db_databc_user};
-                           grant select on geometry_columns TO {db_databc_user};
-                           grant select on geography_columns TO {db_databc_user};
-                           grant select on spatial_ref_sys TO {db_databc_user};
-                       END
-                   $$ language plpgsql;
-               """,
-            f"""
-                DO
-                $$
-                    DECLARE
-                        databc_role record;
-                    BEGIN
-                        for databc_role in (select rolname from pg_roles where rolname = '{db_databc_user}') loop
-                            Raise NOTICE 'Dropping role {db_databc_user} and all associated grants';
-                            drop owned by {db_databc_user} cascade;
-                            drop role {db_databc_user};
-                        end loop;
-                    END
-                $$ language plpgsql;
-            """,
-        ),
-        # These were moved out of package
     ]

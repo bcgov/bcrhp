@@ -1,9 +1,9 @@
-import bcgov_arches_common.migrations.operations.privileged_sql
+import os
 from django.db import migrations
 from django.core.management import call_command
 from bcgov_arches_common.migrations.operations.privileged_sql import RunPrivilegedSQL
 from django.conf import settings
-import os
+from bcrhp.settings import DATABASES
 
 
 def format_sql(file_path: str, params: dict = None) -> str:
@@ -19,6 +19,11 @@ class Migration(migrations.Migration):
     dependencies = [
         ("bcrhp", "0001_initial_pre_package"),
     ]
+
+    arches_db_name = DATABASES["default"]["NAME"]
+    arches_db_user = DATABASES["default"]["USER"]
+    db_databc_user = DATABASES["default"]["DATABC_USERNAME"]
+    db_databc_password = DATABASES["default"]["DATABC_PASSWORD"]
 
     create_resource_proxy_views_sql = """
         select __arches_create_resource_model_views(graphid)
@@ -56,17 +61,52 @@ class Migration(migrations.Migration):
         call_command("createcachetable")
 
     operations = [
-        bcgov_arches_common.migrations.operations.privileged_sql.RunPrivilegedSQL(
-            sql="\n        create schema databc;\n    ",
-            reverse_sql="\n        drop schema databc;\n    ",
+        RunPrivilegedSQL("create schema databc;", " drop schema databc;"),
+        RunPrivilegedSQL(
+            f"""
+                 grant all privileges on schema databc to {arches_db_user};
+                 """,
+            migrations.RunSQL.noop,
         ),
-        bcgov_arches_common.migrations.operations.privileged_sql.RunPrivilegedSQL(
-            sql="\n        grant all privileges on schema databc to postgres;\n    ",
-            reverse_sql="",
-        ),
-        bcgov_arches_common.migrations.operations.privileged_sql.RunPrivilegedSQL(
-            sql="\n        DO\n        $$\n            DECLARE\n                databc_role_exists boolean;\n            BEGIN\n                select count(*) > 0 into databc_role_exists from pg_roles where rolname = 'proxy_databc';\n                if not databc_role_exists then\n                    Raise NOTICE 'Creating role proxy_databc';\n                    create role proxy_databc password 'None';\n                else\n                    Raise NOTICE 'Not creating role proxy_databc - it already exists';\n                end if;\n                alter role proxy_databc with login;\n                alter role proxy_databc set search_path = databc,public;\n                revoke all on schema public from proxy_databc;\n                grant connect on database bcrhp to proxy_databc;\n                grant usage on schema databc to proxy_databc;\n                grant select on geometry_columns TO proxy_databc;\n                grant select on geography_columns TO proxy_databc;\n                grant select on spatial_ref_sys TO proxy_databc;\n            END\n        $$ language plpgsql;\n    ",
-            reverse_sql="\n        DO\n        $$\n            DECLARE\n                databc_role record;\n            BEGIN\n                for databc_role in (select rolname from pg_roles where rolname = 'proxy_databc') loop\n                    Raise NOTICE 'Dropping role proxy_databc and all associated grants';\n                    drop owned by proxy_databc cascade;\n                    drop role proxy_databc;\n                end loop;\n            END\n        $$ language plpgsql;\n    ",
+        RunPrivilegedSQL(
+            f"""
+                   DO
+                   $$
+                       DECLARE
+                           databc_role_exists boolean;
+                       BEGIN
+                           select count(*) > 0 into databc_role_exists from pg_roles where rolname = '{db_databc_user}';
+                           if not databc_role_exists then
+                               Raise NOTICE 'Creating role {db_databc_user}';
+                               create role {db_databc_user} password '{db_databc_password}';
+                           else
+                               Raise NOTICE 'Not creating role {db_databc_user} - it already exists';
+                           end if;
+                           alter role {db_databc_user} with login;
+                           alter role {db_databc_user} set search_path = databc,public;
+                           revoke all on schema public from {db_databc_user};
+                           grant connect on database {arches_db_name} to {db_databc_user};
+                           grant usage on schema databc to {db_databc_user};
+                           grant select on geometry_columns TO {db_databc_user};
+                           grant select on geography_columns TO {db_databc_user};
+                           grant select on spatial_ref_sys TO {db_databc_user};
+                       END
+                   $$ language plpgsql;
+               """,
+            f"""
+                DO
+                $$
+                    DECLARE
+                        databc_role record;
+                    BEGIN
+                        for databc_role in (select rolname from pg_roles where rolname = '{db_databc_user}') loop
+                            Raise NOTICE 'Dropping role {db_databc_user} and all associated grants';
+                            drop owned by {db_databc_user} cascade;
+                            drop role {db_databc_user};
+                        end loop;
+                    END
+                $$ language plpgsql;
+            """,
         ),
         migrations.RunPython(create_cache, migrations.RunPython.noop),
         migrations.RunPython(load_package, migrations.RunPython.noop),
