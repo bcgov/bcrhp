@@ -3,7 +3,6 @@ from django.db import migrations
 from django.core.management import call_command
 from bcgov_arches_common.migrations.operations.privileged_sql import RunPrivilegedSQL
 from django.conf import settings
-from bcrhp.settings import DATABASES
 
 
 def format_sql(file_path: str, params: dict = None) -> str:
@@ -20,10 +19,10 @@ class Migration(migrations.Migration):
         ("bcrhp", "0001_initial_pre_package"),
     ]
 
-    arches_db_name = DATABASES["default"]["NAME"]
-    arches_db_user = DATABASES["default"]["USER"]
-    db_databc_user = DATABASES["default"]["DATABC_USERNAME"]
-    db_databc_password = DATABASES["default"]["DATABC_PASSWORD"]
+    arches_db_name = settings.DATABASES["default"]["NAME"]
+    arches_db_user = settings.DATABASES["default"]["USER"]
+    db_databc_user = settings.DATABASES["default"]["DATABC_USERNAME"]
+    db_databc_password = settings.DATABASES["default"]["DATABC_PASSWORD"]
 
     create_resource_proxy_views_sql = """
         select __arches_create_resource_model_views(graphid)
