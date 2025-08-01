@@ -167,7 +167,7 @@ DATABASES = {
         "TEST": {"CHARSET": None, "COLLATION": None, "MIRROR": None, "NAME": None},
         "TIME_ZONE": None,
         "USER": get_env_variable("PGUSERNAME"),
-        #These are typically only used for migrations
+        # These are typically only used for migrations
         "DATABC_USERNAME": get_env_variable("DATABC_USERNAME", True),
         "DATABC_PASSWORD": get_env_variable("DATABC_PASSWORD", True),
     }
