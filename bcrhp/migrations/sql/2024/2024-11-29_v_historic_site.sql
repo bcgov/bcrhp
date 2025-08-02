@@ -36,11 +36,11 @@ from mv_borden_number bn
     from mv_site_names where name_type = 'Common'
 ) cn on cn.resourceinstanceid = bn.resourceinstanceid
          left join (
-    select resourceinstanceid, array_agg(name) names
+    select resourceinstanceid, array_agg(name) as names
     from mv_site_names
     where name_type = 'Other'
     group by resourceinstanceid
-) other_name on other_name.resourceinstanceid = bn.resourceinstanceid
+) as other_name on other_name.resourceinstanceid = bn.resourceinstanceid
          join (
     select distinct
         r.resourceinstanceid,
@@ -59,7 +59,7 @@ from mv_borden_number bn
                             'registry_types', r.registry_types
                         ) end order by databc.authority_priority(pe.authority) desc,
                     designation_or_protection_start_date desc
-            )->0 authorities
+            )->0 as authorities
     from mv_bc_right r
              left join mv_site_protection_event pe on r.bc_right_id = pe.bc_right_id
     group by r.resourceinstanceid, r.officially_recognized_site, r.registration_status
@@ -76,19 +76,19 @@ from mv_borden_number bn
                            'source', source,
                            'event_notes', event_notes
                        ) order by start_year
-               ) chronology
+               )  as chronology
     from mv_chronology
     group by resourceinstanceid
 ) mc on bn.resourceinstanceid = mc.resourceinstanceid
          left join (
     select resourceinstanceid,
-           jsonb_object_agg(state_period, array_to_string(functional_states, '; ') ) functional_states
+           jsonb_object_agg(state_period, array_to_string(functional_states, '; ') ) as functional_states
     from mv_heritage_function
     group by resourceinstanceid
 ) hf on bn.resourceinstanceid = hf.resourceinstanceid
          left join (
     select resourceinstanceid,
-           array_to_string(array_agg(heritage_theme), '; ') heritage_theme
+           array_to_string(array_agg(heritage_theme), '; ') as heritage_theme
     from mv_heritage_theme
     group by resourceinstanceid
 ) ht on bn.resourceinstanceid = ht.resourceinstanceid
@@ -99,14 +99,14 @@ from mv_borden_number bn
                                            '(' || (elm->>'ownership')::text || ', ' ||
                                            (elm->>'resource_count') || ')',
                                            ', '
-               ) heritage_class
+               ) as heritage_class
     from mv_heritage_class, jsonb_array_elements(heritage_class) elm
     group by resourceinstanceid
 ) hc on bn.resourceinstanceid = hc.resourceinstanceid
          left join (select resourceinstanceid,
                            jsonb_object_agg(
                                    actor_type, jsonb_build_object('actors', array_to_string(actors, '; '), 'notes', array_to_string(notes, '; ') )
-                               ) actors
+                               ) as actors
                     from mv_construction_actors
                     group by resourceinstanceid order by resourceinstanceid
 ) ca on bn.resourceinstanceid = ca.resourceinstanceid
@@ -123,7 +123,7 @@ from mv_borden_number bn
                            'document_location', databc.html_to_plain_string(document_location)
                        )
                    order by databc.authority_priority(significance_type) desc
-               )->0 significance_statement
+               )->0 as significance_statement
     from mv_bc_statement_of_significance
     group by resourceinstanceid
 ) sos on bn.resourceinstanceid = sos.resourceinstanceid
