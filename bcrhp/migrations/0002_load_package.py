@@ -1,6 +1,9 @@
 import os
-from django.db import migrations
+from django.db import migrations, connection
 from django.core.management import call_command
+
+import bcgov_arches_common
+from bcgov_arches_common.functions import unique_boolean_value
 from bcgov_arches_common.migrations.operations.privileged_sql import RunPrivilegedSQL
 from django.conf import settings
 
@@ -17,6 +20,7 @@ class Migration(migrations.Migration):
     ]
     dependencies = [
         ("bcrhp", "0001_initial_pre_package"),
+        ("bcgov_arches_common", "2025-02-07_create_concept_functions"),
     ]
 
     arches_db_name = settings.DATABASES["default"]["NAME"]
@@ -47,6 +51,26 @@ class Migration(migrations.Migration):
     # """
 
     @staticmethod
+    def load_common_functions(app, someethingelse):
+        call_command(
+            "fn",
+            operation="register",
+            source=unique_boolean_value.__file__,
+        )
+
+    @staticmethod
+    def load_common_widgets(app, someethingelse):
+        call_command(
+            "widget",
+            operation="register",
+            source=os.path.join(
+                os.path.dirname(bcgov_arches_common.__file__),
+                "widgets",
+                "checkbox-boolean-widget.json",
+            ),
+        )
+
+    @staticmethod
     def load_package(app, someethingelse):
         call_command(
             "packages",
@@ -54,6 +78,12 @@ class Migration(migrations.Migration):
             source=f"{settings.APP_ROOT}/pkg",
             yes=True,
         )
+        call_command("graph", operation="publish")
+        with connection.cursor() as cursor:
+            cursor.execute(Migration.create_resource_proxy_views_sql)
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
 
     @staticmethod
     def create_cache(app, somethingelse):
@@ -108,11 +138,13 @@ class Migration(migrations.Migration):
             """,
         ),
         migrations.RunPython(create_cache, migrations.RunPython.noop),
+        migrations.RunPython(load_common_functions, migrations.RunPython.noop),
+        migrations.RunPython(load_common_widgets, migrations.RunPython.noop),
         migrations.RunPython(load_package, migrations.RunPython.noop),
-        migrations.RunSQL(
-            create_resource_proxy_views_sql,
-            migrations.RunSQL.noop,
-        ),
+        # migrations.RunSQL(
+        #     create_resource_proxy_views_sql,
+        #     migrations.RunSQL.noop,
+        # ),
         # migrations.RunSQL(
         #     format_sql(create_node_aliases_function_file),
         #     migrations.RunSQL.noop,
