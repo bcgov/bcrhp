@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
         call_command("createcachetable")
 
     operations = [
-        RunPrivilegedSQL("create schema databc;", " drop schema databc;"),
+        RunPrivilegedSQL("create schema if not exists databc;", " drop schema databc;"),
         RunPrivilegedSQL(
             f"""
                  grant all privileges on schema databc to {arches_db_user};

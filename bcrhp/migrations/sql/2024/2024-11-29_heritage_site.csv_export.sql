@@ -2,8 +2,8 @@ create or replace view heritage_site.csv_export as
 select
     resourceinstanceid as site_id
      , coalesce(borden_number, '') as "Borden Number"
-     , coalesce(common_name, '') "Common Name"
-     , coalesce(other_name, '') "Other Name"
+     , coalesce(common_name, '') as "Common Name"
+     , coalesce(other_name, '') as "Other Name"
      , coalesce(street_address, '') as "Street Address"
      , coalesce(city, '') as "City"
      , coalesce(locality, '') as "Locality"
