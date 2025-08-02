@@ -89,8 +89,8 @@ from heritage_site.instances i
                                    'reference_number', prote.reference_number->'en'->>'value',
                                    'designation_or_protection_start_date', prote.designation_or_protection_start_date)) protection_events
                     from heritage_site.protection_event prote
-                             left join legislative_act.authority auth on (legislative_act[0]->>'resourceId')::uuid = auth.resourceinstanceid
-                             left join government.government_name govt on (responsible_government[0]->>'resourceId')::uuid = govt.resourceinstanceid
+                             left join legislative_act.authority auth on (legislative_act->0->>'resourceId')::uuid = auth.resourceinstanceid
+                             left join government.government_name govt on (responsible_government->0->>'resourceId')::uuid = govt.resourceinstanceid
                     group by prote.resourceinstanceid
 ) pe on i.resourceinstanceid = pe.resourceinstanceid
          left join (select resourceinstanceid,
