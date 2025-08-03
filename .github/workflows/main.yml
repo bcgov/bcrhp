@@ -29,8 +29,9 @@ jobs:
 
       - name: Load repo-defined env vars
         run: |
-          # strip out blank lines & comments, then append to GITHUB_ENV
-          grep -vE '^\s*(#|$)' .github/github_env >> $GITHUB_ENV
+          set -a
+          source <(envsubst < .github/github_env)
+          set +a
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -75,8 +76,9 @@ jobs:
 
       - name: Load repo-defined env vars
         run: |
-          # strip out blank lines & comments, then append to GITHUB_ENV
-          grep -vE '^\s*(#|$)' .github/github_env >> $GITHUB_ENV
+          set -a
+          source <(envsubst < .github/github_env)
+          set +a
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
