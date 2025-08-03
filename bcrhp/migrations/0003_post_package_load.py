@@ -49,6 +49,7 @@ class Migration(migrations.Migration):
     ]
 
     db_databc_user = DATABASES["default"]["DATABC_USERNAME"]
+    app_user = DATABASES["default"]["USER"]
 
     sql_dir = os.path.join(os.path.dirname(__file__), "sql", "2024")
 
@@ -192,7 +193,12 @@ class Migration(migrations.Migration):
             migrations.RunSQL.noop,
         ),
         migrations.RunSQL(
-            format_files_into_sql(["2024-11-29_heritage_site.csv_export.sql"], sql_dir),
+            format_sql(
+                format_files_into_sql(
+                    ["2024-11-29_heritage_site.csv_export.sql"], sql_dir
+                ),
+                {"app_user": app_user},
+            ),
             migrations.RunSQL.noop,
         ),
         migrations.RunSQL(

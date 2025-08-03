@@ -48,12 +48,4 @@ from V_HISTORIC_SITE
     from jsonb_array_elements(v_historic_site.chronology) as c(value)
     ) as chronology_data on true
 order by "Borden Number";
-DO
-$$
-    DECLARE
-        app_user text;
-    BEGIN
-        select current_database() into app_user;
-        EXECUTE format('grant select on heritage_site.csv_export to %s' ,quote_ident(app_user));
-    end;
-$$ language 'plpgsql';
+grant select on heritage_site.csv_export to {app_user};
