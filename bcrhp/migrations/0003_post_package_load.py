@@ -194,16 +194,15 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             format_sql(
-                format_files_into_sql(
-                    ["2024-11-29_heritage_site.csv_export.sql"], sql_dir
-                ),
+                os.path.join(sql_dir, "2024-11-29_heritage_site.csv_export.sql"),
                 {"app_user": app_user},
             ),
             migrations.RunSQL.noop,
         ),
         migrations.RunSQL(
-            format_files_into_sql(
-                ["2024-11-29_v_historic_enviro_onerow_site.sql"], sql_dir
+            format_sql(
+                os.path.join(sql_dir, "2024-11-29_v_historic_enviro_onerow_site.sql"),
+                {"db_databc_user": db_databc_user},
             ),
             migrations.RunSQL.noop,
         ),
