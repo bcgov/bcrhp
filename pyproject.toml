@@ -26,6 +26,7 @@ requires-python = ">=3.10"
 dependencies = [
     "arches @ git+https://github.com/bcgov/arches@v7.6.12.1_bcgov",
     "bcgov-arches-common @ git+https://github.com/bcgov/bcgov-arches-common@v1.2.4",
+    "arches-component-lab @ git+https://github.com/archesproject/arches-component-lab@main",
     "django-storages==1.13",
     "python-dotenv",
     "html2text",
@@ -42,6 +43,7 @@ dev = [
     "django-silk==5.1.0",
     "pre-commit==3.8.0",
     "black==24.4.2",
+    "django-vite",
 ]
 
 [tool.setuptools]

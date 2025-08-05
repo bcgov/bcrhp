@@ -28,7 +28,7 @@ function generateConfig(): Promise<UserConfigExport> {
         };
 
         for (
-            const [archesApplicationName, archesApplicationPath] 
+            const [archesApplicationName, archesApplicationPath]
             of Object.entries(
                 parsedData['ARCHES_APPLICATIONS_PATHS'] as { [key: string]: string }
             )
@@ -38,6 +38,7 @@ function generateConfig(): Promise<UserConfigExport> {
 
         resolve({
             plugins: [vue()],
+            // @ts-ignore
             test: {
                 alias: alias,
                 coverage: {
