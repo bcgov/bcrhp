@@ -6,6 +6,7 @@ from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile
 from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
+from bcrhp.views.root import BcrhpRootView
 from bcgov_arches_common.views.map import BCTileserverProxyView
 import re
 

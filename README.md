@@ -16,17 +16,21 @@ This should result in a set of docker containers that have the base dependency s
 Arches (Postgres, Elasticsearch, Redis, etc).
 
 3. Clone BCGov Arches Core at the same level as this directory. Assuming that all dependencies
-   are installed in ~/git/bcrhp/ by running `git clone  https://github.com/bcgov/BCHeritage_arches bcrhp`.
+   are installed in ~/git/bcrhp/ by running `git clone  https://github.com/bcgov/bcrhp`.
 ``` shell
 cd git/bcrhp/src
 git clone https://github.com/bcgov/arches
 git clone https://github.com/bcgov/bcgov-arches-common
-cd arches && git checkout stable/7.6.4.1_bcgov
+git clone https://github.com/archesproject/arches-component-lab
+git clone https://github.com/archesproject/arches-querysets
+cd arches && git checkout stable/7.6.12.bcgov_12008
 # This should result in a directory structure like the below:
 ~/git/bcrhp/
      /bcrhp/src/arches/                # <- This is a clone of the arches bcgov/arches repo
      /bcrhp/src/bcrhp/                 # <- This directory
      /bcrhp/src/bcgov-arches-common/   # <- This is a clone of the bcgov/bcgov-arches-common repo
+     /bcrhp/src/arches-component-lab/  # <- This is a clone of the bcgov/bcgov-arches-common repo
+     /bcrhp/src/arches-querysets/      # <- This is a clone of the bcgov/bcgov-arches-common repo
 ```
 
 

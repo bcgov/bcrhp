@@ -10,6 +10,8 @@ ENV ARCHES_ROOT=${WEB_ROOT}/arches
 ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/bcgov-arches-common
 # Arches Component Lab root
 ENV ARCHES_COMPONENT_LAB_ROOT=${WEB_ROOT}/arches-component-lab
+# Arches Querysets root (required by arches-component-lab)
+ENV ARCHES_QUERYSETS_ROOT=${WEB_ROOT}/arches-querysets
 
 ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
@@ -54,6 +56,7 @@ RUN rm -rf /root/.cache/pip/*
 COPY ./arches ${ARCHES_ROOT}
 COPY ./bcgov-arches-common ${ARCHES_COMMON_ROOT}
 COPY ./arches-component-lab ${ARCHES_COMPONENT_LAB_ROOT}
+COPY ./arches-querysets ${ARCHES_QUERYSETS_ROOT}
 # From here, run commands from ARCHES_ROOT
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \
@@ -63,6 +66,10 @@ RUN pip install -e .[dev] && \
 
 # Install BCGov Arches Common app
 WORKDIR ${ARCHES_COMMON_ROOT}
+RUN pip install -e .
+
+# Install Arches Querysets
+WORKDIR ${ARCHES_QUERYSETS_ROOT}
 RUN pip install -e .
 
 # Install Arches Component Lab
