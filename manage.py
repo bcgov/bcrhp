@@ -22,6 +22,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 
+# # manage.py, before execute_from_command_line(...)
+# from django.db.backends.utils import CursorDebugWrapper
+#
+# _orig_execute = CursorDebugWrapper.execute
+#
+#
+# def _debug_execute(self, sql, params=None):
+#     print("\n===== ABOUT TO RUN SQL =====\n", sql, "\n=============================\n")
+#     return _orig_execute(self, sql, params)
+#
+#
+# CursorDebugWrapper.execute = _debug_execute
+#
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bcrhp.settings")
 

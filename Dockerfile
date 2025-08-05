@@ -7,7 +7,7 @@ ENV APP_ROOT=${WEB_ROOT}/${PROJECT_NAME}
 # Root project folder
 ENV ARCHES_ROOT=${WEB_ROOT}/arches
 # Arches Common App root
-ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/arches_common
+ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/bcgov-arches-common
 
 ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
@@ -32,6 +32,7 @@ RUN set -ex \
   dos2unix \
   git \
   gettext \
+  vim \
   " \
   && apt-get install -y --no-install-recommends curl \
   && curl -sL https://deb.nodesource.com/setup_20.x | bash - \
@@ -49,7 +50,7 @@ RUN rm -rf /root/.cache/pip/*
 # Install the Arches application
 # FIXME: ADD from github repository instead?
 COPY ./arches ${ARCHES_ROOT}
-COPY ./arches_common ${ARCHES_COMMON_ROOT}
+COPY ./bcgov-arches-common ${ARCHES_COMMON_ROOT}
 # From here, run commands from ARCHES_ROOT
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \

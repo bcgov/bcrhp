@@ -1,0 +1,100 @@
+#arches
+ARCHES_PROJECT=bcrhp
+APP_ENV=dev
+APP_SUFFIX=
+
+ARCHES_CONTAINER_NAME=bcrhp7-5
+PROJECT_GROUP_NAME=bcgov
+INSTALL_DEFAULT_GRAPHS=False
+INSTALL_DEFAULT_CONCEPTS=False
+
+# Postgres Config
+PGUSERNAME=postgres
+PGPASSWORD=postgis
+PGDBNAME=bcrhp
+PGHOST=localhost
+PGPORT=5432
+DATABC_USERNAME=proxy_databc
+DATABC_PASSWORD=databc_password
+
+HRIADB_USER=proxy_bcrhp
+HRIADB_PASSWORD=unused_password
+HRIADB_HOST=hria_db_host
+HRIADB_PORT=1521
+HRIADB_SERVICE_NAME=oracle_service_name
+HRIADB_APPLICATION_USER=app_user
+
+CACHE_BACKEND=django.core.cache.backends.dummy.DummyCache
+CACHE_BACKEND_LOCATION=
+
+
+# Celery
+CELERY_WORKER_NAME=bcrhp_dev
+CELERY_BROKER_URL=redis://localhost:6379/1
+
+# Elasticsearch config
+ES_SCHEME=http
+ES_HOST=localhost
+ES_PORT=9200
+ES_API_KEY=
+ES_CERT_FILE=
+
+DJANGO_MODE=DEV
+DJANGO_DEBUG=True
+DOMAIN_NAMES=*
+DJANGO_PORT=80
+#DJANGO_REMOTE_DEBUG=False
+PYTHONUNBUFFERED=0
+TZ=PST
+ELASTICSEARCH_PREFIX=bcrhp
+
+ALLOWED_HOSTS="bcrhp localhost *"
+
+# For docker environment need to include IP of webpack container
+AUTH_BYPASS_HOSTS="localhost bcrhp 127.0.0.1"
+
+## BCGov specific values
+# Prefix when used behind a reverse proxy
+# Must end with a / but have no leading /
+BCGOV_PROXY_PREFIX=bcrhp/
+
+# Used by webpack for data export
+PUBLIC_SERVER_ADDRESS=http://localhost:80/bcrhp/
+WEBPACK_SERVER_ADDRESS=http://localhost/bcrhp/
+
+#rabbitmq
+RABBITMQ_USER=guest
+RABBITMQ_PASS=guest
+
+#cantaloupe
+CANTALOUPE_ENDPOINT_ADMIN_ENABLED=true
+CANTALOUPE_ENDPOINT_ADMIN_USERNAME=admin
+CANTALOUPE_ENDPOINT_ADMIN_SECRET=admin
+CANTALOUPE_HOST=cantaloupe_bcrhp
+CANTALOUPE_PORT=8182
+CANTALOUPE_FILESYSTEMSOURCE_BASICLOOKUPSTRATEGY_PATH_PREFIX=/imageroot/
+
+
+#DJANGO KEY
+DJANGO_SECRET_KEY="@zw0iv$5+q8wx0x=&^pw4mezv_=bg*kdk!j2q=cvffb%jz^r^-"
+FORCE_SCRIPT_NAME=None
+
+#S3 info
+S3_BUCKET=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_PROXIES=
+# OAUTH/OIDC configuration
+OAUTH_AUTH_ENDPOINT=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/auth
+OAUTH_TOKEN_ENDPOINT=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/token
+OAUTH_JWKS_URI=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/certs
+OAUTH_SERVER_METADATA_URL=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/.well-known/openid-configuration
+OAUTH_CLIENT_ID=
+OAUTH_CLIENT_SECRET=
+
+#Only for dev - this allows the app URL to be HTTP
+OAUTHLIB_INSECURE_TRANSPORT=True
+
+#Local Tileserver config
+TILESERVER_OUTBOUND_PROXY=
+TILESERVER_LOCAL_URL=http://localhost:7801/

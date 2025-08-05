@@ -6,15 +6,21 @@ from django.test import TestCase
 
 
 class TestSampleIndex(TestCase):
+
+    def setUp(self):
+        super().setUp()
+
     def test_prepare_index(self):
         sample_index = SampleIndex(index_name="Sample Index")
         sample_index.prepare_index()
 
         expected_index_metadata = {
             "mappings": {
-                "properties": {
-                    "tile_count": {"type": "keyword"},
-                    "graph_id": {"type": "keyword"},
+                "_doc": {
+                    "properties": {
+                        "tile_count": {"type": "keyword"},
+                        "graph_id": {"type": "keyword"},
+                    }
                 }
             }
         }

@@ -7,40 +7,23 @@ from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile
 from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
-from bcrhp.views.auth import UnauthorizedView
 from bcgov_arches_common.views.map import BCTileserverProxyView
-from bcrhp.views.auth import ExternalOauth
 import re
 
 uuid_regex = settings.UUID_REGEX
-
 path_prefix_re = re.compile(r"^(\^)(.*)$")
+from arches.app.views.file import FileView
 
 
-def bc_path_prefix(path):
+def bc_path_prefix(path=""):
     if not settings.BCGOV_PROXY_PREFIX:
         return path
     else:
+        if not path:
+            return settings.BCGOV_PROXY_PREFIX
         new_path = path_prefix_re.sub(r"\1%s\2", path)
         return new_path % settings.BCGOV_PROXY_PREFIX
 
-
-class BCRegexPattern(RegexPattern):
-    def __init__(self, regexpattern):
-        super().__init__(
-            bc_path_prefix(regexpattern.regex.pattern),
-            regexpattern.name,
-            regexpattern._is_endpoint,
-        )
-
-
-bc_url_resolver = re_path((r"^"), include("arches.urls"))
-
-
-for pattern in bc_url_resolver.url_patterns:
-    # print("Before: %s" % pattern.pattern)
-    pattern.pattern = BCRegexPattern(pattern.pattern)
-    # print("After: %s" % pattern.pattern)
 
 urlpatterns = [
     re_path(
@@ -70,29 +53,6 @@ urlpatterns = [
     ),
     # Redirect the admin login page to use OAuth
     re_path(
-        bc_path_prefix(r"^admin/login/$"),
-        ExternalOauth.start,
-        name="external_oauth_start",
-    ),
-    re_path(
-        bc_path_prefix(r"^auth/$"), ExternalOauth.start, name="external_oauth_start"
-    ),
-    re_path(
-        bc_path_prefix(r"^auth/eoauth_cb$"),
-        ExternalOauth.callback,
-        name="external_oauth_callback",
-    ),
-    re_path(
-        bc_path_prefix(r"^auth/eoauth_start$"),
-        ExternalOauth.start,
-        name="external_oauth_start",
-    ),
-    re_path(
-        bc_path_prefix(r"^unauthorized/"),
-        UnauthorizedView.as_view(),
-        name="unauthorized",
-    ),
-    re_path(
         bc_path_prefix(
             r"^mvt/(?P<nodeid>%s)/(?P<zoom>[0-9]+|\{z\})/(?P<x>[0-9]+|\{x\})/(?P<y>[0-9]+|\{y\}).pbf$"
             % uuid_regex
@@ -111,11 +71,9 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
-    bc_url_resolver,
+    path(bc_path_prefix(), include("bcgov_arches_common.urls")),
+    path(bc_path_prefix(), include("arches.urls")),
 ]
-# Ensure Arches core urls are superseded by project-level urls
-urlpatterns.append(path("", include("arches.urls")))
-
 
 # Adds URL pattern to serve media files during development
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
