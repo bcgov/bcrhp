@@ -52,7 +52,7 @@
         "@vitejs/plugin-vue": "^5.2.1",
         "@vue/cli": "^5.0.8",
         "arches": "github:bcgov/arches#7.6.12+bcgov.1",
-        "arches-component-lab": "github:archesproject/arches-component-lab#main",
+        "arches-component-lab": "github:archesproject/arches-component-lab#brf/feat/concept_widgets",
         "bcgov_arches_common": "github:bcgov/bcgov-arches-common#1.2.5",
         "ckeditor5": "44.2.0",
         "js-cookie": "^2.1.1",
