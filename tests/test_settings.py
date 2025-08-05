@@ -73,3 +73,25 @@ SILENCED_SYSTEM_CHECKS.append(
 ELASTICSEARCH_HOSTS = [
     {"scheme": "http", "host": "localhost", "port": ELASTICSEARCH_HTTP_PORT}
 ]
+
+AUTHLIB_OAUTH_CLIENTS = {
+    "default": {
+        "auth_required": False,
+        "client_id": get_env_variable("OAUTH_CLIENT_ID"),
+        "client_secret": get_env_variable("OAUTH_CLIENT_SECRET"),
+        "authorize_url": get_env_variable("OAUTH_AUTH_ENDPOINT"),
+        "access_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
+        "refresh_token_url": get_env_variable("OAUTH_TOKEN_ENDPOINT"),
+        "server_metadata_url": get_env_variable("OAUTH_SERVER_METADATA_URL"),
+        "client_kwargs": {
+            "scope": "openid profile email",
+            "token_endpoint_auth_method": "client_secret_post",
+        },
+        "urls": {
+            "home_page": "/bcrhp/search",
+            "unauthorized_page": "/bcrhp/unauthorized",
+            "unauthorized_template": "unauthorized.htm",
+            "auth_exempt_pages": [],
+        },
+    }
+}
