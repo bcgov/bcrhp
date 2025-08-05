@@ -342,7 +342,6 @@ onMounted(() => {
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
                         initial-value=""
-                        :business-validator="isValid"
                     />
                 </div>
                 <Button
