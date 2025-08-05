@@ -55,7 +55,7 @@ SEARCH_COMPONENT_LOCATIONS.append("bcrhp.search_components")
 
 LOCALE_PATHS.insert(0, os.path.join(APP_ROOT, "locale"))
 
-FILE_TYPE_CHECKING = "Lenient"
+FILE_TYPE_CHECKING = "lenient"
 FILE_TYPES = [
     "bmp",
     "gif",
