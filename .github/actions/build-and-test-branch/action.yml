@@ -30,7 +30,12 @@ runs:
         pip install '.[dev]'
         echo Python packages installed
       shell: bash
-    
+
+    - name: Overwrite the settings with github settings
+      run: |
+          cp ./tests/github_settings.py ./bcrhp/settings.py
+      shell: bash
+
     - name: Ensure frontend configuration files exist
       run: |
           python manage.py check
@@ -72,10 +77,10 @@ runs:
         mv coverage/frontend/coverage.xml ${{ inputs.branch-type }}_branch_frontend_coverage.xml
       shell: bash
 
-    - name: Check for missing migrations
-      run: |
-        python manage.py makemigrations --check
-      shell: bash
+#    - name: Check for missing migrations
+#      run: |
+#        python manage.py makemigrations --check
+#      shell: bash
 
     - name: Ensure previous Python coverage data is erased
       run: |

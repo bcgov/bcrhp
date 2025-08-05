@@ -8,6 +8,10 @@ ENV APP_ROOT=${WEB_ROOT}/${PROJECT_NAME}
 ENV ARCHES_ROOT=${WEB_ROOT}/arches
 # Arches Common App root
 ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/bcgov-arches-common
+# Arches Component Lab root
+ENV ARCHES_COMPONENT_LAB_ROOT=${WEB_ROOT}/arches-component-lab
+# Arches Querysets root (required by arches-component-lab)
+ENV ARCHES_QUERYSETS_ROOT=${WEB_ROOT}/arches-querysets
 
 ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
@@ -51,14 +55,25 @@ RUN rm -rf /root/.cache/pip/*
 # FIXME: ADD from github repository instead?
 COPY ./arches ${ARCHES_ROOT}
 COPY ./bcgov-arches-common ${ARCHES_COMMON_ROOT}
+COPY ./arches-component-lab ${ARCHES_COMPONENT_LAB_ROOT}
+COPY ./arches-querysets ${ARCHES_QUERYSETS_ROOT}
 # From here, run commands from ARCHES_ROOT
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \
     pip install python-dotenv boto3==1.26 django-storages==1.13 oracledb html2text cffi redis && \
+    pip install django_vite && \
     pip install --upgrade cryptography PyJWT
 
 # Install BCGov Arches Common app
 WORKDIR ${ARCHES_COMMON_ROOT}
+RUN pip install -e .
+
+# Install Arches Querysets
+WORKDIR ${ARCHES_QUERYSETS_ROOT}
+RUN pip install -e .
+
+# Install Arches Component Lab
+WORKDIR ${ARCHES_COMPONENT_LAB_ROOT}
 RUN pip install -e .
 
 COPY ./bcrhp/docker/entrypoint.sh ${WEB_ROOT}/entrypoint.sh
