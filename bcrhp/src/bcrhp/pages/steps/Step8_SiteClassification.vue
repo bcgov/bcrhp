@@ -15,13 +15,10 @@ import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     HeritageClassSchema,
     HeritageFunctionSchema,
-    HeritageThemeSchema,
     HeritageClass,
     HeritageFunction,
-    HeritageTheme,
     getHeritageClassSchema,
     getHeritageFunctionSchema,
-    getHeritageThemeSchema,
 } from '@/bcrhp/schema/SiteClassificationSchema.ts';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -44,9 +41,6 @@ const currentHeritageClass: typeof HeritageClass = ref(
 const currentHeritageFunction: typeof HeritageFunction = ref(
     getHeritageFunctionSchema(),
 );
-const currentHeritageTheme: typeof HeritageTheme = ref(
-    getHeritageThemeSchema(),
-);
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
 const heritageThemes = ref([] as Array<string>);
@@ -58,16 +52,9 @@ const zodHeritageCategoryResolver = zodResolver(
     HeritageClassSchema.shape.heritageCategory,
 );
 const zodOwnershipResolver = zodResolver(HeritageClassSchema.shape.ownership);
-const zodFunctionCategoryResolver = zodResolver(
-    HeritageFunctionSchema.shape.functionCategory,
-);
 const zodFunctionCategoryTypeResolver = zodResolver(
     HeritageFunctionSchema.shape.functionCategoryType,
 );
-const zodHeritageThemeResolver = zodResolver(
-    HeritageThemeSchema.shape.heritageTheme,
-);
-
 const isValidHeritageClass = () => {
     return heritageClassForm.value?.valid;
 };
@@ -130,9 +117,7 @@ const saveHeritageFunction = function () {
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
-        Object.keys(
-            heritageThemeForm.value?.states?.heritage_theme?.value,
-        )[0],
+        Object.keys(heritageThemeForm.value?.states?.heritage_theme?.value)[0],
     );
 
     heritageThemeForm.value?.reset();
