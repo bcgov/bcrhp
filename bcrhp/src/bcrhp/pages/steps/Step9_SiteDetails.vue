@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import DatePicker from 'primevue/datepicker';
+import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
@@ -21,6 +21,7 @@ import {
     getChronologySchema,
     getURLsSchema,
 } from '@/bcrhp/schema/SiteDetailsSchema.ts';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -77,11 +78,11 @@ const isValidRelatedURLs = () => {
 const addChronologyDisabled = computed(
     () =>
         chronologyForm.value?.states?.eventType?.pristine ||
-        chronologyForm.value?.states?.startYear?.pristine ||
-        chronologyForm.value?.states?.endYear?.pristine ||
+        chronologyForm.value?.states?.start_year?.pristine ||
+        chronologyForm.value?.states?.end_year?.pristine ||
         chronologyForm.value?.states?.eventType?.invalid ||
-        chronologyForm.value?.states?.startYear?.invalid ||
-        chronologyForm.value?.states?.endYear?.invalid ||
+        chronologyForm.value?.states?.start_year?.invalid ||
+        chronologyForm.value?.states?.end_year?.invalid ||
         heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
 );
 const addArchitectOrBuilderDisabled = computed(
@@ -109,15 +110,8 @@ const saveChronology = function () {
     console.log('saveChronology');
     heritageSiteRef.value.siteDetails.chronologies.push({
         eventType: currentChronology.value.eventType,
-        startYear: currentChronology.value.startYear.toLocaleDateString(
-            'en-CA',
-            {
-                year: 'numeric',
-            },
-        ),
-        endYear: currentChronology.value.endYear.toLocaleDateString('en-CA', {
-            year: 'numeric',
-        }),
+        startYear: currentChronology.value.startYear,
+        endYear: currentChronology.value.endYear,
         circa: currentChronology.value.circa?.toString(),
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
@@ -205,37 +199,34 @@ onMounted(() => {
                         </FormField>
                     </div>
                 </div>
-                <label for="startYear">Start Year</label>
                 <FormField
                     :resolver="zodStartYearResolver"
                     name="startYear"
-                >
-                    <DatePicker
+                    ><DateWidget
                         id="startYear"
-                        ref="startYearField"
                         v-model="currentChronology.startYear"
-                        class="flex-shrink"
-                        dateFormat="yy"
-                        view="year"
-                        showIcon
-                        aria-describedby="start-year-help"
-                        aria-required="true"
+                        name="startYear"
+                        :mode="EDIT"
+                        :value="currentChronology.startYear"
+                        graph-slug="heritage_site"
+                        node-alias="start_year"
+                        :show-label="true"
                     />
                 </FormField>
-                <label for="endYear">End Year</label>
+
                 <FormField
                     :resolver="zodEndYearResolver"
                     name="endYear"
                 >
-                    <DatePicker
+                    <DateWidget
                         id="endYear"
-                        ref="endYearField"
                         v-model="currentChronology.endYear"
-                        dateFormat="yy"
-                        view="year"
-                        showIcon
-                        aria-describedby="end-year-help"
-                        aria-required="true"
+                        name="endYear"
+                        :mode="EDIT"
+                        :value="currentChronology.endYear"
+                        graph-slug="heritage_site"
+                        node-alias="end_year"
+                        :show-label="true"
                     />
                 </FormField>
                 <div class="inline-block">
@@ -268,6 +259,7 @@ onMounted(() => {
                                 id="chronologyNotes"
                                 ref="chronologyNotesField"
                                 v-model="currentChronology.chronologyNotes"
+                                placeholder="E.g. Date of major renovations"
                                 theme="snow"
                                 aria-describedby="chronology-help"
                                 fluid
@@ -335,6 +327,7 @@ onMounted(() => {
                                 v-model="
                                     currentArchitectOrBuilder.architectOrBuilderName
                                 "
+                                placeholder="First Name Last Name"
                                 aria-describedby="architect-or-builder-help"
                                 aria-required="true"
                                 fluid
@@ -387,6 +380,7 @@ onMounted(() => {
                                 v-model="
                                     currentArchitectOrBuilder.architectOrBuilderNotes
                                 "
+                                placeholder="Enter relevant notes"
                                 aria-describedby="architect-or-builder-notes-help"
                                 aria-required="true"
                                 fluid
@@ -471,6 +465,7 @@ onMounted(() => {
                                 id="linkText"
                                 ref="linkTextField"
                                 v-model="currentURL.linkText"
+                                placeholder="E.g. Emily Carr House Website"
                                 aria-describedby="link-text-help"
                                 aria-required="true"
                                 fluid
@@ -496,6 +491,7 @@ onMounted(() => {
                                 id="url"
                                 ref="urlField"
                                 v-model="currentURL.url"
+                                placeholder="Enter public URL"
                                 aria-describedby="url-help"
                                 aria-required="true"
                                 fluid

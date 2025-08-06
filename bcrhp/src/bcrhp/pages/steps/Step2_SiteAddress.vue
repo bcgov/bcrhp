@@ -413,4 +413,3 @@ onMounted(() => {
         </FieldSet>
     </Form>
 </template>
-<style scoped></style>

@@ -10,7 +10,7 @@ import { routeNames } from '@/bcrhp/routes.ts';
 const { $gettext } = useGettext();
 const workflowItems = ref([
     {
-        label: $gettext('New Heritage Property'),
+        label: $gettext('Create New Heritage Property'),
         description: $gettext('Add a new site'),
         icon: 'fa fa-file',
         class: 'dashboard-card ipa',
@@ -88,7 +88,7 @@ const workflowItems = ref([
 .dashboard-card.ipa {
     border: 1px solid #7847ce;
     border-radius: 0%;
-    height: 253px;
+    height: 252px;
     max-width: 275px;
     margin: 5px;
     text-align: center;

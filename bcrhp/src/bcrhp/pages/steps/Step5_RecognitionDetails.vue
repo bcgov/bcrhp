@@ -6,7 +6,7 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
-import DatePicker from 'primevue/datepicker';
+import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
@@ -20,7 +20,6 @@ import {
     RecognitionDetails,
     getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
-import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
@@ -48,10 +47,10 @@ const totalRecognitionDetails = ref([] as Array<string>);
 
 const addOtherReferenceNumberDisabled = computed(
     () =>
-        recognitionDetailsForm.value?.states?.designationDate?.pristine ||
+        recognitionDetailsForm.value?.states?.designation_date?.pristine ||
         recognitionDetailsForm.value?.states?.legislative_act?.pristine ||
         recognitionDetailsForm.value?.states?.referenceNumber?.pristine ||
-        recognitionDetailsForm.value?.states?.designationDate?.invalid ||
+        recognitionDetailsForm.value?.states?.designation_date?.invalid ||
         recognitionDetailsForm.value?.states?.legislative_act?.invalid ||
         recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
         heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
@@ -65,15 +64,7 @@ const isValid = () => {
 const saveRecognitionDetails = function () {
     console.log('saveRecognitionDetails');
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate:
-            currentRecognitionDetails.value.designationDate.toLocaleDateString(
-                'en-CA',
-                {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                },
-            ),
+        designationDate: currentRecognitionDetails.value.designationDate,
         legislativeAct:
             recognitionDetailsForm?.value?.states.legislative_act.value,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
@@ -111,26 +102,16 @@ onMounted(() => {
                 :resolver="designationDateResolver"
                 name="designationDate"
             >
-                <LabelledInput
-                    label="Designation or Recognition Start Date"
-                    hint="The date the designation or recognition was brought into effect"
-                    input-name="designationDate"
-                    :error-message="$form.designationDate?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <DatePicker
-                            id="designationDate"
-                            ref="designationDateField"
-                            v-model="currentRecognitionDetails.designationDate"
-                            name="designationDate"
-                            :dateFormat="DATE_FORMAT"
-                            showIcon
-                            aria-describedby="designation-date-help"
-                            aria-required="true"
-                        />
-                    </div>
-                </LabelledInput>
+                <DateWidget
+                    id="designationDate"
+                    v-model="currentRecognitionDetails.designationDate"
+                    name="designationDate"
+                    :mode="EDIT"
+                    :value="currentRecognitionDetails.designationDate"
+                    graph-slug="heritage_site"
+                    node-alias="designation_or_protection_start_date"
+                    :show-label="true"
+                />
             </FormField>
             <LabelledInput
                 label="Legislative Act"
@@ -184,6 +165,7 @@ onMounted(() => {
                         id="referenceNumber"
                         ref="referenceNumberField"
                         v-model="currentRecognitionDetails.referenceNumber"
+                        placeholder="Enter Reference Number"
                         aria-describedby="reference-number-help"
                         name="referenceNumber"
                         aria-required="true"

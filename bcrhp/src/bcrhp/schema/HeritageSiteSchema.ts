@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { CivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
 import { SiteImagesSchema } from '@/bcrhp/schema/SiteImagesSchema.ts';
-import { RecognitionDetails } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
-import { StatementOfSignificance } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
-import { SiteClassification } from '@/bcrhp/schema/SiteClassificationSchema.ts';
-import { SiteDetails } from '@/bcrhp/schema/SiteDetailsSchema.ts';
+import { RecognitionDetailsSchema } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+import { StatementOfSignificanceSchema } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
+import { SiteClassificationSchema } from '@/bcrhp/schema/SiteClassificationSchema.ts';
+import { SiteDetailsSchema } from '@/bcrhp/schema/SiteDetailsSchema.ts';
 
 const HeritageSiteSchema = z.object({
     siteId: z.string().uuid(),
@@ -27,10 +27,10 @@ const HeritageSiteSchema = z.object({
     civicAddress: z.array(CivicAddressSchema),
     civicAddresses: z.array(z.string()).max(5),
     siteImages: z.array(SiteImagesSchema),
-    recognitionDetails: z.array(RecognitionDetails),
-    statementOfSignificance: z.array(StatementOfSignificance),
-    siteClassification: z.array(SiteClassification),
-    siteDetails: z.array(SiteDetails),
+    recognitionDetails: z.array(RecognitionDetailsSchema),
+    statementOfSignificance: z.array(StatementOfSignificanceSchema),
+    siteClassification: z.array(SiteClassificationSchema),
+    siteDetails: z.array(SiteDetailsSchema),
     siteBoundary: z.object(), // This needs to map to a GeoJSON object
     siteBoundaryIncorrect: z.boolean().default(false), // If the geometry from the PID isn't right this flags it
     documentDescription: z.string().max(250),
@@ -73,13 +73,13 @@ class HeritageSite implements HeritageSiteType {
     commonName: string;
     otherNames: string[];
     hasCivicAddress: boolean;
-    civicAddress: object;
+    civicAddress: typeof CivicAddressSchema;
     civicAddresses: string[];
-    siteImages: object;
-    recognitionDetails: object;
-    statementOfSignificance: object;
-    siteClassification: object;
-    siteDetails: object;
+    siteImages: typeof SiteImagesSchema;
+    recognitionDetails: typeof RecognitionDetailsSchema;
+    statementOfSignificance: typeof StatementOfSignificanceSchema;
+    siteClassification: typeof SiteClassificationSchema;
+    siteDetails: typeof SiteDetailsSchema;
     siteBoundary: object;
     siteBoundaryIncorrect: boolean;
     otherName: string;

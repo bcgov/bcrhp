@@ -7,230 +7,256 @@ const heritageSite: typeof HeritageSite = inject(
 ) as typeof HeritageSite;
 </script>
 <template>
-    <p class="mb-2 underline font-bold">Address</p>
+    <div class="step-title">Submission Details</div>
+    <p class="p-margin-top-bottom">
+        Please review the entered information prior to submitting the
+        application:
+    </p>
+    <p class="p-underline-bold">Address</p>
     <div
         v-for="address in heritageSite.civicAddresses"
         :key="address"
+        class="mb-6"
     >
-        <div display="flex flex-col">
+        <div class="div-grid-cols">
             <div>Street Address</div>
-            <div class="justify-self-center">
+            <div>
                 {{ address.streetAddress }}, {{ address.city }},
                 {{ address.postalCode }}
             </div>
+
             <div>Detailed Location</div>
-            <div class="justify-self-center">
-                {{ address.locationDescription }}
-            </div>
-            <div>Legal Description</div>
-            <div
-                v-for="legalDescription in heritageSite.civicAddress
-                    .legalDescriptions"
-                :key="legalDescription"
-                class="justify-self-center"
-            >
-                <div>PID:</div>
-                {{ legalDescription.parcelId }}
-                <div>Legal Address</div>
-                {{ legalDescription.legalAddress }}
+            <div>{{ address.locationDescription }}</div>
+
+            <div>Legal Description(s)</div>
+            <div>
+                <div
+                    v-for="legalDescription in address.legalDescriptions"
+                    :key="legalDescription"
+                    class="mb-1"
+                >
+                    PID: {{ legalDescription.parcelId }}, Legal Description:
+                    {{ legalDescription.legalAddress }}
+                </div>
             </div>
         </div>
     </div>
     <div>
-        <p class="underline font-bold">Site Names</p>
-        <div display="flex flex-col">
+        <p class="p-underline-bold">Site Names</p>
+        <div class="div-grid-cols">
             <div>Common</div>
-            <div class="justify-self-center">{{ heritageSite.commonName }}</div>
+            <div>{{ heritageSite.commonName }}</div>
         </div>
-        <div class="flex flex-col">
-            <div
-                v-for="name in heritageSite.otherNames"
-                :key="name"
-            >
-                <div>Alternate</div>
-                <div class="justify-self-center">{{ name }}</div>
-            </div>
-        </div>
-    </div>
-    <div>
-        <div class="mb-2 underline font-bold mt-2">
-            Official Recognition Details
-        </div>
-        <div class="flex flex-col">
-            <div
-                v-for="recognitionDetail in heritageSite.recognitionDetails
-                    .totalRecognitionDetails"
-                :key="recognitionDetail"
-            >
-                <div>Start Date</div>
-                <div class="justify-self-center">
-                    {{ recognitionDetail.designationDate }}
-                </div>
-                <div>Legislative Act</div>
-                <div class="justify-self-center">
-                    {{ recognitionDetail.legislativeAct?.name }}
-                </div>
-                <div>Reference Number</div>
-                <div class="justify-self-center">
-                    {{ recognitionDetail.referenceNumber }}
+        <div class="div-grid-cols">
+            <div>Alternate</div>
+            <div>
+                <div
+                    v-for="name in heritageSite.otherNames"
+                    :key="name"
+                >
+                    {{ name }}
                 </div>
             </div>
         </div>
     </div>
     <div>
-        <div class="mb-2 underline font-bold mt-2">
-            Statement of Significance
+        <div class="p-underline-bold">Official Recognition Details</div>
+        <div
+            v-for="recognitionDetail in heritageSite.recognitionDetails
+                .totalRecognitionDetails"
+            :key="recognitionDetail"
+            class="div-grid-cols"
+        >
+            <div>Start Date</div>
+            <div>{{ recognitionDetail.designationDate }}</div>
+            <div>Legislative Act</div>
+            <div>{{ recognitionDetail.legislativeAct?.name }}</div>
+            <div>Reference Number</div>
+            <div>{{ recognitionDetail.referenceNumber }}</div>
         </div>
-        <div class="grid grid-cols-2">
+    </div>
+    <div>
+        <div class="p-underline-bold">Statement of Significance</div>
+        <div class="div-grid-cols">
             <div>Description</div>
             <span v-html="heritageSite.statementOfSignificance.description">
             </span>
+        </div>
+        <div class="div-grid-cols">
             <div>Heritage Value</div>
             <span v-html="heritageSite.statementOfSignificance.heritageValue">
             </span>
+        </div>
+        <div class="div-grid-cols">
             <div>Character Defining Elements</div>
             <span
                 v-html="heritageSite.statementOfSignificance.definingElements"
             >
             </span>
+        </div>
+        <div class="div-grid-cols">
             <p>Document Location</p>
             <div>{{ heritageSite.documentLocation }}</div>
         </div>
     </div>
     <div>
-        <div class="mb-2 underline font-bold mt-2">Images</div>
-        <div
-            v-for="image in heritageSite.siteImages"
-            :key="image"
-        >
-            <div display="flex flex-col">
+        <div class="mb-2">Images</div>
+        <div>
+            <div
+                v-for="image in heritageSite.siteImages"
+                :key="image"
+                class="div-grid-cols mb-4"
+            >
                 <div>Type</div>
-                <div class="justify-self-center">{{ image?.imageType }}</div>
+                <div>{{ image?.imageType }}</div>
+
                 <div>View</div>
-                <div class="justify-self-center">{{ image?.imageView }}</div>
+                <div>{{ image?.imageView }}</div>
+
                 <div>Features</div>
-                <div class="justify-self-center">
-                    {{ image?.imageFeatures }}
-                </div>
+                <div>{{ image?.imageFeatures }}</div>
+
                 <div>Date</div>
-                <div class="justify-self-center">{{ image?.imageDate }}</div>
+                <div>{{ image?.imageDate }}</div>
+
                 <div>Description</div>
-                <div class="justify-self-center">
-                    {{ image?.imageDescription }}
-                </div>
+                <div>{{ image?.imageDescription }}</div>
+
                 <div>Photographer</div>
-                <div class="justify-self-center">{{ image?.photographer }}</div>
+                <div>{{ image?.photographer }}</div>
+
                 <div>Copyright</div>
-                <div class="justify-self-center">{{ image?.copyright }}</div>
+                <div>{{ image?.copyright }}</div>
+            </div>
+        </div>
+        <div class="div-grid-cols">
+            <div>Heritage Class</div>
+            <div>
+                <ol class="list-decimal ml-4">
+                    <li
+                        v-for="heritageClass in heritageSite.siteClassification
+                            .heritageClasses"
+                        :key="heritageClass"
+                    >
+                        {{ heritageClass.heritageCategory }},
+                        {{ heritageClass.ownership }} (
+                        {{ heritageClass.contributingResources }} )
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="div-grid-cols">
+            <div>Heritage Function</div>
+            <div>
+                <ol class="list-decimal ml-4">
+                    <li
+                        v-for="heritageFunction in heritageSite
+                            .siteClassification.heritageFunctions"
+                        :key="heritageFunction"
+                    >
+                        {{ heritageFunction.functionCategory }} ({{
+                            heritageFunction.functionCategoryType
+                        }})
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="div-grid-cols">
+            <div>Heritage Theme</div>
+            <div>
+                <ol class="list-decimal ml-4">
+                    <li
+                        v-for="heritageTheme in heritageSite.siteClassification
+                            .heritageThemes"
+                        :key="heritageTheme"
+                    >
+                        {{ heritageTheme }}
+                    </li>
+                </ol>
             </div>
         </div>
         <div>
-            <div class="mb-2 mt-2 underline font-bold">Site Details</div>
-            <div display="flex flex-col">
-                <div>Heritage Class</div>
-                <div
-                    v-for="heritageClass in heritageSite.siteClassification
-                        .heritageClasses"
-                    :key="heritageClass"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <li>
-                            {{ heritageClass.heritageCategory }},
-                            {{ heritageClass.ownership }} ({{
-                                heritageClass.contributingResources.name
-                            }})
-                        </li>
-                    </ol>
-                </div>
-            </div>
-            <div display="flex flex-col">
-                <div>Heritage Function</div>
-                <div
-                    v-for="heritageFunction in heritageSite.siteClassification
-                        .heritageFunctions"
-                    :key="heritageFunction"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <li>
-                            {{ heritageFunction.functionCategory.name }} ({{
-                                heritageFunction.functionCategoryType
-                            }})
-                        </li>
-                    </ol>
-                </div>
-            </div>
-            <div display="flex flex-col">
-                <div>Heritage Theme</div>
-                <div
-                    v-for="heritageTheme in heritageSite.siteClassification
-                        .heritageThemes"
-                    :key="heritageTheme"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <p>{{ heritageTheme.name }}</p>
-                    </ol>
-                </div>
-            </div>
-        </div>
-        <div>
-            <div class="mb-2 underline font-bold mt-2">Site Classification</div>
-            <div class="flex flex-col">
+            <div class="p-underline-bold">Site Classification</div>
+            <div class="div-grid-cols">
                 <div>Chronology</div>
-                <div
-                    v-for="chronology in heritageSite.siteDetails.chronologies"
-                    :key="chronology"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <li>
+                <div>
+                    <ol class="list-decimal ml-4">
+                        <li
+                            v-for="chronology in heritageSite.siteDetails
+                                .chronologies"
+                            :key="chronology"
+                        >
                             {{ chronology.eventType }}, {{ chronology.circa }}
-                            {{ chronology.startYear }}-{{ chronology.endYear }}
+                            {{ chronology.startYear }}–{{ chronology.endYear }}
                             <p>{{ chronology.chronologyNotes }}</p>
                         </li>
                     </ol>
                 </div>
             </div>
-            <div class="flex flex-col">
+            <div class="div-grid-cols">
                 <div>Architects / Builders</div>
-                <div
-                    v-for="architectOrBuilder in heritageSite.siteDetails
-                        .architectsOrBuilders"
-                    :key="architectOrBuilder"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <li>
+                <div>
+                    <ol class="list-decimal ml-4">
+                        <li
+                            v-for="architectOrBuilder in heritageSite
+                                .siteDetails.architectsOrBuilders"
+                            :key="architectOrBuilder"
+                        >
                             {{ architectOrBuilder.architectOrBuilderType.name }}
                             {{ architectOrBuilder.architectOrBuilderName }}
+                            <div>
+                                {{ architectOrBuilder.architectOrBuilderNotes }}
+                            </div>
                         </li>
-                        <div>
-                            {{ architectOrBuilder.architectOrBuilderNotes }}
-                        </div>
                     </ol>
                 </div>
             </div>
-            <div class="flex flex-col">
+            <div class="div-grid-cols">
                 <div>URLs</div>
-                <div
-                    v-for="url in heritageSite.siteDetails.urls"
-                    :key="url"
-                >
-                    <ol class="list-decimal ml-4 justify-self-center">
-                        <li>
-                            {{ url.urlType.name }}: {{ url.url }}
-                            <div>Link Text:</div>
-                            {{ url.linkText }}
+                <div>
+                    <ol class="list-decimal ml-4">
+                        <li
+                            v-for="url in heritageSite.siteDetails.urls"
+                            :key="url"
+                        >
+                            {{ url.urlType }}: {{ url.url }}
+                            <div>
+                                <strong>Link Text:</strong> {{ url.linkText }}
+                            </div>
                         </li>
                     </ol>
                 </div>
             </div>
-            <div>
-                <div class="mb-2 underline font-bold mt-2">
-                    Supporting Documents
-                </div>
-                <div display="flex flex-col">
-                    {{ heritageSite.documentDescription }}
-                    {{ heritageSite.submissionNotes }}
+            <div class="div-grid-cols">
+                <div>Supporting Documents</div>
+                <div>
+                    <p>{{ heritageSite.documentDescription }}</p>
+                    <p>{{ heritageSite.submissionNotes }}</p>
                 </div>
             </div>
         </div>
     </div>
 </template>
+<style scoped>
+.step-title {
+    margin-bottom: 1rem;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: inherit;
+    color: #333;
+}
+.p-margin-top-bottom {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+.p-underline-bold {
+    text-decoration: underline;
+    font-weight: bold;
+}
+.div-grid-cols {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0.75rem 1rem;
+    align-items: start;
+}
+</style>

@@ -4,7 +4,7 @@ import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
-import DatePicker from 'primevue/datepicker';
+import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -14,7 +14,7 @@ import {
     SiteImagesSchema,
     getSiteImages,
 } from '@/bcrhp/schema/SiteImagesSchema.ts';
-import { DATE_FORMAT } from '@/bcrhp/constants.ts';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -144,6 +144,7 @@ const updateImageType = function (
                         id="imageFeatures"
                         ref="imageFeaturesField"
                         v-model="currentSiteImage.imageFeatures"
+                        placeholder="E.g. Stained Glass Window"
                         aria-describedby="image-features-help"
                         fluid
                         class="inline-block"
@@ -155,23 +156,16 @@ const updateImageType = function (
             :resolver="zodImageDatesResolver"
             name="imageDate"
         >
-            <LabelledInput
-                label="Image Date"
-                hint="Date the image was created"
-                input-name="imageDate"
-                :error-message="$form.imageDate?.error?.message"
-                :required="true"
-            >
-                <DatePicker
-                    id="imageDate"
-                    ref="imageDateField"
-                    v-model="imageDate"
-                    :dateFormat="DATE_FORMAT"
-                    showIcon
-                    aria-describedby="image-date-help"
-                    aria-required="true"
-                />
-            </LabelledInput>
+            <DateWidget
+                id="imageDate"
+                v-model="imageDate"
+                name="imageDate"
+                :mode="EDIT"
+                :value="imageDate"
+                graph-slug="heritage_site"
+                node-alias="image_date"
+                :show-label="true"
+            />
         </FormField>
         <FormField
             :resolver="zodImageDescriptionsResolver"
@@ -189,6 +183,7 @@ const updateImageType = function (
                         id="imageDescription"
                         ref="imageDescriptionField"
                         v-model="currentSiteImage.imageDescription"
+                        placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
                         theme="snow"
                         aria-describedby="image-description-help"
                         aria-required="true"
@@ -212,6 +207,7 @@ const updateImageType = function (
                         id="photographer"
                         ref="photographerField"
                         v-model="currentSiteImage.photographer"
+                        placeholder="First Name Last Name"
                         aria-describedby="image-features-help"
                         aria-required="true"
                         fluid
@@ -235,6 +231,7 @@ const updateImageType = function (
                         id="copyright"
                         ref="copyrightField"
                         v-model="currentSiteImage.copyright"
+                        placeholder="E.g. City of Nelson"
                         aria-describedby="copyright-help"
                         aria-required="true"
                         fluid
