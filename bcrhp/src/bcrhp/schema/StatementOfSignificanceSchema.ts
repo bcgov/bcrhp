@@ -1,16 +1,17 @@
+import sanitizeHtml from 'sanitize-html';
 import { z } from 'zod';
 
 function normalizeEditorContent(value: string | null): string {
     if (!value) return '';
 
-    return value
-        .replace(/<[^>]*>/g, '')
+    return sanitizeHtml(value, { allowedTags: [], allowedAttributes: {} })
         .replace(/&nbsp;/g, ' ')
         .trim();
 }
 
 const StatementOfSignificanceSchema = z.object({
-    description: z.string()
+    description: z
+        .string()
         .transform(normalizeEditorContent)
         .refine((value: string) => value !== '', {
             message: 'Description is required.',
@@ -19,7 +20,8 @@ const StatementOfSignificanceSchema = z.object({
             message: 'Description must be 500 characters or less.',
         })
         .nullable(),
-    heritageValue: z.string()
+    heritageValue: z
+        .string()
         .transform(normalizeEditorContent)
         .refine((value: string) => value !== '', {
             message: 'Heritage Value is required.',
@@ -43,7 +45,8 @@ const StatementOfSignificanceSchema = z.object({
             invalid_type_error: 'Document Location is required.',
         })
         .min(1, { message: 'Document Location is required.' })
-        .max(250).nullable(),
+        .max(250)
+        .nullable(),
 });
 
 const requiredStatementOfSignificanceSchema =
