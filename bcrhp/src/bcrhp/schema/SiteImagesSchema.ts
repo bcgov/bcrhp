@@ -1,4 +1,13 @@
+import sanitizeHtml from 'sanitize-html';
 import { z } from 'zod';
+
+function normalizeEditorContent(value: string | null): string {
+    if (!value) return '';
+
+    return sanitizeHtml(value, { allowedTags: [], allowedAttributes: {} })
+        .replace(/&nbsp;/g, ' ')
+        .trim();
+}
 
 const SiteImagesSchema = z.object({
     imageType: z
@@ -12,9 +21,15 @@ const SiteImagesSchema = z.object({
     imageFeatures: z.string().max(250).nullable(),
     imageDate: z.date(),
     imageDescription: z
-        .string({ invalid_type_error: 'Image Type is required.' })
-        .min(1, { message: 'Image Description is required.' })
-        .max(250),
+        .string()
+        .transform(normalizeEditorContent)
+        .refine((value: string) => value !== '', {
+            message: 'Image Description is required.',
+        })
+        .refine((value: string) => value.length <= 250, {
+            message: 'Image Description must be 250 characters or less.',
+        })
+        .nullable(),
     photographer: z.string().max(250).nullable(),
     copyright: z.string().max(250).nullable(),
 });
