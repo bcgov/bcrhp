@@ -176,7 +176,7 @@ onMounted(() => {
                             id="contributingResources"
                             ref="numberOfResourcesField"
                             v-model="currentHeritageClass.contributingResources"
-                             placeholder="1"
+                            placeholder="1"
                             aria-describedby="contributing-resources-help"
                             aria-required="true"
                             fluid
