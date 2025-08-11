@@ -24,7 +24,10 @@
         "moment-timezone": "^0.5.45",
         "nomnom": "npm:@gerhobbelt/nomnom",
         "rimraf": "^5.0.7",
-        "underscore": "^1.13.6"
+        "underscore": "^1.13.6",
+        "sanitize-html": {
+            "entities": "2.2.0"
+        }
     },
     "devDependencies": {
         "@eslint/js": "^9.20.0",
