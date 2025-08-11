@@ -4,7 +4,7 @@ import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
-import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
+import DatePickerWidget from '@/arches_component_lab/widgets/DatePickerWidget/DatePickerWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -156,10 +156,7 @@ const updateImageType = function (
             :resolver="zodImageDatesResolver"
             name="imageDate"
         >
-            <DateWidget
-                id="imageDate"
-                v-model="imageDate"
-                name="imageDate"
+            <DatePickerWidget
                 :mode="EDIT"
                 :value="imageDate"
                 graph-slug="heritage_site"

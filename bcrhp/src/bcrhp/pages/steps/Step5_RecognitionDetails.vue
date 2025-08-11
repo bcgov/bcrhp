@@ -6,7 +6,7 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
-import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
+import DatePickerWidget from '@/arches_component_lab/widgets/DatePickerWidget/DatePickerWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
@@ -102,10 +102,7 @@ onMounted(() => {
                 :resolver="designationDateResolver"
                 name="designationDate"
             >
-                <DateWidget
-                    id="designationDate"
-                    v-model="currentRecognitionDetails.designationDate"
-                    name="designationDate"
+                <DatePickerWidget
                     :mode="EDIT"
                     :value="currentRecognitionDetails.designationDate"
                     graph-slug="heritage_site"

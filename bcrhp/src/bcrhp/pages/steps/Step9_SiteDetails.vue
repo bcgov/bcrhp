@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import DateWidget from '@/arches_component_lab/widgets/DateWidget/DateWidget.vue';
+import DatePickerWidget from '@/arches_component_lab/widgets/DatePickerWidget/DatePickerWidget.vue';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
@@ -202,10 +202,7 @@ onMounted(() => {
                 <FormField
                     :resolver="zodStartYearResolver"
                     name="startYear"
-                    ><DateWidget
-                        id="startYear"
-                        v-model="currentChronology.startYear"
-                        name="startYear"
+                    ><DatePickerWidget
                         :mode="EDIT"
                         :value="currentChronology.startYear"
                         graph-slug="heritage_site"
@@ -218,7 +215,7 @@ onMounted(() => {
                     :resolver="zodEndYearResolver"
                     name="endYear"
                 >
-                    <DateWidget
+                    <DatePickerWidget
                         id="endYear"
                         v-model="currentChronology.endYear"
                         name="endYear"
