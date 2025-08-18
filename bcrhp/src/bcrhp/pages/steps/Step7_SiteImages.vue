@@ -4,7 +4,7 @@ import type { Ref } from 'vue';
 
 import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
-import DatePickerWidget from '@/arches_component_lab/widgets/DatePickerWidget/DatePickerWidget.vue';
+import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -14,7 +14,7 @@ import {
     SiteImagesSchema,
     getSiteImages,
 } from '@/bcrhp/schema/SiteImagesSchema.ts';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -156,13 +156,23 @@ const updateImageType = function (
             :resolver="zodImageDatesResolver"
             name="imageDate"
         >
-            <DatePickerWidget
-                :mode="EDIT"
-                :value="imageDate"
-                graph-slug="heritage_site"
-                node-alias="image_date"
-                :show-label="true"
-            />
+            <LabelledInput
+                label="Image Date"
+                hint="Date the image was created"
+                input-name="imageDate"
+                :error-message="$form.imageDate?.error?.message"
+                :required="true"
+            >
+                <DatePicker
+                    id="imageDate"
+                    ref="imageDateField"
+                    v-model="imageDate"
+                    :dateFormat="DATE_FORMAT"
+                    showIcon
+                    aria-describedby="image-date-help"
+                    aria-required="true"
+                />
+            </LabelledInput>
         </FormField>
         <FormField
             :resolver="zodImageDescriptionsResolver"

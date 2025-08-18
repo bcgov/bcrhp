@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import DatePickerWidget from '@/arches_component_lab/widgets/DatePickerWidget/DatePickerWidget.vue';
+import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import ConceptSelect from '@/bcgov_arches_common/components/ConceptSelect/ConceptSelect.vue';
@@ -21,7 +21,6 @@ import {
     getChronologySchema,
     getURLsSchema,
 } from '@/bcrhp/schema/SiteDetailsSchema.ts';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 
 const heritageSite: typeof HeritageSite = inject(
     'heritageSite',
@@ -78,11 +77,11 @@ const isValidRelatedURLs = () => {
 const addChronologyDisabled = computed(
     () =>
         chronologyForm.value?.states?.eventType?.pristine ||
-        chronologyForm.value?.states?.start_year?.pristine ||
-        chronologyForm.value?.states?.end_year?.pristine ||
+        chronologyForm.value?.states?.startYear?.pristine ||
+        chronologyForm.value?.states?.endYear?.pristine ||
         chronologyForm.value?.states?.eventType?.invalid ||
-        chronologyForm.value?.states?.start_year?.invalid ||
-        chronologyForm.value?.states?.end_year?.invalid ||
+        chronologyForm.value?.states?.startYear?.invalid ||
+        chronologyForm.value?.states?.endYear?.invalid ||
         heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
 );
 const addArchitectOrBuilderDisabled = computed(
@@ -199,31 +198,37 @@ onMounted(() => {
                         </FormField>
                     </div>
                 </div>
+                <label for="startYear">Start Year</label>
                 <FormField
                     :resolver="zodStartYearResolver"
                     name="startYear"
-                    ><DatePickerWidget
-                        :mode="EDIT"
-                        :value="currentChronology.startYear"
-                        graph-slug="heritage_site"
-                        node-alias="start_year"
-                        :show-label="true"
+                >
+                    <DatePicker
+                        id="startYear"
+                        ref="startYearField"
+                        v-model="currentChronology.startYear"
+                        class="flex-shrink"
+                        dateFormat="yy"
+                        view="year"
+                        showIcon
+                        aria-describedby="start-year-help"
+                        aria-required="true"
                     />
                 </FormField>
-
+                <label for="endYear">End Year</label>
                 <FormField
                     :resolver="zodEndYearResolver"
                     name="endYear"
                 >
-                    <DatePickerWidget
+                    <DatePicker
                         id="endYear"
+                        ref="endYearField"
                         v-model="currentChronology.endYear"
-                        name="endYear"
-                        :mode="EDIT"
-                        :value="currentChronology.endYear"
-                        graph-slug="heritage_site"
-                        node-alias="end_year"
-                        :show-label="true"
+                        dateFormat="yy"
+                        view="year"
+                        showIcon
+                        aria-describedby="end-year-help"
+                        aria-required="true"
                     />
                 </FormField>
                 <div class="inline-block">
