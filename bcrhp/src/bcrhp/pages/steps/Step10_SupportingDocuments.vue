@@ -115,6 +115,7 @@ defineExpose({ isValid });
                                             v-model="
                                                 heritageSite.documentDescription
                                             "
+                                            placeholder="E.g. 1234 Street Bylaw # 24-01-01"
                                             aria-describedby="document-description-help"
                                             aria-required="true"
                                             fluid
@@ -155,5 +156,3 @@ defineExpose({ isValid });
         </Fieldset>
     </Form>
 </template>
-
-<style></style>

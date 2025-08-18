@@ -153,143 +153,132 @@ const showDebug = ref(false);
                     </StepList>
                 </div>
                 <div class="bcgov-vertical-step-panels">
-                    <h3>Submit New Heritage Property</h3>
+                    <h1>Submit New Heritage Property</h1>
                     <p v-if="currentStep === 1">
                         This form is for local governments and regional
                         districts to submit a notice of new heritage property to
                         the BC Register of Historic Places
                     </p>
-                    <div class="">
-                        <StepperNavigation
-                            :step-number="currentStep"
-                            :validate-fn="isValid"
-                            :show-previous="showPrevious"
-                            :next-label="nextLabel"
-                            @next-click="activateNextStep"
-                            @previous-click="activatePreviousStep"
-                        >
-                        </StepperNavigation>
-                    </div>
-                    <StepPanel
-                        v-slot="{ activateCallback }"
-                        :value="2"
-                    >
-                        <div class="">
-                            <div class="step-title">Site Location</div>
-                        </div>
-                        <SiteAddress ref="step2"></SiteAddress>
-                        <div class="">
-                            <StepperNavigation
-                                :step-number="2"
-                                :validate-fn="isValid"
-                                @next-click="activateCallback(3)"
-                                @previous-click="activateCallback(1)"
-                            ></StepperNavigation>
-                        </div>
-                    </StepPanel>
                     <StepPanels>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="1"
-                        >
+                        <StepPanel :value="1">
                             <NewSiteStep1 ref="step1"></NewSiteStep1>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="1"
-                                    :show-previous="false"
-                                    :validate-fn="isValid"
-                                    @next-click="activateCallback(2)"
-                                ></StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :show-previous="false"
+                                :validate-fn="isValid"
+                                @next-click="activateNextStep"
+                            ></StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="3"
-                        >
-                            <div class="">
-                                <div class="step-title">Spatial Location</div>
-                            </div>
+                        <StepPanel :value="2">
+                            <h3>Site Location</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
+                            <SiteAddress ref="step2"></SiteAddress>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
+                        </StepPanel>
+                        <StepPanel :value="3">
+                            <h3 class="heading-margin-bottom">
+                                Spatial Location
+                            </h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                             <SpatialLocation ref="step3"></SpatialLocation>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="3"
-                                    :validate-fn="isValid"
-                                    @next-click="activateCallback(4)"
-                                    @previous-click="activateCallback(2)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="4"
-                        >
-                            <div class="">
-                                <div class="step-title">
-                                    Heritage Site Name(s)
-                                </div>
-                            </div>
+                        <StepPanel :value="4">
+                            <h3>Heritage Site Name(s)</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <SiteNames ref="step4"></SiteNames>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="4"
-                                    :validate-fn="isValid"
-                                    @next-click="activateCallback(5)"
-                                    @previous-click="activateCallback(3)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="5"
-                        >
-                            <div class="">
-                                <div class="step-title">
-                                    Official Recognition Details
-                                </div>
-                            </div>
+                        <StepPanel :value="5">
+                            <h3>Official Recognition Details</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <RecognitionDetails
                                 ref="step5"
                             ></RecognitionDetails>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="5"
-                                    :validate-fn="isValid"
-                                    @next-click="activateCallback(6)"
-                                    @previous-click="activateCallback(4)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="6"
-                        >
-                            <div class="">
-                                <div class="step-title">
-                                    Statement of Significance
-                                </div>
-                            </div>
+                        <StepPanel :value="6">
+                            <h3>Statement of Significance</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <SOS ref="step6"></SOS>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="6"
-                                    :validate-fn="isValid"
-                                    next-label="Next"
-                                    @next-click="activateCallback(7)"
-                                    @previous-click="activateCallback(5)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Next"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="7"
-                        >
-                            <div class="">
-                                <div class="step-title">Images</div>
-                            </div>
+                        <StepPanel :value="7">
+                            <h3>Images</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <p>
                                 Upload 1-10 images for the historic site. File
                                 types must be jpg/jpeg with a max file size of
@@ -297,116 +286,108 @@ const showDebug = ref(false);
                                 Supporting Documents section
                             </p>
                             <SiteImages ref="step7"></SiteImages>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="7"
-                                    :validate-fn="isValid"
-                                    next-label="Next"
-                                    @next-click="activateCallback(8)"
-                                    @previous-click="activateCallback(6)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Next"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="8"
-                        >
-                            <div class="">
-                                <div class="step-title">
-                                    Site Classification
-                                </div>
-                            </div>
+                        <StepPanel :value="8">
+                            <h3>Site Classification</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <SiteClassification
                                 ref="step8"
                             ></SiteClassification>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="8"
-                                    :validate-fn="isValid"
-                                    next-label="Next"
-                                    @next-click="activateCallback(9)"
-                                    @previous-click="activateCallback(7)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Next"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="9"
-                        >
-                            <div class="">
-                                <div class="step-title">Site Details</div>
-                            </div>
+                        <StepPanel :value="9">
+                            <h3>Site Details</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <SiteDetails ref="step9"></SiteDetails>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="9"
-                                    :validate-fn="isValid"
-                                    next-label="Next"
-                                    @next-click="activateCallback(10)"
-                                    @previous-click="activateCallback(8)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Next"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="10"
-                        >
-                            <div class="">
-                                <div class="step-title">
-                                    Supporting Documents
-                                </div>
-                            </div>
+                        <StepPanel :value="10">
+                            <h3>Supporting Documents</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <SupportingDocuments
                                 ref="step10"
                             ></SupportingDocuments>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="10"
-                                    :validate-fn="isValid"
-                                    next-label="Next"
-                                    @next-click="activateCallback(11)"
-                                    @previous-click="activateCallback(9)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Next"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
-                        <StepPanel
-                            v-slot="{ activateCallback }"
-                            :value="11"
-                        >
-                            <div class="">
-                                <div class="step-title">Review Submission</div>
-                            </div>
+                        <StepPanel :value="11">
+                            <h3>Review Submission</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="showPrevious"
+                                :next-label="nextLabel"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            ></StepperNavigation>
                             <ReviewSubmission ref="step11"></ReviewSubmission>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="11"
-                                    :validate-fn="isValid"
-                                    next-label="Submit"
-                                    @next-click="activateCallback(12)"
-                                    @previous-click="activateCallback(10)"
-                                >
-                                </StepperNavigation>
-                            </div>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                next-label="Submit"
+                                @next-click="activateNextStep"
+                                @previous-click="activatePreviousStep"
+                            >
+                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="12">
-                            <div class="">
-                                <div class="step-title">
-                                    Submission Complete
-                                </div>
-                            </div>
-                            <div class="">
-                                <StepperNavigation
-                                    :step-number="12"
-                                    :validate-fn="isValid"
-                                    :show-previous="false"
-                                    next-label="Print"
-                                    @next-click="printDetails"
-                                ></StepperNavigation>
-                            </div>
+                            <h3>Submission Complete</h3>
+                            <StepperNavigation
+                                :step-number="currentStep"
+                                :validate-fn="isValid"
+                                :show-previous="false"
+                                next-label="Print"
+                                @next-click="printDetails"
+                            ></StepperNavigation>
                         </StepPanel>
                     </StepPanels>
                 </div>
@@ -414,7 +395,9 @@ const showDebug = ref(false);
         </Stepper>
     </Panel>
 </template>
-
+<style>
+@import url('@/bcgov_arches_common/css/arches_common.css');
+</style>
 <style scoped>
 .dashboard-card {
     font-size: 1.1rem;

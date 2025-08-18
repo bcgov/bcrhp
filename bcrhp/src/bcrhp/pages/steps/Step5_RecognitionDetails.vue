@@ -65,15 +65,7 @@ const isValid = () => {
 const saveRecognitionDetails = function () {
     console.log('saveRecognitionDetails');
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate:
-            currentRecognitionDetails.value.designationDate.toLocaleDateString(
-                'en-CA',
-                {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                },
-            ),
+        designationDate: currentRecognitionDetails.value.designationDate,
         legislativeAct:
             recognitionDetailsForm?.value?.states.legislative_act.value,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
@@ -184,6 +176,7 @@ onMounted(() => {
                         id="referenceNumber"
                         ref="referenceNumberField"
                         v-model="currentRecognitionDetails.referenceNumber"
+                        placeholder="Enter Reference Number"
                         aria-describedby="reference-number-help"
                         name="referenceNumber"
                         aria-required="true"

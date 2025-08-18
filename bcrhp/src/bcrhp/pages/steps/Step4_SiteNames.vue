@@ -83,6 +83,7 @@ onMounted(() => {
                             id="commonName"
                             v-model="heritageSite.commonName"
                             name="commonName"
+                            placeholder="Enter Site's Common Name"
                             aria-describedby="username-help"
                             aria-required="true"
                             fluid
@@ -111,6 +112,7 @@ onMounted(() => {
                         id="otherName"
                         v-model="otherName"
                         name="otherName"
+                        placeholder="Enter Additional Site Name"
                         aria-describedby="other-name-help"
                         aria-required="true"
                         fluid

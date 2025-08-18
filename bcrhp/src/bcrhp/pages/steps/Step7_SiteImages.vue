@@ -144,6 +144,7 @@ const updateImageType = function (
                         id="imageFeatures"
                         ref="imageFeaturesField"
                         v-model="currentSiteImage.imageFeatures"
+                        placeholder="E.g. Stained Glass Window"
                         aria-describedby="image-features-help"
                         fluid
                         class="inline-block"
@@ -189,6 +190,7 @@ const updateImageType = function (
                         id="imageDescription"
                         ref="imageDescriptionField"
                         v-model="currentSiteImage.imageDescription"
+                        placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
                         theme="snow"
                         aria-describedby="image-description-help"
                         aria-required="true"
@@ -212,6 +214,7 @@ const updateImageType = function (
                         id="photographer"
                         ref="photographerField"
                         v-model="currentSiteImage.photographer"
+                        placeholder="First Name Last Name"
                         aria-describedby="image-features-help"
                         aria-required="true"
                         fluid
@@ -235,6 +238,7 @@ const updateImageType = function (
                         id="copyright"
                         ref="copyrightField"
                         v-model="currentSiteImage.copyright"
+                        placeholder="E.g. City of Nelson"
                         aria-describedby="copyright-help"
                         aria-required="true"
                         fluid

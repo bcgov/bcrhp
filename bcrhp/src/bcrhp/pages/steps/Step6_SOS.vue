@@ -62,6 +62,7 @@ defineExpose({ isValid });
                             v-model="
                                 heritageSite.statementOfSignificance.description
                             "
+                            placeholder="E.g. The historic place is located at..."
                             theme="snow"
                             aria-describedby="description-help"
                             aria-required="true"
@@ -89,6 +90,7 @@ defineExpose({ isValid });
                                 heritageSite.statementOfSignificance
                                     .heritageValue
                             "
+                            placeholder="E.g. The historic place ha aesthetic, cultural and social value for its..."
                             theme="snow"
                             aria-describedby="heritage-value-help"
                             aria-required="true"
@@ -116,6 +118,7 @@ defineExpose({ isValid });
                                 heritageSite.statementOfSignificance
                                     .definingElements
                             "
+                            placeholder="E.g The elements that define the heritage character of the historic place include: ..."
                             theme="snow"
                             aria-describedby="defining-elements-help"
                             aria-required="true"
@@ -143,6 +146,7 @@ defineExpose({ isValid });
                                 heritageSite.statementOfSignificance
                                     .documentLocation
                             "
+                            placeholder="E.g. City of Courtenay, PLanning Department"
                             aria-describedby="document-location-help"
                             aria-required="true"
                             fluid

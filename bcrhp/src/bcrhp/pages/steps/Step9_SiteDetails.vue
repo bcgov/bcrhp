@@ -109,15 +109,8 @@ const saveChronology = function () {
     console.log('saveChronology');
     heritageSiteRef.value.siteDetails.chronologies.push({
         eventType: currentChronology.value.eventType,
-        startYear: currentChronology.value.startYear.toLocaleDateString(
-            'en-CA',
-            {
-                year: 'numeric',
-            },
-        ),
-        endYear: currentChronology.value.endYear.toLocaleDateString('en-CA', {
-            year: 'numeric',
-        }),
+        startYear: currentChronology.value.startYear,
+        endYear: currentChronology.value.endYear,
         circa: currentChronology.value.circa?.toString(),
         chronologyNotes: currentChronology.value.chronologyNotes,
     });
@@ -268,6 +261,7 @@ onMounted(() => {
                                 id="chronologyNotes"
                                 ref="chronologyNotesField"
                                 v-model="currentChronology.chronologyNotes"
+                                placeholder="E.g. Date of major renovations"
                                 theme="snow"
                                 aria-describedby="chronology-help"
                                 fluid
@@ -335,6 +329,7 @@ onMounted(() => {
                                 v-model="
                                     currentArchitectOrBuilder.architectOrBuilderName
                                 "
+                                placeholder="First Name Last Name"
                                 aria-describedby="architect-or-builder-help"
                                 aria-required="true"
                                 fluid
@@ -387,6 +382,7 @@ onMounted(() => {
                                 v-model="
                                     currentArchitectOrBuilder.architectOrBuilderNotes
                                 "
+                                placeholder="Enter relevant notes"
                                 aria-describedby="architect-or-builder-notes-help"
                                 aria-required="true"
                                 fluid
@@ -471,6 +467,7 @@ onMounted(() => {
                                 id="linkText"
                                 ref="linkTextField"
                                 v-model="currentURL.linkText"
+                                placeholder="E.g. Emily Carr House Website"
                                 aria-describedby="link-text-help"
                                 aria-required="true"
                                 fluid
@@ -496,6 +493,7 @@ onMounted(() => {
                                 id="url"
                                 ref="urlField"
                                 v-model="currentURL.url"
+                                placeholder="Enter public URL"
                                 aria-describedby="url-help"
                                 aria-required="true"
                                 fluid
