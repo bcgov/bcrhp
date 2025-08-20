@@ -1,17 +1,20 @@
 import { z } from 'zod';
 
+const ConceptValue = z.object({
+    display_value: z.string(),
+    node_value: z.string().nullable(),
+    details: z.array(z.any()),
+});
+const CollectionItemSchema = z.object({
+    id: z.string(),
+    text: z.string(),
+    conceptId: z.string(),
+    sortOrder: z.string(),
+    children: z.array(z.any()),
+});
 const RecognitionDetailsSchema = z.object({
-    designationDate: z.date({
-        // This handles null values -> null !== typeof Date
-        invalid_type_error: 'Designation date is required.',
-    }),
-    legislativeAct: z
-        .string({
-            // This handles null values -> null !== typeof Date
-            invalid_type_error: 'Legislative Act is required.',
-        })
-        // .min(1, { message: 'Legislative Act is required.' })
-        .max(250),
+    designationDate: ConceptValue,
+    legislativeAct: CollectionItemSchema,
     referenceNumber: z
         .string({
             // This handles null values -> null !== typeof Date
@@ -27,8 +30,13 @@ const requiredRecognitionDetailsSchema = RecognitionDetailsSchema.partial({
     legislativeAct: true,
     referenceNumber: true,
 });
+
+// @ts-ignore
+type DateValueType = z.infer<typeof ConceptValue>;
 // @ts-ignore
 type RecognitionDetailsType = z.infer<typeof RecognitionDetailsSchema>;
+// @ts-ignore
+type CollectionItemType = z.infer<typeof CollectionItemSchema>;
 
 function getRecognitionDetails(): RecognitionDetailsType {
     return new RecognitionDetails();
@@ -38,12 +46,12 @@ function getRecognitionDetails(): RecognitionDetailsType {
 class RecognitionDetails implements RecognitionDetailsType {
     constructor() {
         this.designationDate = null;
-        this.legislativeAct = '';
+        this.legislativeAct = null;
         this.referenceNumber = '';
         this.totalRecognitionDetails = [];
     }
-    designationDate: Date | null;
-    legislativeAct: string;
+    designationDate: DateValueType | null;
+    legislativeAct: CollectionItemType;
     referenceNumber: string;
     totalRecognitionDetails: string[];
 }

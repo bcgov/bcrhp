@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+const CollectionItemSchema = z.object({
+    id: z.string(),
+    text: z.string(),
+    conceptId: z.string(),
+    sortOrder: z.string(),
+    children: z.array(z.any()),
+});
+const ConceptOptionSchema = z.object({
+    id: z.string(),
+    conceptid: z.string(),
+    depth: z.number(),
+    language: z.string(),
+    text: z.string(),
+    type: z.string(),
+});
 const SiteClassificationSchema = z.object({
     heritageClasses: z.array(z.string()).max(5),
     heritageFunctions: z.array(z.string()).max(5),
@@ -27,26 +42,11 @@ const HeritageClassSchema = z.object({
         .refine((val: number) => val <= 250, {
             message: 'Number of Contributing Resources must be 250 or less.',
         }),
-    heritageCategory: z
-        .string({
-            invalid_type_error: 'Heritage Category is required.',
-        })
-        .min(1, { message: 'Heritage Category is required.' })
-        .max(250),
-    ownership: z
-        .string({
-            invalid_type_error: 'Ownership is required.',
-        })
-        .min(1, { message: 'Ownership is required.' })
-        .max(250),
+    heritageCategory: ConceptOptionSchema,
+    ownership: ConceptOptionSchema,
 });
 const HeritageFunctionSchema = z.object({
-    functionCategory: z
-        .string({
-            invalid_type_error: 'Function Category is required.',
-        })
-        .min(1, { message: 'Function Category is required.' })
-        .max(250),
+    functionCategory: CollectionItemSchema,
     functionCategoryType: z
         .string({
             invalid_type_error: 'Heritage Category Type is required.',
@@ -55,12 +55,7 @@ const HeritageFunctionSchema = z.object({
         .max(250),
 });
 const HeritageThemeSchema = z.object({
-    heritageTheme: z
-        .string({
-            invalid_type_error: 'Heritage Theme is required.',
-        })
-        .min(1, { message: 'Heritage Theme is required.' })
-        .max(250),
+    heritageTheme: CollectionItemSchema,
 });
 
 const requiredSiteClassificationSchema = SiteClassificationSchema.partial({});
@@ -68,6 +63,10 @@ const requiredHeritageClassSchema = HeritageClassSchema.partial({});
 const requiredHeritageFunctionSchema = HeritageFunctionSchema.partial({});
 const requiredHeritageThemeSchema = HeritageThemeSchema.partial({});
 
+// @ts-ignore
+type CollectionItemType = z.infer<typeof CollectionItemSchema>;
+// @ts-ignore
+type ConceptOptionType = z.infer<typeof ConceptOptionSchema>;
 // @ts-ignore
 type SiteClassificationType = z.infer<typeof SiteClassificationSchema>;
 // @ts-ignore
@@ -106,28 +105,28 @@ class SiteClassification implements SiteClassificationType {
 class HeritageClass implements HeritageClassType {
     constructor() {
         this.contributingResources = 0;
-        this.heritageCategory = '';
-        this.ownership = '';
+        this.heritageCategory = null;
+        this.ownership = null;
     }
     contributingResources: number;
-    heritageCategory: string;
-    ownership: string;
+    heritageCategory: ConceptOptionType;
+    ownership: ConceptOptionType;
 }
 
 class HeritageFunction implements HeritageFunctionType {
     constructor() {
-        this.functionCategory = '';
+        this.functionCategory = null;
         this.functionCategoryType = '';
     }
-    functionCategory: string;
+    functionCategory: CollectionItemType;
     functionCategoryType: string;
 }
 
 class HeritageTheme implements HeritageThemeType {
     constructor() {
-        this.heritageTheme = '';
+        this.heritageTheme = null;
     }
-    heritageTheme: string;
+    heritageTheme: CollectionItemType;
 }
 
 export {

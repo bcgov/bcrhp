@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
+import {
+    useTemplateRef,
+    inject,
+    ref,
+    onMounted,
+    computed,
+    reactive,
+} from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -8,17 +15,20 @@ import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
-import ConceptSelectWidget from '@/arches_component_lab/widgets/ConceptSelectWidget/ConceptSelectWidget.vue';
+import { camelCase } from 'lodash';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
-import ConceptRadioButtons from '@/bcgov_arches_common/components/ConceptSelect/ConceptRadioButtons.vue';
 import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     HeritageClassSchema,
     HeritageFunctionSchema,
+    HeritageThemeSchema,
     HeritageClass,
     HeritageFunction,
+    HeritageTheme,
     getHeritageClassSchema,
     getHeritageFunctionSchema,
+    getHeritageThemeSchema,
 } from '@/bcrhp/schema/SiteClassificationSchema.ts';
 
 const heritageSite: typeof HeritageSite = inject(
@@ -35,11 +45,14 @@ const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
 const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageThemeForm',
 ) as Ref<FormInstance | null>;
-const currentHeritageClass: typeof HeritageClass = ref(
+const currentHeritageClass: typeof HeritageClass = reactive(
     getHeritageClassSchema(),
 );
-const currentHeritageFunction: typeof HeritageFunction = ref(
+const currentHeritageFunction: typeof HeritageFunction = reactive(
     getHeritageFunctionSchema(),
+);
+const currentHeritageTheme: typeof HeritageTheme = reactive(
+    getHeritageThemeSchema(),
 );
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
@@ -47,13 +60,6 @@ const heritageThemes = ref([] as Array<string>);
 
 const zodContributingResourcesResolver = zodResolver(
     HeritageClassSchema.shape.contributingResources,
-);
-const zodHeritageCategoryResolver = zodResolver(
-    HeritageClassSchema.shape.heritageCategory,
-);
-const zodOwnershipResolver = zodResolver(HeritageClassSchema.shape.ownership);
-const zodFunctionCategoryTypeResolver = zodResolver(
-    HeritageFunctionSchema.shape.functionCategoryType,
 );
 const isValidHeritageClass = () => {
     return heritageClassForm.value?.valid;
@@ -68,19 +74,19 @@ const isValidHeritageTheme = () => {
 const addOtherHeritageClassDisabled = computed(
     () =>
         heritageClassForm.value?.states?.contributingResources?.pristine ||
-        heritageClassForm.value?.states?.heritageCategory?.pristine ||
+        heritageClassForm.value?.states?.heritage_category?.pristine ||
         heritageClassForm.value?.states?.ownership?.pristine ||
         heritageClassForm.value?.states?.contributingResources?.invalid ||
-        heritageClassForm.value?.states?.heritageCategory?.invalid ||
+        heritageClassForm.value?.states?.heritage_category?.invalid ||
         heritageClassForm.value?.states?.ownership?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageClasses?.length > 4,
 );
 const addOtherHeritageFunctionDisabled = computed(
     () =>
         !heritageFunctionForm.value?.states?.functional_category?.value ||
-        !heritageFunctionForm.value?.states?.functionCategoryType?.value ||
+        !heritageFunctionForm.value?.states?.function_category_type?.value ||
         heritageFunctionForm.value?.states?.functional_category?.invalid ||
-        heritageFunctionForm.value?.states?.functionCategoryType?.invalid ||
+        heritageFunctionForm.value?.states?.function_category_type?.invalid ||
         heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
 );
 const addOtherHeritageThemeDisabled = computed(
@@ -93,9 +99,11 @@ const addOtherHeritageThemeDisabled = computed(
 const saveHeritageClass = function () {
     console.log('saveHeritageClass');
     heritageSiteRef.value.siteClassification.heritageClasses.push({
-        contributingResources: currentHeritageClass.value.contributingResources,
-        heritageCategory: currentHeritageClass.value.heritageCategory,
-        ownership: currentHeritageClass.value.ownership,
+        contributingResources:
+            currentHeritageClass.value?.contributingResources,
+        heritageCategory:
+            heritageClassForm.value?.states?.heritage_category?.value,
+        ownership: heritageClassForm.value?.states?.ownership?.value,
     });
 
     heritageClassForm.value?.reset();
@@ -108,7 +116,7 @@ const saveHeritageFunction = function () {
             heritageFunctionForm.value?.states?.functional_category?.value,
         )[0],
         functionCategoryType:
-            currentHeritageFunction.value.functionCategoryType,
+            heritageFunctionForm.value?.states?.function_category_type?.value,
     });
 
     heritageFunctionForm.value?.reset();
@@ -117,7 +125,7 @@ const saveHeritageFunction = function () {
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
     heritageSiteRef.value.siteClassification.heritageThemes.push(
-        Object.keys(heritageThemeForm.value?.states?.heritage_theme?.value)[0],
+        heritageThemeForm.value?.states?.heritage_theme?.value,
     );
 
     heritageThemeForm.value?.reset();
@@ -135,8 +143,48 @@ const deleteHeritageThemeCallback = function (index: number) {
     heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
 };
 
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
+const updateHeritageClassModelValue = function (
+    newValue: object,
+    attribute_name: string,
+) {
+    console.log('updateHeritageClassModelValue', attribute_name, newValue);
+
+    const validator = HeritageClassSchema.shape[camelCase(attribute_name)];
+    const result = validator.safeParse(newValue);
+
+    if (result.success) {
+        currentHeritageClass[attribute_name] = result.data;
+    }
+};
+
+const updateFunctionCategoryModelValue = function (
+    newValue: object,
+    attribute_name: string,
+) {
+    console.log('updateFunctionCategoryModelValue', attribute_name, newValue);
+
+    const validator = HeritageFunctionSchema.shape[camelCase(attribute_name)];
+    const result = validator.safeParse(newValue);
+
+    if (result.success) {
+        currentHeritageFunction[attribute_name] = result.data;
+    }
+};
+
+const updateHeritageThemeModelValue = function (
+    newValue: object,
+    attribute_name: string,
+) {
+    console.log('updateHeritageThemeModelValue', attribute_name, newValue);
+
+    const validator = HeritageThemeSchema.shape[camelCase(attribute_name)];
+    const result = validator.safeParse(newValue);
+
+    if (result.success) {
+        currentHeritageTheme[attribute_name] = result.data;
+    }
+};
+
 defineExpose({
     isValidHeritageClass,
     isValidHeritageFunction,
@@ -194,38 +242,31 @@ onMounted(() => {
                 </LabelledInput>
             </FormField>
             <div class="flex flex-col">
-                <p class="mb-1">Heritage Category</p>
-                <div class="flex flex-col">
-                    <FormField
-                        :resolver="zodHeritageCategoryResolver"
-                        name="heritageCategory"
-                    >
-                        <ConceptRadioButtons
-                            id="heritageCategory"
-                            ref="heritageCategoryField"
-                            v-model="currentHeritageClass.heritageCategory"
-                            graph-slug="heritage_site"
-                            node-alias="heritage_category"
-                            group-direction="column"
-                        />
-                    </FormField>
-                </div>
-                <p class="mb-1">Ownership</p>
-                <div class="flex flex-col">
-                    <FormField
-                        :resolver="zodOwnershipResolver"
-                        name="ownership"
-                    >
-                        <ConceptRadioButtons
-                            id="ownership"
-                            ref="ownershipField"
-                            v-model="currentHeritageClass.ownership"
-                            graph-slug="heritage_site"
-                            node-alias="ownership"
-                            group-direction="column"
-                        />
-                    </FormField>
-                </div>
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="true"
+                    :aliasedNodeData="null"
+                    graph-slug="heritage_site"
+                    node-alias="heritage_category"
+                    group-direction="column"
+                    @update:value="
+                        updateHeritageClassModelValue(
+                            $event,
+                            'heritage_category',
+                        )
+                    "
+                />
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="true"
+                    :aliasedNodeData="null"
+                    graph-slug="heritage_site"
+                    node-alias="ownership"
+                    group-direction="column"
+                    @update:value="
+                        updateHeritageClassModelValue($event, 'ownership')
+                    "
+                />
             </div>
             <MultiValuePlaceholder
                 v-slot="slotProps"
@@ -263,31 +304,36 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex flex-row">
-                    <ConceptSelectWidget
-                        id="functionCategory"
-                        ref="functionCategoryField"
-                        :show-label="false"
+                    <GenericWidget
                         :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
                         graph-slug="heritage_site"
                         node-alias="functional_category"
-                        initial-value=""
+                        placeholder="Select a Function Category"
+                        group-direction="column"
+                        @update:value="
+                            updateFunctionCategoryModelValue(
+                                $event,
+                                'functional_category',
+                            )
+                        "
                     />
                     <div class="inline-block">
-                        <FormField
-                            :resolver="zodFunctionCategoryTypeResolver"
-                            name="functionCategoryType"
-                        >
-                            <ConceptRadioButtons
-                                id="functionCategoryType"
-                                ref="functionCategoryTypeRef"
-                                v-model="
-                                    currentHeritageFunction.functionCategoryType
-                                "
-                                graph-slug="heritage_site"
-                                node-alias="functional_state"
-                                group-direction="column"
-                            />
-                        </FormField>
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :value="null"
+                            graph-slug="heritage_site"
+                            node-alias="functional_state"
+                            group-direction="column"
+                            @update:value="
+                                updateFunctionCategoryModelValue(
+                                    $event,
+                                    'functional_state',
+                                )
+                            "
+                        />
                     </div>
                 </div>
             </LabelledInput>
@@ -335,14 +381,20 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
-                    <ConceptSelectWidget
-                        id="heritageTheme"
-                        ref="heritageThemeField"
-                        :show-label="false"
+                    <GenericWidget
                         :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
-                        initial-value=""
+                        placeholder="Select a Heritage Theme"
+                        group-direction="column"
+                        @update:value="
+                            updateHeritageThemeModelValue(
+                                $event,
+                                'heritage_theme',
+                            )
+                        "
                     />
                 </div>
                 <Button
@@ -361,7 +413,7 @@ onMounted(() => {
                 label="Theme(s)"
                 :deleteCallback="deleteHeritageThemeCallback"
             >
-                <div class="parent value">{{ slotProps.value }}</div>
+                <div class="parent value">{{ slotProps }}</div>
             </MultiValuePlaceholder>
         </Fieldset>
     </Form>

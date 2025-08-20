@@ -6,9 +6,9 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
-import DatePicker from 'primevue/datepicker';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
-import ResourceInstanceSelectWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import { camelCase } from 'lodash';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -20,7 +20,6 @@ import {
     RecognitionDetails,
     getRecognitionDetails,
 } from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
-import { DATE_FORMAT } from '@/bcrhp/constants.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
@@ -38,9 +37,6 @@ const showInactiveHistoricActs = ref(false);
 const designationDateResolver = zodResolver(
     RecognitionDetailsSchema.shape.designationDate,
 );
-const legislativeActResolver = zodResolver(
-    RecognitionDetailsSchema.shape.legislativeAct,
-);
 const referenceNumberResolver = zodResolver(
     RecognitionDetailsSchema.shape.referenceNumber,
 );
@@ -48,10 +44,12 @@ const totalRecognitionDetails = ref([] as Array<string>);
 
 const addOtherReferenceNumberDisabled = computed(
     () =>
-        recognitionDetailsForm.value?.states?.designationDate?.pristine ||
+        recognitionDetailsForm.value?.states
+            ?.designation_or_protection_start_date?.pristine ||
         recognitionDetailsForm.value?.states?.legislative_act?.pristine ||
         recognitionDetailsForm.value?.states?.referenceNumber?.pristine ||
-        recognitionDetailsForm.value?.states?.designationDate?.invalid ||
+        recognitionDetailsForm.value?.states
+            ?.designation_or_protection_start_date?.invalid ||
         recognitionDetailsForm.value?.states?.legislative_act?.invalid ||
         recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
         heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
@@ -64,8 +62,11 @@ const isValid = () => {
 
 const saveRecognitionDetails = function () {
     console.log('saveRecognitionDetails');
+    console.log(currentRecognitionDetails.value);
     heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate: currentRecognitionDetails.value.designationDate,
+        designationDate:
+            recognitionDetailsForm.value?.states
+                ?.designation_or_protection_start_date.value,
         legislativeAct:
             recognitionDetailsForm?.value?.states.legislative_act.value,
         referenceNumber: currentRecognitionDetails.value.referenceNumber,
@@ -81,8 +82,17 @@ const deleteRecognitionDetailsCallback = function (index: number) {
     );
 };
 
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
+const updateModelValue = function (newValue: object, attribute_name: string) {
+    console.log('updateModelValue', attribute_name, newValue);
+    const validator = RecognitionDetailsSchema.shape[camelCase(attribute_name)];
+    const result = validator.safeParse(newValue);
+    console.log(RecognitionDetailsSchema.shape);
+    console.log(result);
+    if (result.success) {
+        currentRecognitionDetails[attribute_name] = result.data;
+    }
+};
+
 defineExpose({ isValid });
 
 onMounted(() => {
@@ -111,15 +121,20 @@ onMounted(() => {
                     :required="true"
                 >
                     <div class="p-inputtext-fluid">
-                        <DatePicker
-                            id="designationDate"
-                            ref="designationDateField"
-                            v-model="currentRecognitionDetails.designationDate"
-                            name="designationDate"
-                            :dateFormat="DATE_FORMAT"
-                            showIcon
-                            aria-describedby="designation-date-help"
-                            aria-required="true"
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="null"
+                            graph-slug="heritage_site"
+                            node-alias="designation_or_protection_start_date"
+                            placeholder="Select a Designation Date"
+                            group-direction="column"
+                            @update:value="
+                                updateModelValue(
+                                    $event,
+                                    'designation_or_protection_start_date',
+                                )
+                            "
                         />
                     </div>
                 </LabelledInput>
@@ -132,13 +147,17 @@ onMounted(() => {
                 :required="true"
             >
                 <div class="p-inputtext-fluid flex">
-                    <ResourceInstanceSelectWidget
-                        :show-label="false"
+                    <GenericWidget
                         :mode="EDIT"
-                        :initial-value="null"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
-                        :business-validator="legislativeActResolver"
+                        placeholder="Select a Legislative Act"
+                        group-direction="column"
+                        @update:value="
+                            updateModelValue($event, 'legislative_act')
+                        "
                     />
                     <div class="inline-block">
                         <LabelledCheckboxInput

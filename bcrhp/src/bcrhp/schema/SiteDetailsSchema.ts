@@ -1,23 +1,29 @@
 import { z } from 'zod';
 
+const ConceptValue = z.object({
+    display_value: z.string(),
+    node_value: z.string().nullable(),
+    details: z.array(z.any()),
+});
+const CollectionItemSchema = z.object({
+    id: z.string(),
+    text: z.string(),
+    conceptId: z.string(),
+    sortOrder: z.string(),
+    children: z.array(z.any()),
+});
 const SiteDetailsSchema = z.object({
     chronologies: z.array(z.string()).max(5),
     architectsOrBuilders: z.array(z.string()).max(5),
     urls: z.array(z.string()).max(5),
 });
 const ChronologySchema = z.object({
-    eventType: z
-        .string({
-            invalid_type_error: 'Event Type is required.',
-        })
-        .min(1, { message: 'Event Type is required.' })
-        .max(250),
-    startYear: z.date(),
-    endYear: z.date(),
+    eventType: CollectionItemSchema,
+    startYear: ConceptValue,
+    endYear: ConceptValue,
     circa: z.string().max(20).nullable(),
     chronologyNotes: z.string().max(1000).nullable(),
 });
-
 const ArchitectBuilderSchema = z.object({
     architectOrBuilderName: z
         .string({
@@ -26,19 +32,11 @@ const ArchitectBuilderSchema = z.object({
         .min(1, { message: 'Architect or Builder Name is required.' })
         .max(250),
     architectOrBuilderNotes: z.string().max(4000).nullable(),
-    architectOrBuilderType: z
-        .string({
-            invalid_type_error: 'Architect or Builder Type is required.',
-        })
-        .min(1, { message: 'Architect or Builder Type is required.' })
-        .max(250),
+    architectOrBuilderType: CollectionItemSchema,
 });
 
 const URLsSchema = z.object({
-    urlType: z
-        .string({ invalid_type_error: 'URL Type is required.' })
-        .min(1, { message: 'URL Type is required.' })
-        .max(250),
+    urlType: CollectionItemSchema,
     linkText: z
         .string({ invalid_type_error: 'Link Text is required.' })
         .min(1, { message: 'Link Text is required.' })
@@ -54,6 +52,10 @@ const requiredChronologySchema = ChronologySchema.partial({});
 const requiredArchitectBuilderSchema = ArchitectBuilderSchema.partial({});
 const requiredURLsSchema = URLsSchema.partial({});
 
+// @ts-ignore
+type DateValueType = z.infer<typeof ConceptValue>;
+// @ts-ignore
+type CollectionItemType = z.infer<typeof CollectionItemSchema>;
 // @ts-ignore
 type SiteDetailsType = z.infer<typeof SiteDetailsSchema>;
 // @ts-ignore
@@ -89,15 +91,15 @@ class SiteDetails implements SiteDetailsType {
 }
 class Chronology implements ChronologyType {
     constructor() {
-        this.eventType = '';
+        this.eventType = null;
         this.startYear = null;
         this.endYear = null;
         this.circa = false;
         this.chronologyNotes = '';
     }
-    eventType: string;
-    startYear: Date | null;
-    endYear: Date | null;
+    eventType: CollectionItemType;
+    startYear: DateValueType | null;
+    endYear: DateValueType | null;
     circa: boolean;
     chronologyNotes: string;
 }
@@ -105,19 +107,19 @@ class ArchitectOrBuilder implements ArchitectOrBuilderType {
     constructor() {
         this.architectOrBuilderName = '';
         this.architectOrBuilderNotes = '';
-        this.architectOrBuilderType = '';
+        this.architectOrBuilderType = null;
     }
     architectOrBuilderName: string;
     architectOrBuilderNotes: string;
-    architectOrBuilderType: string;
+    architectOrBuilderType: CollectionItemType;
 }
 class URLs implements URLsType {
     constructor() {
-        this.urlType = '';
+        this.urlType = null;
         this.linkText = '';
         this.url = '';
     }
-    urlType: string;
+    urlType: CollectionItemType;
     linkText: string;
     url: string;
 }
