@@ -1,24 +1,49 @@
 import { z } from 'zod';
+import DOMPurify from 'dompurify';
 
 const StatementOfSignificanceSchema = z.object({
     description: z
-        .string({
-            invalid_type_error: 'Description is required.',
+        .string()
+        .transform((value: string) => {
+            return DOMPurify.sanitize(value, {
+                ALLOWED_TAGS: [],
+            });
         })
-        .min(1, { message: 'Description is required.' })
-        .max(4000),
+        .refine((value: string) => value !== '', {
+            message: 'Description is required.',
+        })
+        .refine((value: string) => value.length <= 4000, {
+            message: 'Description must be 4000 characters or less.',
+        })
+        .nullable(),
     heritageValue: z
-        .string({
-            invalid_type_error: 'Heritage Value is required.',
+        .string()
+        .transform((value: string) => {
+            return DOMPurify.sanitize(value, {
+                ALLOWED_TAGS: [],
+            });
         })
-        .min(1, { message: 'Heritage Value is required.' })
-        .max(4000),
+        .refine((value: string) => value !== '', {
+            message: 'Heritage Value is required.',
+        })
+        .refine((value: string) => value.length <= 4000, {
+            message: 'Heritage Value must be 4000 characters or less.',
+        })
+        .nullable(),
     definingElements: z
-        .string({
-            invalid_type_error: 'Defining Elements is required.',
+        .string()
+        .transform((value: string) => {
+            return DOMPurify.sanitize(value, {
+                ALLOWED_TAGS: [],
+            });
         })
-        .min(1, { message: 'Defining Elements is required.' })
-        .max(4000),
+        .refine((value: string) => value !== '', {
+            message: 'Defining Elements are required.',
+        })
+        .refine((value: string) => value.length <= 4000, {
+            message: 'Defining Elements must be 4000 characters or less.',
+        })
+        .nullable(),
     documentLocation: z
         .string({
             invalid_type_error: 'Document Location is required.',

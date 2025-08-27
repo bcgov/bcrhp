@@ -55,6 +55,7 @@
         "arches-component-lab": "github:archesproject/arches-component-lab#brf/feat/concept_widgets",
         "bcgov_arches_common": "github:bcgov/bcgov-arches-common#1.2.5",
         "ckeditor5": "44.2.0",
+        "dompurify": "^3.2.6",
         "js-cookie": "^2.1.1",
         "primevue": "^4.2.5",
         "quill": "^2.0.3",
