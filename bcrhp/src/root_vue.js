@@ -3,7 +3,7 @@ import 'vite/modulepreload-polyfill';
 import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
-import { arches } from '@/bcrhp/api.ts';
+import arches from 'arches';
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 import { createApp } from 'vue';
@@ -117,7 +117,7 @@ const BCGovPreset = definePreset(Aura, {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    fetch(`http://localhost/${arches.urls.api_get_frontend_i18n_data}`)
+    fetch(arches.urls.api_get_frontend_i18n_data)
         .then(function (resp) {
             if (!resp.ok) {
                 throw new Error(resp.statusText);

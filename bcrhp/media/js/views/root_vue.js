@@ -3,7 +3,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
-import { arches } from '@/bcrhp/api.ts';
+import arches from 'arches';
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 import { createApp } from 'vue';

@@ -1,27 +1,36 @@
-// import arches from 'arches';
+import arches from 'arches';
 // import Cookies from 'js-cookie';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 
-// @todo Initialize these from sever API call?
-export const arches = {
-    prefix: 'http://localhost/',
-    urls: {
-        api_login: '',
-        api_logout: '',
-        api_user: 'http://localhost/bcrhp/api/user/',
-        api_search: '',
-        paged_dropdown: '',
-        api_bulk_disambiguated_resource_instance:
-            '/bcrhp/api/bulk_disambiguated_resource_instance',
-        api_card: '/bcrhp/cards/',
-        api_get_frontend_i18n_data: '/bcrhp/api/get_frontend_i18n_data',
-        api_node_value: '/bcrhp/api/node_value/',
-        api_search_component_data: '/bcrhp/search_component_data/',
-        api_tiles: '/bcrhp/api/tiles/',
-        api_user_incomplete_workflows: '/bcrhp/api/user_incomplete_workflows',
-        legislative_acts: '/legislative_acts',
-        get_resource_search_url: '/resource_search_string_for_node',
-    },
-};
+// // @todo Initialize these from sever API call?
+// export const arches = {
+//     prefix: 'http://localhost/',
+//     urls: {
+//         api_login: '',
+//         api_logout: '',
+//         api_user: 'http://localhost/bcrhp/api/user/',
+//         api_search: '',
+//         paged_dropdown: '',
+//         api_bulk_disambiguated_resource_instance:
+//             '/bcrhp/api/bulk_disambiguated_resource_instance',
+//         api_card: '/bcrhp/cards/',
+//         api_get_frontend_i18n_data: '/bcrhp/api/get_frontend_i18n_data',
+//         api_node_value: '/bcrhp/api/node_value/',
+//         api_search_component_data: '/bcrhp/search_component_data/',
+//         api_tiles: '/bcrhp/api/tiles/',
+//         api_user_incomplete_workflows: '/bcrhp/api/user_incomplete_workflows',
+//         legislative_acts: '/legislative_acts',
+//         get_resource_search_url: '/resource_search_string_for_node',
+//     },
+// };
+
+export async function getBlankHeritageSite(): Promise<HeritageSiteType> {
+    const response = await fetch(
+        arches.urls.api_resource_blank('project_assessment') + '?format=json',
+        {},
+    );
+    return await response.json();
+}
 
 // export const login = async (username: string, password: string) => {
 //     const response = await fetch(arches.urls.api_login, {

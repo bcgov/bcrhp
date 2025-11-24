@@ -13,7 +13,7 @@ const routes = [
     {
         path: '/bcrhp/submissions/new-site/',
         name: 'newSite',
-        component: () => import('@/bcrhp/pages/NewSite.vue'),
+        component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
         meta: {
             shouldShowNavigation: true,
             requiresAuthentication: !dev_mode,

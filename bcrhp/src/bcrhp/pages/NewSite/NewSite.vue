@@ -13,20 +13,20 @@ import type { Ref } from 'vue';
 import type { StepperProps } from 'primevue/stepper';
 import type { StepperState } from 'primevue/stepper';
 
-import NewSiteStep1 from './steps/Step1_About.vue';
-import SiteAddress from './steps/Step2_SiteAddress.vue';
-import SpatialLocation from './steps/Step3_SpatialLocation.vue';
-import SiteNames from './steps/Step4_SiteNames.vue';
-import RecognitionDetails from './steps/Step5_RecognitionDetails.vue';
-import SOS from './steps/Step6_SOS.vue';
-import SiteImages from './steps/Step7_SiteImages.vue';
-import SiteClassification from './steps/Step8_SiteClassification.vue';
-import SiteDetails from './steps/Step9_SiteDetails.vue';
-import SupportingDocuments from './steps/Step10_SupportingDocuments.vue';
-import ReviewSubmission from './steps/Step11_ReviewSubmission.vue';
+import NewSiteStep1 from '@/bcrhp/pages/NewSite/steps/Step1_About.vue';
+import SiteAddress from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddress.vue';
+import SpatialLocation from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocation.vue';
+import SiteNames from '@/bcrhp/pages/NewSite/steps/Step4_SiteNames.vue';
+import RecognitionDetails from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetails.vue';
+import SOS from '@/bcrhp/pages/NewSite/steps/Step6_SOS.vue';
+import SiteImages from '@/bcrhp/pages/NewSite/steps/Step7_SiteImages.vue';
+import SiteClassification from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassification.vue';
+import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
+import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
+import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
 import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+// import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 
 const activateNextStep = () => {
     myStepper.value.d_value++;
