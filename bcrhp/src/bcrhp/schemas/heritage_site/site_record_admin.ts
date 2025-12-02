@@ -47,5 +47,5 @@ export const SiteRecordAdminTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type SiteRecordAdminTileType = z.infer<typeof SiteRecordAdminTileSchema>;

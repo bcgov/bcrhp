@@ -1,61 +1,59 @@
 import { z } from 'zod';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
+import { blankStringValue, currentDateValue } from '@/bcrhp/utils.ts';
+import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { URLValue } from '@/arches_component_lab/datatypes/url/types.ts';
+import { ConceptValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import {
+    StartYearNodeSchema,
+    EndYearNodeSchema,
+} from '@bcrhp/schemas/heritage_site/construction_actors.ts';
+import { ConstructionActorTypeNodeSchema } from '@bcrhp/schemas/heritage_site/construction_actors.ts';
+import {
+    getStringValueSchema,
+    getStringValueRequiredSchema,
+} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { ExternalUrlTypeNodeSchema } from '@bcrhp/schemas/heritage_site/external_url.ts';
 
-const ConceptValue = z.object({
-    display_value: z.string(),
-    node_value: z.string().nullable(),
-    details: z.array(z.any()),
-});
-const CollectionItemSchema = z.object({
-    id: z.string(),
-    text: z.string(),
-    conceptId: z.string(),
-    sortOrder: z.string(),
-    children: z.array(z.any()),
-});
 const SiteDetailsSchema = z.object({
     chronologies: z.array(z.string()).max(5),
     architectsOrBuilders: z.array(z.string()).max(5),
     urls: z.array(z.string()).max(5),
 });
 const ChronologySchema = z.object({
-    eventType: CollectionItemSchema,
-    startYear: ConceptValue,
-    endYear: ConceptValue,
-    circa: z.string().max(20).nullable(),
-    chronologyNotes: z.string().max(1000).nullable(),
+    aliased_data: z.object({
+        start_year: StartYearNodeSchema,
+        dates_approximate: z.boolean().default(false),
+        information_source: getStringValueSchema(250),
+        chronology: z.array(ConceptValueRequiredSchema),
+        chronology_notes: getStringValueSchema(250),
+        end_year: EndYearNodeSchema,
+    }),
 });
-const ArchitectBuilderSchema = z.object({
-    architectOrBuilderName: z
-        .string({
-            invalid_type_error: 'Architect or Builder Name is required.',
-        })
-        .min(1, { message: 'Architect or Builder Name is required.' })
-        .max(250),
-    architectOrBuilderNotes: z.string().max(4000).nullable(),
-    architectOrBuilderType: CollectionItemSchema,
+const ConstructionActorsTileSchema = z.object({
+    aliased_data: z.object({
+        construction_actor_notes: getStringValueSchema(250),
+        construction_actor: getStringValueRequiredSchema(250),
+        construction_actor_type: ConstructionActorTypeNodeSchema,
+    }),
 });
 
 const URLsSchema = z.object({
-    urlType: CollectionItemSchema,
-    linkText: z
-        .string({ invalid_type_error: 'Link Text is required.' })
-        .min(1, { message: 'Link Text is required.' })
-        .max(250),
-    url: z
-        .string({ invalid_type_error: 'URL is required.' })
-        .min(1, { message: 'URL is required.' })
-        .max(250),
+    aliased_data: z.object({
+        external_url_type: ExternalUrlTypeNodeSchema,
+        external_url: z.array(ExternalUrlTileSchema),
+        //link_text ?
+    }),
 });
 
 const requiredSiteDetailsSchema = SiteDetailsSchema.partial({});
 const requiredChronologySchema = ChronologySchema.partial({});
-const requiredArchitectBuilderSchema = ArchitectBuilderSchema.partial({});
+const requiredConstructionActorsTileSchema =
+    ConstructionActorsTileSchema.partial({});
 const requiredURLsSchema = URLsSchema.partial({});
 
-// @ts-ignore
-type DateValueType = z.infer<typeof ConceptValue>;
-// @ts-ignore
-type CollectionItemType = z.infer<typeof CollectionItemSchema>;
 // @ts-ignore
 type SiteDetailsType = z.infer<typeof SiteDetailsSchema>;
 // @ts-ignore
@@ -91,37 +89,49 @@ class SiteDetails implements SiteDetailsType {
 }
 class Chronology implements ChronologyType {
     constructor() {
-        this.eventType = null;
-        this.startYear = null;
-        this.endYear = null;
-        this.circa = false;
-        this.chronologyNotes = '';
+        this.aliased_data = {
+            start_year: currentDateValue(),
+            dates_approximate: false,
+            information_source: blankStringValue(),
+            chronology: blankConceptValue(),
+            chronology_notes: blankStringValue(),
+            end_year: currentDateValue(),
+        };
     }
-    eventType: CollectionItemType;
-    startYear: DateValueType | null;
-    endYear: DateValueType | null;
-    circa: boolean;
-    chronologyNotes: string;
+    aliased_data: {
+        start_year: DateValue;
+        dates_approximate: boolean;
+        information_source: StringValue;
+        chronology: ConceptValue;
+        chronology_notes: StringValue;
+        end_year: DateValue;
+    };
 }
 class ArchitectOrBuilder implements ArchitectOrBuilderType {
     constructor() {
-        this.architectOrBuilderName = '';
-        this.architectOrBuilderNotes = '';
-        this.architectOrBuilderType = null;
+        this.aliased_data = {
+            construction_actor_notes: blankStringValue(),
+            construction_actor: blankStringValue(),
+            construction_actor_type: blankConceptValue(),
+        };
     }
-    architectOrBuilderName: string;
-    architectOrBuilderNotes: string;
-    architectOrBuilderType: CollectionItemType;
+    aliased_data: {
+        construction_actor_notes: StringValue;
+        construction_actor: StringValue;
+        construction_actor_type: ConceptValue;
+    };
 }
 class URLs implements URLsType {
     constructor() {
-        this.urlType = null;
-        this.linkText = '';
-        this.url = '';
+        this.aliased_data = {
+            external_url_type: blankConceptValue(),
+            external_url: blankStringValue(),
+        };
     }
-    urlType: CollectionItemType;
-    linkText: string;
-    url: string;
+    aliased_data: {
+        external_url_type: ConceptValue;
+        external_url: URLValue;
+    };
 }
 
 export {
@@ -134,11 +144,15 @@ export {
     getChronologySchema,
     requiredChronologySchema,
     ArchitectOrBuilder,
-    ArchitectBuilderSchema,
+    ConstructionActorsTileSchema,
     getArchitectOrBuilderSchema,
-    requiredArchitectBuilderSchema,
+    requiredConstructionActorsTileSchema,
     URLs,
     URLsSchema,
     getURLsSchema,
     requiredURLsSchema,
+    type SiteDetailsType,
+    type ChronologyType,
+    type ArchitectOrBuilderType,
+    type URLsType,
 };

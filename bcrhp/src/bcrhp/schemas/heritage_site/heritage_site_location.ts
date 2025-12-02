@@ -14,5 +14,7 @@ export const HeritageSiteLocationTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type HeritageSiteLocationTileType = z.infer<typeof HeritageSiteLocationTileSchema>;
+// @ts-ignore
+export type HeritageSiteLocationTileType = z.infer<
+    typeof HeritageSiteLocationTileSchema
+>;

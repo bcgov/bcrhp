@@ -26,7 +26,7 @@ import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDo
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
 import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-// import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 
 const activateNextStep = () => {
     myStepper.value.d_value++;

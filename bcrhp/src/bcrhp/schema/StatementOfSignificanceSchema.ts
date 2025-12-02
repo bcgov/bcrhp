@@ -1,30 +1,20 @@
 import { z } from 'zod';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { blankStringValue } from '@/bcrhp/utils.ts';
+import { getRichTextValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { SignificanceTypeNodeSchema } from '@bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 
 const StatementOfSignificanceSchema = z.object({
-    description: z
-        .string({
-            invalid_type_error: 'Description is required.',
-        })
-        .min(1, { message: 'Description is required.' })
-        .max(4000),
-    heritageValue: z
-        .string({
-            invalid_type_error: 'Heritage Value is required.',
-        })
-        .min(1, { message: 'Heritage Value is required.' })
-        .max(4000),
-    definingElements: z
-        .string({
-            invalid_type_error: 'Defining Elements is required.',
-        })
-        .min(1, { message: 'Defining Elements is required.' })
-        .max(4000),
-    documentLocation: z
-        .string({
-            invalid_type_error: 'Document Location is required.',
-        })
-        .min(1, { message: 'Document Location is required.' })
-        .max(250),
+    aliased_data: z.object({
+        heritage_value: getRichTextValueRequiredSchema(4000),
+        defining_elements: getRichTextValueRequiredSchema(4000),
+        physical_description: getRichTextValueRequiredSchema(4000),
+        significance_type: SignificanceTypeNodeSchema,
+        document_location: getStringValueRequiredSchema(250),
+    }),
 });
 
 const requiredStatementOfSignificanceSchema =
@@ -41,15 +31,21 @@ function getStatementOfSignificance(): StatementOfSignificanceType {
 // @todo - Figure out object state - New/Updated/Deleted
 class StatementOfSignificance implements StatementOfSignificanceType {
     constructor() {
-        this.description = '';
-        this.heritageValue = '';
-        this.definingElements = '';
-        this.documentLocation = '';
+        this.aliased_data = {
+            heritage_value: blankStringValue(),
+            defining_elements: blankStringValue(),
+            physical_description: blankStringValue(),
+            significance_type: blankConceptValue(),
+            document_location: blankStringValue(),
+        };
     }
-    description: string;
-    heritageValue: string;
-    definingElements: string;
-    documentLocation: string;
+    aliased_data: {
+        heritage_value: StringValue;
+        defining_elements: StringValue;
+        physical_description: StringValue;
+        significance_type: ConceptValue;
+        document_location: StringValue;
+    };
 }
 
 export {
@@ -57,4 +53,5 @@ export {
     StatementOfSignificanceSchema,
     getStatementOfSignificance,
     requiredStatementOfSignificanceSchema,
+    type StatementOfSignificanceType,
 };

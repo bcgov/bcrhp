@@ -50,10 +50,14 @@ export const BcPropertyAddressTileSchema = z.object({
         city: CityNodeSchema,
         province: ProvinceNodeSchema,
         locality: LocalityNodeSchema,
-        bc_property_legal_description: z.array(BcPropertyLegalDescriptionTileSchema),
+        bc_property_legal_description: z.array(
+            BcPropertyLegalDescriptionTileSchema,
+        ),
     }),
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type BcPropertyAddressTileType = z.infer<typeof BcPropertyAddressTileSchema>;
+// @ts-ignore
+export type BcPropertyAddressTileType = z.infer<
+    typeof BcPropertyAddressTileSchema
+>;

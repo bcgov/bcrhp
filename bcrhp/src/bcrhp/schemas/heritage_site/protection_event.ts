@@ -45,8 +45,10 @@ export const ProtectionEventTileSchema = z.object({
     parenttile: z.string().nullable(),
     aliased_data: z.object({
         protection_notes: ProtectionNotesNodeSchema,
-        designation_or_protection_start_date: DesignationOrProtectionStartDateNodeSchema,
-        designation_or_protection_end_date: DesignationOrProtectionEndDateNodeSchema,
+        designation_or_protection_start_date:
+            DesignationOrProtectionStartDateNodeSchema,
+        designation_or_protection_end_date:
+            DesignationOrProtectionEndDateNodeSchema,
         responsible_government: ResponsibleGovernmentNodeSchema,
         legislative_act: LegislativeActNodeSchema,
         reference_number: ReferenceNumberNodeSchema,
@@ -55,4 +57,5 @@ export const ProtectionEventTileSchema = z.object({
     provisionaledits: z.unknown().nullable(),
 });
 
+// @ts-ignore
 export type ProtectionEventTileType = z.infer<typeof ProtectionEventTileSchema>;

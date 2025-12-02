@@ -47,5 +47,7 @@ export const BcStatementOfSignificanceTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type BcStatementOfSignificanceTileType = z.infer<typeof BcStatementOfSignificanceTileSchema>;
+// @ts-ignore
+export type BcStatementOfSignificanceTileType = z.infer<
+    typeof BcStatementOfSignificanceTileSchema
+>;

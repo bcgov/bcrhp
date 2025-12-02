@@ -1,21 +1,21 @@
 import { z } from 'zod';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { NumberValue } from '@/arches_component_lab/datatypes/number/types.ts';
+import { blankStringValue } from '@/bcrhp/utils.ts';
+import {
+    LegalAddressInternalNotesNodeSchema,
+    PinNodeSchema,
+    PidNodeSchema,
+    LegalDescriptionNodeSchema,
+} from '@bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 
 const LegalDescriptionSchema = z.object({
-    pid: z.number().int().min(0).max(999999999),
-    pin: z.number().int().min(0).max(99999999),
-    legalDescription: z.string().max(250),
-    internalNotes: z.string(),
-    overrideAddress: z.boolean().default(false),
-    parcelId: z
-        .string()
-        .min(1, { message: 'Parcel Identifier is required.' })
-        .max(32)
-        .nullable(),
-    legalAddress: z
-        .string()
-        .min(1, { message: 'Legal Address is required.' })
-        .max(80)
-        .nullable(),
+    aliased_data: z.object({
+        legal_address_internal_notes: LegalAddressInternalNotesNodeSchema,
+        pin: PinNodeSchema,
+        pid: PidNodeSchema,
+        legal_description: LegalDescriptionNodeSchema,
+    }),
 });
 // @ts-ignore
 type LegalDescriptionType = z.infer<typeof LegalDescriptionSchema>;
@@ -28,22 +28,19 @@ function getLegalDescription(): LegalDescriptionType {
 
 class LegalDescription implements LegalDescriptionType {
     constructor() {
-        this.legalDescription = '';
-        this.internalNotes = '';
-        this.pid = 0;
-        this.pin = 0;
-        this.parcelId = '';
-        this.overrideLegalDescription = false;
-        this.legalAddress = '';
+        this.aliased_data = {
+            legal_address_internal_notes: blankStringValue(),
+            pin: blankStringValue(),
+            pid: blankStringValue(),
+            legal_description: blankStringValue(),
+        };
     }
-
-    legalDescription: string;
-    internalNotes: string;
-    pid: number;
-    pin: number;
-    parcelId: string;
-    overrideLegalDescription: boolean;
-    legalAddress: string;
+    aliased_data: {
+        legal_address_internal_notes: StringValue;
+        pin: NumberValue;
+        pid: NumberValue;
+        legal_description: StringValue;
+    };
 }
 
 export {
@@ -51,4 +48,5 @@ export {
     LegalDescriptionSchema,
     getLegalDescription,
     requiredLegalDescriptionSchema,
+    type LegalDescriptionType,
 };

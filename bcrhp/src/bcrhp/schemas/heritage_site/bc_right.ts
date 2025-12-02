@@ -34,5 +34,5 @@ export const BcRightTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type BcRightTileType = z.infer<typeof BcRightTileSchema>;

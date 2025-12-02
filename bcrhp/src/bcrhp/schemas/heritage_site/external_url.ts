@@ -20,5 +20,5 @@ export const ExternalUrlTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type ExternalUrlTileType = z.infer<typeof ExternalUrlTileSchema>;

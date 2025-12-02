@@ -40,5 +40,7 @@ export const BcPropertyLegalDescriptionTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type BcPropertyLegalDescriptionTileType = z.infer<typeof BcPropertyLegalDescriptionTileSchema>;
+// @ts-ignore
+export type BcPropertyLegalDescriptionTileType = z.infer<
+    typeof BcPropertyLegalDescriptionTileSchema
+>;

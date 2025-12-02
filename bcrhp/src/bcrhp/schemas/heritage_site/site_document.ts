@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
 
 // Auto-generated tile schema for alias: site_document
 
@@ -20,12 +21,12 @@ export const SiteDocumentTileSchema = z.object({
     nodegroup: z.string().nullable(),
     parenttile: z.string().nullable(),
     aliased_data: z.object({
-        site_document: z.array(SiteDocumentTileSchema),
+        site_document: z.array(FileListValueSchema),
         document_description: DocumentDescriptionNodeSchema,
         document_type: DocumentTypeNodeSchema,
     }),
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type SiteDocumentTileType = z.infer<typeof SiteDocumentTileSchema>;

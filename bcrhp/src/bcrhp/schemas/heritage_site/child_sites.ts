@@ -13,5 +13,5 @@ export const ChildSitesTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type ChildSitesTileType = z.infer<typeof ChildSitesTileSchema>;

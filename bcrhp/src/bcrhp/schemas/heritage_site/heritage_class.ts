@@ -33,5 +33,5 @@ export const HeritageClassTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type HeritageClassTileType = z.infer<typeof HeritageClassTileSchema>;

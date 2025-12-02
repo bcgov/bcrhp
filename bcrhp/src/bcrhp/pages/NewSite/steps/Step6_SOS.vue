@@ -18,16 +18,16 @@ const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',
 ) as Ref<FormInstance | null>;
 const zodDescriptionResolver = zodResolver(
-    StatementOfSignificanceSchema.shape.description,
+    StatementOfSignificanceSchema.shape['aliased_data'].physical_description,
 );
 const zodHeritageValueResolver = zodResolver(
-    StatementOfSignificanceSchema.shape.heritageValue,
+    StatementOfSignificanceSchema.shape['aliased_data'].heritage_value,
 );
 const zodDefiningElementsResolver = zodResolver(
-    StatementOfSignificanceSchema.shape.definingElements,
+    StatementOfSignificanceSchema.shape['aliased_data'].defining_elements,
 );
 const zodDocumentLocationResolver = zodResolver(
-    StatementOfSignificanceSchema.shape.documentLocation,
+    StatementOfSignificanceSchema.shape['aliased_data'].document_location,
 );
 
 const isValid = () => {
@@ -60,7 +60,8 @@ defineExpose({ isValid });
                             id="description"
                             ref="descriptionField"
                             v-model="
-                                heritageSite.statementOfSignificance.description
+                                heritageSite.bc_statement_of_significance
+                                    .aliased_data.description
                             "
                             placeholder="E.g. The historic place is located at..."
                             theme="snow"
@@ -87,8 +88,8 @@ defineExpose({ isValid });
                             id="heritageValue"
                             ref="heritageValueField"
                             v-model="
-                                heritageSite.statementOfSignificance
-                                    .heritageValue
+                                heritageSite.bc_statement_of_significance
+                                    .aliased_data.heritage_value
                             "
                             placeholder="E.g. The historic place ha aesthetic, cultural and social value for its..."
                             theme="snow"
@@ -115,8 +116,8 @@ defineExpose({ isValid });
                             id="definingElements"
                             ref="definingElementsField"
                             v-model="
-                                heritageSite.statementOfSignificance
-                                    .definingElements
+                                heritageSite.bc_statement_of_significance
+                                    .aliased_data.defining_elements
                             "
                             placeholder="E.g The elements that define the heritage character of the historic place include: ..."
                             theme="snow"
@@ -143,10 +144,10 @@ defineExpose({ isValid });
                             id="documentLocation"
                             ref="documentLocationField"
                             v-model="
-                                heritageSite.statementOfSignificance
-                                    .documentLocation
+                                heritageSite.bc_statement_of_significance
+                                    .aliased_data.document_location
                             "
-                            placeholder="E.g. City of Courtenay, PLanning Department"
+                            placeholder="E.g. City of Courtenay, Planning Department"
                             aria-describedby="document-location-help"
                             aria-required="true"
                             fluid

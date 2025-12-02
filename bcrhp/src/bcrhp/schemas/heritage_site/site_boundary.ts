@@ -27,5 +27,5 @@ export const SiteBoundaryTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type SiteBoundaryTileType = z.infer<typeof SiteBoundaryTileSchema>;

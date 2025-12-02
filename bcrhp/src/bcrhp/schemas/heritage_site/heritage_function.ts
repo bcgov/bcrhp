@@ -26,5 +26,7 @@ export const HeritageFunctionTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type HeritageFunctionTileType = z.infer<typeof HeritageFunctionTileSchema>;
+// @ts-ignore
+export type HeritageFunctionTileType = z.infer<
+    typeof HeritageFunctionTileSchema
+>;

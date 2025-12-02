@@ -1,61 +1,43 @@
 import { z } from 'zod';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { NumberValue } from '@/arches_component_lab/datatypes/number/types.ts';
+import { blankResourceInstanceValue, blankStringValue } from '@/bcrhp/utils.ts';
+import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
+import {
+    ContributingResourceCountNodeSchema,
+    OwnershipNodeSchema,
+    HeritageCategoryNodeSchema,
+} from '@bcrhp/schemas/heritage_site/heritage_class.ts';
+import {
+    FunctionalStateNodeSchema,
+    FunctionalCategoryNodeSchema,
+} from '@bcrhp/schemas/heritage_site/heritage_function.ts';
+import { HeritageThemeTileSchema } from '@bcrhp/schemas/heritage_site/heritage_theme.ts';
 
-const CollectionItemSchema = z.object({
-    id: z.string(),
-    text: z.string(),
-    conceptId: z.string(),
-    sortOrder: z.string(),
-    children: z.array(z.any()),
-});
-const ConceptOptionSchema = z.object({
-    id: z.string(),
-    conceptid: z.string(),
-    depth: z.number(),
-    language: z.string(),
-    text: z.string(),
-    type: z.string(),
-});
 const SiteClassificationSchema = z.object({
     heritageClasses: z.array(z.string()).max(5),
     heritageFunctions: z.array(z.string()).max(5),
     heritageThemes: z.array(z.string()).max(5),
 });
 const HeritageClassSchema = z.object({
-    contributingResources: z
-        .string()
-        .transform((val: string, ctx: any) => {
-            const parsed = parseInt(val, 10);
-
-            if (isNaN(parsed)) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: 'Contributing Resources must be a valid number.',
-                });
-                return z.NEVER;
-            }
-
-            return parsed;
-        })
-        .refine((val: number) => val >= 1, {
-            message: 'Number of Contributing Resources is required.',
-        })
-        .refine((val: number) => val <= 250, {
-            message: 'Number of Contributing Resources must be 250 or less.',
-        }),
-    heritageCategory: ConceptOptionSchema,
-    ownership: ConceptOptionSchema,
+    aliased_data: z.object({
+        contributing_resource_count: ContributingResourceCountNodeSchema,
+        ownership: OwnershipNodeSchema,
+        heritage_category: HeritageCategoryNodeSchema,
+    }),
 });
 const HeritageFunctionSchema = z.object({
-    functionCategory: CollectionItemSchema,
-    functionCategoryType: z
-        .string({
-            invalid_type_error: 'Heritage Category Type is required.',
-        })
-        .min(1, { message: 'Heritage Category Type is required.' })
-        .max(250),
+    aliased_data: z.object({
+        functional_state: FunctionalStateNodeSchema,
+        functional_category: FunctionalCategoryNodeSchema,
+    }),
 });
 const HeritageThemeSchema = z.object({
-    heritageTheme: CollectionItemSchema,
+    aliased_data: z.object({
+        heritage_theme: z.array(HeritageThemeTileSchema),
+    }),
 });
 
 const requiredSiteClassificationSchema = SiteClassificationSchema.partial({});
@@ -63,10 +45,6 @@ const requiredHeritageClassSchema = HeritageClassSchema.partial({});
 const requiredHeritageFunctionSchema = HeritageFunctionSchema.partial({});
 const requiredHeritageThemeSchema = HeritageThemeSchema.partial({});
 
-// @ts-ignore
-type CollectionItemType = z.infer<typeof CollectionItemSchema>;
-// @ts-ignore
-type ConceptOptionType = z.infer<typeof ConceptOptionSchema>;
 // @ts-ignore
 type SiteClassificationType = z.infer<typeof SiteClassificationSchema>;
 // @ts-ignore
@@ -104,29 +82,41 @@ class SiteClassification implements SiteClassificationType {
 
 class HeritageClass implements HeritageClassType {
     constructor() {
-        this.contributingResources = 0;
-        this.heritageCategory = null;
-        this.ownership = null;
+        this.aliased_data = {
+            contributing_resource_count: blankStringValue(),
+            ownership: blankConceptValue(),
+            heritage_category: blankConceptValue(),
+        };
     }
-    contributingResources: number;
-    heritageCategory: ConceptOptionType;
-    ownership: ConceptOptionType;
+    aliased_data: {
+        contributing_resource_count: NumberValue;
+        ownership: ConceptValue;
+        heritage_category: ConceptValue;
+    };
 }
 
 class HeritageFunction implements HeritageFunctionType {
     constructor() {
-        this.functionCategory = null;
-        this.functionCategoryType = '';
+        this.aliased_data = {
+            functional_state: blankConceptValue(),
+            functional_category: blankStringValue(),
+        };
     }
-    functionCategory: CollectionItemType;
-    functionCategoryType: string;
+    aliased_data: {
+        functional_state: ConceptValue;
+        functional_category: StringValue;
+    };
 }
 
 class HeritageTheme implements HeritageThemeType {
     constructor() {
-        this.heritageTheme = null;
+        this.aliased_data = {
+            heritage_theme: blankResourceInstanceValue(),
+        };
     }
-    heritageTheme: CollectionItemType;
+    aliased_data: {
+        heritage_theme: ResourceInstanceValue;
+    };
 }
 
 export {
@@ -146,4 +136,7 @@ export {
     HeritageThemeSchema,
     getHeritageThemeSchema,
     requiredHeritageThemeSchema,
+    type HeritageClassType,
+    type HeritageFunctionType,
+    type HeritageThemeType,
 };

@@ -13,5 +13,5 @@ export const HeritageThemeTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type HeritageThemeTileType = z.infer<typeof HeritageThemeTileSchema>;

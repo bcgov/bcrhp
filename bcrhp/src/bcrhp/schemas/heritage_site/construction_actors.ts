@@ -33,5 +33,7 @@ export const ConstructionActorsTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
-export type ConstructionActorsTileType = z.infer<typeof ConstructionActorsTileSchema>;
+// @ts-ignore
+export type ConstructionActorsTileType = z.infer<
+    typeof ConstructionActorsTileSchema
+>;

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ConceptValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 
 // Auto-generated tile schema for alias: chronology
 
@@ -41,12 +42,12 @@ export const ChronologyTileSchema = z.object({
         start_year: StartYearNodeSchema,
         dates_approximate: DatesApproximateNodeSchema,
         information_source: InformationSourceNodeSchema,
-        chronology: z.array(ChronologyTileSchema),
+        chronology: z.array(ConceptValueRequiredSchema),
         chronology_notes: ChronologyNotesNodeSchema,
         end_year: EndYearNodeSchema,
     }),
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type ChronologyTileType = z.infer<typeof ChronologyTileSchema>;

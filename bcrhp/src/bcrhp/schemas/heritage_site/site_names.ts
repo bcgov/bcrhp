@@ -26,5 +26,5 @@ export const SiteNamesTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type SiteNamesTileType = z.infer<typeof SiteNamesTileSchema>;

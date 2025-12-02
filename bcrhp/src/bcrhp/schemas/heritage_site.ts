@@ -2,83 +2,83 @@ import { z } from 'zod';
 import {
     SiteDocumentTileSchema,
     type SiteDocumentTileType,
-} from '@bcrhp/schemas/heritage_site/site_document.ts';
+} from '@/bcrhp/schemas/heritage_site/site_document.ts';
 import {
     BordenNumberTileSchema,
     type BordenNumberTileType,
-} from '@bcrhp/schemas/heritage_site/borden_number.ts';
+} from '@/bcrhp/schemas/heritage_site/borden_number.ts';
 import {
     ChildSitesTileSchema,
     type ChildSitesTileType,
-} from '@bcrhp/schemas/heritage_site/child_sites.ts';
+} from '@/bcrhp/schemas/heritage_site/child_sites.ts';
 import {
     HeritageThemeTileSchema,
     type HeritageThemeTileType,
-} from '@bcrhp/schemas/heritage_site/heritage_theme.ts';
+} from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
 import {
     ExternalUrlTileSchema,
     type ExternalUrlTileType,
-} from '@bcrhp/schemas/heritage_site/external_url.ts';
+} from '@/bcrhp/schemas/heritage_site/external_url.ts';
 import {
     SiteRecordAdminTileSchema,
     type SiteRecordAdminTileType,
-} from '@bcrhp/schemas/heritage_site/site_record_admin.ts';
+} from '@/bcrhp/schemas/heritage_site/site_record_admin.ts';
 import {
     InternalRemarkTileSchema,
     type InternalRemarkTileType,
-} from '@bcrhp/schemas/heritage_site/internal_remark.ts';
+} from '@/bcrhp/schemas/heritage_site/internal_remark.ts';
 import {
     SiteImagesTileSchema,
     type SiteImagesTileType,
-} from '@bcrhp/schemas/heritage_site/site_images.ts';
+} from '@/bcrhp/schemas/heritage_site/site_images.ts';
 import {
     BcPropertyLegalDescriptionTileSchema,
     type BcPropertyLegalDescriptionTileType,
-} from '@bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
+} from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import {
     BcPropertyAddressTileSchema,
     type BcPropertyAddressTileType,
-} from '@bcrhp/schemas/heritage_site/bc_property_address.ts';
+} from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 import {
     SiteBoundaryTileSchema,
     type SiteBoundaryTileType,
-} from '@bcrhp/schemas/heritage_site/site_boundary.ts';
+} from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import {
     HeritageSiteLocationTileSchema,
     type HeritageSiteLocationTileType,
-} from '@bcrhp/schemas/heritage_site/heritage_site_location.ts';
+} from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 import {
     SiteNamesTileSchema,
     type SiteNamesTileType,
-} from '@bcrhp/schemas/heritage_site/site_names.ts';
+} from '@/bcrhp/schemas/heritage_site/site_names.ts';
 import {
     ChronologyTileSchema,
     type ChronologyTileType,
-} from '@bcrhp/schemas/heritage_site/chronology.ts';
+} from '@/bcrhp/schemas/heritage_site/chronology.ts';
 import {
     ProtectionEventTileSchema,
     type ProtectionEventTileType,
-} from '@bcrhp/schemas/heritage_site/protection_event.ts';
+} from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 import {
     BcRightTileSchema,
     type BcRightTileType,
-} from '@bcrhp/schemas/heritage_site/bc_right.ts';
+} from '@/bcrhp/schemas/heritage_site/bc_right.ts';
 import {
     HeritageClassTileSchema,
     type HeritageClassTileType,
-} from '@bcrhp/schemas/heritage_site/heritage_class.ts';
+} from '@/bcrhp/schemas/heritage_site/heritage_class.ts';
 import {
     BcStatementOfSignificanceTileSchema,
     type BcStatementOfSignificanceTileType,
-} from '@bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
+} from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 import {
     HeritageFunctionTileSchema,
     type HeritageFunctionTileType,
-} from '@bcrhp/schemas/heritage_site/heritage_function.ts';
+} from '@/bcrhp/schemas/heritage_site/heritage_function.ts';
 import {
     ConstructionActorsTileSchema,
     type ConstructionActorsTileType,
-} from '@bcrhp/schemas/heritage_site/construction_actors.ts';
+} from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 
 export const HeritageSiteSchema = z.object({
     resourceinstanceid: z.string().nullable(),
@@ -104,5 +104,5 @@ export const HeritageSiteSchema = z.object({
         construction_actors: z.array(ConstructionActorsTileSchema),
     }),
 });
-
+// @ts-ignore
 export type HeritageSiteType = z.infer<typeof HeritageSiteSchema>;

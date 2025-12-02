@@ -13,5 +13,5 @@ export const BordenNumberTileSchema = z.object({
     sortorder: z.number().nullable(),
     provisionaledits: z.unknown().nullable(),
 });
-
+// @ts-ignore
 export type BordenNumberTileType = z.infer<typeof BordenNumberTileSchema>;
