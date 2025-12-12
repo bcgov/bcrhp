@@ -4,7 +4,7 @@ import logging
 from arches.app.datatypes.datatypes import StringDataType
 from arches.app.models import models
 import re
-from bcrhp.util.borden_number_api import BordenNumberApi
+from bcrhp.util.bcap_borden_number_api import BordenNumberApi
 
 borden_number_widget = models.Widget.objects.get(name="borden-number-widget")
 
@@ -95,21 +95,14 @@ class BordenNumberDataType(StringDataType):
         return errors
 
     def clean(self, tile, nodeid):
-        """
-        Enforces AbCd-999 format
-        """
-        super(BordenNumberDataType, self).clean(tile, nodeid)
-        if tile.data[nodeid] is None or tile.data[nodeid]["en"] is None:
-            print("Bypassing clean...")
-            return
+        pass
 
-        borden_number = tile.data[nodeid]["en"]["value"]
-        if borden_number is not None and len(borden_number) >= 6:
-            tile.data[nodeid]["en"]["value"] = (
-                re.sub(r"(.{2})(.{2})", r"\1 \2", borden_number, 1)
-                .title()
-                .replace(" ", "")
-            )
+    def pre_tile_save(self, tile, nodeid):
+        super().pre_tile_save(tile, nodeid)
+        if not self.bn_api.validate_borden_number(
+            tile.data[nodeid]["en"]["value"], tile.resourceinstance_id
+        ):
+            raise Exception("Borden Number has been allocated to another site.")
 
     def post_tile_save(self, tile, nodeid, request):
         # This needs to happen after the save as we can't rollback the HRIA transaction after it is done.
@@ -122,29 +115,10 @@ class BordenNumberDataType(StringDataType):
             "Trying to reserve borden number %s for %s"
             % (value, tile.resourceinstance_id)
         )
-        self.bn_api.reserve_borden_number(value, tile.resourceinstance_id)
-
-    # def transform_export_values(self, value, *args, **kwargs):
-    #     super(BordenNumberDataType, self).transform_export_values(value, args, kwargs)
-    #     if value is not None:
-    #         return value.encode("utf8")
-
-    # def get_search_terms(self, nodevalue, nodeid=None):
-    #     terms = []
-    #     if nodevalue is not None and isinstance(nodevalue, dict):
-    #         if settings.WORDS_PER_SEARCH_TERM is None or (len(nodevalue[key]["value"].split(" ")) < settings.WORDS_PER_SEARCH_TERM):
-    #             terms.append(SearchTerm(value=nodevalue[key]["value"], lang=key))
-    #     return terms
-
-    # def append_search_filters(self, value, node, query, request):
-    #     try:
-    #         if value["val"] != "":
-    #             match_type = "phrase_prefix" if "~" in value["op"] else "phrase"
-    #             match_query = Match(field="tiles.data.%s" % (str(node.pk)), query=value["val"], type=match_type)
-    #             if "!" in value["op"]:
-    #                 query.must_not(match_query)
-    #                 query.filter(Exists(field="tiles.data.%s" % (str(node.pk))))
-    #             else:
-    #                 query.must(match_query)
-    #     except KeyError as e:
-    #         pass
+        reserved_borden_number = self.bn_api.get_next_borden_number(
+            tile.resourceinstance_id, True
+        )
+        # If the next value has changed, set it in the tile and re-save
+        if reserved_borden_number != value:
+            tile.data[nodeid]["en"]["value"] = reserved_borden_number
+            tile.save()

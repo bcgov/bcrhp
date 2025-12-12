@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from arches.app.utils.response import JSONResponse
 from arches.app.utils.betterJSONSerializer import JSONSerializer
-from bcrhp.util.borden_number_api import BordenNumberApi
+from bcrhp.util.bcap_borden_number_api import BordenNumberApi
 from bcrhp.util.business_data_proxy import LegislativeActDataProxy
 from arches.app.models import models
 from bcrhp.util.mvt_tiler import MVTTiler
@@ -22,7 +22,9 @@ class BordenNumber(APIBase):
 
     # Generate a new borden number in HRIA and return it
     def get(self, request, resourceinstanceid):
-        new_borden_number = self.api.get_next_borden_number(resourceinstanceid)
+        new_borden_number = self.api.get_next_borden_number(
+            resourceinstanceid=resourceinstanceid, reserve_borden_number=False
+        )
         # print("Got borden grid: %s" % borden_grid)
         return_data = '{"status": "success", "borden_number": "%s"}' % new_borden_number
         return_bytes = return_data.encode("utf-8")
