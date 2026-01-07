@@ -175,8 +175,8 @@ DATABASES = {
 
 BCAP_API = {
     "API_HOST": get_env_variable("BCAP_API_HOST"),
-    "OAUTH_TOKEN_ENDPOINT": "/bcap/api/borden-number/",
-    "BORDEN_NUMBER_ENDPOINT": "/bcap/o/token/",
+    "BORDEN_NUMBER_ENDPOINT": "/bcap/api/borden-number/",
+    "OAUTH_TOKEN_ENDPOINT": "/bcap/o/token/",
     "BCAP_CREDENTIALS": {
         "OAUTH_CLIENT_ID": get_env_variable("BCAP_OAUTH_CLIENT_ID"),
         "OAUTH_CLIENT_SECRET": get_env_variable("BCAP_OAUTH_CLIENT_SECRET"),

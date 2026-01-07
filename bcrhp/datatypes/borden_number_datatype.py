@@ -71,7 +71,7 @@ class BordenNumberDataType(StringDataType):
                     try:
                         logger.debug("Values: %s, %s" % (value, resource_id))
                         logger.debug("Validating BN existence in validate()")
-                        if self.bn_api.validate_borden_number(
+                        if not self.bn_api.validate_borden_number(
                             value["en"]["value"], resource_id
                         ):
                             errors.append(
