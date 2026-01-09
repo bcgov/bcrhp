@@ -54,3 +54,7 @@ s3_secret_access_key: "{{ lookup('ansible.builtin.env', 'S3_SECRET_ACCESS_KEY') 
 planet_api_key: "{{ lookup('ansible.builtin.env', 'PLANET_API_KEY') }}"
 mapbox_key: "{{ lookup('ansible.builtin.env', 'MAPBOX_KEY') }}"
 oauth_client_secret: "{{ lookup('ansible.builtin.env', 'OAUTH_CLIENT_SECRET') }}"
+
+bcap_api_host: "localhost"
+bcap_oauth_client_id: "{{ lookup('ansible.builtin.env', 'BCAP_OAUTH_CLIENT_ID') }}"
+bcap_oauth_client_secret: "{{ lookup('ansible.builtin.env', 'BCAP_OAUTH_CLIENT_SECRET') }}"
