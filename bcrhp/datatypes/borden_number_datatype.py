@@ -118,6 +118,7 @@ class BordenNumberDataType(StringDataType):
         reserved_borden_number = self.bn_api.get_next_borden_number(
             tile.resourceinstance_id, True
         )
+        logger.debug("Reserved borden number %s" % reserved_borden_number)
         # If the next value has changed, set it in the tile and re-save
         if reserved_borden_number != value:
             tile.data[nodeid]["en"]["value"] = reserved_borden_number
