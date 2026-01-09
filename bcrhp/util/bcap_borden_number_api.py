@@ -35,13 +35,15 @@ class BordenNumberApi:
         return geometry
 
     def _get_request_context(self):
-        if (
-            hasattr(settings, "TILESERVER_OUTBOUND_PROXY")
-            and settings.TILESERVER_OUTBOUND_PROXY
-        ):
-            return urllib3.ProxyManager(settings.TILESERVER_OUTBOUND_PROXY)
-        else:
-            return urllib3.PoolManager()
+        # Leaving this in for now in case BCAP ends up on a different server that requires a forward proxy to access
+        # if (
+        #     hasattr(settings, "TILESERVER_OUTBOUND_PROXY")
+        #     and settings.TILESERVER_OUTBOUND_PROXY
+        # ):
+        #     return urllib3.ProxyManager(settings.TILESERVER_OUTBOUND_PROXY)
+        # else:
+        #     return urllib3.PoolManager()
+        return urllib3.PoolManager()
 
     def get_oauth_token(self):
 
