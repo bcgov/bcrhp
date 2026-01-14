@@ -2,36 +2,41 @@
 import { useTemplateRef, inject } from 'vue';
 import type { Ref } from 'vue';
 
-import InputText from 'primevue/inputtext';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import Editor from 'primevue/editor';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { StatementOfSignificanceSchema } from '@/bcrhp/schema/StatementOfSignificanceSchema.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
+import { BcStatementOfSignificanceTileSchema } from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const emit = defineEmits(['update:stepIsValid']);
 
 const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',
 ) as Ref<FormInstance | null>;
-const zodDescriptionResolver = zodResolver(
-    StatementOfSignificanceSchema.shape['aliased_data'].physical_description,
-);
-const zodHeritageValueResolver = zodResolver(
-    StatementOfSignificanceSchema.shape['aliased_data'].heritage_value,
-);
-const zodDefiningElementsResolver = zodResolver(
-    StatementOfSignificanceSchema.shape['aliased_data'].defining_elements,
-);
-const zodDocumentLocationResolver = zodResolver(
-    StatementOfSignificanceSchema.shape['aliased_data'].document_location,
+const sosResolver = zodResolver(
+    BcStatementOfSignificanceTileSchema.shape['aliased_data'],
 );
 
 const isValid = () => {
     return statementOfSignificanceForm.value?.valid;
+};
+const updateModelValue = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite?.value.aliased_data.bc_statement_of_significance[0]
+            .aliased_data,
+        statementOfSignificanceForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
 defineExpose({ isValid });
@@ -42,120 +47,89 @@ defineExpose({ isValid });
         v-slot="$form"
         name="statementOfSignificanceForm"
         :validateOnBlur="true"
+        :resolver="sosResolver"
     >
         <div>
-            <FormField
-                :resolver="zodDescriptionResolver"
-                name="description"
+            <LabelledInput
+                label="Description"
+                hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
+                input-name="description"
+                :error-message="$form.description?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Description"
-                    hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
-                    input-name="description"
-                    :error-message="$form.description?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <Editor
-                            id="description"
-                            ref="descriptionField"
-                            v-model="
-                                heritageSite.bc_statement_of_significance
-                                    .aliased_data.description
-                            "
-                            placeholder="E.g. The historic place is located at..."
-                            theme="snow"
-                            aria-describedby="description-help"
-                            aria-required="true"
-                            fluid
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
-            <FormField
-                :resolver="zodHeritageValueResolver"
-                name="heritageValue"
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
+                        graph-slug="heritage_site"
+                        node-alias="physical_description"
+                        @update:value="
+                            updateModelValue($event, 'physical_description')
+                        "
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Heritage Value"
+                hint="Describe why the place is valued by the community and identify which heritage values the official recognition is based on"
+                input-name="heritageValue"
+                :error-message="$form.heritageValue?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Heritage Value"
-                    hint="Describe why the place is valued by the community and identify which heritage values the official recognition is based on"
-                    input-name="heritageValue"
-                    :error-message="$form.heritageValue?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <Editor
-                            id="heritageValue"
-                            ref="heritageValueField"
-                            v-model="
-                                heritageSite.bc_statement_of_significance
-                                    .aliased_data.heritage_value
-                            "
-                            placeholder="E.g. The historic place ha aesthetic, cultural and social value for its..."
-                            theme="snow"
-                            aria-describedby="heritage-value-help"
-                            aria-required="true"
-                            fluid
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
-            <FormField
-                :resolver="zodDefiningElementsResolver"
-                name="definingElements"
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
+                        graph-slug="heritage_site"
+                        node-alias="heritage_value"
+                        @update:value="
+                            updateModelValue($event, 'heritage_value')
+                        "
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Character-Defining Elements"
+                hint="List the key features of the heritage site that contribute to its heritage value in bullet-point format"
+                input-name="definingElements"
+                :error-message="$form.definingElements?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Character-Defining Elements"
-                    hint="List the key features of the heritage site that contribute to its heritage value in bullet-point format"
-                    input-name="definingElements"
-                    :error-message="$form.definingElements?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <Editor
-                            id="definingElements"
-                            ref="definingElementsField"
-                            v-model="
-                                heritageSite.bc_statement_of_significance
-                                    .aliased_data.defining_elements
-                            "
-                            placeholder="E.g The elements that define the heritage character of the historic place include: ..."
-                            theme="snow"
-                            aria-describedby="defining-elements-help"
-                            aria-required="true"
-                            fluid
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
-            <FormField
-                :resolver="zodDocumentLocationResolver"
-                name="documentLocation"
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
+                        graph-slug="heritage_site"
+                        node-alias="defining_elements"
+                        @update:value="
+                            updateModelValue($event, 'defining_elements')
+                        "
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Document Location"
+                hint="Enter the government or department name where the original document was created"
+                input-name="documentLocation"
+                :error-message="$form.documentLocation?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Document Location"
-                    hint="Enter the government or department name where the original document was created"
-                    input-name="documentLocation"
-                    :error-message="$form.documentLocation?.error?.message"
-                    :required="true"
-                >
-                    <div>
-                        <InputText
-                            id="documentLocation"
-                            ref="documentLocationField"
-                            v-model="
-                                heritageSite.bc_statement_of_significance
-                                    .aliased_data.document_location
-                            "
-                            placeholder="E.g. City of Courtenay, Planning Department"
-                            aria-describedby="document-location-help"
-                            aria-required="true"
-                            fluid
-                            class="inline-block"
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
+                <div>
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
+                        graph-slug="heritage_site"
+                        node-alias="document_location"
+                        @update:value="
+                            updateModelValue($event, 'document_location')
+                        "
+                    />
+                </div>
+            </LabelledInput>
         </div>
     </Form>
 </template>

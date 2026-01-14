@@ -5,15 +5,15 @@ import Button from 'primevue/button';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { HeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    type HeritageSiteType,
+    HeritageSiteSchema,
+} from '@/bcrhp/schemas/heritage_site.ts';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const emit = defineEmits(['update:stepIsValid']);
 
 const otherName = ref('');
 const otherNames = ref([] as Array<string>);
@@ -36,8 +36,7 @@ const isOtherNameValid = () => {
 
 const saveOtherName = function () {
     console.log('saveOtherName');
-    heritageSiteRef.value.otherNames.push(otherName.value);
-
+    heritageSite?.value.aliased_data.site_names.push(otherName.value);
     otherNameForm.value?.reset();
 };
 
@@ -46,18 +45,16 @@ const addOtherNameDisabled = computed(
         otherNameForm.value?.states.otherName.invalid ||
         otherNameForm.value?.states.otherName.value == null ||
         otherNameForm.value?.states.otherName.value.length < 1 ||
-        heritageSiteRef.value?.otherNames.length > 4,
+        heritageSite?.value?.otherNames.length > 4,
 );
 
 const deleteOtherNameCallback = function (index: number) {
-    heritageSiteRef.value.otherNames.splice(index, 1);
+    heritageSite?.value.otherNames.splice(index, 1);
 };
 
 defineExpose({ isOtherNameValid, isCommonNameValid });
 
-onMounted(() => {
-    heritageSiteRef.value.otherNames = otherNames;
-});
+onMounted(() => {});
 </script>
 <template>
     <div class="flex flex-col">
@@ -81,7 +78,7 @@ onMounted(() => {
                     <div class="p-inputtext-fluid">
                         <InputText
                             id="commonName"
-                            v-model="heritageSite.commonName"
+                            v-model="heritageSite.alised_data.commonName"
                             name="commonName"
                             placeholder="Enter Site's Common Name"
                             aria-describedby="username-help"

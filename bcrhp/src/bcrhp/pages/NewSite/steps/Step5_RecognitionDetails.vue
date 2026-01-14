@@ -6,39 +6,45 @@ import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
-import { camelCase } from 'lodash';
+import { Form, type FormInstance } from '@primevue/forms';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { zodResolver } from '@primevue/forms/resolvers/zod';
 import {
-    RecognitionDetailsSchema,
-    RecognitionDetails,
-    getRecognitionDetails,
-} from '@/bcrhp/schema/RecognitionDetailsSchema.ts';
+    HeritageSite,
+    type HeritageSiteType,
+} from '@/bcrhp/schemas/heritage_site.ts';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+
+import {
+    isValid as baseIsValid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
+
+import {
+    ProtectionEventTileSchema,
+    type ProtectionEventTileType,
+} from '@/bcrhp/schemas/protection_event.ts';
+
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
 ) as Ref<FormInstance | null>;
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-const currentRecognitionDetails: typeof RecognitionDetails = ref(
-    getRecognitionDetails(),
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const emit = defineEmits(['update:stepIsValid']);
+
+const currentRecognitionDetails: typeof ProtectionEventTileType = ref(
+    heritageSite?.value.aliased_data.bc_right.aliased_data.protection_event ??
+        {},
 );
 const showInactiveHistoricActs = ref(false);
 
-const designationDateResolver = zodResolver(
-    RecognitionDetailsSchema.shape.designationDate,
-);
-const referenceNumberResolver = zodResolver(
-    RecognitionDetailsSchema.shape.referenceNumber,
+const protectionEventResolver = zodResolver(
+    ProtectionEventTileSchema.shape['aliased_data'],
 );
 const totalRecognitionDetails = ref([] as Array<string>);
 
@@ -52,7 +58,7 @@ const addOtherReferenceNumberDisabled = computed(
             ?.designation_or_protection_start_date?.invalid ||
         recognitionDetailsForm.value?.states?.legislative_act?.invalid ||
         recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
-        heritageSiteRef.value.recognitionDetails?.totalRecognitionDetails
+        heritageSite?.value.recognitionDetails?.totalRecognitionDetails
             ?.length > 4,
 );
 
@@ -60,46 +66,22 @@ const isValid = () => {
     return recognitionDetailsForm.value?.valid;
 };
 
-const saveRecognitionDetails = function () {
-    console.log('saveRecognitionDetails');
-    console.log(currentRecognitionDetails.value);
-    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.push({
-        designationDate:
-            recognitionDetailsForm.value?.states
-                ?.designation_or_protection_start_date.value,
-        legislativeAct:
-            recognitionDetailsForm?.value?.states.legislative_act.value,
-        referenceNumber: currentRecognitionDetails.value.referenceNumber,
-    });
-
-    recognitionDetailsForm?.value?.reset();
-};
-
-const deleteRecognitionDetailsCallback = function (index: number) {
-    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails.splice(
-        index,
-        1,
+const updateModelValue = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite?.value.aliased_data.bc_right.aliased_data.protection_event
+            .aliased_data,
+        recognitionDetailsForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
-
-const updateModelValue = function (newValue: object, attribute_name: string) {
-    console.log('updateModelValue', attribute_name, newValue);
-    const validator = RecognitionDetailsSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-    console.log(RecognitionDetailsSchema.shape);
-    console.log(result);
-    if (result.success) {
-        currentRecognitionDetails[attribute_name] = result.data;
-    }
-};
-
 defineExpose({ isValid });
 
-onMounted(() => {
-    heritageSiteRef.value.recognitionDetails = currentRecognitionDetails;
-    heritageSiteRef.value.recognitionDetails.totalRecognitionDetails =
-        totalRecognitionDetails;
-});
+onMounted(() => {});
 </script>
 <template>
     <Form
@@ -107,38 +89,34 @@ onMounted(() => {
         v-slot="$form"
         name="recognitionDetailsForm"
         :validateOnBlur="true"
+        :resolver="protectionEventResolver"
     >
         <FieldSet id="recognitionDetailsFieldset">
-            <FormField
-                :resolver="designationDateResolver"
-                name="designationDate"
+            <LabelledInput
+                label="Designation or Recognition Start Date"
+                hint="The date the designation or recognition was brought into effect"
+                input-name="designationDate"
+                :error-message="$form.designationDate?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Designation or Recognition Start Date"
-                    hint="The date the designation or recognition was brought into effect"
-                    input-name="designationDate"
-                    :error-message="$form.designationDate?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="null"
-                            graph-slug="heritage_site"
-                            node-alias="designation_or_protection_start_date"
-                            placeholder="Select a Designation Date"
-                            group-direction="column"
-                            @update:value="
-                                updateModelValue(
-                                    $event,
-                                    'designation_or_protection_start_date',
-                                )
-                            "
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="null"
+                        graph-slug="heritage_site"
+                        node-alias="designation_or_protection_start_date"
+                        placeholder="Select a Designation Date"
+                        group-direction="column"
+                        @update:value="
+                            updateModelValue(
+                                $event,
+                                'designation_or_protection_start_date',
+                            )
+                        "
+                    />
+                </div>
+            </LabelledInput>
             <LabelledInput
                 label="Legislative Act"
                 hint="Designation or recognition type that applies to the site"
@@ -180,38 +158,33 @@ onMounted(() => {
                     </div>
                 </div>
             </LabelledInput>
-            <FormField
-                :resolver="referenceNumberResolver"
-                name="referenceNumber"
+            <LabelledInput
+                label="Reference Number"
+                hint="The bylaw or resolution number"
+                input-name="referenceNumber"
+                :error-message="$form.referenceNumber?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Reference Number"
-                    hint="The bylaw or resolution number"
-                    input-name="referenceNumber"
-                    :error-message="$form.referenceNumber?.error?.message"
-                    :required="true"
-                >
-                    <InputText
-                        id="referenceNumber"
-                        ref="referenceNumberField"
-                        v-model="currentRecognitionDetails.referenceNumber"
-                        placeholder="Enter Reference Number"
-                        aria-describedby="reference-number-help"
-                        name="referenceNumber"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                    />
-                    <Button
-                        id="saveRecognitionDetails"
-                        label="Add"
-                        class="inline-block"
-                        :disabled="addOtherReferenceNumberDisabled"
-                        :aria-disabled="addOtherReferenceNumberDisabled"
-                        @click="saveRecognitionDetails"
-                    ></Button>
-                </LabelledInput>
-            </FormField>
+                <InputText
+                    id="referenceNumber"
+                    ref="referenceNumberField"
+                    v-model="currentRecognitionDetails.referenceNumber"
+                    placeholder="Enter Reference Number"
+                    aria-describedby="reference-number-help"
+                    name="referenceNumber"
+                    aria-required="true"
+                    fluid
+                    class="inline-block"
+                />
+                <Button
+                    id="saveRecognitionDetails"
+                    label="Add"
+                    class="inline-block"
+                    :disabled="addOtherReferenceNumberDisabled"
+                    :aria-disabled="addOtherReferenceNumberDisabled"
+                    @click="saveRecognitionDetails"
+                ></Button>
+            </LabelledInput>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 label="Reference Number"

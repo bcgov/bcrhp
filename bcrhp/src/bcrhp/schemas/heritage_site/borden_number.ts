@@ -1,17 +1,13 @@
 import { z } from 'zod';
+import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 // Auto-generated tile schema for alias: borden_number
 
-export const BordenNumberTileSchema = z.object({
-    tileid: z.string().nullable(),
-    resourceinstance: z.string().nullable(),
-    nodegroup: z.string().nullable(),
-    parenttile: z.string().nullable(),
+export const BordenNumberTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        borden_number: z.array(BordenNumberTileSchema),
+        borden_number: getStringValueRequiredSchema(9),
     }),
-    sortorder: z.number().nullable(),
-    provisionaledits: z.unknown().nullable(),
 });
 // @ts-ignore
 export type BordenNumberTileType = z.infer<typeof BordenNumberTileSchema>;

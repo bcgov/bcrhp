@@ -1,51 +1,20 @@
 import { z } from 'zod';
+import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
+import { NumberValueSchema } from '@/bcgov_arches_common/datatypes/numeric/validation/zod.ts';
+import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
 
 // Auto-generated tile schema for alias: site_record_admin
 
-const BcrhpSubmissionStatusNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const FederalIdNumberNodeSchema = z.object({
-    node_value: z.number().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const DateSubmittedToCrhpNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const RestrictedNodeSchema = z.object({
-    node_value: z.boolean().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const CrhpSubmissionStatusNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-export const SiteRecordAdminTileSchema = z.object({
-    tileid: z.string().nullable(),
-    resourceinstance: z.string().nullable(),
-    nodegroup: z.string().nullable(),
-    parenttile: z.string().nullable(),
+export const SiteRecordAdminTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        bcrhp_submission_status: BcrhpSubmissionStatusNodeSchema,
-        federal_id_number: FederalIdNumberNodeSchema,
-        date_submitted_to_crhp: DateSubmittedToCrhpNodeSchema,
-        restricted: RestrictedNodeSchema,
-        crhp_submission_status: CrhpSubmissionStatusNodeSchema,
+        bcrhp_submission_status: ConceptValueSchema,
+        federal_id_number: NumberValueSchema,
+        date_submitted_to_crhp: DateValueSchema,
+        restricted: BooleanValueSchema,
+        crhp_submission_status: ConceptValueSchema,
     }),
-    sortorder: z.number().nullable(),
-    provisionaledits: z.unknown().nullable(),
 });
 // @ts-ignore
 export type SiteRecordAdminTileType = z.infer<typeof SiteRecordAdminTileSchema>;

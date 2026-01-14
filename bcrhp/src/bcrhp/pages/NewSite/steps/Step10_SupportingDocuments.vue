@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref } from 'vue';
+import { useTemplateRef, inject } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -10,13 +10,13 @@ import Editor from 'primevue/editor';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { HeritageSiteSchema } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    HeritageSiteSchema,
+    type HeritageSiteType,
+} from '@/bcrhp/schemas/heritage_site.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const ingredient = ref();
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const emit = defineEmits(['update:stepIsValid']);
 
 const supportingDocumentsForm: Ref<FormInstance | null> = useTemplateRef(
     'supportingDocumentsForm',

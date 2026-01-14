@@ -6,38 +6,30 @@ import InputText from 'primevue/inputtext';
 import Editor from 'primevue/editor';
 import { Form, FormField, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { camelCase } from 'lodash';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
-    SiteImages,
-    SiteImagesSchema,
+    SiteImagesTileSchema,
     getSiteImages,
-} from '@/bcrhp/schema/SiteImagesSchema.ts';
+    type SiteImagesTileType,
+} from '@/bcrhp/schemas/heritage_site/site_images.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const emit = defineEmits(['update:stepIsValid']);
 
-const currentSiteImage: typeof SiteImages = reactive(getSiteImages());
+const currentSiteImage: SiteImagesTileType = reactive(getSiteImages());
 currentSiteImage.imageType = null;
-heritageSite.value.siteImages[currentSiteImage.id] = currentSiteImage;
 
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
 ) as Ref<FormInstance | null>;
-const zodImageFeaturesResolver = zodResolver(
-    SiteImagesSchema.shape.imageFeatures,
+const imageFormResolver = zodResolver(
+    SiteImagesTileSchema.shape['aliased_data'],
 );
-const zodImageDescriptionsResolver = zodResolver(
-    SiteImagesSchema.shape.imageDescription,
-);
-const zodPhotographerResolver = zodResolver(
-    SiteImagesSchema.shape.photographer,
-);
-const zodCopyrightResolver = zodResolver(SiteImagesSchema.shape.copyright);
 
 const isValid = () => {
     return siteImageForm.value?.valid;
@@ -45,15 +37,17 @@ const isValid = () => {
 
 const onImageUpload = function () {};
 
-const updateModelValue = function (newValue: object, attribute_name: string) {
-    console.log('updateModelValue', attribute_name, newValue);
-
-    const validator = SiteImagesSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-    console.log(result);
-    if (result.success) {
-        currentSiteImage[attribute_name] = result.data;
-    }
+const updateModelValue = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite?.value.aliased_data.site_images.aliased_data,
+        siteImageForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
 defineExpose({ isValid });
@@ -64,6 +58,7 @@ defineExpose({ isValid });
         v-slot="$form"
         name="siteImageForm"
         :validateOnBlur="true"
+        :resolver="imageFormResolver"
     >
         <div class="flex flex-row">
             <FileUpload
@@ -118,29 +113,24 @@ defineExpose({ isValid });
                 </div>
             </LabelledInput>
         </div>
-        <FormField
-            :resolver="zodImageFeaturesResolver"
-            name="imageFeatures"
+        <LabelledInput
+            label="Image Features (Optional)"
+            hint="Enter the features or subjects depicted by the photograph"
+            input-name="imageFeatures"
+            :error-message="$form.imageFeatures?.error?.message"
         >
-            <LabelledInput
-                label="Image Features (Optional)"
-                hint="Enter the features or subjects depicted by the photograph"
-                input-name="imageFeatures"
-                :error-message="$form.imageFeatures?.error?.message"
-            >
-                <div>
-                    <InputText
-                        id="imageFeatures"
-                        ref="imageFeaturesField"
-                        v-model="currentSiteImage.imageFeatures"
-                        placeholder="E.g. Stained Glass Window"
-                        aria-describedby="image-features-help"
-                        fluid
-                        class="inline-block"
-                    />
-                </div>
-            </LabelledInput>
-        </FormField>
+            <div>
+                <InputText
+                    id="imageFeatures"
+                    ref="imageFeaturesField"
+                    v-model="currentSiteImage.imageFeatures"
+                    placeholder="E.g. Stained Glass Window"
+                    aria-describedby="image-features-help"
+                    fluid
+                    class="inline-block"
+                />
+            </div>
+        </LabelledInput>
         <GenericWidget
             :mode="EDIT"
             :should-show-label="true"
@@ -151,79 +141,64 @@ defineExpose({ isValid });
             group-direction="column"
             @update:value="updateModelValue($event, 'image_date')"
         />
-        <FormField
-            :resolver="zodImageDescriptionsResolver"
-            name="imageDescription"
+        <LabelledInput
+            label="Image Description"
+            hint="Summarize the image content including site address and site name. Include additional information that does not fit fields above"
+            input-name="definingElements"
+            :error-message="$form.imageDescription?.error?.message"
+            :required="true"
         >
-            <LabelledInput
-                label="Image Description"
-                hint="Summarize the image content including site address and site name. Include additional information that does not fit fields above"
-                input-name="definingElements"
-                :error-message="$form.imageDescription?.error?.message"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <Editor
-                        id="imageDescription"
-                        ref="imageDescriptionField"
-                        v-model="currentSiteImage.imageDescription"
-                        placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
-                        theme="snow"
-                        aria-describedby="image-description-help"
-                        aria-required="true"
-                        fluid
-                    />
-                </div>
-            </LabelledInput>
-        </FormField>
-        <FormField
-            :resolver="zodPhotographerResolver"
-            name="photographer"
+            <div class="p-inputtext-fluid">
+                <Editor
+                    id="imageDescription"
+                    ref="imageDescriptionField"
+                    v-model="currentSiteImage.imageDescription"
+                    placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
+                    theme="snow"
+                    aria-describedby="image-description-help"
+                    aria-required="true"
+                    fluid
+                />
+            </div>
+        </LabelledInput>
+        <LabelledInput
+            label="Photographer (Optional)"
+            hint="Enter the name of the photographer"
+            input-name="photographer"
+            :error-message="$form.photographer?.error?.message"
         >
-            <LabelledInput
-                label="Photographer (Optional)"
-                hint="Enter the name of the photographer"
-                input-name="photographer"
-                :error-message="$form.photographer?.error?.message"
-            >
-                <div>
-                    <InputText
-                        id="photographer"
-                        ref="photographerField"
-                        v-model="currentSiteImage.photographer"
-                        placeholder="First Name Last Name"
-                        aria-describedby="image-features-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                    />
-                </div>
-            </LabelledInput>
-        </FormField>
-        <FormField
-            :resolver="zodCopyrightResolver"
-            name="copyright"
+            <div>
+                <InputText
+                    id="photographer"
+                    ref="photographerField"
+                    v-model="currentSiteImage.photographer"
+                    placeholder="First Name Last Name"
+                    aria-describedby="image-features-help"
+                    aria-required="true"
+                    fluid
+                    class="inline-block"
+                />
+            </div>
+        </LabelledInput>
+        <LabelledInput
+            label="Copyright (Optional)"
+            hint="Enter the name of the copyright holder for the image"
+            input-name="copyright"
+            :error-message="$form.copyright?.error?.message"
         >
-            <LabelledInput
-                label="Copyright (Optional)"
-                hint="Enter the name of the copyright holder for the image"
-                input-name="copyright"
-                :error-message="$form.copyright?.error?.message"
-            >
-                <div>
-                    <InputText
-                        id="copyright"
-                        ref="copyrightField"
-                        v-model="currentSiteImage.copyright"
-                        placeholder="E.g. City of Nelson"
-                        aria-describedby="copyright-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                    />
-                </div>
-            </LabelledInput>
-        </FormField>
+            <div>
+                <InputText
+                    id="copyright"
+                    ref="copyrightField"
+                    v-model="currentSiteImage.copyright"
+                    placeholder="E.g. City of Nelson"
+                    aria-describedby="copyright-help"
+                    aria-required="true"
+                    fluid
+                    class="inline-block"
+                />
+            </div>
+        </LabelledInput>
         <GenericWidget
             :value="currentSiteImage.imageType"
             :mode="VIEW"

@@ -1,31 +1,15 @@
 import { z } from 'zod';
+import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 // Auto-generated tile schema for alias: site_boundary
 
-const AccuracyRemarksNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const SourceNotesNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-export const SiteBoundaryTileSchema = z.object({
-    tileid: z.string().nullable(),
-    resourceinstance: z.string().nullable(),
-    nodegroup: z.string().nullable(),
-    parenttile: z.string().nullable(),
+export const SiteBoundaryTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        accuracy_remarks: AccuracyRemarksNodeSchema,
-        source_notes: SourceNotesNodeSchema,
-        site_boundary: z.array(SiteBoundaryTileSchema),
+        accuracy_remarks: getStringValueSchema(),
+        source_notes: getStringValueSchema(),
+        site_boundary: z.array(z.lazy(() => SiteBoundaryTileSchema)),
     }),
-    sortorder: z.number().nullable(),
-    provisionaledits: z.unknown().nullable(),
 });
 // @ts-ignore
 export type SiteBoundaryTileType = z.infer<typeof SiteBoundaryTileSchema>;

@@ -26,7 +26,11 @@ import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDo
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
 import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import {
+    HeritageSite,
+    type HeritageSiteType,
+} from '@/bcrhp/schemas/heritage_site.ts';
+import { getBlankHeritageSite } from '@/bcrhp/api.ts';
 
 const activateNextStep = () => {
     myStepper.value.d_value++;
@@ -98,6 +102,9 @@ onMounted(() => {
         step11,
         step12,
     );
+    getBlankHeritageSite().then((response) => {
+        heritageSite.value = response as unknown as HeritageSiteType;
+    });
 });
 
 const nextLabel = computed(() => {
