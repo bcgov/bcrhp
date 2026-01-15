@@ -5,23 +5,35 @@ import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
-    type HeritageSiteType,
-    HeritageSiteSchema,
-} from '@/bcrhp/schemas/heritage_site.ts';
-import { getSiteName } from '@/bcrhp/schemas/heritage_site/site_names.ts';
+    getBlankCommonName,
+    getBlankOtherName,
+    SiteNamesTileSchema,
+    type SiteNamesTileType,
+} from '@/bcrhp/schemas/heritage_site/site_names.ts';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import {
+    updateModelValue as baseUpdateModelValue,
+    isValid as baseIsValid,
+} from '@/bcrhp/utils.ts';
 
-const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentCommonName = ref(getSiteName());
-const currentOtherName = ref(getSiteName());
+const currentCommonName: Ref<SiteNamesTileType | null> = ref(null);
+const currentOtherName: Ref<SiteNamesTileType> = ref(null);
+
+const otherNames = computed(() => {
+    return heritageSite.value.aliased_data.site_names.filter(
+        (name: SiteNamesTileType) =>
+            name?.aliased_data.name_type.display_value === 'Other',
+    );
+});
 
 const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
     'commonNameForm',
@@ -30,33 +42,61 @@ const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
     'otherNameForm',
 ) as Ref<FormInstance | null>;
 const zodCommonNameResolver = zodResolver(
-    HeritageSiteSchema.shape['aliased_data'],
+    SiteNamesTileSchema.shape['aliased_data'],
 );
 const zodOtherNameResolver = zodResolver(
-    HeritageSiteSchema.shape['aliased_data'],
+    SiteNamesTileSchema.shape['aliased_data'],
 );
 
 const isValid = () => {
-    return isCommonNameValid() && isOtherNameValid();
+    return (
+        ((isCommonNameValid() &&
+            currentOtherName.value?.aliased_data?.name?.node_value?.en
+                ?.value) ??
+            0) === 0
+    );
 };
 const isCommonNameValid = () => {
-    return commonNameForm.value?.valid;
+    return baseIsValid(
+        commonNameForm as Ref<FormInstance>,
+        SiteNamesTileSchema.shape['aliased_data'],
+    );
 };
 const isOtherNameValid = () => {
-    return otherNameForm.value?.valid;
+    return baseIsValid(
+        otherNameForm as Ref<FormInstance>,
+        SiteNamesTileSchema.shape['aliased_data'],
+    );
 };
 
 const updateCommonName = function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    baseUpdateModelValue(
-        newValue,
-        attribute_name,
-        heritageSite?.value.aliased_data?.site_names[0].aliased_data,
-        commonNameForm as Ref<FormInstance>,
-    );
-    emit('update:stepIsValid', isValid());
+    if (!currentCommonName.value) {
+        getBlankCommonName().then((blankCommonName) => {
+            currentCommonName.value = blankCommonName;
+            heritageSite.value.aliased_data.site_names = [
+                currentCommonName.value,
+                ...heritageSite.value.aliased_data.site_names,
+            ];
+            baseUpdateModelValue(
+                newValue,
+                attribute_name,
+                currentCommonName.value.aliased_data,
+                commonNameForm as Ref<FormInstance>,
+            );
+            emit('update:stepIsValid', isValid());
+        });
+    } else {
+        baseUpdateModelValue(
+            newValue,
+            attribute_name,
+            currentCommonName.value.aliased_data,
+            commonNameForm as Ref<FormInstance>,
+        );
+        emit('update:stepIsValid', isValid());
+    }
 };
 
 const updateOtherName = function (
@@ -74,20 +114,28 @@ const updateOtherName = function (
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSite?.value?.aliased_data.site_names.push(currentOtherName.value);
-    otherNameForm.value?.reset();
-    emit('update:stepIsValid', isValid());
+    getBlankOtherName().then((blankOtherName) => {
+        currentOtherName.value = blankOtherName;
+        emit('update:stepIsValid', isValid());
+    });
 };
 
-const addOtherNameDisabled = computed(() => false);
+const addOtherNameDisabled = computed(
+    () => !isOtherNameValid() || otherNames.value.length >= 4,
+);
 
 const deleteOtherNameCallback = function (index: number) {
-    heritageSite?.value.otherNames.splice(index, 1);
+    heritageSite?.value.aliased_data.site_names.splice(index, 1);
 };
 
-defineExpose({ isOtherNameValid, isCommonNameValid });
+// This needs to be removed - added because ESLint was complaining. Need to figure out
+// configuration so API methods are not
+defineExpose({ isValid });
 
 onMounted(() => {
-    heritageSite?.value?.aliased_data?.site_names.push(currentCommonName.value);
+    getBlankOtherName().then((blankOtherName) => {
+        currentOtherName.value = blankOtherName;
+    });
 });
 </script>
 <template>
@@ -109,7 +157,7 @@ onMounted(() => {
                 <div class="p-inputtext-fluid">
                     <GenericWidget
                         :mode="EDIT"
-                        :should-show-label="true"
+                        :should-show-label="false"
                         :aliasedNodeData="currentCommonName"
                         graph-slug="heritage_site"
                         node-alias="name"
@@ -133,7 +181,7 @@ onMounted(() => {
             >
                 <GenericWidget
                     :mode="EDIT"
-                    :should-show-label="true"
+                    :should-show-label="false"
                     :aliasedNodeData="currentOtherName"
                     graph-slug="heritage_site"
                     node-alias="name"
@@ -152,13 +200,15 @@ onMounted(() => {
                 v-slot="slotProps"
                 label="Other Name(s)"
                 :showDeleteButton="true"
-                :displayValues="
-                    heritageSite?.value?.aliased_data?.site_names?.slice(1) ??
-                    []
-                "
+                :displayValues="otherNames ?? []"
                 :deleteCallback="deleteOtherNameCallback"
             >
-                <div class="parent value">{{ slotProps.value }}</div>
+                <div class="parent value">
+                    {{
+                        slotProps?.value?.aliased_data?.name?.node_value?.en
+                            ?.value
+                    }}
+                </div>
             </MultiValuePlaceholder>
         </Form>
     </div>

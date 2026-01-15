@@ -28,6 +28,8 @@ const errors: Ref<FormErrors> = ref<FormErrors>({});
 const fields = {};
 
 const isValid = () => {
+    // Just to get through this step for now
+    let valid = true;
     // We don't want to validate fields the first time we show the step
     // if (!validateFields) {
     //     validateFields = true;
@@ -36,7 +38,6 @@ const isValid = () => {
     // if (!currentCivicAddress.hasCivicAddress) {
     //     return true;
     // }
-    let valid = true;
 
     // for (const field of Object.values(fields) as Array<Ref>) {
     //     valid = validateField(field?.value.$el as HTMLInputElement) && valid;

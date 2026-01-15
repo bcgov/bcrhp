@@ -32,11 +32,25 @@ import {
 } from '@/bcrhp/schemas/heritage_site.ts';
 import { getBlankHeritageSite } from '@/bcrhp/api.ts';
 
-const activateNextStep = () => {
-    myStepper.value.d_value++;
+const submissionErrors = ref([] as ErrorMessage[]);
+
+const activateNextStep = async () => {
+    if (currentStep.value === 11) {
+        submitNewSiteData();
+    } else {
+        myStepper.value.d_value++;
+        setCurrentStepValid(
+            steps[myStepper.value.d_value - 1].value.isValid(),
+            myStepper.value.d_value,
+        );
+    }
 };
 
 const activatePreviousStep = () => {
+    setCurrentStepValid(
+        steps[myStepper.value.d_value - 2].value.isValid(),
+        myStepper.value.d_value - 1,
+    );
     myStepper.value.d_value--;
 };
 
@@ -45,17 +59,30 @@ function activateStep(step: number) {
         myStepper.value.d_value = lastStep;
     } else {
         lastStep = step;
+        setCurrentStepValid(steps[step - 1].value.isValid(), step);
     }
 }
 
+const stepStatuses: Ref<boolean[]> = ref([]);
+
+const currentStepIsValid = computed(() => {
+    return stepStatuses.value[currentStep.value - 1];
+});
+
+const setCurrentStepValid = function (isValid: boolean, stepNumber: number) {
+    stepStatuses.value[stepNumber - 1] = isValid;
+};
+
 const isValid = (step: number) => {
     let stepValid = true;
+
     if (typeof steps[step - 1]?.value?.isValid === 'function') {
         stepValid = steps[step - 1]?.value?.isValid();
     }
     if (step === steps.length) {
         submitted.value = true;
     }
+
     return stepValid;
 };
 
@@ -167,26 +194,19 @@ const showDebug = ref(false);
                         the BC Register of Historic Places
                     </p>
                     <StepPanels>
+                        <StepperNavigation
+                            :step-number="currentStep"
+                            :is-valid="currentStepIsValid"
+                            :show-previous="showPrevious"
+                            :next-label="nextLabel"
+                            @next-click="activateNextStep"
+                            @previous-click="activatePreviousStep"
+                        ></StepperNavigation>
                         <StepPanel :value="1">
                             <NewSiteStep1 ref="step1"></NewSiteStep1>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :show-previous="false"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                            ></StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="2">
-                            <h3>Site Location</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <h3 class="heading-margin-bottom">Site Location</h3>
                             <SiteAddress ref="step2"></SiteAddress>
                             <StepperNavigation
                                 :step-number="currentStep"
@@ -199,15 +219,6 @@ const showDebug = ref(false);
                             <h3 class="heading-margin-bottom">
                                 Spatial Location
                             </h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                             <SpatialLocation ref="step3"></SpatialLocation>
                             <StepperNavigation
                                 :step-number="currentStep"
@@ -218,74 +229,20 @@ const showDebug = ref(false);
                         </StepPanel>
                         <StepPanel :value="4">
                             <h3>Heritage Site Name(s)</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SiteNames ref="step4"></SiteNames>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="5">
                             <h3>Official Recognition Details</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <RecognitionDetails
                                 ref="step5"
                             ></RecognitionDetails>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="6">
                             <h3>Statement of Significance</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SOS ref="step6"></SOS>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="7">
                             <h3>Images</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <p>
                                 Upload 1-10 images for the historic site. File
                                 types must be jpg/jpeg with a max file size of
@@ -293,109 +250,38 @@ const showDebug = ref(false);
                                 Supporting Documents section
                             </p>
                             <SiteImages ref="step7"></SiteImages>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="8">
                             <h3>Site Classification</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SiteClassification
                                 ref="step8"
                             ></SiteClassification>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="9">
                             <h3>Site Details</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SiteDetails ref="step9"></SiteDetails>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="10">
                             <h3>Supporting Documents</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SupportingDocuments
                                 ref="step10"
                             ></SupportingDocuments>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="11">
                             <h3>Review Submission</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <!--                            <ReviewSubmission ref="step11"></ReviewSubmission>-->
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Submit"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="12">
                             <h3>Submission Complete</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="false"
-                                next-label="Print"
-                                @next-click="printDetails"
-                            ></StepperNavigation>
                         </StepPanel>
+                        <StepperNavigation
+                            :step-number="currentStep"
+                            :is-valid="currentStepIsValid"
+                            :show-previous="showPrevious"
+                            :next-label="nextLabel"
+                            @next-click="activateNextStep"
+                            @previous-click="activatePreviousStep"
+                        ></StepperNavigation>
                     </StepPanels>
                 </div>
             </div>
@@ -404,6 +290,9 @@ const showDebug = ref(false);
 </template>
 <style>
 @import url('@/bcgov_arches_common/css/arches_common.css');
+.language-selector {
+    display: none;
+}
 </style>
 <style scoped>
 .dashboard-card {
@@ -448,8 +337,5 @@ li {
     left: 0.5rem;
     color: white;
     z-index: 9000;
-}
-.language-selector {
-    display: none;
 }
 </style>

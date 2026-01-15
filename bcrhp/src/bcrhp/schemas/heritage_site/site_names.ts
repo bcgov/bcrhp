@@ -6,6 +6,7 @@ import { blankStringValue } from '@/bcrhp/utils.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import { getNameType } from '@/bcrhp/api.ts';
 
 export const SiteNamesTileSchema = TileSchema.extend({
     aliased_data: z.object({
@@ -18,6 +19,18 @@ export type SiteNamesTileType = z.infer<typeof SiteNamesTileSchema>;
 
 export function getSiteName(): SiteNamesTileType {
     return new SiteName();
+}
+
+export async function getBlankCommonName(): Promise<SiteNamesTileType> {
+    const siteName = new SiteName();
+    siteName.aliased_data.name_type = await getNameType('Common');
+    return siteName;
+}
+
+export async function getBlankOtherName(): Promise<SiteNamesTileType> {
+    const siteName = new SiteName();
+    siteName.aliased_data.name_type = await getNameType('Other');
+    return siteName;
 }
 
 export class SiteName implements SiteNamesTileType {
