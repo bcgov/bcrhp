@@ -2,21 +2,26 @@
 import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import {
     type HeritageSiteType,
     HeritageSiteSchema,
 } from '@/bcrhp/schemas/heritage_site.ts';
+import { getSiteName } from '@/bcrhp/schemas/heritage_site/site_names.ts';
 
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 const emit = defineEmits(['update:stepIsValid']);
 
-const otherName = ref('');
-const otherNames = ref([] as Array<string>);
+const currentCommonName = ref(getSiteName());
+const currentOtherName = ref(getSiteName());
 
 const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
     'commonNameForm',
@@ -24,9 +29,16 @@ const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
 const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
     'otherNameForm',
 ) as Ref<FormInstance | null>;
-const zodCommonNameResolver = zodResolver(HeritageSiteSchema.shape.commonName);
-const zodOtherNameResolver = zodResolver(HeritageSiteSchema.shape.otherName);
+const zodCommonNameResolver = zodResolver(
+    HeritageSiteSchema.shape['aliased_data'],
+);
+const zodOtherNameResolver = zodResolver(
+    HeritageSiteSchema.shape['aliased_data'],
+);
 
+const isValid = () => {
+    return isCommonNameValid() && isOtherNameValid();
+};
 const isCommonNameValid = () => {
     return commonNameForm.value?.valid;
 };
@@ -34,19 +46,39 @@ const isOtherNameValid = () => {
     return otherNameForm.value?.valid;
 };
 
-const saveOtherName = function () {
-    console.log('saveOtherName');
-    heritageSite?.value.aliased_data.site_names.push(otherName.value);
-    otherNameForm.value?.reset();
+const updateCommonName = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite?.value.aliased_data?.site_names[0].aliased_data,
+        commonNameForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
-const addOtherNameDisabled = computed(
-    () =>
-        otherNameForm.value?.states.otherName.invalid ||
-        otherNameForm.value?.states.otherName.value == null ||
-        otherNameForm.value?.states.otherName.value.length < 1 ||
-        heritageSite?.value?.otherNames.length > 4,
-);
+const updateOtherName = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentOtherName?.value?.aliased_data,
+        otherNameForm as Ref<FormInstance>,
+    );
+};
+
+const saveOtherName = function () {
+    console.log('saveOtherName');
+    heritageSite?.value?.aliased_data.site_names.push(currentOtherName.value);
+    otherNameForm.value?.reset();
+    emit('update:stepIsValid', isValid());
+};
+
+const addOtherNameDisabled = computed(() => false);
 
 const deleteOtherNameCallback = function (index: number) {
     heritageSite?.value.otherNames.splice(index, 1);
@@ -54,7 +86,9 @@ const deleteOtherNameCallback = function (index: number) {
 
 defineExpose({ isOtherNameValid, isCommonNameValid });
 
-onMounted(() => {});
+onMounted(() => {
+    heritageSite?.value?.aliased_data?.site_names.push(currentCommonName.value);
+});
 </script>
 <template>
     <div class="flex flex-col">
@@ -63,73 +97,65 @@ onMounted(() => {});
             v-slot="$form"
             name="commonNameForm"
             :validateOnBlur="true"
+            :resolver="zodCommonNameResolver"
         >
-            <FormField
-                :resolver="zodCommonNameResolver"
-                name="commonName"
+            <LabelledInput
+                label="Common Name"
+                hint="The common name is the most recognizable name for the site"
+                input-name="commonName"
+                :error-message="$form.commonName?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Common Name"
-                    hint="The common name is the most recognizable name for the site"
-                    input-name="commonName"
-                    :error-message="$form.commonName?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <InputText
-                            id="commonName"
-                            v-model="heritageSite.alised_data.commonName"
-                            name="commonName"
-                            placeholder="Enter Site's Common Name"
-                            aria-describedby="username-help"
-                            aria-required="true"
-                            fluid
-                        />
-                    </div>
-                </LabelledInput>
-            </FormField>
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="true"
+                        :aliasedNodeData="currentCommonName"
+                        graph-slug="heritage_site"
+                        node-alias="name"
+                        @update:value="updateCommonName($event, 'name')"
+                    />
+                </div>
+            </LabelledInput>
         </Form>
         <Form
             ref="otherNameForm"
             v-slot="$form"
             name="otherNameForm"
             :validateOnBlur="true"
+            :resolver="zodOtherNameResolver"
         >
-            <FormField
-                :resolver="zodOtherNameResolver"
-                name="otherName"
+            <LabelledInput
+                label="Other Names (Optional)"
+                hint="Click Add to enter one or more additional names as applicable"
+                input-name="otherName"
+                :error-message="$form.otherName?.error?.message"
             >
-                <LabelledInput
-                    label="Other Names (Optional)"
-                    hint="Click Add to enter one or more additional names as applicable"
-                    input-name="otherName"
-                    :error-message="$form.otherName?.error?.message"
-                >
-                    <InputText
-                        id="otherName"
-                        v-model="otherName"
-                        name="otherName"
-                        placeholder="Enter Additional Site Name"
-                        aria-describedby="other-name-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
-                    />
-                    <Button
-                        id="addOtherName"
-                        label="Add"
-                        class="inline-block"
-                        :aria-disabled="addOtherNameDisabled"
-                        :disabled="addOtherNameDisabled"
-                        @click="saveOtherName"
-                    ></Button>
-                </LabelledInput>
-            </FormField>
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="true"
+                    :aliasedNodeData="currentOtherName"
+                    graph-slug="heritage_site"
+                    node-alias="name"
+                    @update:value="updateOtherName($event, 'name')"
+                />
+                <Button
+                    id="addOtherName"
+                    label="Add"
+                    class="inline-block"
+                    :aria-disabled="addOtherNameDisabled"
+                    :disabled="addOtherNameDisabled"
+                    @click="saveOtherName"
+                ></Button>
+            </LabelledInput>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 label="Other Name(s)"
                 :showDeleteButton="true"
-                :displayValues="otherNames"
+                :displayValues="
+                    heritageSite?.value?.aliased_data?.site_names?.slice(1) ??
+                    []
+                "
                 :deleteCallback="deleteOtherNameCallback"
             >
                 <div class="parent value">{{ slotProps.value }}</div>

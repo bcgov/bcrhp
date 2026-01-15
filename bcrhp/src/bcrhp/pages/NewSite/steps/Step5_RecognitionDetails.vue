@@ -26,7 +26,8 @@ import {
 import {
     ProtectionEventTileSchema,
     type ProtectionEventTileType,
-} from '@/bcrhp/schemas/protection_event.ts';
+    getProtectionEvent,
+} from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 
@@ -37,10 +38,8 @@ const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentRecognitionDetails: typeof ProtectionEventTileType = ref(
-    heritageSite?.value.aliased_data.bc_right.aliased_data.protection_event ??
-        {},
-);
+const currentRecognitionDetails: ProtectionEventTileType =
+    ref(getProtectionEvent());
 const showInactiveHistoricActs = ref(false);
 
 const protectionEventResolver = zodResolver(
@@ -73,7 +72,7 @@ const updateModelValue = function (
     baseUpdateModelValue(
         newValue,
         attribute_name,
-        heritageSite?.value.aliased_data.bc_right.aliased_data.protection_event
+        heritageSite?.value.aliased_data.bc_right?.aliased_data.protection_event
             .aliased_data,
         recognitionDetailsForm as Ref<FormInstance>,
     );

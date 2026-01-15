@@ -25,10 +25,10 @@ import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
 import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
-import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
 import {
     HeritageSite,
     type HeritageSiteType,
+    getHeritageSite,
 } from '@/bcrhp/schemas/heritage_site.ts';
 import { getBlankHeritageSite } from '@/bcrhp/api.ts';
 
@@ -376,7 +376,7 @@ const showDebug = ref(false);
                                 @next-click="activateNextStep"
                                 @previous-click="activatePreviousStep"
                             ></StepperNavigation>
-                            <ReviewSubmission ref="step11"></ReviewSubmission>
+                            <!--                            <ReviewSubmission ref="step11"></ReviewSubmission>-->
                             <StepperNavigation
                                 :step-number="currentStep"
                                 :validate-fn="isValid"
@@ -448,5 +448,8 @@ li {
     left: 0.5rem;
     color: white;
     z-index: 9000;
+}
+.language-selector {
+    display: none;
 }
 </style>

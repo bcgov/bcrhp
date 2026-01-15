@@ -33,11 +33,11 @@ export type BcPropertyAddressTileType = z.infer<
     typeof BcPropertyAddressTileSchema
 >;
 
-export function getPropertyAddressTileSchema(): BcPropertyAddressTileType {
-    return new CivicAddress();
+export function getPropertyAddress(): BcPropertyAddressTileType {
+    return new PropertyAddress();
 }
 
-export class CivicAddress implements BcPropertyAddressTileType {
+export class PropertyAddress implements BcPropertyAddressTileType {
     constructor() {
         this.aliased_data = {
             street_address: blankStringValue(),

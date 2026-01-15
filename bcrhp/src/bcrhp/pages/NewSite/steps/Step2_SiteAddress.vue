@@ -16,26 +16,26 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
-} from '@/bcfms/utils.ts';
+} from '@/bcrhp/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     BcPropertyAddressTileSchema,
     type BcPropertyAddressTileType,
+    getPropertyAddress,
 } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 import {
     type BcPropertyLegalDescriptionTileType,
     BcPropertyLegalDescriptionTileSchema,
+    getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 const emit = defineEmits(['update:stepIsValid']);
 
-let currentCivicAddress: BcPropertyAddressTileType = ref(
-    heritageSite?.value.aliased_data.heritage_site_location.value.civic_address,
-);
+let currentCivicAddress: BcPropertyAddressTileType = ref(getPropertyAddress());
 let currentLegalDescription: BcPropertyLegalDescriptionTileType = ref(
-    currentCivicAddress.value.aliased_data.bc_property_legal_description,
+    getLegalDescription(),
 );
 const civicAddressForm: Ref<FormInstance | null> = useTemplateRef(
     'civicAddressForm',

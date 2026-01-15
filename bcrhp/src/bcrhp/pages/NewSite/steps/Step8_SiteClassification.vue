@@ -11,30 +11,32 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
-import { camelCase } from 'lodash';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
-    HeritageClassSchema,
-    HeritageFunctionSchema,
-    HeritageThemeSchema,
-    HeritageClass,
-    HeritageFunction,
-    HeritageTheme,
-    getHeritageClassSchema,
-    getHeritageFunctionSchema,
-    getHeritageThemeSchema,
-} from '@/bcrhp/schema/SiteClassificationSchema.ts';
+    HeritageThemeTileSchema,
+    getHeritageTheme,
+    type HeritageThemeTileType,
+} from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
+import {
+    HeritageFunctionTileSchema,
+    getHeritageFunction,
+    type HeritageFunctionTileType,
+} from '@/bcrhp/schemas/heritage_site/heritage_function.ts';
+import {
+    HeritageClassTileSchema,
+    getHeritageClass,
+    type HeritageClassTileType,
+} from '@/bcrhp/schemas/heritage_site/heritage_class.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 
 const heritageClassForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageClassForm',
@@ -45,21 +47,25 @@ const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
 const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageThemeForm',
 ) as Ref<FormInstance | null>;
-const currentHeritageClass: typeof HeritageClass = reactive(
-    getHeritageClassSchema(),
+const currentHeritageClass: HeritageClassTileType =
+    reactive(getHeritageClass());
+const currentHeritageFunction: HeritageFunctionTileType = reactive(
+    getHeritageFunction(),
 );
-const currentHeritageFunction: typeof HeritageFunction = reactive(
-    getHeritageFunctionSchema(),
-);
-const currentHeritageTheme: typeof HeritageTheme = reactive(
-    getHeritageThemeSchema(),
-);
+const currentHeritageTheme: HeritageThemeTileType =
+    reactive(getHeritageTheme());
 const heritageClasses = ref([] as Array<string>);
 const heritageFunctions = ref([] as Array<string>);
 const heritageThemes = ref([] as Array<string>);
 
-const zodContributingResourcesResolver = zodResolver(
-    HeritageClassSchema.shape.contributingResources,
+const heritageThemeResolver = zodResolver(
+    HeritageThemeTileSchema.shape['aliased_data'],
+);
+const heritageFunctionResolver = zodResolver(
+    HeritageFunctionTileSchema.shape['aliased_data'],
+);
+const heritageClassResolver = zodResolver(
+    HeritageClassTileSchema.shape['aliased_data'],
 );
 const isValidHeritageClass = () => {
     return heritageClassForm.value?.valid;
@@ -79,7 +85,7 @@ const addOtherHeritageClassDisabled = computed(
         heritageClassForm.value?.states?.contributingResources?.invalid ||
         heritageClassForm.value?.states?.heritage_category?.invalid ||
         heritageClassForm.value?.states?.ownership?.invalid ||
-        heritageSiteRef.value.siteClassification?.heritageClasses?.length > 4,
+        heritageSite?.value.aliased_data.heritage_classes?.length > 4,
 );
 const addOtherHeritageFunctionDisabled = computed(
     () =>
@@ -87,18 +93,18 @@ const addOtherHeritageFunctionDisabled = computed(
         !heritageFunctionForm.value?.states?.function_category_type?.value ||
         heritageFunctionForm.value?.states?.functional_category?.invalid ||
         heritageFunctionForm.value?.states?.function_category_type?.invalid ||
-        heritageSiteRef.value.siteClassification?.heritageFunctions?.length > 4,
+        heritageSite?.value.aliased_data?.heritage_functions?.length > 4,
 );
 const addOtherHeritageThemeDisabled = computed(
     () =>
         !heritageThemeForm.value?.states?.heritage_theme?.value ||
         heritageThemeForm.value?.states?.heritage_theme?.invalid ||
-        heritageSiteRef.value.siteClassification?.heritageThemes?.length > 4,
+        heritageSite?.value.aliased_data?.heritage_themes?.length > 4,
 );
 
 const saveHeritageClass = function () {
     console.log('saveHeritageClass');
-    heritageSiteRef.value.siteClassification.heritageClasses.push({
+    heritageSite?.value.aliased_data.heritage_class.push({
         contributingResources:
             currentHeritageClass.value?.contributingResources,
         heritageCategory:
@@ -111,78 +117,65 @@ const saveHeritageClass = function () {
 
 const saveHeritageFunction = function () {
     console.log('saveHeritageFunction');
-    heritageSiteRef.value.siteClassification.heritageFunctions.push({
-        functionCategory: Object.keys(
-            heritageFunctionForm.value?.states?.functional_category?.value,
-        )[0],
-        functionCategoryType:
-            heritageFunctionForm.value?.states?.function_category_type?.value,
-    });
+    heritageSite?.value.aliased_data.heritage_function.push(
+        currentHeritageFunction,
+    );
 
     heritageFunctionForm.value?.reset();
 };
 
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
-    heritageSiteRef.value.siteClassification.heritageThemes.push(
-        heritageThemeForm.value?.states?.heritage_theme?.value,
-    );
 
     heritageThemeForm.value?.reset();
 };
 
 const deleteHeritageClassCallback = function (index: number) {
-    heritageSiteRef.value.siteClassification.heritageClasses.splice(index, 1);
+    heritageSite?.value.aliased_data.heritage_class.splice(index, 1);
 };
 
 const deleteHeritageFunctionCallback = function (index: number) {
-    heritageSiteRef.value.siteClassification.heritageFunctions.splice(index, 1);
+    heritageSite?.value.aliased_data.heritage_function.splice(index, 1);
 };
 
 const deleteHeritageThemeCallback = function (index: number) {
-    heritageSiteRef.value.siteClassification.heritageThemes.splice(index, 1);
+    heritageSite?.value.aliased_data.heritage_themes.splice(index, 1);
 };
 
 const updateHeritageClassModelValue = function (
-    newValue: object,
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    console.log('updateHeritageClassModelValue', attribute_name, newValue);
-
-    const validator = HeritageClassSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentHeritageClass[attribute_name] = result.data;
-    }
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentHeritageClass.value.aliased_data,
+        heritageClassForm as Ref<FormInstance>,
+    );
 };
 
 const updateFunctionCategoryModelValue = function (
-    newValue: object,
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    console.log('updateFunctionCategoryModelValue', attribute_name, newValue);
-
-    const validator = HeritageFunctionSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentHeritageFunction[attribute_name] = result.data;
-    }
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentHeritageFunction.value.aliased_data,
+        heritageFunctionForm as Ref<FormInstance>,
+    );
 };
 
 const updateHeritageThemeModelValue = function (
-    newValue: object,
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    console.log('updateHeritageThemeModelValue', attribute_name, newValue);
-
-    const validator = HeritageThemeSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentHeritageTheme[attribute_name] = result.data;
-    }
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentHeritageTheme.value.aliased_data,
+        heritageThemeForm as Ref<FormInstance>,
+    );
 };
 
 defineExpose({
@@ -191,12 +184,7 @@ defineExpose({
     isValidHeritageTheme,
 });
 
-onMounted(() => {
-    heritageSiteRef.value.siteClassification.heritageClasses = heritageClasses;
-    heritageSiteRef.value.siteClassification.heritageFunctions =
-        heritageFunctions;
-    heritageSiteRef.value.siteClassification.heritageThemes = heritageThemes;
-});
+onMounted(() => {});
 </script>
 <template>
     <Form
@@ -204,43 +192,39 @@ onMounted(() => {
         v-slot="$form"
         name="heritageClassForm"
         :validateOnBlur="true"
+        :resolver="heritageClassResolver"
     >
         <FieldSet
             id="heritageDetailsFieldset"
             legend="Heritage Class"
         >
-            <FormField
-                :resolver="zodContributingResourcesResolver"
-                name="contributingResources"
+            <LabelledInput
+                label="Number of Contributing Resources"
+                input-name="contributingResources"
+                :error-message="$form.contributingResources?.error?.message"
+                :required="true"
             >
-                <LabelledInput
-                    label="Number of Contributing Resources"
-                    input-name="contributingResources"
-                    :error-message="$form.contributingResources?.error?.message"
-                    :required="true"
-                >
-                    <div>
-                        <InputText
-                            id="contributingResources"
-                            ref="numberOfResourcesField"
-                            v-model="currentHeritageClass.contributingResources"
-                            placeholder="1"
-                            aria-describedby="contributing-resources-help"
-                            aria-required="true"
-                            fluid
-                            class="inline-block"
-                        />
-                        <Button
-                            id="saveHeritageClass"
-                            :disabled="addOtherHeritageClassDisabled"
-                            :aria-disabled="addOtherHeritageClassDisabled"
-                            label="Add"
-                            class="inline-block"
-                            @click="saveHeritageClass"
-                        ></Button>
-                    </div>
-                </LabelledInput>
-            </FormField>
+                <div>
+                    <InputText
+                        id="contributingResources"
+                        ref="numberOfResourcesField"
+                        v-model="currentHeritageClass.contributingResources"
+                        placeholder="1"
+                        aria-describedby="contributing-resources-help"
+                        aria-required="true"
+                        fluid
+                        class="inline-block"
+                    />
+                    <Button
+                        id="saveHeritageClass"
+                        :disabled="addOtherHeritageClassDisabled"
+                        :aria-disabled="addOtherHeritageClassDisabled"
+                        label="Add"
+                        class="inline-block"
+                        @click="saveHeritageClass"
+                    ></Button>
+                </div>
+            </LabelledInput>
             <div class="flex flex-col">
                 <GenericWidget
                     :mode="EDIT"
@@ -291,6 +275,7 @@ onMounted(() => {
         v-slot="$form"
         name="heritageFunctionForm"
         :validateOnBlur="true"
+        :resolver="heritageFunctionResolver"
     >
         <Fieldset
             id="heritageFunctionFieldset"
@@ -368,6 +353,7 @@ onMounted(() => {
         v-slot="$form"
         name="heritageThemeForm"
         :validateOnBlur="true"
+        :resolver="heritageThemeResolver"
     >
         <Fieldset
             id="heritageThemeFieldset"

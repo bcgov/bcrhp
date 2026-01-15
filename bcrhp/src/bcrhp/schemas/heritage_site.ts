@@ -6,9 +6,11 @@ import {
 import {
     BordenNumberTileSchema,
     type BordenNumberTileType,
+    getBordenNumber,
 } from '@/bcrhp/schemas/heritage_site/borden_number.ts';
 import {
     ChildSitesTileSchema,
+    getChildSites,
     type ChildSitesTileType,
 } from '@/bcrhp/schemas/heritage_site/child_sites.ts';
 import {
@@ -32,6 +34,7 @@ import {
     type SiteImagesTileType,
 } from '@/bcrhp/schemas/heritage_site/site_images.ts';
 import {
+    getHeritageSiteLocation,
     HeritageSiteLocationTileSchema,
     type HeritageSiteLocationTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
@@ -66,6 +69,8 @@ import {
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 import { getSiteImages } from '@/bcrhp/schemas/heritage_site/site_images.ts';
 import { blankResourceInstanceValue } from '@/bcrhp/utils.ts';
+import { getBcRight } from '@/bcrhp/schemas/heritage_site2/heritage_site/bc_right.ts';
+import { getSiteRecordAdmin } from '@/bcrhp/schemas/heritage_site2/heritage_site/site_record_admin.ts';
 
 export const HeritageSiteSchema = z.object({
     resourceinstanceid: z.string().nullable(),
@@ -102,40 +107,40 @@ export function getHeritageSite(): HeritageSiteType {
 export class HeritageSite implements HeritageSiteType {
     constructor() {
         this.aliased_data = {
-            site_document: blankResourceInstanceValue(),
-            borden_number: blankResourceInstanceValue(),
-            child_sites: blankResourceInstanceValue(),
-            heritage_theme: blankResourceInstanceValue(),
-            external_url: blankResourceInstanceValue(),
-            site_record_admin: blankResourceInstanceValue(),
+            site_document: [],
+            borden_number: getBordenNumber(),
+            child_sites: getChildSites(),
+            heritage_theme: [],
+            external_url: [],
+            site_record_admin: getSiteRecordAdmin(),
             internal_remark: blankResourceInstanceValue(),
             site_images: getSiteImages(),
-            heritage_site_location: blankResourceInstanceValue(),
-            site_names: blankResourceInstanceValue(),
-            chronology: blankResourceInstanceValue(),
-            bc_right: blankResourceInstanceValue(),
-            heritage_class: blankResourceInstanceValue(),
+            heritage_site_location: getHeritageSiteLocation(),
+            site_names: [],
+            chronology: [],
+            bc_right: getBcRight(),
+            heritage_class: [],
             bc_statement_of_significance: getStatementOfSignificance(),
-            heritage_function: blankResourceInstanceValue(),
-            construction_actors: blankResourceInstanceValue(),
+            heritage_function: [],
+            construction_actors: [],
         };
     }
     aliased_data: {
-        site_document: SiteDocumentTileType;
+        site_document: SiteDocumentTileType[];
         borden_number: BordenNumberTileType;
         child_sites: ChildSitesTileType;
-        heritage_theme: HeritageThemeTileType;
-        external_url: ExternalUrlTileType;
+        heritage_theme: HeritageThemeTileType[];
+        external_url: ExternalUrlTileType[];
         site_record_admin: SiteRecordAdminTileType;
         internal_remark: InternalRemarkTileType;
         site_images: SiteImagesTileType;
         heritage_site_location: HeritageSiteLocationTileType;
-        site_names: SiteNamesTileType;
-        chronology: ChronologyTileType;
+        site_names: SiteNamesTileType[];
+        chronology: ChronologyTileType[];
         bc_right: BcRightTileType;
-        heritage_class: HeritageClassTileType;
+        heritage_class: HeritageClassTileType[];
         bc_statement_of_significance: BcStatementOfSignificanceTileType;
-        heritage_function: HeritageFunctionTileType;
-        construction_actors: ConstructionActorsTileType;
+        heritage_function: HeritageFunctionTileType[];
+        construction_actors: ConstructionActorsTileType[];
     };
 }

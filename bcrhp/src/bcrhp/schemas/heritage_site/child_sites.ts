@@ -10,3 +10,18 @@ export const ChildSitesTileSchema = TileSchema.extend({
 });
 // @ts-ignore
 export type ChildSitesTileType = z.infer<typeof ChildSitesTileSchema>;
+
+export function getChildSites(): ChildSitesTileType {
+    return new ChildSites();
+}
+
+export class ChildSites implements ChildSitesTileType {
+    constructor() {
+        this.aliased_data = {
+            child_sites: [],
+        };
+    }
+    aliased_data: {
+        child_sites: ChildSitesTileType[];
+    };
+}

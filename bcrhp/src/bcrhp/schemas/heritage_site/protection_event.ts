@@ -6,6 +6,14 @@ import {
     getStringValueSchema,
     getRichTextValueSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
+import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import {
+    blankStringValue,
+    blankResourceInstanceValue,
+    currentDateValue,
+} from '@/bcrhp/utils.ts';
 
 export const ProtectionEventTileSchema = TileSchema.extend({
     aliased_data: z.object({
@@ -19,3 +27,28 @@ export const ProtectionEventTileSchema = TileSchema.extend({
 });
 // @ts-ignore
 export type ProtectionEventTileType = z.infer<typeof ProtectionEventTileSchema>;
+
+export function getProtectionEvent(): ProtectionEventTileType {
+    return new ProtectionEvent();
+}
+
+export class ProtectionEvent implements ProtectionEventTileType {
+    constructor() {
+        this.aliased_data = {
+            protection_notes: blankStringValue(),
+            designation_or_protection_start_date: currentDateValue(),
+            designation_or_protection_end_date: currentDateValue(),
+            responsible_government: blankResourceInstanceValue(),
+            legislative_act: blankResourceInstanceValue(),
+            reference_number: blankStringValue(),
+        };
+    }
+    aliased_data: {
+        protection_notes: StringValue;
+        designation_or_protection_start_date: DateValue;
+        designation_or_protection_end_date: DateValue;
+        responsible_government: ResourceInstanceValue;
+        legislative_act: ResourceInstanceValue;
+        reference_number: StringValue;
+    };
+}

@@ -1,217 +1,192 @@
 <script setup lang="ts">
-import {
-    useTemplateRef,
-    inject,
-    ref,
-    onMounted,
-    computed,
-    reactive,
-} from 'vue';
+import { useTemplateRef, inject, onMounted, computed, reactive } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { camelCase } from 'lodash';
+import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import {
-    ChronologySchema,
-    ArchitectBuilderSchema,
-    URLsSchema,
-    Chronology,
-    ArchitectOrBuilder,
-    URLs,
-    getArchitectOrBuilderSchema,
-    getChronologySchema,
-    getURLsSchema,
-} from '@/bcrhp/schema/SiteDetailsSchema.ts';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-const chronologies = ref([] as Array<string>);
-const currentChronology: typeof Chronology = reactive(getChronologySchema());
-const currentArchitectOrBuilder: typeof ArchitectOrBuilder = reactive(
-    getArchitectOrBuilderSchema(),
+import {
+    ChronologyTileSchema as ChronologySchema,
+    getChronology,
+    type ChronologyTileType,
+    ChronologyTileSchema,
+} from '@/bcrhp/schemas/heritage_site/chronology.ts';
+
+import {
+    ConstructionActorsTileSchema,
+    getConstructionActor,
+    type ConstructionActorsTileType,
+} from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
+
+import {
+    ExternalUrlTileSchema,
+    getExternalUrl,
+    type ExternalUrlTileType,
+} from '@/bcrhp/schemas/heritage_site/external_url.ts';
+
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import {
+    isValid as baseIsValid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
+
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+
+const currentConstructionActor: ConstructionActorsTileType = reactive(
+    getConstructionActor(),
 );
-const currentURL: typeof URLs = reactive(getURLsSchema());
-const architectsOrBuilders = ref([] as Array<string>);
-const urls = ref([] as Array<string>);
+const currentChronology: ChronologyTileType = reactive(getChronology());
+const currentExternalUrl: ExternalUrlTileType = reactive(getExternalUrl());
 
 const chronologyForm: Ref<FormInstance | null> = useTemplateRef(
     'chronologyForm',
 ) as Ref<FormInstance | null>;
-const architectOrBuilderForm: Ref<FormInstance | null> = useTemplateRef(
-    'architectOrBuilderForm',
+const constructionActorForm: Ref<FormInstance | null> = useTemplateRef(
+    'constructionActorForm',
 ) as Ref<FormInstance | null>;
-const relatedURLsForm: Ref<FormInstance | null> = useTemplateRef(
-    'relatedURLsForm',
+const externalUrlForm: Ref<FormInstance | null> = useTemplateRef(
+    'externalUrlForm',
 ) as Ref<FormInstance | null>;
-const zodCircaResolver = zodResolver(ChronologySchema.shape.circa);
-const zodChronologyNotesResolver = zodResolver(
-    ChronologySchema.shape.chronologyNotes,
-);
-const zodArchitectOrBuilderNameResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderName,
-);
-const zodArchitectOrBuilderNotesResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderNotes,
-);
-const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
-const zodURLResolver = zodResolver(URLsSchema.shape.url);
 
-const isValidChronology = () => {
-    return chronologyForm.value?.valid;
-};
-const isValidArchitectOrBuilder = () => {
-    return architectOrBuilderForm.value?.valid;
-};
-const isValidRelatedURLs = () => {
-    return relatedURLsForm.value?.valid;
-};
+const chronologyResolver = zodResolver(
+    ChronologyTileSchema.shape['aliased_data'],
+);
+const constructionActorResolver = zodResolver(
+    ConstructionActorsTileSchema.shape['aliased_data'],
+);
 
+const externalUrlResolver = zodResolver(
+    ExternalUrlTileSchema.shape['aliased_data'],
+);
 const addChronologyDisabled = computed(
     () =>
-        chronologyForm.value?.states?.chronology?.pristine ||
-        chronologyForm.value?.states?.start_year?.pristine ||
-        chronologyForm.value?.states?.end_year?.pristine ||
-        chronologyForm.value?.states?.chronology?.invalid ||
-        chronologyForm.value?.states?.start_year?.invalid ||
-        chronologyForm.value?.states?.end_year?.invalid ||
-        heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
+        (!baseIsValid(
+            ChronologySchema.shape['aliased_data'],
+            currentChronology,
+        ) ||
+            heritageSite?.value.aliased_data.chronology?.length) ??
+        0 > 4,
 );
-const addArchitectOrBuilderDisabled = computed(
+const addConstructionActorDisabled = computed(
     () =>
-        architectOrBuilderForm.value?.states?.architectOrBuilderName
-            ?.pristine ||
-        architectOrBuilderForm.value?.states?.construction_actor_type
-            ?.pristine ||
-        architectOrBuilderForm.value?.states?.architectOrBuilderName?.invalid ||
-        architectOrBuilderForm.value?.states?.construction_actor_type
-            ?.invalid ||
-        heritageSiteRef.value.siteDetails?.architectsOrBuilders?.length > 4,
+        (!baseIsValid(
+            ConstructionActorsTileSchema.shape['aliased_data'],
+            currentConstructionActor,
+        ) ||
+            heritageSite?.value.aliased_data.chronology?.length) ??
+        0 > 4,
 );
-const addURLDisabled = computed(
-    () =>
-        relatedURLsForm.value?.states?.external_url_type?.pristine ||
-        relatedURLsForm.value?.states?.linkText?.pristine ||
-        relatedURLsForm.value?.states?.url?.pristine ||
-        relatedURLsForm.value?.states?.external_url_type?.invalid ||
-        relatedURLsForm.value?.states?.linkText?.invalid ||
-        relatedURLsForm.value?.states?.url?.invalid ||
-        heritageSiteRef.value.siteDetails?.urls?.length > 4,
+
+const addExternalUrlDisabled = computed(
+    () => false,
+    (!baseIsValid(
+        ExternalUrlTileSchema.shape['aliased_data'],
+        currentExternalUrl,
+    ) ||
+        heritageSite?.value.aliased_data.external_urls?.length) ??
+        0 > 4,
 );
 
 const saveChronology = function () {
-    console.log('saveChronology');
-    heritageSiteRef.value.siteDetails.chronologies.push({
-        eventType: chronologyForm.value?.states?.chronology.value,
-        startYear: chronologyForm.value?.states?.start_year.value,
-        endYear: chronologyForm.value?.states?.end_year.value,
-        circa: currentChronology.circa?.toString(),
-        chronologyNotes: currentChronology.chronologyNotes,
-    });
-
+    heritageSite?.value.aliased_data.chronology.push(currentConstructionActor);
     chronologyForm.value?.reset();
 };
 
 const saveArchitectOrBuilder = function () {
     console.log('saveArchitectOrBuilder');
-    heritageSiteRef.value.siteDetails.architectsOrBuilders.push({
-        architectOrBuilderName:
-            currentArchitectOrBuilder.architectOrBuilderName,
-        architectOrBuilderType:
-            architectOrBuilderForm.value?.states?.construction_actor_type.value,
-        architectOrBuilderNotes:
-            currentArchitectOrBuilder.architectOrBuilderNotes,
-    });
+    heritageSite?.value.aliased_data.constuction_actors.push(
+        currentConstructionActor,
+    );
 
-    architectOrBuilderForm.value?.reset();
+    constructionActorForm.value?.reset();
 };
-const saveURL = function () {
-    console.log('saveURL');
-    heritageSiteRef.value.siteDetails.urls.push({
-        urlType: relatedURLsForm.value?.states?.external_url_type.value,
-        linkText: currentURL.linkText,
-        url: currentURL.url,
-    });
 
-    relatedURLsForm.value?.reset();
+const saveExternalUrl = function () {
+    console.log('saveURL');
+    heritageSite?.value.aliased_data.external_urls.push(currentExternalUrl);
+
+    externalUrlForm.value?.reset();
 };
 
 const deleteChronologyCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.chronologies.splice(index, 1);
+    heritageSite?.value.aliased_data.chronology.splice(index, 1);
 };
 
 const deleteArchitectBuilderCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.architectsOrBuilders.splice(index, 1);
+    heritageSite?.value.aliased_data.construction_actors.splice(index, 1);
 };
 
 const deleteURLCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.urls.splice(index, 1);
+    heritageSite?.value.aliased_data.external_url.splice(index, 1);
 };
 
 const updateChronologyModelValue = function (
-    newValue: object,
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
     console.log('updateChronologyModelValue', attribute_name, newValue);
-
-    const validator = ChronologySchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentChronology[attribute_name] = result.data;
-    }
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentChronology.value.aliased_data,
+        chronologyForm as Ref<FormInstance>,
+    );
 };
 
-const updateArchitectOrBuilderTypeModelValue = function (
-    newValue: object,
+const updateConstructionActorValue = function (
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    console.log('updateModelValue', attribute_name, newValue);
-
-    const validator = ArchitectBuilderSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentArchitectOrBuilder[attribute_name] = result.data;
-    }
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentConstructionActor.value.aliased_data,
+        constructionActorForm as Ref<FormInstance>,
+    );
 };
 
-const updateURLTypeModelValue = function (
-    newValue: object,
+const updateExternalUrlModelValue = function (
+    newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    console.log('updateModelValue', attribute_name, newValue);
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentConstructionActor.value.aliased_data,
+        externalUrlForm as Ref<FormInstance>,
+    );
+};
 
-    const validator = URLsSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentURL[attribute_name] = result.data;
-    }
+const isValid = () => {
+    return (
+        baseIsValid(
+            chronologyForm as Ref<FormInstance>,
+            ChronologySchema.shape['aliased_data'],
+        ) &&
+        baseIsValid(
+            constructionActorForm as Ref<FormInstance>,
+            ConstructionActorsTileSchema.shape['aliased_data'],
+        ) &&
+        baseIsValid(
+            externalUrlForm as Ref<FormInstance>,
+            ExternalUrlTileSchema.shape['aliased_data'],
+        )
+    );
 };
 
 defineExpose({
-    isValidChronology,
-    isValidArchitectOrBuilder,
-    isValidRelatedURLs,
+    isValid,
 });
 
-onMounted(() => {
-    heritageSiteRef.value.siteDetails.chronologies = chronologies;
-    heritageSiteRef.value.siteDetails.architectsOrBuilders =
-        architectsOrBuilders;
-    heritageSiteRef.value.siteDetails.urls = urls;
-});
+onMounted(() => {});
 </script>
 <template>
     <Form
@@ -219,6 +194,7 @@ onMounted(() => {
         v-slot="$form"
         name="chronologyForm"
         :validateOnBlur="true"
+        :resolver="chronologyResolver"
     >
         <FieldSet
             id="chronologyFieldset"
@@ -266,55 +242,47 @@ onMounted(() => {
                 />
 
                 <div class="inline-block">
-                    <FormField
-                        :resolver="zodCircaResolver"
-                        name="circa"
-                    >
-                        <Checkbox
-                            v-model="currentChronology.circa"
-                            inputId="circa"
-                            value="Circa"
-                        />
-                    </FormField>
+                    <Checkbox
+                        v-model="currentChronology.circa"
+                        inputId="circa"
+                        value="Circa"
+                    />
                     <label for="circa"> Circa </label>
                 </div>
             </div>
             <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodChronologyNotesResolver"
-                    name="chronologyNotes"
+                <LabelledInput
+                    label="Chronology Notes (Optional)"
+                    hint="Enter details about the significant event"
+                    input-name="chronologyNotes"
+                    :error-message="$form.chronologyNotes?.error?.message"
                 >
-                    <LabelledInput
-                        label="Chronology Notes (Optional)"
-                        hint="Enter details about the significant event"
-                        input-name="chronologyNotes"
-                        :error-message="$form.chronologyNotes?.error?.message"
-                    >
-                        <InputText
-                            id="chronologyNotes"
-                            ref="chronologyNotesField"
-                            v-model="currentChronology.chronologyNotes"
-                            placeholder="E.g. Date of major renovations"
-                            theme="snow"
-                            aria-describedby="chronology-help"
-                            fluid
-                            class="inline-block"
-                        />
-                        <Button
-                            id="saveChronology"
-                            label="Add"
-                            class="inline-block"
-                            :disabled="addChronologyDisabled"
-                            @click="saveChronology"
-                        ></Button>
-                    </LabelledInput>
-                </FormField>
+                    <InputText
+                        id="chronologyNotes"
+                        ref="chronologyNotesField"
+                        v-model="currentChronology.chronologyNotes"
+                        placeholder="E.g. Date of major renovations"
+                        theme="snow"
+                        aria-describedby="chronology-help"
+                        fluid
+                        class="inline-block"
+                    />
+                    <Button
+                        id="saveChronology"
+                        label="Add"
+                        class="inline-block"
+                        :disabled="addChronologyDisabled"
+                        @click="saveChronology"
+                    ></Button>
+                </LabelledInput>
             </div>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 label="Chronologies"
                 :showDeleteButton="true"
-                :displayValues="chronologies"
+                :displayValues="
+                    heritageSite?.value?.aliased_data?.chronology ?? []
+                "
                 :deleteCallback="deleteChronologyCallback"
             >
                 <div
@@ -329,10 +297,11 @@ onMounted(() => {
         </FieldSet>
     </Form>
     <Form
-        ref="architectOrBuilderForm"
+        ref="constructionActorForm"
         v-slot="$form"
-        name="architectOrBuilderForm"
+        name="constructionActorForm"
         :validateOnBlur="true"
+        :resolver="constructionActorResolver"
     >
         <Fieldset
             id="architectsBuildersFieldset"
@@ -340,35 +309,37 @@ onMounted(() => {
             legend="Architects / Builders"
         >
             <div class="p-inputtext-fluid flex">
-                <FormField
-                    :resolver="zodArchitectOrBuilderNameResolver"
-                    name="architectOrBuilderName"
+                <LabelledInput
+                    label="Architect / Builder Name"
+                    hint="Enter the company or individual's name"
+                    input-name="architectOrBuilderName"
+                    class="inline-block"
+                    :error-message="
+                        $form.architectOrBuilderName?.error?.message
+                    "
+                    :required="true"
                 >
-                    <LabelledInput
-                        label="Architect / Builder Name"
-                        hint="Enter the company or individual's name"
-                        input-name="architectOrBuilderName"
-                        class="inline-block"
-                        :error-message="
-                            $form.architectOrBuilderName?.error?.message
-                        "
-                        :required="true"
-                    >
-                        <div class="p-inputtext-fluid">
-                            <InputText
-                                id="architectOrBuilderName"
-                                ref="architectOrBuilderNameField"
-                                v-model="
-                                    currentArchitectOrBuilder.architectOrBuilderName
-                                "
-                                placeholder="First Name Last Name"
-                                aria-describedby="architect-or-builder-help"
-                                aria-required="true"
-                                fluid
-                            />
-                        </div>
-                    </LabelledInput>
-                </FormField>
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliased-node-data="
+                                currentConstructionActor.aliased_data
+                                    .construction_actor
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="construction_actor"
+                            placeholder="Select an Architect / Builder Type"
+                            group-direction="column"
+                            @update:value="
+                                updateConstructionActorValue(
+                                    $event,
+                                    'construction_actor',
+                                )
+                            "
+                        />
+                    </div>
+                </LabelledInput>
                 <LabelledInput
                     label="Type"
                     input-name="architectOrBuilderType"
@@ -380,13 +351,16 @@ onMounted(() => {
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliased-node-data="
+                            currentConstructionActor.aliased_data
+                                .construction_actor_type
+                        "
                         graph-slug="heritage_site"
                         node-alias="construction_actor_type"
                         placeholder="Select an Architect / Builder Type"
                         group-direction="column"
                         @update:value="
-                            updateArchitectOrBuilderTypeModelValue(
+                            updateConstructionActorValue(
                                 $event,
                                 'construction_actor_type',
                             )
@@ -395,46 +369,48 @@ onMounted(() => {
                 </LabelledInput>
             </div>
             <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodArchitectOrBuilderNotesResolver"
-                    name="architectOrBuilderNotes"
+                <LabelledInput
+                    label="Architect / Builder Name Notes (Optional)"
+                    hint="Provide any additional comments about the architect/builder"
+                    input-name="architectOrBuilderNotes"
+                    :error-message="
+                        $form.architectOrBuilderNotes?.error?.message
+                    "
+                    :required="false"
                 >
-                    <LabelledInput
-                        label="Architect / Builder Name Notes (Optional)"
-                        hint="Provide any additional comments about the architect/builder"
-                        input-name="architectOrBuilderNotes"
-                        :error-message="
-                            $form.architectOrBuilderNotes?.error?.message
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentConstructionActor.aliased_data
+                                .construction_actor_notes
                         "
-                        :required="false"
-                    >
-                        <InputText
-                            id="architectOrBuilderNotes"
-                            ref="architectOrBuilderNotesField"
-                            v-model="
-                                currentArchitectOrBuilder.architectOrBuilderNotes
-                            "
-                            placeholder="Enter relevant notes"
-                            aria-describedby="architect-or-builder-notes-help"
-                            aria-required="true"
-                            fluid
-                            class="inline-block"
-                        />
-                        <Button
-                            id="addOtherName"
-                            label="Add"
-                            class="inline-block"
-                            :disabled="addArchitectOrBuilderDisabled"
-                            @click="saveArchitectOrBuilder"
-                        ></Button>
-                    </LabelledInput>
-                </FormField>
+                        graph-slug="heritage_site"
+                        node-alias="construction_actor_notes"
+                        group-direction="column"
+                        @update:value="
+                            updateConstructionActorValue(
+                                $event,
+                                'construction_actor_notes',
+                            )
+                        "
+                    />
+                    <Button
+                        id="addOtherName"
+                        label="Add"
+                        class="inline-block"
+                        :disabled="addConstructionActorDisabled"
+                        @click="saveArchitectOrBuilder"
+                    ></Button>
+                </LabelledInput>
             </div>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 label="Architect(s) / Builder(s)"
                 :showDeleteButton="true"
-                :displayValues="architectsOrBuilders"
+                :displayValues="
+                    heritageSite?.value?.aliased_data?.construction_actors ?? []
+                "
                 :deleteCallback="deleteArchitectBuilderCallback"
             >
                 <div
@@ -450,10 +426,10 @@ onMounted(() => {
         </Fieldset>
     </Form>
     <Form
-        ref="relatedURLsForm"
-        v-slot="$form"
-        name="relatedURLsForm"
+        ref="externalUrlForm"
+        name="externalUrlForm"
         :validateOnBlur="true"
+        :resolver="externalUrlResolver"
     >
         <Fieldset
             id="relatedURLsFieldset"
@@ -461,101 +437,59 @@ onMounted(() => {
             legend="Related URLs"
         >
             <div class="flex flex-row">
-                <LabelledInput
-                    label="URL Type"
-                    hint="Acceptable URL Types"
-                    input-name="urlType"
-                    :error-message="$form.urlType?.error?.message"
-                    :required="true"
-                >
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="null"
+                    graph-slug="heritage_site"
+                    node-alias="external_url_type"
+                    placeholder="Select a URL Type"
+                    group-direction="column"
+                    @update:value="
+                        updateExternalUrlModelValue($event, 'external_url_type')
+                    "
+                />
+                <div class="p-inputtext-fluid">
                     <GenericWidget
                         :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :should-show-label="true"
+                        :aliasedNodeData="
+                            currentExternalUrl.aliased_data.external_url
+                        "
                         graph-slug="heritage_site"
-                        node-alias="external_url_type"
-                        placeholder="Select a URL Type"
+                        node-alias="external_url"
                         group-direction="column"
                         @update:value="
-                            updateURLTypeModelValue($event, 'external_url_type')
+                            updateExternalUrlModelValue($event, 'external_url')
                         "
                     />
-                </LabelledInput>
-                <FormField
-                    :resolver="zodLinkTextResolver"
-                    name="linkText"
-                >
-                    <LabelledInput
-                        label="Link Text"
-                        hint="Enter text that describes the link"
-                        input-name="linkText"
-                        :error-message="$form.linkText?.error?.message"
-                        :required="true"
-                    >
-                        <div class="p-inputtext-fluid">
-                            <InputText
-                                id="linkText"
-                                ref="linkTextField"
-                                v-model="currentURL.linkText"
-                                placeholder="E.g. Emily Carr House Website"
-                                aria-describedby="link-text-help"
-                                aria-required="true"
-                                fluid
-                            />
-                        </div>
-                    </LabelledInput>
-                </FormField>
+                    <Button
+                        id="saveURL"
+                        label="Add"
+                        class="inline-block"
+                        :disabled="addExternalUrlDisabled"
+                        @click="saveExternalUrl"
+                    ></Button>
+                </div>
             </div>
-            <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodURLResolver"
-                    name="url"
+            <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="URL(s)"
+                :showDeleteButton="true"
+                :displayValues="
+                    heritageSite?.value?.aliased_data?.external_urls ?? []
+                "
+                :deleteCallback="deleteURLCallback"
+            >
+                <div
+                    v-for="slot in slotProps"
+                    :key="slot"
+                    class="parent value"
                 >
-                    <LabelledInput
-                        label="URL"
-                        hint="URL must be stable and publicly accessible"
-                        input-name="url"
-                        :error-message="$form.url?.error?.message"
-                        :required="true"
-                    >
-                        <div class="flex flex-row full-width">
-                            <InputText
-                                id="url"
-                                ref="urlField"
-                                v-model="currentURL.url"
-                                placeholder="Enter public URL"
-                                aria-describedby="url-help"
-                                aria-required="true"
-                                fluid
-                                class="inline-block"
-                            />
-                            <Button
-                                id="saveURL"
-                                label="Add"
-                                class="inline-block"
-                                :disabled="addURLDisabled"
-                                @click="saveURL"
-                            ></Button>
-                        </div>
-                    </LabelledInput>
-                </FormField>
-                <MultiValuePlaceholder
-                    v-slot="slotProps"
-                    label="URL(s)"
-                    :showDeleteButton="true"
-                    :displayValues="urls"
-                    :deleteCallback="deleteURLCallback"
-                >
-                    <div
-                        v-for="slot in slotProps"
-                        :key="slot"
-                        class="parent value"
-                    >
-                        {{ slot.urlType }} {{ slot.url }}
-                        {{ slot.linkText }}
-                    </div>
-                </MultiValuePlaceholder>
-            </div>
+                    {{ slot.urlType }} {{ slot.url }}
+                    {{ slot.linkText }}
+                </div>
+            </MultiValuePlaceholder>
         </Fieldset>
     </Form>
 </template>
