@@ -207,39 +207,50 @@ const showDebug = ref(false);
                         </StepPanel>
                         <StepPanel :value="2">
                             <h3 class="heading-margin-bottom">Site Location</h3>
-                            <SiteAddress ref="step2"></SiteAddress>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
+                            <SiteAddress
+                                ref="step2"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 2)
+                                "
+                            ></SiteAddress>
                         </StepPanel>
                         <StepPanel :value="3">
                             <h3 class="heading-margin-bottom">
                                 Spatial Location
                             </h3>
-                            <SpatialLocation ref="step3"></SpatialLocation>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
+                            <SpatialLocation
+                                ref="step3"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 3)
+                                "
+                            ></SpatialLocation>
                         </StepPanel>
                         <StepPanel :value="4">
                             <h3>Heritage Site Name(s)</h3>
-                            <SiteNames ref="step4"></SiteNames>
+                            <SiteNames
+                                ref="step4"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 4)
+                                "
+                            ></SiteNames>
                         </StepPanel>
                         <StepPanel :value="5">
                             <h3>Official Recognition Details</h3>
                             <RecognitionDetails
                                 ref="step5"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 5)
+                                "
                             ></RecognitionDetails>
                         </StepPanel>
                         <StepPanel :value="6">
                             <h3>Statement of Significance</h3>
-                            <SOS ref="step6"></SOS>
+                            <SOS
+                                ref="step6"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 6)
+                                "
+                            ></SOS>
                         </StepPanel>
                         <StepPanel :value="7">
                             <h3>Images</h3>
@@ -249,27 +260,48 @@ const showDebug = ref(false);
                                 2MB. Include illustrations, plans, etc. in the
                                 Supporting Documents section
                             </p>
-                            <SiteImages ref="step7"></SiteImages>
+                            <SiteImages
+                                ref="step7"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 7)
+                                "
+                            ></SiteImages>
                         </StepPanel>
                         <StepPanel :value="8">
                             <h3>Site Classification</h3>
                             <SiteClassification
                                 ref="step8"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 8)
+                                "
                             ></SiteClassification>
                         </StepPanel>
                         <StepPanel :value="9">
                             <h3>Site Details</h3>
-                            <SiteDetails ref="step9"></SiteDetails>
+                            <SiteDetails
+                                ref="step9"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 9)
+                                "
+                            ></SiteDetails>
                         </StepPanel>
                         <StepPanel :value="10">
                             <h3>Supporting Documents</h3>
                             <SupportingDocuments
                                 ref="step10"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 10)
+                                "
                             ></SupportingDocuments>
                         </StepPanel>
                         <StepPanel :value="11">
                             <h3>Review Submission</h3>
-                            <!--                            <ReviewSubmission ref="step11"></ReviewSubmission>-->
+                            <ReviewSubmission
+                                ref="step11"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 11)
+                                "
+                            ></ReviewSubmission>
                         </StepPanel>
                         <StepPanel :value="12">
                             <h3>Submission Complete</h3>

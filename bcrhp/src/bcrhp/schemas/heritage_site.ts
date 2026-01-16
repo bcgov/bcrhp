@@ -67,10 +67,8 @@ import {
     ConstructionActorsTileSchema,
     type ConstructionActorsTileType,
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
-import { getSiteImages } from '@/bcrhp/schemas/heritage_site/site_images.ts';
-import { blankResourceInstanceValue } from '@/bcrhp/utils.ts';
-import { getBcRight } from '@/bcrhp/schemas/heritage_site2/heritage_site/bc_right.ts';
-import { getSiteRecordAdmin } from '@/bcrhp/schemas/heritage_site2/heritage_site/site_record_admin.ts';
+import { getBcRight } from '@/bcrhp/schemas/heritage_site/bc_right.ts';
+import { getSiteRecordAdmin } from '@/bcrhp/schemas/heritage_site/site_record_admin.ts';
 
 export const HeritageSiteSchema = z.object({
     resourceinstanceid: z.string().nullable(),
@@ -113,8 +111,8 @@ export class HeritageSite implements HeritageSiteType {
             heritage_theme: [],
             external_url: [],
             site_record_admin: getSiteRecordAdmin(),
-            internal_remark: blankResourceInstanceValue(),
-            site_images: getSiteImages(),
+            internal_remark: [],
+            site_images: [],
             heritage_site_location: getHeritageSiteLocation(),
             site_names: [],
             chronology: [],
@@ -132,8 +130,8 @@ export class HeritageSite implements HeritageSiteType {
         heritage_theme: HeritageThemeTileType[];
         external_url: ExternalUrlTileType[];
         site_record_admin: SiteRecordAdminTileType;
-        internal_remark: InternalRemarkTileType;
-        site_images: SiteImagesTileType;
+        internal_remark: InternalRemarkTileType[];
+        site_images: SiteImagesTileType[];
         heritage_site_location: HeritageSiteLocationTileType;
         site_names: SiteNamesTileType[];
         chronology: ChronologyTileType[];

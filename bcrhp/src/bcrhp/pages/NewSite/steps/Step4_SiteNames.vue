@@ -50,10 +50,9 @@ const zodOtherNameResolver = zodResolver(
 
 const isValid = () => {
     return (
-        ((isCommonNameValid() &&
-            currentOtherName.value?.aliased_data?.name?.node_value?.en
-                ?.value) ??
-            0) === 0
+        isCommonNameValid() &&
+        (currentOtherName.value?.aliased_data?.name?.node_value?.en?.value
+            ?.length ?? 0) === 0
     );
 };
 const isCommonNameValid = () => {
@@ -109,6 +108,7 @@ const updateOtherName = function (
         currentOtherName?.value?.aliased_data,
         otherNameForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
 
 const saveOtherName = function () {
