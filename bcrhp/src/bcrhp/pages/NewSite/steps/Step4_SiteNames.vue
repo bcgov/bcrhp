@@ -5,6 +5,7 @@ import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     getBlankCommonName,
@@ -44,8 +45,9 @@ const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
 const zodCommonNameResolver = zodResolver(
     SiteNamesTileSchema.shape['aliased_data'],
 );
-const zodOtherNameResolver = zodResolver(
-    SiteNamesTileSchema.shape['aliased_data'],
+
+const zodOtherNameResolver = getFlattenResolver(
+    zodResolver(SiteNamesTileSchema.shape['aliased_data']),
 );
 
 const isValid = () => {

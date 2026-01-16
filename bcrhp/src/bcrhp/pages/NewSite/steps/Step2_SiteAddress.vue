@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -33,6 +33,7 @@ import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 const emit = defineEmits(['update:stepIsValid']);
 
+let hasPropertyAddress = ref(true);
 let currentCivicAddress: BcPropertyAddressTileType = ref(getPropertyAddress());
 let currentLegalDescription: BcPropertyLegalDescriptionTileType = ref(
     getLegalDescription(),
@@ -80,14 +81,12 @@ const saveAddress = function () {
     civicAddressForm.value?.reset();
 };
 
-const disableAddressSection = ref(false);
-
 const hasAddressChanged = function () {
-    currentCivicAddress.value.hasCivicAddress =
-        !currentCivicAddress.value.hasCivicAddress;
+    hasPropertyAddress.value = !hasPropertyAddress.value;
     console.log(`Has address?: ${currentCivicAddress.value.hasCivicAddress}`);
-    disableAddressSection.value = !currentCivicAddress.value.hasCivicAddress;
 };
+
+const disableAddressSection = computed(() => !hasPropertyAddress.value);
 
 const isValid = () => {
     // Just to get through this step for now
@@ -120,7 +119,7 @@ defineExpose({ isValid });
             <Checkbox
                 id="hasCivicAddress"
                 ref="hasCivicAddress"
-                :model-value="!currentCivicAddress.hasCivicAddress"
+                :model-value="!hasPropertyAddress"
                 aria-describedby="has-civic-address-help"
                 aria-required="true"
                 fluid
@@ -143,6 +142,7 @@ defineExpose({ isValid });
             >
                 <GenericWidget
                     :mode="EDIT"
+                    :should-show-label="false"
                     :aliased-node-data="
                         currentCivicAddress?.aliased_data?.street_address
                     "

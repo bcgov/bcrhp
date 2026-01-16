@@ -1,25 +1,48 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, useTemplateRef } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
 
+import { Form, type FormInstance } from '@primevue/forms';
+
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
+
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import type { HeritageSite } from '@/bcrhp/schemas/heritage_site.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     PropertyAddress,
     getPropertyAddress,
 } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
-import type { ZodError } from 'zod';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-// const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
+import { SiteBoundaryTileSchema } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
+
+import {
+    isValid as baseIsValid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
+
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from '@/arches_component_lab/types.ts';
+
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+
 let currentCivicAddress: typeof PropertyAddress = getPropertyAddress();
-// civicAddress[currentCivicAddress.civicAddressId] = currentCivicAddress;
+
+const emit = defineEmits(['update:stepIsValid']);
+
+const siteBoundaryForm: Ref<FormInstance | null> = useTemplateRef(
+    'siteBoundaryForm',
+) as Ref<FormInstance | null>;
 
 type FormErrors = Partial<Record<keyof typeof PropertyAddress, string[]>>;
 const errors: Ref<FormErrors> = ref<FormErrors>({});
@@ -27,90 +50,116 @@ const errors: Ref<FormErrors> = ref<FormErrors>({});
 // These names need to match the Zog schema
 const fields = {};
 
-const isValid = () => {
-    // Just to get through this step for now
-    let valid = true;
-    // We don't want to validate fields the first time we show the step
-    // if (!validateFields) {
-    //     validateFields = true;
-    //     return true;
-    // }
-    // if (!currentCivicAddress.hasCivicAddress) {
-    //     return true;
-    // }
+const mapOverrides = {
+    widget: {
+        widgetid: '',
+        component:
+            'bcgov_arches_common/widgets/MapDropZoneWidget/MapDropZoneWidget.vue',
+    },
+} satisfies Partial<CardXNodeXWidgetData>;
 
-    // for (const field of Object.values(fields) as Array<Ref>) {
-    //     valid = validateField(field?.value.$el as HTMLInputElement) && valid;
-    // }
-    return valid;
+const isValid = () => {
+    return true;
+    // return baseIsValid(
+    //     siteBoundaryForm as Ref<FormInstance>,
+    //     SiteBoundaryTileSchema.shape['aliased_data'],
+    // );
+};
+
+const siteBoundaryResolver = getFlattenResolver(
+    zodResolver(SiteBoundaryTileSchema.shape['aliased_data']),
+);
+
+const updateModelValue = function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite.value?.aliased_data?.heritage_site_location.aliased_data
+            ?.site_boundary.aliased_data,
+        siteBoundaryForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
-
 onMounted(() => {});
 </script>
 <template>
-    <div class="flex flex-col container-width">
-        <div style="display: none">Child {{ currentCivicAddress }}</div>
-        <FieldSet
-            id="siteBoundaryFieldSet"
-            legend="Site Boundary"
-            style="width: 55%; display: inline-block"
-        >
-            <div class="flex flex-row container-width">
-                <div>
-                    <LabelledCheckboxInput
-                        label="Site Boundary incorrect"
-                        hint="Update the geometry"
-                        input-name="hasCivicAddress"
-                    >
-                        <Checkbox
-                            id="boundaryIncorrect"
-                            ref="boundaryIncorrectField"
-                            aria-describedby="has-civic-address-help"
-                            aria-required="true"
-                            fluid
-                            binary
-                            small
-                        />
-                    </LabelledCheckboxInput>
-                    <LabelledInput
-                        label="Site Boundary"
-                        hint="Drag KML, GeoJSON or Shapefile here"
-                        input-name="authorizingAgency"
-                        :required="true"
-                    >
-                        <div>
-                            Need geometry upload component for Geometry upload
-                        </div>
-                        <div>Need map display component</div>
-                        <div class="instructions">
-                            <div>
-                                If there is no geospatial data/file add a Site
-                                Map under the Supporting Documents step.
+    <Form
+        ref="siteBoundaryForm"
+        name="siteBoundaryForm"
+        :validateOnBlur="true"
+        :validateOnValueUpdate="true"
+        :resolver="siteBoundaryResolver"
+    >
+        <div class="flex flex-col container-width">
+            <div style="display: none">Child {{ currentCivicAddress }}</div>
+            <FieldSet
+                id="siteBoundaryFieldSet"
+                legend="Site Boundary"
+                style="display: inline-block"
+            >
+                <div class="flex flex-row container-width">
+                    <div>
+                        <LabelledCheckboxInput
+                            label="Site Boundary incorrect"
+                            hint="If the geometry is incorrect, and you have the geometry in Shapefile, KML or GeoJason, check this box and drag it into the Site Boundary field."
+                            input-name="hasCivicAddress"
+                        >
+                            <Checkbox
+                                id="boundaryIncorrect"
+                                ref="boundaryIncorrectField"
+                                aria-describedby="has-civic-address-help"
+                                aria-required="true"
+                                fluid
+                                binary
+                                small
+                            />
+                        </LabelledCheckboxInput>
+                        <LabelledInput
+                            label="Site Boundary"
+                            :required="true"
+                        >
+                            <div class="instructions">
+                                <div>
+                                    If there is no geospatial data/file add a
+                                    Site Map under the Supporting Documents
+                                    step.
+                                </div>
+                                <div>
+                                    If the geospatial file does not import
+                                    successfully, add files under the Supporting
+                                    Documents step.
+                                </div>
                             </div>
-                            <div>
-                                If the geospatial file does not import
-                                successfully, add files under the Supporting
-                                Documents step.
-                            </div>
-                        </div>
-                    </LabelledInput>
+                            <GenericWidget
+                                graph-slug="heritage_site"
+                                node-alias="site_boundary"
+                                :card-x-node-x-widget-data-overrides="
+                                    mapOverrides
+                                "
+                                :mode="EDIT"
+                                :aliased-node-data="
+                                    heritageSite.value?.aliased_data
+                                        ?.heritage_site_location.aliased_data
+                                        ?.site_boundary.aliased_data
+                                        .site_boundary
+                                "
+                                @update:value="
+                                    updateModelValue($event, 'site_boundary')
+                                "
+                            ></GenericWidget>
+                        </LabelledInput>
+                    </div>
                 </div>
-                <div
-                    style="
-                        width: 45%;
-                        display: inline-block;
-                        background-color: darkgoldenrod;
-                        height: 400px;
-                        margin-left: 6rem;
-                    "
-                ></div>
-            </div>
-        </FieldSet>
-    </div>
+            </FieldSet>
+        </div>
+    </Form>
 </template>
 
 <style>

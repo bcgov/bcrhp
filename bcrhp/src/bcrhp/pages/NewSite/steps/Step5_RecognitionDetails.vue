@@ -3,7 +3,6 @@ import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
-import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
@@ -12,10 +11,7 @@ import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import {
-    HeritageSite,
-    type HeritageSiteType,
-} from '@/bcrhp/schemas/heritage_site.ts';
+import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 
 import {
@@ -35,17 +31,22 @@ const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
 ) as Ref<FormInstance | null>;
 
-const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentRecognitionDetails: ProtectionEventTileType =
+const currentProtectionEvent: ProtectionEventTileType =
     ref(getProtectionEvent());
 const showInactiveHistoricActs = ref(false);
 
 const protectionEventResolver = zodResolver(
     ProtectionEventTileSchema.shape['aliased_data'],
 );
-const totalRecognitionDetails = ref([] as Array<string>);
+const protectionEvents = computed(() => {
+    return (
+        heritageSite.value?.aliased_data.bc_right.aliased_data
+            .protection_event ?? []
+    );
+});
 
 const addOtherReferenceNumberDisabled = computed(
     () =>
@@ -62,7 +63,10 @@ const addOtherReferenceNumberDisabled = computed(
 );
 
 const isValid = () => {
-    return recognitionDetailsForm.value?.valid;
+    return baseIsValid(
+        recognitionDetailsForm as Ref<FormInstance>,
+        ProtectionEventTileSchema.shape['aliased_data'],
+    );
 };
 
 const updateModelValue = function (
@@ -72,10 +76,17 @@ const updateModelValue = function (
     baseUpdateModelValue(
         newValue,
         attribute_name,
-        heritageSite?.value.aliased_data.bc_right?.aliased_data.protection_event
-            .aliased_data,
+        currentProtectionEvent.value?.aliased_data,
         recognitionDetailsForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
+};
+const addProtectionEvent = function () {
+    console.log('addProtectionEvent');
+    heritageSite?.value?.aliased_data.bc_right.aliased_data.protection_event.push(
+        currentProtectionEvent.value,
+    );
+    currentProtectionEvent.value = getProtectionEvent();
     emit('update:stepIsValid', isValid());
 };
 defineExpose({ isValid });
@@ -102,7 +113,10 @@ onMounted(() => {});
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            currentProtectionEvent.value?.aliased_data
+                                .designation_or_protection_start_date
+                        "
                         graph-slug="heritage_site"
                         node-alias="designation_or_protection_start_date"
                         placeholder="Select a Designation Date"
@@ -127,7 +141,10 @@ onMounted(() => {});
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            currentProtectionEvent.value?.aliased_data
+                                .legislative_act
+                        "
                         graph-slug="heritage_site"
                         node-alias="legislative_act"
                         placeholder="Select a Legislative Act"
@@ -164,16 +181,16 @@ onMounted(() => {});
                 :error-message="$form.referenceNumber?.error?.message"
                 :required="true"
             >
-                <InputText
-                    id="referenceNumber"
-                    ref="referenceNumberField"
-                    v-model="currentRecognitionDetails.referenceNumber"
-                    placeholder="Enter Reference Number"
-                    aria-describedby="reference-number-help"
-                    name="referenceNumber"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="
+                        currentProtectionEvent.value?.aliased_data
+                            .protection_event.aliased_data.reference_number
+                    "
+                    graph-slug="heritage_site"
+                    node-alias="reference_number"
+                    @update:value="updateModelValue($event, 'reference_number')"
                 />
                 <Button
                     id="saveRecognitionDetails"
@@ -181,23 +198,30 @@ onMounted(() => {});
                     class="inline-block"
                     :disabled="addOtherReferenceNumberDisabled"
                     :aria-disabled="addOtherReferenceNumberDisabled"
-                    @click="saveRecognitionDetails"
+                    @click="addProtectionEvent"
                 ></Button>
             </LabelledInput>
             <MultiValuePlaceholder
                 v-slot="slotProps"
                 label="Reference Number"
                 :showDeleteButton="true"
-                :displayValues="totalRecognitionDetails"
-                :deleteCallback="deleteRecognitionDetailsCallback"
+                :displayValues="protectionEvents ?? []"
+                :deleteCallback="deleteProtectionEvent"
             >
-                <div
-                    v-for="slot in slotProps"
-                    :key="slot"
-                    class="parent value"
-                >
-                    {{ slot.designationDate }} {{ slot.legislativeAct }}
-                    {{ slot.referenceNumber }}
+                <div class="parent value">
+                    {{
+                        slotProps.value?.aliased_data
+                            ?.designation_or_protection_start_date.display_value
+                    }}
+                    -
+                    {{
+                        slotProps.value?.aliased_data?.legislative_act
+                            .display_value
+                    }}
+                    ({{
+                        slotProps.value?.aliased_data?.reference_number
+                            .display_value
+                    }})
                 </div>
             </MultiValuePlaceholder>
         </FieldSet>
