@@ -6,13 +6,16 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { BcStatementOfSignificanceTileSchema } from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
+import {
+    BcStatementOfSignificanceTileSchema,
+    getStatementOfSignificance,
+} from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 
-const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
 const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
@@ -29,6 +32,14 @@ const updateModelValue = function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
+    if (
+        heritageSite.value?.aliased_data.bc_statement_of_significance.length ===
+        0
+    ) {
+        heritageSite.value?.aliased_data.bc_statement_of_significance.push(
+            getStatementOfSignificance(),
+        );
+    }
     baseUpdateModelValue(
         newValue,
         attribute_name,

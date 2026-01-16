@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { reactive, useTemplateRef, inject } from 'vue';
+import { ref, useTemplateRef, inject } from 'vue';
 import type { Ref } from 'vue';
 
-import InputText from 'primevue/inputtext';
-import Editor from 'primevue/editor';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -15,14 +13,16 @@ import {
     type SiteImagesTileType,
 } from '@/bcrhp/schemas/heritage_site/site_images.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import {
+    updateModelValue as baseUpdateModelValue,
+    isValid as baseIsValid,
+} from '@/bcrhp/utils.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentSiteImage: SiteImagesTileType = reactive(getSiteImages());
-currentSiteImage.imageType = null;
+const currentSiteImage: SiteImagesTileType = ref(getSiteImages());
 
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
@@ -32,7 +32,10 @@ const imageFormResolver = zodResolver(
 );
 
 const isValid = () => {
-    return siteImageForm.value?.valid;
+    return baseIsValid(
+        siteImageForm as Ref<FormInstance>,
+        SiteImagesTileSchema.shape['aliased_data'],
+    );
 };
 
 const onImageUpload = function () {};
@@ -44,7 +47,7 @@ const updateModelValue = function (
     baseUpdateModelValue(
         newValue,
         attribute_name,
-        heritageSite?.value.aliased_data.site_images.aliased_data,
+        currentSiteImage.value.aliased_data,
         siteImageForm as Ref<FormInstance>,
     );
     emit('update:stepIsValid', isValid());
@@ -84,7 +87,9 @@ defineExpose({ isValid });
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            currentSiteImage.aliased_data.image_type
+                        "
                         graph-slug="heritage_site"
                         node-alias="image_type"
                         placeholder="Select an Image Type"
@@ -103,10 +108,12 @@ defineExpose({ isValid });
                 <div class="p-inputtext-fluid">
                     <GenericWidget
                         graph-slug="heritage_site"
-                        :mode="EDIT"
-                        :should-show-label="false"
                         node-alias="image_view"
-                        model-value="currentSiteImage.imageView"
+                        :mode="EDIT"
+                        :aliasedNodeData="
+                            currentSiteImage.aliased_data.image_view
+                        "
+                        :should-show-label="false"
                         placeholder="Select an Image View"
                         @update:value="updateModelValue($event, 'image_view')"
                     />
@@ -120,21 +127,23 @@ defineExpose({ isValid });
             :error-message="$form.imageFeatures?.error?.message"
         >
             <div>
-                <InputText
-                    id="imageFeatures"
-                    ref="imageFeaturesField"
-                    v-model="currentSiteImage.imageFeatures"
+                <GenericWidget
+                    graph-slug="heritage_site"
+                    node-alias="image_features"
+                    :mode="EDIT"
+                    :aliasedNodeData="
+                        currentSiteImage.aliased_data.image_features
+                    "
+                    :should-show-label="false"
                     placeholder="E.g. Stained Glass Window"
-                    aria-describedby="image-features-help"
-                    fluid
-                    class="inline-block"
+                    @update:value="updateModelValue($event, 'image_features')"
                 />
             </div>
         </LabelledInput>
         <GenericWidget
             :mode="EDIT"
             :should-show-label="true"
-            :aliasedNodeData="null"
+            :aliasedNodeData="currentSiteImage.aliased_data.image_date"
             graph-slug="heritage_site"
             node-alias="image_date"
             placeholder="Date the image was created"
@@ -149,15 +158,18 @@ defineExpose({ isValid });
             :required="true"
         >
             <div class="p-inputtext-fluid">
-                <Editor
-                    id="imageDescription"
-                    ref="imageDescriptionField"
-                    v-model="currentSiteImage.imageDescription"
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="
+                        currentSiteImage.aliased_data.image_description
+                    "
+                    graph-slug="heritage_site"
+                    node-alias="image_description"
                     placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
-                    theme="snow"
-                    aria-describedby="image-description-help"
-                    aria-required="true"
-                    fluid
+                    @update:value="
+                        updateModelValue($event, 'image_description')
+                    "
                 />
             </div>
         </LabelledInput>
@@ -168,15 +180,16 @@ defineExpose({ isValid });
             :error-message="$form.photographer?.error?.message"
         >
             <div>
-                <InputText
-                    id="photographer"
-                    ref="photographerField"
-                    v-model="currentSiteImage.photographer"
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="
+                        currentSiteImage.aliased_data.photographer
+                    "
+                    graph-slug="heritage_site"
+                    node-alias="photographer"
                     placeholder="First Name Last Name"
-                    aria-describedby="image-features-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
+                    @update:value="updateModelValue($event, 'photographer')"
                 />
             </div>
         </LabelledInput>
@@ -187,31 +200,16 @@ defineExpose({ isValid });
             :error-message="$form.copyright?.error?.message"
         >
             <div>
-                <InputText
-                    id="copyright"
-                    ref="copyrightField"
-                    v-model="currentSiteImage.copyright"
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="currentSiteImage.aliased_data.copyright"
+                    graph-slug="heritage_site"
+                    node-alias="copyright"
                     placeholder="E.g. City of Nelson"
-                    aria-describedby="copyright-help"
-                    aria-required="true"
-                    fluid
-                    class="inline-block"
+                    @update:value="updateModelValue($event, 'copyright')"
                 />
             </div>
         </LabelledInput>
-        <GenericWidget
-            :value="currentSiteImage.imageType"
-            :mode="VIEW"
-            :should-show-label="true"
-            graph-slug="heritage_site"
-            node-alias="image_type"
-        />
-        <GenericWidget
-            :value="currentSiteImage.imageView"
-            :mode="VIEW"
-            :should-show-label="true"
-            graph-slug="heritage_site"
-            node-alias="image_view"
-        />
     </Form>
 </template>
