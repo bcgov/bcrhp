@@ -206,10 +206,7 @@ onMounted(() => {
                 :deleteCallback="deleteOtherNameCallback"
             >
                 <div class="parent value">
-                    {{
-                        slotProps?.value?.aliased_data?.name?.node_value?.en
-                            ?.value
-                    }}
+                    {{ slotProps?.value?.aliased_data?.name.display_value }}
                 </div>
             </MultiValuePlaceholder>
         </Form>

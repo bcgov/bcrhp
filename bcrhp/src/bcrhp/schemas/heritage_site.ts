@@ -14,6 +14,7 @@ import {
     type ChildSitesTileType,
 } from '@/bcrhp/schemas/heritage_site/child_sites.ts';
 import {
+    getHeritageTheme,
     HeritageThemeTileSchema,
     type HeritageThemeTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
@@ -108,7 +109,7 @@ export class HeritageSite implements HeritageSiteType {
             site_document: [],
             borden_number: getBordenNumber(),
             child_sites: getChildSites(),
-            heritage_theme: [],
+            heritage_theme: getHeritageTheme(),
             external_url: [],
             site_record_admin: getSiteRecordAdmin(),
             internal_remark: [],
@@ -127,7 +128,7 @@ export class HeritageSite implements HeritageSiteType {
         site_document: SiteDocumentTileType[];
         borden_number: BordenNumberTileType;
         child_sites: ChildSitesTileType;
-        heritage_theme: HeritageThemeTileType[];
+        heritage_theme: HeritageThemeTileType;
         external_url: ExternalUrlTileType[];
         site_record_admin: SiteRecordAdminTileType;
         internal_remark: InternalRemarkTileType[];

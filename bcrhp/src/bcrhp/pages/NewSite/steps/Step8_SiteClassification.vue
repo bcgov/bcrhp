@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-    useTemplateRef,
-    inject,
-    ref,
-    onMounted,
-    computed,
-    reactive,
-} from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -34,91 +27,99 @@ import {
     getHeritageClass,
     type HeritageClassTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_class.ts';
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import {
+    updateModelValue as baseUpdateModelValue,
+    isValid as baseIsValid,
+} from '@/bcrhp/utils.ts';
 
-const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
 const heritageClassForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageClassForm',
 ) as Ref<FormInstance | null>;
-const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
-    'heritageFunctionForm',
-) as Ref<FormInstance | null>;
-const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
-    'heritageThemeForm',
-) as Ref<FormInstance | null>;
-const currentHeritageClass: HeritageClassTileType =
-    reactive(getHeritageClass());
-const currentHeritageFunction: HeritageFunctionTileType = reactive(
-    getHeritageFunction(),
-);
-const currentHeritageTheme: HeritageThemeTileType =
-    reactive(getHeritageTheme());
-const heritageClasses = ref([] as Array<string>);
-const heritageFunctions = ref([] as Array<string>);
-const heritageThemes = ref([] as Array<string>);
-
-const heritageThemeResolver = zodResolver(
-    HeritageThemeTileSchema.shape['aliased_data'],
-);
-const heritageFunctionResolver = zodResolver(
-    HeritageFunctionTileSchema.shape['aliased_data'],
-);
 const heritageClassResolver = zodResolver(
     HeritageClassTileSchema.shape['aliased_data'],
 );
-const isValidHeritageClass = () => {
-    return heritageClassForm.value?.valid;
-};
-const isValidHeritageFunction = () => {
-    return heritageFunctionForm.value?.valid;
-};
-const isValidHeritageTheme = () => {
-    return heritageThemeForm.value?.valid;
+
+const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
+    'heritageFunctionForm',
+) as Ref<FormInstance | null>;
+const heritageFunctionResolver = zodResolver(
+    HeritageFunctionTileSchema.shape['aliased_data'],
+);
+
+const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
+    'heritageThemeForm',
+) as Ref<FormInstance | null>;
+const heritageThemeResolver = zodResolver(
+    HeritageThemeTileSchema.shape['aliased_data'],
+);
+
+const currentHeritageClass: HeritageClassTileType = ref(getHeritageClass());
+const currentHeritageFunction: HeritageFunctionTileType = ref(
+    getHeritageFunction(),
+);
+const currentHeritageTheme: HeritageThemeTileType = ref(getHeritageTheme());
+
+const heritageClasses = computed(() => {
+    return heritageSite?.value.aliased_data.heritage_class ?? [];
+});
+const heritageFunctions = computed(() => {
+    return heritageSite?.value.aliased_data.heritage_function ?? [];
+});
+
+const isValid = () => {
+    return true;
 };
 
-const addOtherHeritageClassDisabled = computed(
+const isValidHeritageClass = () => {
+    return baseIsValid(
+        heritageClassForm as Ref<FormInstance>,
+        HeritageClassTileSchema.shape['aliased_data'],
+    );
+};
+const isValidHeritageFunction = () => {
+    return baseIsValid(
+        heritageFunctionForm as Ref<FormInstance>,
+        HeritageFunctionTileSchema.shape['aliased_data'],
+    );
+};
+const isValidHeritageTheme = () => {
+    return baseIsValid(
+        heritageThemeForm as Ref<FormInstance>,
+        HeritageThemeTileSchema.shape['aliased_data'],
+    );
+};
+
+const addHeritageClassDisabled = computed(
     () =>
-        heritageClassForm.value?.states?.contributingResources?.pristine ||
-        heritageClassForm.value?.states?.heritage_category?.pristine ||
-        heritageClassForm.value?.states?.ownership?.pristine ||
-        heritageClassForm.value?.states?.contributingResources?.invalid ||
-        heritageClassForm.value?.states?.heritage_category?.invalid ||
-        heritageClassForm.value?.states?.ownership?.invalid ||
+        !isValidHeritageClass() ||
         heritageSite?.value.aliased_data.heritage_classes?.length > 4,
 );
-const addOtherHeritageFunctionDisabled = computed(
+const addHeritageFunctionDisabled = computed(
     () =>
-        !heritageFunctionForm.value?.states?.functional_category?.value ||
-        !heritageFunctionForm.value?.states?.function_category_type?.value ||
-        heritageFunctionForm.value?.states?.functional_category?.invalid ||
-        heritageFunctionForm.value?.states?.function_category_type?.invalid ||
+        !isValidHeritageFunction() ||
         heritageSite?.value.aliased_data?.heritage_functions?.length > 4,
 );
-const addOtherHeritageThemeDisabled = computed(
+const addHeritageThemeDisabled = computed(
     () =>
-        !heritageThemeForm.value?.states?.heritage_theme?.value ||
-        heritageThemeForm.value?.states?.heritage_theme?.invalid ||
+        !isValidHeritageTheme() ||
         heritageSite?.value.aliased_data?.heritage_themes?.length > 4,
 );
 
 const saveHeritageClass = function () {
     console.log('saveHeritageClass');
-    heritageSite?.value.aliased_data.heritage_class.push({
-        contributingResources:
-            currentHeritageClass.value?.contributingResources,
-        heritageCategory:
-            heritageClassForm.value?.states?.heritage_category?.value,
-        ownership: heritageClassForm.value?.states?.ownership?.value,
-    });
+    heritageSite.value?.aliased_data.heritage_class.push(
+        currentHeritageClass.value,
+    );
 
     heritageClassForm.value?.reset();
 };
 
 const saveHeritageFunction = function () {
     console.log('saveHeritageFunction');
-    heritageSite?.value.aliased_data.heritage_function.push(
-        currentHeritageFunction,
+    heritageSite.value?.aliased_data.heritage_function.push(
+        currentHeritageFunction.value,
     );
 
     heritageFunctionForm.value?.reset();
@@ -126,6 +127,9 @@ const saveHeritageFunction = function () {
 
 const saveHeritageTheme = function () {
     console.log('saveHeritageTheme');
+    heritageSite.value?.aliased_data.heritage_theme.push(
+        currentHeritageTheme.value,
+    );
 
     heritageThemeForm.value?.reset();
 };
@@ -136,10 +140,6 @@ const deleteHeritageClassCallback = function (index: number) {
 
 const deleteHeritageFunctionCallback = function (index: number) {
     heritageSite?.value.aliased_data.heritage_function.splice(index, 1);
-};
-
-const deleteHeritageThemeCallback = function (index: number) {
-    heritageSite?.value.aliased_data.heritage_themes.splice(index, 1);
 };
 
 const updateHeritageClassModelValue = function (
@@ -179,9 +179,7 @@ const updateHeritageThemeModelValue = function (
 };
 
 defineExpose({
-    isValidHeritageClass,
-    isValidHeritageFunction,
-    isValidHeritageTheme,
+    isValid,
 });
 
 onMounted(() => {});
@@ -205,20 +203,26 @@ onMounted(() => {});
                 :required="true"
             >
                 <div>
-                    <InputText
-                        id="contributingResources"
-                        ref="numberOfResourcesField"
-                        v-model="currentHeritageClass.contributingResources"
-                        placeholder="1"
-                        aria-describedby="contributing-resources-help"
-                        aria-required="true"
-                        fluid
-                        class="inline-block"
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentHeritageClass.aliased_data
+                                .contributing_resource_count
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="contributing_resource_count"
+                        @update:value="
+                            updateHeritageClassModelValue(
+                                $event,
+                                'contributing_resource_count',
+                            )
+                        "
                     />
                     <Button
                         id="saveHeritageClass"
-                        :disabled="addOtherHeritageClassDisabled"
-                        :aria-disabled="addOtherHeritageClassDisabled"
+                        :disabled="addHeritageClassDisabled"
+                        :aria-disabled="addHeritageClassDisabled"
                         label="Add"
                         class="inline-block"
                         @click="saveHeritageClass"
@@ -229,7 +233,9 @@ onMounted(() => {});
                 <GenericWidget
                     :mode="EDIT"
                     :should-show-label="true"
-                    :aliasedNodeData="null"
+                    :aliasedNodeData="
+                        currentHeritageClass.aliased_data.heritage_category
+                    "
                     graph-slug="heritage_site"
                     node-alias="heritage_category"
                     group-direction="column"
@@ -243,7 +249,9 @@ onMounted(() => {});
                 <GenericWidget
                     :mode="EDIT"
                     :should-show-label="true"
-                    :aliasedNodeData="null"
+                    :aliasedNodeData="
+                        currentHeritageClass.aliased_data.ownership
+                    "
                     graph-slug="heritage_site"
                     node-alias="ownership"
                     group-direction="column"
@@ -259,14 +267,13 @@ onMounted(() => {});
                 label="Heritage Class/Classes"
                 :deleteCallback="deleteHeritageClassCallback"
             >
-                <div
-                    v-for="slot in slotProps"
-                    :key="slot"
-                    class="parent value"
-                >
-                    {{ slot.heritageCategory }} {{ slot.ownership }}
-                    {{ slot.contributingResources }}
-                </div>
+                {{
+                    slotProps.value.aliased_data.heritage_category.display_value
+                }}
+                {{ slotProps.value.aliased_data.ownership.display_value }} ({{
+                    slotProps.value.aliased_data.contributing_resource_count
+                        .display_value
+                }})
             </MultiValuePlaceholder>
         </FieldSet>
     </Form>
@@ -292,7 +299,10 @@ onMounted(() => {});
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            currentHeritageFunction.aliased_data
+                                .functional_category
+                        "
                         graph-slug="heritage_site"
                         node-alias="functional_category"
                         placeholder="Select a Function Category"
@@ -308,7 +318,10 @@ onMounted(() => {});
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :value="null"
+                            :value="
+                                currentHeritageFunction.aliased_data
+                                    .functional_state
+                            "
                             graph-slug="heritage_site"
                             node-alias="functional_state"
                             group-direction="column"
@@ -326,8 +339,8 @@ onMounted(() => {});
                 id="saveFunctionCategory"
                 label="Add"
                 class="inline-block"
-                :disabled="addOtherHeritageFunctionDisabled"
-                :aria-disabled="addOtherHeritageFunctionDisabled"
+                :disabled="addHeritageFunctionDisabled"
+                :aria-disabled="addHeritageFunctionDisabled"
                 @click="saveHeritageFunction"
             ></Button>
             <MultiValuePlaceholder
@@ -337,14 +350,13 @@ onMounted(() => {});
                 label="Category/Categories"
                 :deleteCallback="deleteHeritageFunctionCallback"
             >
-                <div
-                    v-for="slot in slotProps"
-                    :key="slot"
-                    class="parent value"
-                >
-                    {{ slot.functionCategory }}
-                    {{ slot.functionCategoryType }}
-                </div>
+                {{
+                    slotProps.value.aliased_data.functional_category
+                        .display_value
+                }}
+                {{
+                    slotProps.value.aliased_data.functional_state.display_value
+                }}
             </MultiValuePlaceholder>
         </Fieldset>
     </Form>
@@ -370,7 +382,10 @@ onMounted(() => {});
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            heritageSite.value?.alised_data.heritage_theme
+                                .aliased_data.heritage_theme
+                        "
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
                         placeholder="Select a Heritage Theme"
@@ -387,20 +402,11 @@ onMounted(() => {});
                     id="addHeritageTheme"
                     label="Add"
                     class="inline-block"
-                    :disabled="addOtherHeritageThemeDisabled"
-                    :aria_disabled="addOtherHeritageThemeDisabled"
+                    :disabled="addHeritageThemeDisabled"
+                    :aria_disabled="addHeritageThemeDisabled"
                     @click="saveHeritageTheme"
                 ></Button>
             </LabelledInput>
-            <MultiValuePlaceholder
-                v-slot="slotProps"
-                :showDeleteButton="true"
-                :displayValues="heritageThemes"
-                label="Theme(s)"
-                :deleteCallback="deleteHeritageThemeCallback"
-            >
-                <div class="parent value">{{ slotProps }}</div>
-            </MultiValuePlaceholder>
         </Fieldset>
     </Form>
 </template>
