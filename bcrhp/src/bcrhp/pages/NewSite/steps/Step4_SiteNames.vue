@@ -125,7 +125,7 @@ const saveOtherName = function () {
     getBlankOtherName().then((blankOtherName) => {
         currentOtherName.value = blankOtherName;
         
-        // 2. Increment the key to force the GenericWidget to re-render from scratch
+        // Increment the key to force the GenericWidget to re-render from scratch
         otherNameKey.value++; 
         
         // Optional: Reset the form validation state to remove any "touched" or error states
@@ -139,8 +139,13 @@ const addOtherNameDisabled = computed(
     () => !isOtherNameValid() || otherNames.value.length >= 4,
 );
 
-const deleteOtherNameCallback = function (index: number) {
-    heritageSite?.value.aliased_data.site_names.splice(index, 1);
+const deleteOtherNameCallback = function (nameToDelete: any) {
+    const arr = heritageSite?.value?.aliased_data?.site_names;
+    const index = arr.indexOf(nameToDelete); 
+    
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
 };
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
@@ -220,11 +225,11 @@ onMounted(() => {
                     v-if="otherNames && otherNames.length > 0"
                 >
                     <Chip
-                        v-for="(name, index) in otherNames"
-                        :key="index"
+                        v-for="name in otherNames"
+                        :key="name" 
                         :label="name?.aliased_data?.name.display_value"
                         removable
-                        @remove="deleteOtherNameCallback(index)"
+                        @remove="deleteOtherNameCallback(name)" 
                         class="text-lg py-2 px-3"
                     />
                 </div>
