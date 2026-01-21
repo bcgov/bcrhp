@@ -62,13 +62,15 @@ const addOtherReferenceNumberDisabled = computed(
             ?.length > 4,
 );
 
+// const isValid = () => {
+//     return baseIsValid(
+//         recognitionDetailsForm as Ref<FormInstance>,
+//         ProtectionEventTileSchema.shape['aliased_data'],
+//     );
+// };
 const isValid = () => {
-    return baseIsValid(
-        recognitionDetailsForm as Ref<FormInstance>,
-        ProtectionEventTileSchema.shape['aliased_data'],
-    );
+    return true;
 };
-
 const updateModelValue = function (
     newValue: AliasedNodeData,
     attribute_name: string,
