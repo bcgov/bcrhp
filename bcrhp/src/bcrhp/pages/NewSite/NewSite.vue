@@ -36,7 +36,7 @@ const submissionErrors = ref([] as ErrorMessage[]);
 
 //placeholder function for final submission
 function submitNewSiteData() {
-    confirm("Submission complete!");
+    confirm('Submission complete!');
 }
 
 const activateNextStep = async () => {

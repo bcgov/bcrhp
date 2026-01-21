@@ -31,13 +31,15 @@ import {
 import {
     BcPropertyLegalDescriptionTileSchema,
     getLegalDescription,
-    type BcPropertyLegalDescriptionTileType
+    type BcPropertyLegalDescriptionTileType,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 
 type UIAddressBlock = ReturnType<typeof getPropertyAddress> & {
     _uiId: string;
-    legalDescriptions: (BcPropertyLegalDescriptionTileType & { _uiId: string })[];
+    legalDescriptions: (BcPropertyLegalDescriptionTileType & {
+        _uiId: string;
+    })[];
 };
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
@@ -101,7 +103,10 @@ const addLegalDescription = (addressBlock: UIAddressBlock) => {
     addressBlock.legalDescriptions.push(createEmptyLegal());
 };
 
-const removeLegalDescription = (addressBlock: UIAddressBlock, legalIndex: number) => {
+const removeLegalDescription = (
+    addressBlock: UIAddressBlock,
+    legalIndex: number,
+) => {
     const id = addressBlock.legalDescriptions[legalIndex]._uiId;
     legalFormRefs.value.delete(id);
     addressBlock.legalDescriptions.splice(legalIndex, 1);
@@ -115,7 +120,7 @@ const toggleGlobalAddress = () => {
 const updateCivicValue = function (
     newValue: AliasedNodeData,
     attribute_name: string,
-    block: UIAddressBlock
+    block: UIAddressBlock,
 ) {
     const targetFormRef = computed(() => civicFormRefs.value.get(block._uiId));
 
@@ -123,7 +128,7 @@ const updateCivicValue = function (
         newValue,
         attribute_name,
         block.aliased_data,
-        targetFormRef as Ref<FormInstance> 
+        targetFormRef as Ref<FormInstance>,
     );
     emit('update:stepIsValid', isValid());
 };
@@ -135,16 +140,16 @@ const isValid = () => {
 const getData = () => {
     return {
         hasCivicAddress: hasGlobalCivicAddress.value,
-        addresses: addressBlocks.value.map(block => {
+        addresses: addressBlocks.value.map((block) => {
             const { _uiId, legalDescriptions, ...civicData } = block;
             return {
                 ...civicData,
-                legalDescriptions: legalDescriptions.map(l => {
+                legalDescriptions: legalDescriptions.map((l) => {
                     const { _uiId: lId, ...lData } = l;
                     return lData;
-                })
+                }),
             };
-        })
+        }),
     };
 };
 
@@ -155,8 +160,9 @@ defineExpose({ isValid, getData });
 
 <template>
     <div class="flex flex-col gap-6">
-
-        <div class="bg-surface-0 dark:bg-surface-900 p-4 border border-surface-200 dark:border-surface-700 rounded-lg shadow-sm">
+        <div
+            class="bg-surface-0 dark:bg-surface-900 p-4 border border-surface-200 dark:border-surface-700 rounded-lg shadow-sm"
+        >
             <LabelledCheckboxInput
                 label="This site does not have a Street Address"
                 hint="Check if the site doesn't have a Street Address"
@@ -171,7 +177,7 @@ defineExpose({ isValid, getData });
                 />
             </LabelledCheckboxInput>
         </div>
-        
+
         <div class="flex justify-end border-b border-gray-200 pb-4">
             <Button
                 label="Add Another Civic Address"
@@ -183,34 +189,38 @@ defineExpose({ isValid, getData });
             />
         </div>
 
-        <div 
-            v-for="(block, index) in addressBlocks" 
-            :key="block._uiId" 
+        <div
+            v-for="(block, index) in addressBlocks"
+            :key="block._uiId"
             class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg p-4 shadow-sm"
         >
             <Accordion value="0">
                 <AccordionPanel value="0">
-                        <AccordionHeader 
-                            class="custom-accordion-header"
-                            :pt="{ 
-                                toggleIcon: { style: 'color: white;' },
-                            }"
+                    <AccordionHeader
+                        class="custom-accordion-header"
+                        :pt="{
+                            toggleIcon: { style: 'color: white;' },
+                        }"
+                    >
+                        <div
+                            class="flex items-center justify-between w-full mr-4 pl-4"
                         >
-                        <div class="flex items-center justify-between w-full mr-4 pl-4">
-                            <span class="font-bold text-lg">Civic Address {{ index + 1 }}</span>
-                            <Button 
+                            <span class="font-bold text-lg"
+                                >Civic Address {{ index + 1 }}</span
+                            >
+                            <Button
                                 v-if="addressBlocks.length > 1"
                                 class="delete-button"
-                                icon="pi pi-trash" 
-                                text 
-                                severity="danger" 
+                                icon="pi pi-trash"
+                                text
+                                severity="danger"
                                 rounded
                                 aria-label="Remove Address"
-                                @click.stop="removeCivicAddress(index)" 
+                                @click.stop="removeCivicAddress(index)"
                             />
                         </div>
                     </AccordionHeader>
-                    
+
                     <AccordionContent>
                         <Form
                             :ref="(el) => setCivicFormRef(el, block._uiId)"
@@ -220,120 +230,206 @@ defineExpose({ isValid, getData });
                             :resolver="propertyAddressResolver"
                             v-slot="$form"
                         >
-                            <div 
-                                :inert="!hasGlobalCivicAddress" 
-                                :class="{ 'p-disabled opacity-50': !hasGlobalCivicAddress }"
+                            <div
+                                :inert="!hasGlobalCivicAddress"
+                                :class="{
+                                    'p-disabled opacity-50':
+                                        !hasGlobalCivicAddress,
+                                }"
                                 class="flex flex-col gap-4 transition-opacity duration-200"
                             >
                                 <LabelledInput
                                     label="Street Address"
                                     input-name="street_address"
-                                    :error-message="$form.streetAddress?.error?.message"
+                                    :error-message="
+                                        $form.streetAddress?.error?.message
+                                    "
                                     :required="true"
                                 >
                                     <GenericWidget
                                         :mode="EDIT"
                                         :should-show-label="false"
-                                        :aliased-node-data="block.aliased_data?.street_address"
+                                        :aliased-node-data="
+                                            block.aliased_data?.street_address
+                                        "
                                         graph-slug="heritage_site"
                                         node-alias="street_address"
-                                        @update:value="updateCivicValue($event, 'street_address', block)"
+                                        @update:value="
+                                            updateCivicValue(
+                                                $event,
+                                                'street_address',
+                                                block,
+                                            )
+                                        "
                                     />
                                 </LabelledInput>
 
                                 <GenericWidget
                                     :mode="EDIT"
-                                    :aliased-node-data="block.aliased_data?.city"
+                                    :aliased-node-data="
+                                        block.aliased_data?.city
+                                    "
                                     graph-slug="heritage_site"
                                     node-alias="city"
-                                    @update:value="updateCivicValue($event, 'city', block)"
+                                    @update:value="
+                                        updateCivicValue($event, 'city', block)
+                                    "
                                 />
-                                
+
                                 <GenericWidget
                                     :mode="EDIT"
-                                    :aliased-node-data="block.aliased_data?.postal_code"
+                                    :aliased-node-data="
+                                        block.aliased_data?.postal_code
+                                    "
                                     graph-slug="heritage_site"
                                     node-alias="postal_code"
-                                    @update:value="updateCivicValue($event, 'postal_code', block)"
+                                    @update:value="
+                                        updateCivicValue(
+                                            $event,
+                                            'postal_code',
+                                            block,
+                                        )
+                                    "
                                 />
 
                                 <GenericWidget
                                     :mode="EDIT"
-                                    :aliased-node-data="block.aliased_data?.location_description"
+                                    :aliased-node-data="
+                                        block.aliased_data?.location_description
+                                    "
                                     graph-slug="heritage_site"
                                     node-alias="location_description"
-                                    @update:value="updateCivicValue($event, 'location_description', block)"
+                                    @update:value="
+                                        updateCivicValue(
+                                            $event,
+                                            'location_description',
+                                            block,
+                                        )
+                                    "
                                 />
 
                                 <GenericWidget
                                     :mode="EDIT"
-                                    :aliased-node-data="block.aliased_data?.locality"
+                                    :aliased-node-data="
+                                        block.aliased_data?.locality
+                                    "
                                     graph-slug="heritage_site"
                                     node-alias="locality"
-                                    @update:value="updateCivicValue($event, 'locality', block)"
+                                    @update:value="
+                                        updateCivicValue(
+                                            $event,
+                                            'locality',
+                                            block,
+                                        )
+                                    "
                                 />
                             </div>
 
-                            <Divider align="left" type="solid" class="my-6">
-                                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Associated Legal Descriptions</span>
+                            <Divider
+                                align="left"
+                                type="solid"
+                                class="my-6"
+                            >
+                                <span
+                                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider"
+                                    >Associated Legal Descriptions</span
+                                >
                             </Divider>
 
-                            <div class="pl-4 border-l-4 border-surface-100 dark:border-surface-800">
-                                <Accordion multiple :value="['0']">
-                                    <AccordionPanel 
-                                        v-for="(legal, lIndex) in block.legalDescriptions" 
+                            <div
+                                class="pl-4 border-l-4 border-surface-100 dark:border-surface-800"
+                            >
+                                <Accordion
+                                    multiple
+                                    :value="['0']"
+                                >
+                                    <AccordionPanel
+                                        v-for="(
+                                            legal, lIndex
+                                        ) in block.legalDescriptions"
                                         :key="legal._uiId"
                                         :value="lIndex.toString()"
                                     >
-                                        <AccordionHeader 
+                                        <AccordionHeader
                                             class="custom-accordion-header"
-                                            :pt="{ 
-                                                toggleIcon: { style: 'color: white;' },
+                                            :pt="{
+                                                toggleIcon: {
+                                                    style: 'color: white;',
+                                                },
                                             }"
                                         >
                                             <div>
                                                 <span>
-                                                    Legal Description {{ lIndex + 1 }} 
+                                                    Legal Description
+                                                    {{ lIndex + 1 }}
                                                     <span v-if="legal.parcelId">
-                                                        (PID: {{ legal.parcelId }})
+                                                        (PID:
+                                                        {{ legal.parcelId }})
                                                     </span>
                                                 </span>
-                                                <Button 
+                                                <Button
                                                     class="delete-button"
-                                                    icon="pi pi-trash" 
-                                                    text 
-                                                    severity="danger" 
+                                                    icon="pi pi-trash"
+                                                    text
+                                                    severity="danger"
                                                     rounded
                                                     size="small"
-                                                    @click.stop="removeLegalDescription(block, lIndex)" 
+                                                    @click.stop="
+                                                        removeLegalDescription(
+                                                            block,
+                                                            lIndex,
+                                                        )
+                                                    "
                                                 />
                                             </div>
                                         </AccordionHeader>
                                         <AccordionContent>
                                             <Form
-                                                :ref="(el) => setLegalFormRef(el, legal._uiId)"
+                                                :ref="
+                                                    (el) =>
+                                                        setLegalFormRef(
+                                                            el,
+                                                            legal._uiId,
+                                                        )
+                                                "
                                                 :name="`legalForm_${legal._uiId}`"
                                                 :resolver="legalAddressResolver"
                                                 v-slot="$legalForm"
                                             >
-                                                <div 
-                                                    :inert="!hasGlobalCivicAddress" 
-                                                    :class="{ 'p-disabled opacity-50': !hasGlobalCivicAddress }"
+                                                <div
+                                                    :inert="
+                                                        !hasGlobalCivicAddress
+                                                    "
+                                                    :class="{
+                                                        'p-disabled opacity-50':
+                                                            !hasGlobalCivicAddress,
+                                                    }"
                                                     class="flex flex-col gap-4"
                                                 >
                                                     <LabelledInput
                                                         label="Parcel Identifier (PID)"
                                                         hint="Click Validate to generate the legal description"
                                                         input-name="parcelId"
-                                                        :error-message="$legalForm.parcelId?.error?.message"
+                                                        :error-message="
+                                                            $legalForm.parcelId
+                                                                ?.error?.message
+                                                        "
                                                     >
-                                                        <div class="p-inputtext-fluid flex items-center gap-2">
+                                                        <div
+                                                            class="p-inputtext-fluid flex items-center gap-2"
+                                                        >
                                                             <InputText
-                                                                v-model="legal.parcelId"
+                                                                v-model="
+                                                                    legal.parcelId
+                                                                "
                                                                 fluid
                                                                 class="flex-grow"
                                                             />
-                                                            <Button label="Validate" size="small" outlined />
+                                                            <Button
+                                                                label="Validate"
+                                                                size="small"
+                                                                outlined
+                                                            />
                                                         </div>
                                                     </LabelledInput>
 
@@ -343,7 +439,9 @@ defineExpose({ isValid, getData });
                                                         input-name="overrideLegalDescription"
                                                     >
                                                         <Checkbox
-                                                            v-model="legal.overrideLegalDescription"
+                                                            v-model="
+                                                                legal.overrideLegalDescription
+                                                            "
                                                             binary
                                                             small
                                                         />
@@ -353,11 +451,19 @@ defineExpose({ isValid, getData });
                                                         label="Legal Address"
                                                         hint="If the Legal Address is not found or incorrect, enter it here"
                                                         input-name="legalAddress"
-                                                        :error-message="$legalForm.legalAddress?.error?.message"
+                                                        :error-message="
+                                                            $legalForm
+                                                                .legalAddress
+                                                                ?.error?.message
+                                                        "
                                                     >
                                                         <InputText
-                                                            v-model="legal.legalAddress"
-                                                            :disabled="!legal.overrideLegalDescription"
+                                                            v-model="
+                                                                legal.legalAddress
+                                                            "
+                                                            :disabled="
+                                                                !legal.overrideLegalDescription
+                                                            "
                                                             fluid
                                                         />
                                                     </LabelledInput>
@@ -389,9 +495,9 @@ defineExpose({ isValid, getData });
 
 <style>
 .custom-accordion-header {
-    background-color: #003366; 
+    background-color: #003366;
     border: none;
-    padding-top: 0.5rem; 
+    padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     color: #fff;
     font-size: 0.95rem;

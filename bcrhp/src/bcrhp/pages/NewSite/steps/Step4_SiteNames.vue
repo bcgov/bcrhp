@@ -121,15 +121,15 @@ const updateOtherName = function (
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSite?.value?.aliased_data.site_names.push(currentOtherName.value);
-    
+
     getBlankOtherName().then((blankOtherName) => {
         currentOtherName.value = blankOtherName;
-        
+
         // Increment the key to force the GenericWidget to re-render from scratch
-        otherNameKey.value++; 
-        
+        otherNameKey.value++;
+
         // Optional: Reset the form validation state to remove any "touched" or error states
-        otherNameForm.value?.reset(); 
+        otherNameForm.value?.reset();
 
         emit('update:stepIsValid', isValid());
     });
@@ -141,8 +141,8 @@ const addOtherNameDisabled = computed(
 
 const deleteOtherNameCallback = function (nameToDelete: any) {
     const arr = heritageSite?.value?.aliased_data?.site_names;
-    const index = arr.indexOf(nameToDelete); 
-    
+    const index = arr.indexOf(nameToDelete);
+
     if (index > -1) {
         arr.splice(index, 1);
     }
@@ -209,8 +209,14 @@ onMounted(() => {
                     @update:value="updateOtherName($event, 'name')"
                 />
             </LabelledInput>
-            <div style="display: flex; flex-direction: row; gap: 1rem; align-items: flex-start;">
-                
+            <div
+                style="
+                    display: flex;
+                    flex-direction: row;
+                    gap: 1rem;
+                    align-items: flex-start;
+                "
+            >
                 <Button
                     id="addOtherName"
                     label="+ Add"
@@ -220,22 +226,27 @@ onMounted(() => {
                     @click="saveOtherName"
                 ></Button>
 
-                <div 
-                    style="display: flex; flex-direction: column; gap: 2px; align-items: flex-start;" 
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        align-items: flex-start;
+                    "
                     v-if="otherNames && otherNames.length > 0"
                 >
                     <Chip
                         v-for="name in otherNames"
-                        :key="name" 
+                        :key="name"
                         :label="name?.aliased_data?.name.display_value"
                         removable
-                        @remove="deleteOtherNameCallback(name)" 
+                        @remove="deleteOtherNameCallback(name)"
                         class="text-lg py-2 px-3"
                     />
                 </div>
             </div>
         </Form>
-        <br/><br/><br/><br/><br/>
+        <br /><br /><br /><br /><br />
     </div>
 </template>
 
