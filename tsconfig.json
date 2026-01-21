@@ -24,6 +24,9 @@
     "paths": {
       "@/bcrhp/*": [
         "./bcrhp/src/bcrhp/*"
+      ],
+      "@/arches_component_lab/*": [
+        "../arches-component-lab/arches_component_lab/src/arches_component_lab/*"
       ]
     }
   }

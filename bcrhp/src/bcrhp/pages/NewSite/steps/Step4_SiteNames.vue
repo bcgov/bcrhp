@@ -2,6 +2,7 @@
 import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
+import Chip from 'primevue/chip';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -28,6 +29,7 @@ const emit = defineEmits(['update:stepIsValid']);
 
 const currentCommonName: Ref<SiteNamesTileType | null> = ref(null);
 const currentOtherName: Ref<SiteNamesTileType> = ref(null);
+const otherNameKey = ref(0);
 
 const otherNames = computed(() => {
     return heritageSite.value.aliased_data.site_names.filter(
@@ -50,12 +52,15 @@ const zodOtherNameResolver = getFlattenResolver(
     zodResolver(SiteNamesTileSchema.shape['aliased_data']),
 );
 
+// const isValid = () => {
+//     return (
+//         isCommonNameValid() &&
+//         (currentOtherName.value?.aliased_data?.name?.node_value?.en?.value
+//             ?.length ?? 0) === 0
+//     );
+// };
 const isValid = () => {
-    return (
-        isCommonNameValid() &&
-        (currentOtherName.value?.aliased_data?.name?.node_value?.en?.value
-            ?.length ?? 0) === 0
-    );
+    return true;
 };
 const isCommonNameValid = () => {
     return baseIsValid(
@@ -116,8 +121,16 @@ const updateOtherName = function (
 const saveOtherName = function () {
     console.log('saveOtherName');
     heritageSite?.value?.aliased_data.site_names.push(currentOtherName.value);
+
     getBlankOtherName().then((blankOtherName) => {
         currentOtherName.value = blankOtherName;
+
+        // Increment the key to force the GenericWidget to re-render from scratch
+        otherNameKey.value++;
+
+        // Optional: Reset the form validation state to remove any "touched" or error states
+        otherNameForm.value?.reset();
+
         emit('update:stepIsValid', isValid());
     });
 };
@@ -126,8 +139,13 @@ const addOtherNameDisabled = computed(
     () => !isOtherNameValid() || otherNames.value.length >= 4,
 );
 
-const deleteOtherNameCallback = function (index: number) {
-    heritageSite?.value.aliased_data.site_names.splice(index, 1);
+const deleteOtherNameCallback = function (nameToDelete: any) {
+    const arr = heritageSite?.value?.aliased_data?.site_names;
+    const index = arr.indexOf(nameToDelete);
+
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
 };
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
@@ -182,6 +200,7 @@ onMounted(() => {
                 :error-message="$form.otherName?.error?.message"
             >
                 <GenericWidget
+                    :key="otherNameKey"
                     :mode="EDIT"
                     :should-show-label="false"
                     :aliasedNodeData="currentOtherName"
@@ -189,27 +208,45 @@ onMounted(() => {
                     node-alias="name"
                     @update:value="updateOtherName($event, 'name')"
                 />
+            </LabelledInput>
+            <div
+                style="
+                    display: flex;
+                    flex-direction: row;
+                    gap: 1rem;
+                    align-items: flex-start;
+                "
+            >
                 <Button
                     id="addOtherName"
-                    label="Add"
+                    label="+ Add"
                     class="inline-block"
                     :aria-disabled="addOtherNameDisabled"
                     :disabled="addOtherNameDisabled"
                     @click="saveOtherName"
                 ></Button>
-            </LabelledInput>
-            <MultiValuePlaceholder
-                v-slot="slotProps"
-                label="Other Name(s)"
-                :showDeleteButton="true"
-                :displayValues="otherNames ?? []"
-                :deleteCallback="deleteOtherNameCallback"
-            >
-                <div class="parent value">
-                    {{ slotProps?.value?.aliased_data?.name.display_value }}
+
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2px;
+                        align-items: flex-start;
+                    "
+                    v-if="otherNames && otherNames.length > 0"
+                >
+                    <Chip
+                        v-for="name in otherNames"
+                        :key="name"
+                        :label="name?.aliased_data?.name.display_value"
+                        removable
+                        @remove="deleteOtherNameCallback(name)"
+                        class="text-lg py-2 px-3"
+                    />
                 </div>
-            </MultiValuePlaceholder>
+            </div>
         </Form>
+        <br /><br /><br /><br /><br />
     </div>
 </template>
 

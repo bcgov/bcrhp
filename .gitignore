@@ -156,3 +156,5 @@ coverage/
 node_modules
 .vscode/
 CACHE
+
+settings_docker.py

@@ -165,21 +165,24 @@ const updateExternalUrlModelValue = function (
     );
 };
 
+// const isValid = () => {
+//     return (
+//         baseIsValid(
+//             chronologyForm as Ref<FormInstance>,
+//             ChronologySchema.shape['aliased_data'],
+//         ) &&
+//         baseIsValid(
+//             constructionActorForm as Ref<FormInstance>,
+//             ConstructionActorsTileSchema.shape['aliased_data'],
+//         ) &&
+//         baseIsValid(
+//             externalUrlForm as Ref<FormInstance>,
+//             ExternalUrlTileSchema.shape['aliased_data'],
+//         )
+//     );
+// };
 const isValid = () => {
-    return (
-        baseIsValid(
-            chronologyForm as Ref<FormInstance>,
-            ChronologySchema.shape['aliased_data'],
-        ) &&
-        baseIsValid(
-            constructionActorForm as Ref<FormInstance>,
-            ConstructionActorsTileSchema.shape['aliased_data'],
-        ) &&
-        baseIsValid(
-            externalUrlForm as Ref<FormInstance>,
-            ExternalUrlTileSchema.shape['aliased_data'],
-        )
-    );
+    return true;
 };
 
 defineExpose({

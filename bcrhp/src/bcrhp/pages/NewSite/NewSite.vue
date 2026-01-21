@@ -34,6 +34,11 @@ import { getBlankHeritageSite } from '@/bcrhp/api.ts';
 
 const submissionErrors = ref([] as ErrorMessage[]);
 
+//placeholder function for final submission
+function submitNewSiteData() {
+    confirm('Submission complete!');
+}
+
 const activateNextStep = async () => {
     if (currentStep.value === 11) {
         submitNewSiteData();
@@ -74,6 +79,7 @@ const setCurrentStepValid = function (isValid: boolean, stepNumber: number) {
 };
 
 const isValid = (step: number) => {
+    return true;
     let stepValid = true;
 
     if (typeof steps[step - 1]?.value?.isValid === 'function') {

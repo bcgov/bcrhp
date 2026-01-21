@@ -67,6 +67,9 @@ const heritageClasses = computed(() => {
 const heritageFunctions = computed(() => {
     return heritageSite?.value.aliased_data.heritage_function ?? [];
 });
+const heritageTheme = computed(() => {
+    return heritageSite?.value.aliased_data.heritage_theme ?? [];
+});
 
 const isValid = () => {
     return true;
@@ -132,6 +135,10 @@ const saveHeritageTheme = function () {
     );
 
     heritageThemeForm.value?.reset();
+};
+
+const deleteHeritageThemeCallback = function (index: number) {
+    heritageSite?.value.aliased_data.heritage_theme.splice(index, 1);
 };
 
 const deleteHeritageClassCallback = function (index: number) {
@@ -406,6 +413,25 @@ onMounted(() => {});
                     :aria_disabled="addHeritageThemeDisabled"
                     @click="saveHeritageTheme"
                 ></Button>
+                <!-- <MultiValuePlaceholder
+                v-slot="slotProps"
+                label="Reference Number"
+                :showDeleteButton="true"
+                :displayValues="heritageTheme ?? []"
+                :deleteCallback="deleteHeritageThemeCallback"
+            >
+                <div class="parent value">
+                    {{
+                        slotProps.value?.aliased_data?.heritage_theme_category
+                            .display_value
+                    }}
+                    -
+                    {{
+                        slotProps.value?.aliased_data?.heritage_theme
+                            .display_value
+                    }}
+                </div>
+            </MultiValuePlaceholder> -->
             </LabelledInput>
         </Fieldset>
     </Form>
