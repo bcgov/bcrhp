@@ -39,6 +39,7 @@ import {
     HeritageSiteLocationTileSchema,
     type HeritageSiteLocationTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
+import type { BcPropertyLegalDescriptionTileType } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import {
     SiteNamesTileSchema,
     type SiteNamesTileType,
@@ -70,6 +71,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 import { getBcRight } from '@/bcrhp/schemas/heritage_site/bc_right.ts';
 import { getSiteRecordAdmin } from '@/bcrhp/schemas/heritage_site/site_record_admin.ts';
+import type { BcPropertyAddressTileType } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 
 export const HeritageSiteSchema = z.object({
     resourceinstanceid: z.string().nullable(),
@@ -142,4 +144,37 @@ export class HeritageSite implements HeritageSiteType {
         heritage_function: HeritageFunctionTileType[];
         construction_actors: ConstructionActorsTileType[];
     };
+}
+
+/**
+ * Extracts unique PIDs from all addresses in a heritage site using functional programming
+ * @param heritageSite The heritage site object
+ * @returns Array of unique PIDs as numbers, sorted in ascending order
+ */
+export function getUniquePIDsFromHeritageSite(
+    heritageSite: HeritageSite | null | undefined,
+): number[] {
+    // Early return if the required path doesn't exist
+    const propertyAddresses =
+        heritageSite?.aliased_data?.heritage_site_location?.[0]?.aliased_data
+            ?.bc_property_address || [];
+
+    // Extract all PIDs using flatMap to flatten nested arrays
+    const allPIDs = propertyAddresses
+        .flatMap(
+            (address: BcPropertyAddressTileType) =>
+                address.aliased_data?.bc_property_legal_description || [],
+        )
+        .map(
+            (legalDesc: BcPropertyLegalDescriptionTileType) =>
+                legalDesc.aliased_data?.pid?.value,
+        )
+        .filter(
+            (pid: number | undefined | null): pid is number =>
+                pid !== undefined && pid !== null && !isNaN(Number(pid)),
+        )
+        .map(Number);
+
+    // Create unique array and sort
+    return [...new Set<number>(allPIDs)].sort((a, b) => a - b) as number[];
 }

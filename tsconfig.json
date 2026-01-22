@@ -27,6 +27,9 @@
       ],
       "@/arches_component_lab/*": [
         "../arches-component-lab/arches_component_lab/src/arches_component_lab/*"
+      ],
+      "@/bcgov_arches_common/*": [
+        "../bcgov-arches-common/bcgov_arches_common/src/bcgov_arches_common/*"
       ]
     }
   }

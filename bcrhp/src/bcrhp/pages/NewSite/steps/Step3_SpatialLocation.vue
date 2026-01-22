@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted, useTemplateRef, computed } from 'vue';
+import { computed, inject, useTemplateRef } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -13,11 +13,10 @@ import GenericWidget from '@/arches_component_lab/generics/GenericWidget/Generic
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
-    PropertyAddress,
-    getPropertyAddress,
-} from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
+    getUniquePIDsFromHeritageSite,
+    type HeritageSiteType,
+} from '@/bcrhp/schemas/heritage_site.ts';
 
 import {
     getSiteBoundary,
@@ -37,6 +36,7 @@ import type {
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
+import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
@@ -56,19 +56,15 @@ const ensureSiteLocation = () => {
     }
 };
 
-let currentCivicAddress: typeof PropertyAddress = getPropertyAddress();
+const hasSinglePID = computed(() => {
+    return getUniquePIDsFromHeritageSite(heritageSite.value).length === 1;
+});
 
 const emit = defineEmits(['update:stepIsValid']);
 
 const siteBoundaryForm: Ref<FormInstance | null> = useTemplateRef(
     'siteBoundaryForm',
 ) as Ref<FormInstance | null>;
-
-type FormErrors = Partial<Record<keyof typeof PropertyAddress, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
-
-// These names need to match the Zog schema
-const fields = {};
 
 const mapOverrides = {
     widget: {
@@ -79,18 +75,27 @@ const mapOverrides = {
 } satisfies Partial<CardXNodeXWidgetData>;
 
 const isValid = () => {
-    return true;
-    // return baseIsValid(
-    //     siteBoundaryForm as Ref<FormInstance>,
-    //     SiteBoundaryTileSchema.shape['aliased_data'],
-    // );
+    let formIsValid = baseIsValid(
+        siteBoundaryForm as Ref<FormInstance>,
+        SiteBoundaryTileSchema.shape['aliased_data'],
+    );
+    return (
+        formIsValid &&
+        (heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            .aliased_data?.site_boundary.length ?? 0) > 0 &&
+        FeatureCollectionWithNonEmptyPolygonsSchema.safeParse(
+            heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+                .aliased_data?.site_boundary?.[0].aliased_data?.site_boundary
+                ?.node_value,
+        )?.success
+    );
 };
 
 const siteBoundaryResolver = getFlattenResolver(
     zodResolver(SiteBoundaryTileSchema.shape['aliased_data']),
 );
 
-const updateModelValue = function (
+const updateModelValue = async function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
@@ -101,14 +106,14 @@ const updateModelValue = function (
         heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data
             ?.site_boundary[0].aliased_data,
         siteBoundaryForm as Ref<FormInstance>,
-    );
-    emit('update:stepIsValid', isValid());
+    ).then(() => {
+        emit('update:stepIsValid', isValid());
+    });
 };
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
-onMounted(() => {});
 </script>
 <template>
     <Form
@@ -119,7 +124,6 @@ onMounted(() => {});
         :resolver="siteBoundaryResolver"
     >
         <div class="flex flex-col container-width">
-            <div style="display: none">Child {{ currentCivicAddress }}</div>
             <FieldSet
                 id="siteBoundaryFieldSet"
                 legend="Site Boundary"
@@ -128,6 +132,7 @@ onMounted(() => {});
                 <div class="flex flex-row container-width">
                     <div>
                         <LabelledCheckboxInput
+                            v-if="hasSinglePID"
                             label="Site Boundary incorrect"
                             hint="If the geometry is incorrect, and you have the geometry in Shapefile, KML or GeoJason, check this box and drag it into the Site Boundary field."
                             input-name="hasCivicAddress"
