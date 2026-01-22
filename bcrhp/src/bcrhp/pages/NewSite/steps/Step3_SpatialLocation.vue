@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, onMounted, useTemplateRef } from 'vue';
+import { inject, ref, onMounted, useTemplateRef, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -19,7 +19,10 @@ import {
     getPropertyAddress,
 } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 
-import { SiteBoundaryTileSchema } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
+import {
+    getSiteBoundary,
+    SiteBoundaryTileSchema,
+} from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
 import {
     isValid as baseIsValid,
@@ -33,8 +36,25 @@ import type {
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+
+const ensureSiteLocation = () => {
+    if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
+        heritageSite.value?.aliased_data.heritage_site_location.push(
+            getHeritageSiteLocation(),
+        );
+    }
+    if (
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data
+            .site_boundary.length === 0
+    ) {
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data.site_boundary.push(
+            getSiteBoundary(),
+        );
+    }
+};
 
 let currentCivicAddress: typeof PropertyAddress = getPropertyAddress();
 
@@ -74,11 +94,12 @@ const updateModelValue = function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
+    ensureSiteLocation();
     baseUpdateModelValue(
         newValue,
         attribute_name,
-        heritageSite.value?.aliased_data?.heritage_site_location.aliased_data
-            ?.site_boundary.aliased_data,
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data
+            ?.site_boundary[0].aliased_data,
         siteBoundaryForm as Ref<FormInstance>,
     );
     emit('update:stepIsValid', isValid());
@@ -126,20 +147,23 @@ onMounted(() => {});
                             :required="true"
                         >
                             <div class="instructions">
-                                <div>
-                                    If there is no geospatial data/file add a
-                                    Site Map under the Supporting Documents
-                                    step.
-                                </div>
-                                <div>
-                                    If the geospatial file does not import
-                                    successfully, add files under the Supporting
-                                    Documents step.
-                                </div>
+                                <ol>
+                                    <li>
+                                        If there is no geospatial data/file add
+                                        a Site Map under the Supporting
+                                        Documents step.
+                                    </li>
+                                    <li>
+                                        If the geospatial file does not import
+                                        successfully, add files under the
+                                        Supporting Documents step.
+                                    </li>
+                                </ol>
                             </div>
                             <GenericWidget
                                 graph-slug="heritage_site"
                                 node-alias="site_boundary"
+                                :should-show-label="false"
                                 :card-x-node-x-widget-data-overrides="
                                     mapOverrides
                                 "
@@ -162,7 +186,15 @@ onMounted(() => {});
     </Form>
 </template>
 
-<style>
+<style scoped>
+.instructions {
+    margin-left: 2rem;
+}
+
+.instructions > ol {
+    list-style-type: decimal;
+}
+
 .inline-block {
     display: inline-block;
     width: unset;
