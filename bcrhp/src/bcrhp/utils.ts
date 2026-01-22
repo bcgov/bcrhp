@@ -1,10 +1,9 @@
 import type { Ref } from 'vue';
 import type { LanguageValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { GeoJSONFeatureCollectionValue } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/types.ts';
+import type { GeoJSONFeatureCollectionValue } from '@/arches_component_lab/datatypes/geojson-feature-collection/types.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import type { FormInstance } from '@primevue/forms';
 import type { GenericZodObjectType } from '@/bcgov_arches_common/validation-utils.ts';
-import type { Feature } from 'geojson';
 
 export const blankStringValue = function () {
     return {
@@ -71,10 +70,7 @@ export const blankNumberValue = function () {
 export const blankGeoJSONValue = function (): GeoJSONFeatureCollectionValue {
     return {
         display_value: '',
-        node_value: {
-            type: 'FeatureCollection',
-            features: [] as Feature[],
-        },
+        node_value: null,
         details: [] as never[],
     } satisfies GeoJSONFeatureCollectionValue;
 };
@@ -104,7 +100,7 @@ export const isValid = (
     return allValid;
 };
 
-export const updateModelValue = function (
+export const updateModelValue = async function (
     newValue: AliasedNodeData,
     attribute_name: string,
     dataObject: Record<string, any>,
@@ -112,11 +108,10 @@ export const updateModelValue = function (
 ) {
     console.log('updateModelValue', attribute_name, newValue);
     if (dataObject[attribute_name] === newValue) return;
-    form.value.validate(attribute_name).then((result) => {
-        if (result?.errors?.[attribute_name]?.length ?? 0 > 0) {
-            console.log(result.errors[attribute_name]);
-        } else {
-            dataObject[attribute_name] = newValue;
-        }
-    });
+    const result = await form.value.validate(attribute_name);
+    if (result?.errors?.[attribute_name]?.length ?? 0 > 0) {
+        console.log(result.errors[attribute_name]);
+    } else {
+        dataObject[attribute_name] = newValue;
+    }
 };
