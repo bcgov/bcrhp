@@ -6,9 +6,14 @@ import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation
 import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
 import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
-import { blankStringValue, currentDateValue } from '@/bcrhp/utils.ts';
+import {
+    blankStringValue,
+    currentDateValue,
+    blankBooleanValue,
+} from '@/bcrhp/utils.ts';
 
 // Auto-generated tile schema for alias: chronology
 
@@ -17,7 +22,7 @@ export const ChronologyTileSchema = TileSchema.extend({
         start_year: DateValueSchema,
         dates_approximate: BooleanValueSchema,
         information_source: getStringValueSchema(),
-        chronology: z.array(ConceptValueRequiredSchema),
+        chronology: ConceptValueRequiredSchema,
         chronology_notes: getStringValueSchema(),
         end_year: DateValueSchema,
     }),
@@ -33,7 +38,7 @@ export class Chronology implements ChronologyTileType {
     constructor() {
         this.aliased_data = {
             start_year: currentDateValue(),
-            dates_approximate: false,
+            dates_approximate: blankBooleanValue(),
             information_source: blankStringValue(),
             chronology: blankConceptValue(),
             chronology_notes: blankStringValue(),
@@ -42,7 +47,7 @@ export class Chronology implements ChronologyTileType {
     }
     aliased_data: {
         start_year: DateValue;
-        dates_approximate: boolean;
+        dates_approximate: BooleanValue;
         information_source: StringValue;
         chronology: ConceptValue;
         chronology_notes: StringValue;
