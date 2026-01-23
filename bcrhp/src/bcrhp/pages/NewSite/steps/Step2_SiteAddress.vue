@@ -379,5 +379,6 @@ defineExpose({ isValid });
 .row {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
 }
 </style>
