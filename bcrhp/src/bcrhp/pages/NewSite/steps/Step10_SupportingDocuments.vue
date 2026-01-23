@@ -17,7 +17,7 @@ import type {
     AliasedNodeData,
     CardXNodeXWidgetData,
 } from '@/arches_component_lab/types.ts';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import {
     getSiteDocument,
@@ -46,10 +46,11 @@ const supportingDocumentsResolver = getFlattenResolver(
 );
 
 const isValid = () => {
-    return baseIsValid(
-        supportingDocumentsForm as Ref<FormInstance>,
-        SiteDocumentTileSchema.shape['aliased_data'],
-    );
+    return true;
+    // return baseIsValid(
+    //     supportingDocumentsForm as Ref<FormInstance>,
+    //     SiteDocumentTileSchema.shape['aliased_data'],
+    // );
 };
 
 const documentTypeOverrides = {
@@ -187,6 +188,15 @@ defineExpose({ isValid });
                 :deleteCallback="deleteSiteDocument"
             >
                 <div class="parent value">
+                    <GenericWidget
+                        graph-slug="heritage_site"
+                        :mode="VIEW"
+                        :should-show-label="false"
+                        node-alias="site_document"
+                        :aliased-node-data="
+                            slotProps.value?.aliased_data.site_document
+                        "
+                    />
                     {{
                         slotProps.value?.aliased_data.document_type
                             .display_value

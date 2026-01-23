@@ -67,6 +67,22 @@ export const blankNumberValue = function () {
     };
 };
 
+export const trueBooleanValue = function () {
+    return {
+        display_value: 'true',
+        node_value: true,
+        details: [],
+    };
+};
+
+export const falseBooleanValue = function () {
+    return {
+        display_value: 'false',
+        node_value: false,
+        details: [],
+    };
+};
+
 export const blankGeoJSONValue = function (): GeoJSONFeatureCollectionValue {
     return {
         display_value: '',
