@@ -5,24 +5,45 @@ const props = defineProps({
     label: { type: String, default: '' },
     items: { type: Array<any>, default: () => [] },
     displayKey: { type: String, default: '' },
+    displayKeys: { type: Array<String>, default: () => [] },
     disabled: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['remove']);
 
-const resolveLabel = (item: any) => {
-    if (!props.displayKey || typeof item !== 'object' || item === null) {
-        return item;
-    }
-
-    //specific fix for undefined
+const getValueFromPath = (item: any, path: string) => {
     try {
-        return props.displayKey.split('.').reduce((obj, key) => {
+        const val = path.split('.').reduce((obj, key) => {
             return obj && obj[key] !== undefined ? obj[key] : null;
         }, item);
+
+        if (val && typeof val === 'object') {
+            if (val.display_value) return val.display_value;
+            if (val.node_value?.en?.value) return val.node_value.en.value;
+            if (val.node_value?.value) return val.node_value.value;
+            if (typeof val.node_value === 'string') return val.node_value;
+
+            return '';
+        }
+        return val;
     } catch (e) {
         return '';
     }
+};
+
+const resolveLabel = (item: any) => {
+    if (props.displayKeys && props.displayKeys.length > 0) {
+        return props.displayKeys
+            .map((key) => getValueFromPath(item, String(key)))
+            .filter((val) => val !== null && val !== '' && val !== undefined)
+            .join(' - ');
+    }
+
+    if (props.displayKey) {
+        return getValueFromPath(item, props.displayKey);
+    }
+
+    return item;
 };
 
 const handleRemove = (index: number) => {
@@ -54,7 +75,7 @@ const handleRemove = (index: number) => {
             <Chip
                 v-for="(item, index) in items"
                 :key="index"
-                :label="String(resolveLabel(item) || '')"
+                :label="String(resolveLabel(item) || 'Untitled')"
                 :removable="!disabled"
                 @remove="handleRemove(index)"
                 class="text-lg py-2 px-3"

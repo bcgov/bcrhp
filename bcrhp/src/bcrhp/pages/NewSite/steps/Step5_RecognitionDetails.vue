@@ -242,11 +242,16 @@ defineExpose({ isValid });
             <ChipsList
                 label="Protection Events"
                 :items="protectionEvents"
-                display-key="customDisplay"
+                :display-keys="[
+                    'aliased_data.designation_or_protection_start_date',
+                    'aliased_data.legislative_act',
+                    'aliased_data.reference_number',
+                ]"
                 @remove="deleteProtectionEvent"
             />
         </div>
     </Form>
+    <br /><br /><br />
 </template>
 
 <style></style>
