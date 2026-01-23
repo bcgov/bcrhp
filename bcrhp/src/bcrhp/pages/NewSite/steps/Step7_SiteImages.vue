@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, inject } from 'vue';
+import { ref, useTemplateRef, inject, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import RadioButton from 'primevue/radiobutton';
+import RadioButtonGroup from 'primevue/radiobuttongroup';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import {
     SiteImagesTileSchema,
@@ -17,12 +19,22 @@ import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
-import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from '@/arches_component_lab/types.ts';
+import Button from 'primevue/button';
 
-const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
 const currentSiteImage: SiteImagesTileType = ref(getSiteImages());
+const siteImageKey = ref(0);
+const primaryImage = ref(0);
+
+const siteImageList = computed(() => {
+    return heritageSite.value?.aliased_data?.site_images ?? [];
+});
 
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
@@ -38,7 +50,36 @@ const isValid = () => {
     );
 };
 
-const onImageUpload = function () {};
+const imageViewOverrides = {
+    widget: {
+        widgetid: '',
+        component:
+            'arches_component_lab/widgets/ConceptSelectWidget/ConceptSelectWidget.vue',
+    },
+} satisfies Partial<CardXNodeXWidgetData>;
+
+const addImageDisabled = computed(() => false);
+
+const saveImage = async function () {
+    heritageSite.value.aliased_data.site_images.push(currentSiteImage.value);
+
+    currentSiteImage.value = getSiteImages();
+
+    // Increment the key to force the GenericWidget to re-render from scratch
+    siteImageKey.value++;
+
+    // Optional: Reset the form validation state to remove any "touched" or error states
+    siteImageForm.value?.reset();
+};
+
+const deleteSiteImage = function (index: number) {
+    heritageSite.value.aliased_data.site_images.splice(index, 1);
+};
+
+const setCurrentImage = function (index: number) {
+    currentSiteImage.value = heritageSite.value.aliased_data.site_images[index];
+    siteImageKey.value = index;
+};
 
 const updateModelValue = function (
     newValue: AliasedNodeData,
@@ -64,61 +105,103 @@ defineExpose({ isValid });
         :resolver="imageFormResolver"
     >
         <div class="flex flex-row">
-            <FileUpload
-                name="fileUpload"
-                url="/api/upload"
-                :multiple="true"
-                accept="image/*"
-                :maxFileSize="1000000"
-                @upload="onImageUpload"
-            >
-                <template #empty>
-                    <span>Drag and drop files to here to upload.</span>
-                </template>
-            </FileUpload>
-            <LabelledInput
-                label="Image Type"
-                hint="Select Historical or Contemporary image type"
-                input-name="imageType"
-                :error-message="$form.imageType?.error?.message"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentSiteImage.aliased_data.image_type
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="image_type"
-                        placeholder="Select an Image Type"
-                        group-direction="column"
-                        @update:value="updateModelValue($event, 'image_type')"
-                    />
+            <div>
+                <GenericWidget
+                    :key="siteImageKey"
+                    graph-slug="heritage_site"
+                    node-alias="site_images"
+                    :should-show-label="true"
+                    :mode="EDIT"
+                    :aliased-node-data="
+                        currentSiteImage.aliased_data?.site_images
+                    "
+                    @update:value="updateModelValue($event, 'site_images')"
+                ></GenericWidget>
+            </div>
+
+            <div class="placeholders">
+                <div>
+                    <Button
+                        id="addOtherName"
+                        label="+ Add"
+                        class="inline-block"
+                        :aria-disabled="addImageDisabled"
+                        :disabled="addImageDisabled"
+                        @click="saveImage"
+                    ></Button>
                 </div>
-            </LabelledInput>
-            <LabelledInput
-                label="Image View"
-                hint="Select the view that best describes the image"
-                input-name="imageView"
-                :error-message="$form.imageView?.error?.message"
-                :required="true"
-            >
-                <div class="p-inputtext-fluid">
-                    <GenericWidget
-                        graph-slug="heritage_site"
-                        node-alias="image_view"
-                        :mode="EDIT"
-                        :aliasedNodeData="
-                            currentSiteImage.aliased_data.image_view
-                        "
-                        :should-show-label="false"
-                        placeholder="Select an Image View"
-                        @update:value="updateModelValue($event, 'image_view')"
-                    />
+                <div class="flex flex-row image-placeholders">
+                    <RadioButtonGroup v-model="primaryImage">
+                        <div
+                            v-for="(image, index) in siteImageList"
+                            :key="index"
+                            class="image-placeholder"
+                            @click="setCurrentImage(index)"
+                        >
+                            <div
+                                class="fa fa-trash image-delete-icon"
+                                @click="deleteSiteImage(index)"
+                            ></div>
+                            <div class="primary-image-select">
+                                <RadioButton :value="index"> </RadioButton>
+                            </div>
+                            <GenericWidget
+                                graph-slug="heritage_site"
+                                :mode="VIEW"
+                                :should-show-label="false"
+                                node-alias="site_document"
+                                :aliased-node-data="
+                                    image.aliased_data.site_images
+                                "
+                            />
+                        </div>
+                    </RadioButtonGroup>
                 </div>
-            </LabelledInput>
+            </div>
+        </div>
+        <div class="flex flex-row">
+            <div style="flex-grow: 1">
+                <GenericWidget
+                    :key="siteImageKey"
+                    graph-slug="heritage_site"
+                    node-alias="image_type"
+                    :should-show-label="true"
+                    :mode="EDIT"
+                    :aliased-node-data="
+                        currentSiteImage.aliased_data?.image_type
+                    "
+                    @update:value="updateModelValue($event, 'image_type')"
+                ></GenericWidget>
+            </div>
+
+            <div style="flex-grow: 1">
+                <LabelledInput
+                    label="Image View"
+                    hint="Select the view that best describes the image"
+                    input-name="imageView"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :key="siteImageKey"
+                            graph-slug="heritage_site"
+                            node-alias="image_view"
+                            :mode="EDIT"
+                            :card-x-node-x-widget-data-overrides="
+                                imageViewOverrides
+                            "
+                            :aliased-node-data="
+                                currentSiteImage.aliased_data?.image_view
+                            "
+                            :should-show-label="false"
+                            placeholder="Select an Image View"
+                            @update:value="
+                                updateModelValue($event, 'image_view')
+                            "
+                        />
+                    </div>
+                </LabelledInput>
+            </div>
         </div>
         <LabelledInput
             label="Image Features (Optional)"
@@ -128,6 +211,7 @@ defineExpose({ isValid });
         >
             <div>
                 <GenericWidget
+                    :key="siteImageKey"
                     graph-slug="heritage_site"
                     node-alias="image_features"
                     :mode="EDIT"
@@ -141,6 +225,7 @@ defineExpose({ isValid });
             </div>
         </LabelledInput>
         <GenericWidget
+            :key="siteImageKey"
             :mode="EDIT"
             :should-show-label="true"
             :aliasedNodeData="currentSiteImage.aliased_data.image_date"
@@ -159,6 +244,7 @@ defineExpose({ isValid });
         >
             <div class="p-inputtext-fluid">
                 <GenericWidget
+                    :key="siteImageKey"
                     :mode="EDIT"
                     :should-show-label="false"
                     :aliasedNodeData="
@@ -181,6 +267,7 @@ defineExpose({ isValid });
         >
             <div>
                 <GenericWidget
+                    :key="siteImageKey"
                     :mode="EDIT"
                     :should-show-label="false"
                     :aliasedNodeData="
@@ -201,6 +288,7 @@ defineExpose({ isValid });
         >
             <div>
                 <GenericWidget
+                    :key="siteImageKey"
                     :mode="EDIT"
                     :should-show-label="false"
                     :aliasedNodeData="currentSiteImage.aliased_data.copyright"
@@ -213,3 +301,56 @@ defineExpose({ isValid });
         </LabelledInput>
     </Form>
 </template>
+
+<style scoped>
+.flex {
+    display: flex;
+    gap: 1.5rem;
+}
+.flex-column {
+    flex-direction: column;
+}
+.flex-row {
+    flex-direction: row;
+    align-items: start;
+}
+.placeholders {
+    margin-top: 1.5rem;
+}
+
+.image-placeholder {
+    max-width: 150px;
+    max-height: 150px;
+    position: relative;
+}
+
+.image-delete-icon {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    cursor: pointer;
+    width: 1rem;
+    height: 1rem;
+    z-index: 1000;
+    color: orange;
+    background: black;
+    align-content: center;
+    padding: 2px;
+    border-radius: 3px;
+}
+
+.primary-image-select {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    cursor: pointer;
+    width: 1rem;
+    height: 1rem;
+    z-index: 1000;
+}
+</style>
+<style>
+.image-placeholders .item-index {
+    display: none;
+}
+</style>
