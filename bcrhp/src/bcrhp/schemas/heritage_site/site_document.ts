@@ -13,7 +13,7 @@ import { blankStringValue, blankFileListValue } from '@/bcrhp/utils.ts';
 
 export const SiteDocumentTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        site_document: z.array(FileListValueSchema),
+        site_document: FileListValueSchema,
         document_description: getStringValueSchema(),
         document_type: ConceptValueSchema,
     }),
