@@ -21,7 +21,7 @@ import { currentDateValue } from '@/bcrhp/utils.ts';
 export const SiteImagesTileSchema = TileSchema.extend({
     aliased_data: z.object({
         image_type: ConceptValueSchema,
-        site_images: z.array(FileListValueSchema),
+        site_images: FileListValueSchema,
         image_date: DateValueSchema,
         image_features: getStringValueSchema(),
         image_description: getRichTextValueSchema(),
