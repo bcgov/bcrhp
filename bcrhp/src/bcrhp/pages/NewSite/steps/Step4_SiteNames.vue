@@ -2,7 +2,6 @@
 import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
-// Removed explicit 'Chip' import as it is now inside ChipsList
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -231,9 +230,4 @@ onMounted(() => {
     </div>
 </template>
 
-<style>
-.button-padding {
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-}
-</style>
+<style></style>

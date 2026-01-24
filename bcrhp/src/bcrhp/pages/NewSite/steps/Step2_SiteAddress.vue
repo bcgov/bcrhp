@@ -381,4 +381,8 @@ defineExpose({ isValid });
     flex-direction: row;
     align-items: flex-start;
 }
+.button-padding {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
 </style>
