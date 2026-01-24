@@ -11,7 +11,7 @@ import { blankURLValue } from '@/bcrhp/utils.ts';
 export const ExternalUrlTileSchema = TileSchema.extend({
     aliased_data: z.object({
         external_url_type: ConceptValueSchema,
-        external_url: z.array(z.lazy(() => ExternalUrlTileSchema)),
+        external_url: z.object,
     }),
 });
 // @ts-ignore
