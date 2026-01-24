@@ -47,10 +47,6 @@ const supportingDocumentsResolver = getFlattenResolver(
 
 const isValid = () => {
     return true;
-    // return baseIsValid(
-    //     supportingDocumentsForm as Ref<FormInstance>,
-    //     SiteDocumentTileSchema.shape['aliased_data'],
-    // );
 };
 
 const documentTypeOverrides = {
@@ -74,7 +70,14 @@ const updateModelValue = async function (
     emit('update:stepIsValid', isValid());
 };
 
-const addDocumentDisabled = computed(() => false);
+const addDocumentDisabled = computed(() => {
+    return (
+        !baseIsValid(
+            supportingDocumentsForm as Ref<FormInstance>,
+            SiteDocumentTileSchema.shape['aliased_data'],
+        ) || siteDocumentList.value.length >= 10
+    );
+});
 
 const saveDocument = async function () {
     heritageSite.value.aliased_data.site_document.push(siteDocument.value);

@@ -19,6 +19,13 @@ const otherNames = computed(() => {
             name?.aliased_data.name_type.display_value === 'Other',
     );
 });
+const isValid = function () {
+    return true;
+};
+
+// This needs to be removed - added because ESLint was complaining. Need to figure out
+// configuration so API methods are not
+defineExpose({ isValid });
 </script>
 <template>
     <div class="step-title">Submission Details</div>
