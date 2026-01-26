@@ -116,7 +116,7 @@ export class HeritageSite implements HeritageSiteType {
             site_record_admin: getSiteRecordAdmin(),
             internal_remark: [],
             site_images: [],
-            heritage_site_location: getHeritageSiteLocation(),
+            heritage_site_location: [getHeritageSiteLocation()],
             site_names: [],
             chronology: [],
             bc_right: getBcRight(),
@@ -135,7 +135,7 @@ export class HeritageSite implements HeritageSiteType {
         site_record_admin: SiteRecordAdminTileType;
         internal_remark: InternalRemarkTileType[];
         site_images: SiteImagesTileType[];
-        heritage_site_location: HeritageSiteLocationTileType;
+        heritage_site_location: HeritageSiteLocationTileType[];
         site_names: SiteNamesTileType[];
         chronology: ChronologyTileType[];
         bc_right: BcRightTileType;

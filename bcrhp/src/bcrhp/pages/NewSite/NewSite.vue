@@ -25,19 +25,41 @@ import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
 import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
+import { submitHeritageSite } from '@/bcrhp/api.ts';
+
 import {
-    HeritageSite,
     type HeritageSiteType,
     getHeritageSite,
 } from '@/bcrhp/schemas/heritage_site.ts';
 import { getBlankHeritageSite } from '@/bcrhp/api.ts';
 
 const submissionErrors = ref([] as ErrorMessage[]);
+const submitted = ref(false);
+const submitting = ref(false);
 
 //placeholder function for final submission
-function submitNewSiteData() {
-    confirm('Submission complete!');
-}
+const submitNewSiteData = async () => {
+    console.log('submit Heritage Site', heritageSite);
+    submitting.value = true;
+    submissionErrors.value = [];
+    submitHeritageSite(heritageSite.value)
+        .then((updatedHeritageSite) => {
+            heritageSite.value =
+                updatedHeritageSite as Promise<HeritageSiteType>;
+            myStepper.value.d_value++;
+            setCurrentStepValid(
+                steps[myStepper.value.d_value - 1].value.isValid(),
+                myStepper.value.d_value,
+            );
+            submissionErrors.value = [];
+            submitting.value = false;
+        })
+        .catch((error) => {
+            console.log('error', error);
+            submissionErrors.value.push(error);
+            submitting.value = false;
+        });
+};
 
 const activateNextStep = async () => {
     if (currentStep.value === 11) {
@@ -95,6 +117,7 @@ const isValid = (step: number) => {
 const printDetails = () => {
     console.log('printDetails');
 };
+
 const stepperProps: Ref<StepperProps | null> = ref(null);
 const stepperState: Ref<StepperState | null> = ref(null);
 const myStepper = ref();
@@ -115,8 +138,7 @@ let lastStep = 1;
 const currentStep = computed(() => {
     return myStepper.value?.d_value;
 });
-const submitted = ref(false);
-const heritageSite: Ref<typeof HeritageSite> = ref(getHeritageSite());
+const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSite());
 
 provide('heritageSite', heritageSite);
 

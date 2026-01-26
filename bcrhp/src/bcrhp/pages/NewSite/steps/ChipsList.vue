@@ -9,7 +9,7 @@ const props = defineProps({
     disabled: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['remove']);
+const emit = defineEmits(['remove', 'click']);
 
 const getValueFromPath = (item: any, path: string) => {
     try {
@@ -51,6 +51,11 @@ const handleRemove = (index: number) => {
         emit('remove', index);
     }
 };
+const handleClick = (index: number) => {
+    if (!props.disabled) {
+        emit('click', index);
+    }
+};
 </script>
 
 <template>
@@ -69,16 +74,17 @@ const handleRemove = (index: number) => {
         </div>
 
         <div
-            class="flex flex-col items-start gap-2"
             v-if="items && items.length > 0"
+            class="flex flex-col items-start gap-2"
         >
             <Chip
                 v-for="(item, index) in items"
                 :key="index"
                 :label="String(resolveLabel(item) || 'Untitled')"
                 :removable="!disabled"
-                @remove="handleRemove(index)"
                 class="text-lg py-2 px-3"
+                @remove="handleRemove(index)"
+                @click="handleClick(index)"
             >
                 <template
                     #default
