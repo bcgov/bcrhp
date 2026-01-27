@@ -60,7 +60,7 @@
         "arches": "github:bcgov/arches#v7.6.12.1_bcgov",
         "arches-component-lab": "github:archesproject/arches-component-lab#main",
         "arches-querysets": "github:archesproject/arches-querysets#dev/1.0.x",
-        "bcgov_arches_common": "file:../bcgov_arches_common",
+        "bcgov_arches_common": "github:bcgov/bcgov-arches-common#brf/feat/add_goeom_dropzone",
         "ckeditor5": "44.2.0",
         "dayjs": "^1.11.13",
         "dompurify": "^3.3.0",
