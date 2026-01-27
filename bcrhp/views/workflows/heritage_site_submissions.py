@@ -54,26 +54,55 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination
     valid_keys = ["aliased_data"]
+    required_sections = [
+        "resourceinstanceid",
+        "heritage_site_location",
+        "site_names",
+        "bc_right",
+    ]
+    optional_sections = [
+        "site_document",
+        "heritage_theme",
+        "external_url",
+        "site_images",
+        "chronology",
+        "heritage_class",
+        "bc_statement_of_significance",
+        "heritage_function",
+        "construction_actors",
+    ]
 
-    def patch_data(self, ipa):
+    def patch_data(self, site):
         pass
+
+    def prune_data(self, site):
+        allowed_sections = self.required_sections + self.optional_sections
+        for key in site.keys():
+            if key not in allowed_sections:
+                site.pop(key)
 
     def create(self, request, *args, **kwargs):
         raw = request.data
-        cleaned_object = {
-            "aliased_data": {
-                "project_details": raw.get("aliased_data")["project_details"],
-                "assessment_details": raw.get("aliased_data")["assessment_details"],
-            },
-        }
+        # print(f"Raw: {raw}")
+        # cleaned_object = {
+        #     "aliased_data": {
+        #         "project_details": raw.get("aliased_data")["project_details"],
+        #         "assessment_details": raw.get("aliased_data")["assessment_details"],
+        #     },
+        # }
+        cleaned_object = raw
         logger.info(f"Before clean")
-        patched = self.patch_data(cleaned_object)
-        logger.info(f"After clean")
+        # patched = self.patch_data(cleaned_object)
+        # logger.info(f"After clean")
         # print(f"\n\n\nCleaned: {patched}\n\n\n")
-        serializer = self.get_serializer(data=patched)
+        serializer = self.get_serializer(data=raw)
         logger.info(f"After get_serializer")
 
         logger.info(f"Checking valid")
+        raw["aliased_data"]["heritage_theme"] = raw["aliased_data"]["heritage_theme"][0]
+        # serializer.debug_validation()
+        # inspect_nested_data(raw)
+
         if not serializer.is_valid():
             # print the errors you’re currently not seeing
             print("serializer.errors:", serializer.errors)

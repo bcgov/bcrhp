@@ -24,6 +24,14 @@ export const blankResourceInstanceValue = function () {
     };
 };
 
+export const blankResourceInstanceListValue = function () {
+    return {
+        display_value: '',
+        node_value: [],
+        details: [],
+    };
+};
+
 export const blankDateValue = function () {
     return {
         display_value: '',

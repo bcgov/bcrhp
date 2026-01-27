@@ -47,14 +47,13 @@ export async function submitHeritageSite(
     // Push image files onto form data
     site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
         const file: FileReference = image_tile.aliased_data.site_images
-            .node_value[0].file as FileReference;
+            .node_value[0] as FileReference;
         fd.append(`file-list_${file.node_id}`, file.file as File, file.name);
     });
     // Push documents onto form data
     site.aliased_data.site_document.forEach(
         (document_tile: SiteDocumentTileType) => {
-            const file =
-                document_tile.aliased_data.site_document.node_value[0].file;
+            const file = document_tile.aliased_data.site_document.node_value[0];
             fd.append(
                 `file-list_${file.node_id}`,
                 file.file as File,
