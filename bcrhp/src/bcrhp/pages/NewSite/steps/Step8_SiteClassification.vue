@@ -12,11 +12,7 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import {
-    HeritageThemeTileSchema,
-    getHeritageTheme,
-    type HeritageThemeTileType,
-} from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
+import { HeritageThemeTileSchema } from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
 import {
     HeritageFunctionTileSchema,
     getHeritageFunction,
@@ -61,8 +57,6 @@ const currentHeritageClass: Ref<HeritageClassTileType> =
 const currentHeritageFunction: Ref<HeritageFunctionTileType> = ref(
     getHeritageFunction(),
 );
-const currentHeritageTheme: Ref<HeritageThemeTileType> =
-    ref(getHeritageTheme());
 
 //keys for resetting
 const classKey = ref(0);
@@ -78,10 +72,6 @@ const heritageFunctions = computed(() => {
     const list = heritageSite?.value.aliased_data.heritage_function;
     return Array.isArray(list) ? list : [];
 });
-const heritageTheme = computed(() => {
-    const list = heritageSite?.value.aliased_data.heritage_theme;
-    return Array.isArray(list) ? list : [];
-});
 
 const isValid = () => true;
 
@@ -95,11 +85,6 @@ const isValidHeritageFunction = () =>
         heritageFunctionForm as Ref<FormInstance>,
         HeritageFunctionTileSchema.shape['aliased_data'],
     );
-const isValidHeritageTheme = () =>
-    baseIsValid(
-        heritageThemeForm as Ref<FormInstance>,
-        HeritageThemeTileSchema.shape['aliased_data'],
-    );
 
 const addHeritageClassDisabled = computed(
     () => !isValidHeritageClass() || (heritageClasses.value.length || 0) > 4,
@@ -107,9 +92,6 @@ const addHeritageClassDisabled = computed(
 const addHeritageFunctionDisabled = computed(
     () =>
         !isValidHeritageFunction() || (heritageFunctions.value.length || 0) > 4,
-);
-const addHeritageThemeDisabled = computed(
-    () => !isValidHeritageTheme() || (heritageTheme.value.length || 0) > 4,
 );
 
 const getText = (node: any) => {
@@ -166,29 +148,6 @@ const saveHeritageFunction = function () {
     heritageFunctionForm.value?.reset();
 };
 
-const saveHeritageTheme = function () {
-    if (!Array.isArray(heritageSite.value.aliased_data.heritage_theme)) {
-        heritageSite.value.aliased_data.heritage_theme = [];
-    }
-
-    const data = currentHeritageTheme.value.aliased_data;
-    const theme = getText(data.heritage_theme);
-
-    heritageSite.value?.aliased_data.heritage_theme.push({
-        ...currentHeritageTheme.value,
-        customDisplay: theme || 'Untitled Theme',
-    });
-
-    currentHeritageTheme.value = getHeritageTheme();
-    themeKey.value++;
-    heritageThemeForm.value?.reset();
-};
-
-const deleteHeritageThemeCallback = (index: number) => {
-    if (Array.isArray(heritageSite.value.aliased_data.heritage_theme)) {
-        heritageSite.value.aliased_data.heritage_theme.splice(index, 1);
-    }
-};
 const deleteHeritageClassCallback = (index: number) => {
     if (Array.isArray(heritageSite.value.aliased_data.heritage_class)) {
         heritageSite.value.aliased_data.heritage_class.splice(index, 1);
@@ -230,7 +189,7 @@ const updateHeritageThemeModelValue = (
     baseUpdateModelValue(
         newValue,
         attribute_name,
-        currentHeritageTheme.value.aliased_data,
+        heritageSite.value.aliased_data.heritage_theme.aliased_data,
         heritageThemeForm as Ref<FormInstance>,
     );
 };
@@ -249,8 +208,8 @@ onMounted(() => {});
     >
         <FieldSet
             id="heritageDetailsFieldset"
-            legend="Heritage Class"
             :key="classKey"
+            legend="Heritage Class"
         >
             <LabelledInput
                 label="Number of Contributing Resources"
@@ -337,9 +296,9 @@ onMounted(() => {});
     >
         <FieldSet
             id="heritageFunctionFieldset"
+            :key="funcKey"
             class="mt-2"
             legend="Heritage Function"
-            :key="funcKey"
         >
             <LabelledInput
                 label="Function Category"
@@ -415,9 +374,9 @@ onMounted(() => {});
     >
         <FieldSet
             id="heritageThemeFieldset"
+            :key="themeKey"
             class="mt-2"
             legend="Heritage Theme"
-            :key="themeKey"
         >
             <LabelledInput
                 label="Heritage Theme"
@@ -430,7 +389,8 @@ onMounted(() => {});
                         :mode="EDIT"
                         :should-show-label="false"
                         :aliasedNodeData="
-                            currentHeritageTheme.aliased_data.heritage_theme
+                            heritageSite?.aliased_data?.heritage_theme
+                                ?.aliased_data.heritage_theme
                         "
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
@@ -446,21 +406,6 @@ onMounted(() => {});
                 </div>
             </LabelledInput>
         </FieldSet>
-        <div class="row">
-            <Button
-                id="addHeritageTheme"
-                label="+ Add Theme"
-                class="button-padding"
-                :disabled="addHeritageThemeDisabled"
-                @click="saveHeritageTheme"
-            />
-            <ChipsList
-                label="Themes"
-                :items="heritageTheme"
-                display-key="customDisplay"
-                @remove="deleteHeritageThemeCallback"
-            />
-        </div>
     </Form>
     <br /><br /><br />
 </template>

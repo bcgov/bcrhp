@@ -48,6 +48,55 @@ class HeritageSiteSerializer(ArchesResourceSerializer):
         )
 
 
+def inspect_nested_data(data, prefix="", max_depth=10, current_depth=0):
+    """Recursively inspect and print a nested data structure"""
+    if current_depth > max_depth:
+        print(f"{prefix}[MAX DEPTH REACHED]")
+        return
+
+    if isinstance(data, dict):
+        print(f"{prefix}Dict with {len(data)} keys:")
+        for key, value in data.items():
+            print(f"{prefix}  Key '{key}':")
+            inspect_nested_data(value, prefix + "    ", max_depth, current_depth + 1)
+    elif isinstance(data, list):
+        print(f"{prefix}List with {len(data)} items:")
+        if len(data) > 0:
+            print(f"{prefix}  First item:")
+            inspect_nested_data(data[0], prefix + "    ", max_depth, current_depth + 1)
+            if len(data) > 1:
+                print(f"{prefix}  Last item:")
+                inspect_nested_data(
+                    data[-1], prefix + "    ", max_depth, current_depth + 1
+                )
+    else:
+        print(f"{prefix}Value: {data} (Type: {type(data).__name__})")
+
+
+def format_deep_errors(errors, path=""):
+    """Format nested errors with their full path for better debugging"""
+    formatted = []
+
+    if isinstance(errors, dict):
+        for key, value in errors.items():
+            new_path = f"{path}.{key}" if path else key
+
+            if isinstance(value, dict):
+                formatted.extend(format_deep_errors(value, new_path))
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, dict):
+                        formatted.extend(format_deep_errors(item, new_path))
+                    elif isinstance(item, str):
+                        formatted.append(f"{new_path}: {item}")
+                    else:
+                        formatted.append(f"{new_path}: {item}")
+            else:
+                formatted.append(f"{new_path}: {value}")
+
+    return formatted
+
+
 class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):
     permission_classes = [ResourceEditor | ReadOnly]
     serializer_class = HeritageSiteSerializer
@@ -106,6 +155,9 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         if not serializer.is_valid():
             # print the errors you’re currently not seeing
             print("serializer.errors:", serializer.errors)
+            for error in format_deep_errors(serializer.errors):
+                print(f" - {error}")
+
             return JSONResponse(serializer.errors, status=400)
         serializer.is_valid(raise_exception=True)
         logger.info("It's valid again")

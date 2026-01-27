@@ -37,6 +37,33 @@ export async function getNameType(name_type: string): Promise<ConceptValue> {
     return siteNameTypes[name_type];
 }
 
+export type PidData = {
+    success: boolean;
+    pid: string;
+    legalDescription: string;
+    boundary: geojson.GeoJSON;
+    errors: string[];
+};
+
+export async function getPidData(pid: string): Promise<Partial<PidData>> {
+    const response = await fetch(arches.urls.pmbc_parcel_data + pid, {
+        method: 'GET',
+    });
+
+    if (response.ok) {
+        return {
+            success: response.ok,
+            pid: pid,
+            legalDescription: response.headers.get('LegalDescription') ?? '',
+            boundary: await response.json(),
+        };
+    }
+    return {
+        success: false,
+        errors: [response.statusText],
+    };
+}
+
 export async function submitHeritageSite(
     site: HeritageSiteType,
 ): Promise<HeritageSiteType> {

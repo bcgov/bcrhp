@@ -39,7 +39,8 @@ defineExpose({ isValid });
     <p class="p-underline-bold">Address</p>
     <div
         v-for="property_address in heritageSite?.aliased_data
-            .heritage_site_location?.[0].aliased_data.bc_property_address ?? []"
+            ?.heritage_site_location?.[0]?.aliased_data?.bc_property_address ??
+        []"
         :key="property_address"
         class="mb-6"
     >
@@ -63,8 +64,8 @@ defineExpose({ isValid });
             <div>Legal Description(s)</div>
             <div>
                 <div
-                    v-for="legalDescription in property_address.aliased_data
-                        .bc_property_legal_description"
+                    v-for="legalDescription in property_address?.aliased_data
+                        ?.bc_property_legal_description ?? []"
                     :key="legalDescription"
                     class="mb-1"
                 >
