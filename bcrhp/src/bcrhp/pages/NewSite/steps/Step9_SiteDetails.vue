@@ -245,8 +245,8 @@ defineExpose({ isValid });
             legend="Chronology"
             :key="chronologyKey"
         >
-            <div class="flex flex-row flex-wrap gap-4">
-                <div class="inline-block">
+            <div class="flex flex-row flex-wrap">
+                <div class="flex-grow">
                     <div class="flex flex-col">
                         <GenericWidget
                             :mode="EDIT"
@@ -263,38 +263,46 @@ defineExpose({ isValid });
                         />
                     </div>
                 </div>
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="currentChronology.aliased_data.start_year"
-                    graph-slug="heritage_site"
-                    node-alias="start_year"
-                    placeholder="Select a Start Year"
-                    group-direction="column"
-                    @update:value="
-                        updateChronologyModelValue($event, 'start_year')
-                    "
-                />
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="currentChronology.aliased_data.end_year"
-                    graph-slug="heritage_site"
-                    node-alias="end_year"
-                    placeholder="Select an End Year"
-                    group-direction="column"
-                    @update:value="
-                        updateChronologyModelValue($event, 'end_year')
-                    "
-                />
-
-                <div class="inline-block flex items-center gap-2 mt-6">
-                    <Checkbox
-                        v-model="currentChronology.circa"
-                        inputId="circa"
-                        binary
+                <div class="flex flex-row flex-grow">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="true"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.start_year
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="start_year"
+                        placeholder="Select a Start Year"
+                        group-direction="column"
+                        class="flex-grow"
+                        @update:value="
+                            updateChronologyModelValue($event, 'start_year')
+                        "
                     />
-                    <label for="circa">Circa</label>
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="true"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.end_year
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="end_year"
+                        placeholder="Select an End Year"
+                        group-direction="column"
+                        class="flex-grow"
+                        @update:value="
+                            updateChronologyModelValue($event, 'end_year')
+                        "
+                    />
+
+                    <div class="align-bottom">
+                        <Checkbox
+                            v-model="currentChronology.circa"
+                            inputId="circa"
+                            binary
+                        />
+                        <label for="circa">Circa</label>
+                    </div>
                 </div>
             </div>
 
@@ -514,4 +522,19 @@ defineExpose({ isValid });
     </Form>
 </template>
 
-<style></style>
+<style scoped>
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.align-bottom {
+    margin-bottom: 0;
+    margin-top: auto;
+}
+</style>
