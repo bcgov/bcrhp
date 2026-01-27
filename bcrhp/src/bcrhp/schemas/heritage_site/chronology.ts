@@ -11,7 +11,7 @@ import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/val
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import {
     blankStringValue,
-    currentDateValue,
+    blankDateValue,
     blankBooleanValue,
 } from '@/bcrhp/utils.ts';
 
@@ -37,12 +37,12 @@ export function getChronology(): ChronologyTileType {
 export class Chronology implements ChronologyTileType {
     constructor() {
         this.aliased_data = {
-            start_year: currentDateValue(),
+            start_year: blankDateValue(),
             dates_approximate: blankBooleanValue(),
             information_source: blankStringValue(),
             chronology: blankConceptValue(),
             chronology_notes: blankStringValue(),
-            end_year: currentDateValue(),
+            end_year: blankDateValue(),
         };
     }
     aliased_data: {

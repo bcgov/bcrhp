@@ -2,6 +2,9 @@
 import { computed, inject, type Ref } from 'vue';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { SiteNamesTileType } from '@/bcrhp/schemas/heritage_site/site_names.ts';
+import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
+import Fieldset from 'primevue/fieldset';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
@@ -10,7 +13,7 @@ const commonName = computed(() => {
         (name: SiteNamesTileType) =>
             name?.aliased_data.name_type.display_value === 'Common',
     );
-    return commonNames.length > 0 ? commonNames[0] : '';
+    return commonNames.length > 0 ? commonNames[0].aliased_data : '';
 });
 
 const otherNames = computed(() => {
@@ -35,29 +38,34 @@ defineExpose({ isValid });
     </p>
     <p class="p-underline-bold">Address</p>
     <div
-        v-for="location in heritageSite.value?.aliased_data
-            .heritage_site_location ?? []"
-        :key="location"
+        v-for="property_address in heritageSite?.aliased_data
+            ?.heritage_site_location?.[0]?.aliased_data?.bc_property_address ??
+        []"
+        :key="property_address"
         class="mb-6"
     >
         <div class="div-grid-cols">
             <div>Street Address</div>
             <div>
-                {{ location.aliased_data.street_address.display_value }},
-                {{ location.aliased_data.city.display_value }},
-                {{ location.aliased_data.postalCode.display_value }}
+                {{
+                    property_address.aliased_data.street_address.display_value
+                }}, {{ property_address.aliased_data.city.display_value }},
+                {{ property_address.aliased_data.postal_code.display_value }}
             </div>
 
             <div>Detailed Location</div>
             <div>
-                {{ location.aliased_data.location_description.display_value }}
+                {{
+                    property_address.aliased_data.location_description
+                        .display_value
+                }}
             </div>
 
             <div>Legal Description(s)</div>
             <div>
                 <div
-                    v-for="legalDescription in location.aliased_data
-                        .bc_property_legal_description"
+                    v-for="legalDescription in property_address?.aliased_data
+                        ?.bc_property_legal_description ?? []"
                     :key="legalDescription"
                     class="mb-1"
                 >
@@ -71,130 +79,158 @@ defineExpose({ isValid });
             </div>
         </div>
     </div>
-    <div>
-        <p class="p-underline-bold">Site Names</p>
+    <Fieldset
+        legend="Site Names"
+        class="review-fieldset"
+    >
         <div class="div-grid-cols">
-            <div>Common</div>
-            <div>{{ commonName }}</div>
+            <dt>Common</dt>
+            <dd>
+                {{ commonName?.name?.display_value }}
+            </dd>
         </div>
         <div class="div-grid-cols">
-            <div>Alternate</div>
-            <div>
+            <dt>Alternate</dt>
+            <dd>
                 <div
-                    v-for="name in otherNames"
-                    :key="name"
+                    v-for="otherName in otherNames"
+                    :key="otherName"
                 >
-                    {{ name.display_value }}
+                    {{ otherName.aliased_data.name.display_value }}
                 </div>
-            </div>
+            </dd>
         </div>
-    </div>
-    <div>
-        <div class="p-underline-bold">Official Recognition Details</div>
+    </Fieldset>
+    <Fieldset
+        legend="Official Recognition Details"
+        class="review-fieldset"
+    >
         <div
-            v-for="recognitionDetail in heritageSite.value?.aliased_data
-                .bc_right.aliased_data.protection_event ?? []"
+            v-for="recognitionDetail in heritageSite?.aliased_data.bc_right
+                .aliased_data.protection_event ?? []"
             :key="recognitionDetail"
             class="div-grid-cols"
         >
-            <div>Start Date</div>
-            <div>
+            <dt>Start Date</dt>
+            <dd>
                 {{
                     recognitionDetail.aliased_data
-                        .designation_or_protection_start_date.display_value
+                        .designation_or_protection_start_date?.display_value
                 }}
-            </div>
-            <div>Legislative Act</div>
-            <div>{{ recognitionDetail.legislative_act?.display_value }}</div>
-            <div>Reference Number</div>
-            <div>{{ recognitionDetail.reference_number.display_value }}</div>
-        </div>
-    </div>
-    <div>
-        <div class="p-underline-bold">Statement of Significance</div>
-        <div class="div-grid-cols">
-            <div>Description</div>
-            <span
-                v-html="
-                    heritageSite.value?.aliased_data
-                        .bc_statement_of_significance.aliased_data.description
-                        .display_value ?? []
-                "
-            >
-            </span>
-        </div>
-        <div class="div-grid-cols">
-            <div>Heritage Value</div>
-            <span
-                v-html="
-                    heritageSite.value?.aliased_data
-                        .bc_statement_of_significance.aliased_data
-                        .heritage_value.display_value
-                "
-            >
-            </span>
-        </div>
-        <div class="div-grid-cols">
-            <div>Character Defining Elements</div>
-            <span
-                v-html="
-                    heritageSite.value?.aliased_data
-                        .bc_statement_of_significance.aliased_data
-                        .defining_elements.display_value
-                "
-            >
-            </span>
-        </div>
-        <div class="div-grid-cols">
-            <p>Document Location</p>
-            <div>
+            </dd>
+            <dt>Legislative Act</dt>
+            <dd>
                 {{
-                    heritageSite.value?.aliased_data
-                        .bc_statement_of_significance.aliased_data
-                        .document_location.display_value
+                    recognitionDetail.aliased_data.legislative_act
+                        ?.display_value
                 }}
-            </div>
+            </dd>
+            <dt>Reference Number</dt>
+            <dd>
+                {{
+                    recognitionDetail.aliased_data.reference_number
+                        ?.display_value
+                }}
+            </dd>
         </div>
-    </div>
-    <div>
-        <div class="mb-2">Images</div>
-        <div>
-            <div
-                v-for="image in heritageSite.value?.aliased_data.site_images ??
-                []"
-                :key="image"
-                class="div-grid-cols mb-4"
-            >
-                <div>Type</div>
-                <div>{{ image.aliased_data.image_type.display_value }}</div>
-
-                <div>View</div>
-                <div>{{ image.aliased_data.image_view.display_value }}</div>
-
-                <div>Features</div>
-                <div>{{ image.aliased_data.image_features.display_value }}</div>
-
-                <div>Date</div>
-                <div>{{ image.aliased_data.image_date.display_value }}</div>
-
-                <div>Description</div>
-                <div>
-                    {{ image.aliased_data.image_description.display_value }}
-                </div>
-
-                <div>Photographer</div>
-                <div>{{ image.aliased_data.photographer.display_value }}</div>
-
-                <div>Copyright</div>
-                <div>{{ image.aliased_data.copyright.display_value }}</div>
-            </div>
+    </Fieldset>
+    <Fieldset
+        legend="Statement of Significance"
+        class="review-fieldset"
+    >
+        <div class="div-grid-cols">
+            <dt>Description</dt>
+            <dd
+                v-html="
+                    heritageSite?.aliased_data
+                        ?.bc_statement_of_significance?.[0]?.aliased_data
+                        ?.physical_description.display_value
+                "
+            ></dd>
         </div>
         <div class="div-grid-cols">
-            <div>Heritage Class</div>
-            <div>
+            <dt>Heritage Value</dt>
+            <dd
+                v-html="
+                    heritageSite?.aliased_data
+                        ?.bc_statement_of_significance?.[0]?.aliased_data
+                        ?.heritage_value.display_value
+                "
+            ></dd>
+        </div>
+        <div class="div-grid-cols">
+            <dt>Character Defining Elements</dt>
+            <dd
+                v-html="
+                    heritageSite?.aliased_data
+                        ?.bc_statement_of_significance?.[0]?.aliased_data
+                        ?.defining_elements.display_value
+                "
+            ></dd>
+        </div>
+        <div class="div-grid-cols">
+            <dt>Document Location</dt>
+            <dd>
+                {{
+                    heritageSite?.aliased_data
+                        ?.bc_statement_of_significance?.[0]?.aliased_data
+                        ?.document_location.display_value
+                }}
+            </dd>
+        </div>
+    </Fieldset>
+    <Fieldset
+        legend="Images"
+        class="review-fieldset"
+    >
+        <div
+            v-for="image in heritageSite?.aliased_data.site_images ?? []"
+            :key="image"
+            class="div-grid-cols mb-4 image-section"
+        >
+            <dt>Image</dt>
+            <GenericWidget
+                graph-slug="heritage_site"
+                node-alias="site_images"
+                :mode="VIEW"
+                :should-show-label="false"
+                :aliased-node-data="image.aliased_data.site_images"
+            />
+
+            <dt>Type</dt>
+            <dd>{{ image.aliased_data.image_type.display_value }}</dd>
+
+            <dt>View</dt>
+            <dd>{{ image.aliased_data.image_view.display_value }}</dd>
+
+            <dt>Features</dt>
+            <dd>{{ image.aliased_data.image_features.display_value }}</dd>
+
+            <dt>Date</dt>
+            <dd>{{ image.aliased_data.image_date.display_value }}</dd>
+
+            <dt>Description</dt>
+            <dd
+                v-html="image.aliased_data.image_description.display_value"
+            ></dd>
+
+            <dt>Photographer</dt>
+            <dd>{{ image.aliased_data.photographer.display_value }}</dd>
+
+            <dt>Copyright</dt>
+            <dd>{{ image.aliased_data.copyright.display_value }}</dd>
+        </div>
+    </Fieldset>
+    <Fieldset
+        legend="Site Classification"
+        class="review-fieldset"
+    >
+        <div class="div-grid-cols">
+            <dt>Heritage Class</dt>
+            <dd>
                 <ol class="list-decimal ml-4">
                     <li
-                        v-for="heritageClass in heritageSite.value?.aliased_data
+                        v-for="heritageClass in heritageSite?.aliased_data
                             .heritage_class ?? []"
                         :key="heritageClass"
                     >
@@ -203,23 +239,19 @@ defineExpose({ isValid });
                                 .display_value
                         }},
                         {{ heritageClass.aliased_data.ownership.display_value }}
-                        (
-                        {{
+                        ({{
                             heritageClass.aliased_data
                                 .contributing_resource_count.display_value
-                        }}
-                        )
+                        }})
                     </li>
                 </ol>
-            </div>
-        </div>
-        <div class="div-grid-cols">
-            <div>Heritage Function</div>
-            <div>
+            </dd>
+            <dt>Heritage Function</dt>
+            <dd>
                 <ol class="list-decimal ml-4">
                     <li
-                        v-for="heritageFunction in heritageSite.value
-                            ?.aliased_data.heritage_function ?? []"
+                        v-for="heritageFunction in heritageSite?.aliased_data
+                            .heritage_function ?? []"
                         :key="heritageFunction"
                     >
                         {{
@@ -232,107 +264,85 @@ defineExpose({ isValid });
                         }})
                     </li>
                 </ol>
-            </div>
+            </dd>
+            <dt>Heritage Theme</dt>
+            <dd>
+                {{
+                    heritageSite?.aliased_data?.heritage_theme?.aliased_data
+                        ?.heritage_theme.display_value
+                }}
+            </dd>
         </div>
+    </Fieldset>
+    <Fieldset
+        legend="Site Details"
+        class="review-fieldset"
+    >
         <div class="div-grid-cols">
-            <div>Heritage Theme</div>
-            <div>
+            <dt>Chronology</dt>
+            <dd>
                 <ol class="list-decimal ml-4">
                     <li
-                        v-for="heritageTheme in heritageSite.value?.aliased_data
-                            .heritage_theme ?? []"
-                        :key="heritageTheme"
+                        v-for="chronology in heritageSite?.aliased_data
+                            .chronology ?? []"
+                        :key="chronology"
                     >
+                        {{ chronology.aliased_data.chronology.display_value }},
                         {{
-                            heritageTheme.aliased_data.heritage_theme
-                                .display_value
+                            chronology.aliased_data.dates_approximate.node_value
+                                ? 'Circa'
+                                : ''
                         }}
+                        {{
+                            chronology.aliased_data.start_year.display_value
+                        }}–{{ chronology.aliased_data.end_year.display_value }}
+                        <p>
+                            {{
+                                chronology.aliased_data.chronology_notes
+                                    .display_value
+                            }}
+                        </p>
                     </li>
                 </ol>
-            </div>
-        </div>
-        <div>
-            <div class="p-underline-bold">Site Classification</div>
-            <div class="div-grid-cols">
-                <div>Chronology</div>
-                <div>
-                    <ol class="list-decimal ml-4">
-                        <li
-                            v-for="chronology in heritageSite.value
-                                ?.aliased_data.chronology ?? []"
-                            :key="chronology"
-                        >
-                            {{ chronology.aliased_data.chronology }},
+            </dd>
+            <dt>Architects / Builders</dt>
+            <dd>
+                <ol class="list-decimal ml-4">
+                    <li
+                        v-for="constructionActor in heritageSite?.aliased_data
+                            .construction_actors"
+                        :key="constructionActor ?? []"
+                    >
+                        {{
+                            constructionActor.construction_actor_type
+                                .display_value
+                        }}
+                        {{ constructionActor.construction_actor.display_value }}
+                        <div>
                             {{
-                                chronology.aliased_data.dates_approximate
-                                    .node_value
-                                    ? 'Circa'
-                                    : ''
-                            }}
-                            {{
-                                chronology.aliased_data.start_year
-                                    .display_value
-                            }}–{{
-                                chronology.aliased_data.end_year.display_value
-                            }}
-                            <p>
-                                {{
-                                    chronology.aliased_data.chronology_notes
-                                        .display_value
-                                }}
-                            </p>
-                        </li>
-                    </ol>
-                </div>
-            </div>
-            <div class="div-grid-cols">
-                <div>Architects / Builders</div>
-                <div>
-                    <ol class="list-decimal ml-4">
-                        <li
-                            v-for="constructionActor in heritageSite.value
-                                ?.aliased_data.construction_actors"
-                            :key="constructionActor ?? []"
-                        >
-                            {{
-                                constructionActor.construction_actor_type
+                                constructionActor.construction_actor_notes
                                     .display_value
                             }}
-                            {{
-                                constructionActor.construction_actor
-                                    .display_value
-                            }}
-                            <div>
-                                {{
-                                    constructionActor.construction_actor_notes
-                                        .display_value
-                                }}
-                            </div>
-                        </li>
-                    </ol>
-                </div>
-            </div>
-            <div class="div-grid-cols">
-                <div>URLs</div>
-                <div>
-                    <ol class="list-decimal ml-4">
-                        <li
-                            v-for="url in heritageSite.value?.aliased_data
-                                .external_url ?? []"
-                            :key="url"
-                        >
-                            {{
-                                url.aliased_data.external_url_type
-                                    .display_value
-                            }}:
-                            {{ url.aliased_data.external_url.display_value }}
-                            <!--                            <div>-->
-                            <!--                                <strong>Link Text:</strong> {{ url.linkText }}-->
-                            <!--                            </div>-->
-                        </li>
-                    </ol>
-                </div>
-            </div>
+                        </div>
+                    </li>
+                </ol>
+            </dd>
+            <dt>URLs</dt>
+            <dd>
+                <ol class="list-decimal ml-4">
+                    <li
+                        v-for="url in heritageSite?.aliased_data.external_url ??
+                        []"
+                        :key="url"
+                    >
+                        {{ url.aliased_data.external_url_type.display_value }}:
+                        {{ url.aliased_data.external_url.display_value }}
+                        <!--                            <div>-->
+                        <!--                                <strong>Link Text:</strong> {{ url.linkText }}-->
+                        <!--                            </div>-->
+                    </li>
+                </ol>
+            </dd>
             <!--            <div class="div-grid-cols">-->
             <!--                <div>Supporting Documents</div>-->
             <!--                <div>-->
@@ -341,7 +351,7 @@ defineExpose({ isValid });
             <!--                </div>-->
             <!--            </div>-->
         </div>
-    </div>
+    </Fieldset>
 </template>
 <style scoped>
 .step-title {
@@ -364,5 +374,20 @@ defineExpose({ isValid });
     grid-template-columns: 200px 1fr;
     gap: 0.75rem 1rem;
     align-items: start;
+}
+.image-section:not(:first-child) {
+    border-top: thin solid #ccc;
+    padding-top: 0.25rem;
+    margin-top: 0.5rem;
+}
+</style>
+<style>
+fieldset.review-fieldset > legend {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+fieldset.review-fieldset div[data-node-alias='site_images'] {
+    max-height: 150px;
+    max-width: 150px;
 }
 </style>
