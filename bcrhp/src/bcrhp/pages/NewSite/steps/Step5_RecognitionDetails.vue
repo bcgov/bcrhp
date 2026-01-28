@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -238,8 +238,8 @@ defineExpose({ isValid });
         </FieldSet>
         <div class="row">
             <Button
-                class="button-padding"
                 id="saveRecognitionDetails"
+                class="button-padding"
                 label="+ Add Protection Event"
                 :disabled="addOtherReferenceNumberDisabled"
                 @click="addProtectionEvent"

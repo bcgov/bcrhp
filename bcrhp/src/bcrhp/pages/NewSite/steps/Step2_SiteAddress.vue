@@ -13,10 +13,7 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
-import {
-    isValid as baseIsValid,
-    updateModelValue as baseUpdateModelValue,
-} from '@/bcrhp/utils.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 import {
@@ -103,12 +100,6 @@ const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
         legalDescriptionForm as Ref<FormInstance>,
     );
     emit('update:stepIsValid', isValid());
-};
-
-const addAddress = function () {
-    currentPropertyAddress.value = getPropertyAddress();
-    addingNewAddress.value = true;
-    addressFormKey.value = propertyAddressList.value.length;
 };
 
 const saveAddress = function () {
@@ -402,10 +393,10 @@ defineExpose({ isValid });
                                         rounded
                                         size="small"
                                         style="width: 1.5rem; height: 1.5rem"
+                                        aria-label="Edit"
                                         @click.stop="
                                             setCurrentPropertyAddress(index)
                                         "
-                                        aria-label="Edit"
                                     />
                                     <Button
                                         icon="pi pi-times"
@@ -414,8 +405,8 @@ defineExpose({ isValid });
                                         size="small"
                                         severity="danger"
                                         style="width: 1.5rem; height: 1.5rem"
-                                        @click.stop="deleteAddress(index)"
                                         aria-label="Remove"
+                                        @click.stop="deleteAddress(index)"
                                     />
                                 </div>
                             </Chip>
@@ -506,11 +497,11 @@ defineExpose({ isValid });
                     >
 
                     <div
-                        class="flex items-center gap-2"
-                        style="margin-left: 1rem"
                         v-tooltip.top="
                             'Manually enter if not found or incorrect'
                         "
+                        class="flex items-center gap-2"
+                        style="margin-left: 1rem"
                     >
                         <Checkbox
                             id="overrideLegalDescription"
@@ -559,8 +550,8 @@ defineExpose({ isValid });
             <div class="row mt-4">
                 <Button
                     label="Save"
-                    @click="saveLegalDescription"
                     class="button-padding"
+                    @click="saveLegalDescription"
                 />
                 <Button
                     label="Cancel"

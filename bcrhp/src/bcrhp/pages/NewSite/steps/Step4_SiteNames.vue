@@ -212,8 +212,8 @@ onMounted(() => {
 
             <div class="row">
                 <Button
-                    class="button-padding"
                     id="addOtherName"
+                    class="button-padding"
                     label="+ Add"
                     :aria-disabled="addOtherNameDisabled"
                     :disabled="addOtherNameDisabled"
