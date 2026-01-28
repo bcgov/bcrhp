@@ -5,6 +5,7 @@ import type { Ref } from 'vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     BcStatementOfSignificanceTileSchema,
@@ -21,8 +22,8 @@ const emit = defineEmits(['update:stepIsValid']);
 const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',
 ) as Ref<FormInstance | null>;
-const sosResolver = zodResolver(
-    BcStatementOfSignificanceTileSchema.shape['aliased_data'],
+const sosResolver = getFlattenResolver(
+    zodResolver(BcStatementOfSignificanceTileSchema.shape['aliased_data']),
 );
 
 const isValid = () => {
