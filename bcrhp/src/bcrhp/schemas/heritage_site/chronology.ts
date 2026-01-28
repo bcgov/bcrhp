@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { ConceptValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
-import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
+import { YearValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
 import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
@@ -19,12 +19,12 @@ import {
 
 export const ChronologyTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        start_year: DateValueSchema,
+        start_year: YearValueSchema,
         dates_approximate: BooleanValueSchema,
         information_source: getStringValueSchema(),
         chronology: ConceptValueRequiredSchema,
         chronology_notes: getStringValueSchema(),
-        end_year: DateValueSchema,
+        end_year: YearValueSchema,
     }),
 });
 // @ts-ignore

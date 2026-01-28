@@ -3,12 +3,14 @@ import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
-import InputText from 'primevue/inputtext';
-import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
@@ -39,6 +41,7 @@ import {
 } from '@/bcrhp/utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+const emit = defineEmits(['update:stepIsValid']);
 
 //state
 const currentChronology = ref<ChronologyTileType>(getChronology());
@@ -46,6 +49,14 @@ const currentConstructionActor = ref<ConstructionActorsTileType>(
     getConstructionActor(),
 );
 const currentExternalUrl = ref<ExternalUrlTileType>(getExternalUrl());
+
+const checkboxOverrides = {
+    widget: {
+        widgetid: '',
+        component:
+            'bcgov_arches_common/widgets/BooleanCheckboxWidget/BooleanCheckboxWidget.vue',
+    },
+} satisfies Partial<CardXNodeXWidgetData>;
 
 //update keys to reset forms
 const chronologyKey = ref(0);
@@ -62,14 +73,14 @@ const externalUrlForm = useTemplateRef(
     'externalUrlForm',
 ) as Ref<FormInstance | null>;
 
-const chronologyResolver = zodResolver(
-    ChronologyTileSchema.shape['aliased_data'],
+const chronologyResolver = getFlattenResolver(
+    zodResolver(ChronologyTileSchema.shape['aliased_data']),
 );
-const constructionActorResolver = zodResolver(
-    ConstructionActorsTileSchema.shape['aliased_data'],
+const constructionActorResolver = getFlattenResolver(
+    zodResolver(ConstructionActorsTileSchema.shape['aliased_data']),
 );
-const externalUrlResolver = zodResolver(
-    ExternalUrlTileSchema.shape['aliased_data'],
+const externalUrlResolver = getFlattenResolver(
+    zodResolver(ExternalUrlTileSchema.shape['aliased_data']),
 );
 
 const getText = (node: any) => {
@@ -99,14 +110,37 @@ const externalUrls = computed(() =>
 
 const isValid = () => true;
 
+const isValidChronology = computed(() => {
+    return baseIsValid(
+        chronologyForm as Ref<FormInstance>,
+        ChronologyTileSchema.shape['aliased_data'],
+    );
+});
+
 const addChronologyDisabled = computed(
-    () => (chronologies.value.length || 0) > 4,
+    () => !isValidChronology.value || (chronologies.value.length || 0) > 4,
 );
+
+const isValidConstructionActors = () =>
+    baseIsValid(
+        constructionActorForm as Ref<FormInstance>,
+        ConstructionActorsTileSchema.shape['aliased_data'],
+    );
+
 const addConstructionActorDisabled = computed(
-    () => (constructionActors.value.length || 0) > 4,
+    () =>
+        !isValidConstructionActors() ||
+        (constructionActors.value.length || 0) > 4,
 );
+
+const isValidExternalUrl = () =>
+    baseIsValid(
+        externalUrlForm as Ref<FormInstance>,
+        ExternalUrlTileSchema.shape['aliased_data'],
+    );
+
 const addExternalUrlDisabled = computed(
-    () => (externalUrls.value.length || 0) > 4,
+    () => !isValidExternalUrl() || (externalUrls.value.length || 0) > 4,
 );
 
 const saveChronology = function () {
@@ -133,6 +167,7 @@ const saveChronology = function () {
     currentChronology.value = getChronology();
     chronologyKey.value++;
     chronologyForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const saveArchitectOrBuilder = function () {
@@ -157,6 +192,7 @@ const saveArchitectOrBuilder = function () {
     currentConstructionActor.value = getConstructionActor();
     actorKey.value++;
     constructionActorForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const saveExternalUrl = function () {
@@ -181,6 +217,7 @@ const saveExternalUrl = function () {
     currentExternalUrl.value = getExternalUrl();
     urlKey.value++;
     externalUrlForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const deleteChronologyCallback = (index: number) => {
@@ -203,6 +240,7 @@ const updateChronologyModelValue = (
         currentChronology.value.aliased_data,
         chronologyForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
 
 const updateConstructionActorValue = (
@@ -215,6 +253,7 @@ const updateConstructionActorValue = (
         currentConstructionActor.value.aliased_data,
         constructionActorForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
 
 const updateExternalUrlModelValue = (
@@ -227,12 +266,15 @@ const updateExternalUrlModelValue = (
         currentExternalUrl.value.aliased_data,
         externalUrlForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
 
 defineExpose({ isValid });
 </script>
 
 <template>
+    <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
+    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div>
     <Form
         ref="chronologyForm"
         v-slot="$form"
@@ -242,8 +284,8 @@ defineExpose({ isValid });
     >
         <FieldSet
             id="chronologyFieldset"
-            legend="Chronology"
             :key="chronologyKey"
+            legend="Chronology"
         >
             <div class="flex flex-row flex-wrap">
                 <div class="flex-grow">
@@ -296,12 +338,28 @@ defineExpose({ isValid });
                     />
 
                     <div class="align-bottom">
-                        <Checkbox
-                            v-model="currentChronology.circa"
-                            inputId="circa"
-                            binary
-                        />
-                        <label for="circa">Circa</label>
+                        <div class="flex flex-row flex-row-checkbox">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentChronology.aliased_data
+                                        .dates_approximate
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="dates_approximate"
+                                :card-x-node-x-widget-data-overrides="
+                                    checkboxOverrides
+                                "
+                                @update:value="
+                                    updateChronologyModelValue(
+                                        $event,
+                                        'dates_approximate',
+                                    )
+                                "
+                            />
+                            <div>Circa</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -313,11 +371,20 @@ defineExpose({ isValid });
                     input-name="chronologyNotes"
                     :error-message="$form.chronologyNotes?.error?.message"
                 >
-                    <InputText
-                        id="chronologyNotes"
-                        v-model="currentChronology.chronologyNotes"
-                        placeholder="E.g. Date of major renovations"
-                        fluid
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.chronology_notes
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="chronology_notes"
+                        @update:value="
+                            updateChronologyModelValue(
+                                $event,
+                                'chronology_notes',
+                            )
+                        "
                     />
                 </LabelledInput>
             </div>
@@ -327,6 +394,7 @@ defineExpose({ isValid });
                 id="saveChronology"
                 label="+ Add Chronology"
                 class="button-padding"
+                :aria-disabled="addChronologyDisabled"
                 :disabled="addChronologyDisabled"
                 @click="saveChronology"
             />
@@ -527,6 +595,10 @@ defineExpose({ isValid });
     display: flex;
     flex-direction: row;
     gap: 1rem;
+}
+
+.flex-row-checkbox {
+    gap: 0.25rem !important;
 }
 
 .flex-grow {

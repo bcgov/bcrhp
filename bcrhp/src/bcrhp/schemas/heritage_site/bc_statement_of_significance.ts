@@ -32,9 +32,7 @@ export function getStatementOfSignificance(): BcStatementOfSignificanceTileType 
 }
 
 // @todo - Figure out object state - New/Updated/Deleted
-export class StatementOfSignificance
-    implements BcStatementOfSignificanceTileType
-{
+export class StatementOfSignificance implements BcStatementOfSignificanceTileType {
     constructor() {
         this.aliased_data = {
             heritage_value: blankStringValue(),
