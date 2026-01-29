@@ -43,8 +43,8 @@ const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
 const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
     'otherNameForm',
 ) as Ref<FormInstance | null>;
-const zodCommonNameResolver = zodResolver(
-    SiteNamesTileSchema.shape['aliased_data'],
+const zodCommonNameResolver = getFlattenResolver(
+    zodResolver(SiteNamesTileSchema.shape['aliased_data']),
 );
 
 const zodOtherNameResolver = getFlattenResolver(
@@ -52,8 +52,9 @@ const zodOtherNameResolver = getFlattenResolver(
 );
 
 const isValid = () => {
-    return true;
+    return isCommonNameValid() && true;
 };
+
 const isCommonNameValid = () => {
     return baseIsValid(
         commonNameForm as Ref<FormInstance>,
@@ -211,8 +212,8 @@ onMounted(() => {
 
             <div class="row">
                 <Button
-                    class="button-padding"
                     id="addOtherName"
+                    class="button-padding"
                     label="+ Add"
                     :aria-disabled="addOtherNameDisabled"
                     :disabled="addOtherNameDisabled"

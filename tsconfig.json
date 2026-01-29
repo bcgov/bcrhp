@@ -1,36 +1,24 @@
 {
-  "extends": "./.tsconfig-paths.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    "jsxImportSource": "vue",
-    "strict": true,
-    "noEmit": true,
-    "noImplicitThis": false,
-    "verbatimModuleSyntax": true,
-    "useDefineForClassFields": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "types": [
-      "vitest/globals",
-      "vite/client",
-    ],
-    "allowImportingTsExtensions": true,
-    "noUnusedLocals": true,
-    "paths": {
-      "@/bcrhp/*": [
-        "./bcrhp/src/bcrhp/*"
-      ],
-      "@/arches_component_lab/*": [
-        "../arches-component-lab/arches_component_lab/src/arches_component_lab/*"
-      ],
-      "@/bcgov_arches_common/*": [
-        "../bcgov-arches-common/bcgov_arches_common/src/bcgov_arches_common/*"
-      ]
-    }
-  }
+    "extends": "./.tsconfig-paths.json",
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+        "strict": true,
+        "noEmit": true,
+        "noImplicitThis": false,
+        "verbatimModuleSyntax": true,
+        "useDefineForClassFields": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "types": ["vitest/globals", "vite/client"],
+        "allowImportingTsExtensions": true,
+        "noUnusedLocals": true
+    },
+    "include": ["bcrhp/src/**/*.ts", "bcrhp/src/**/*.vue"],
+    "exclude": ["vite-shims", "tests/playwright"]
 }

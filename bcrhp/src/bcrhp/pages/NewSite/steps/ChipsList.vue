@@ -5,7 +5,7 @@ const props = defineProps({
     label: { type: String, default: '' },
     items: { type: Array<any>, default: () => [] },
     displayKey: { type: String, default: '' },
-    displayKeys: { type: Array<String>, default: () => [] },
+    displayKeys: { type: Array<string>, default: () => [] },
     disabled: { type: Boolean, default: false },
 });
 
@@ -78,8 +78,8 @@ const handleClick = (index: number) => {
                 @click="handleClick(index)"
             >
                 <template
-                    #default
                     v-if="$slots.item"
+                    #default
                 >
                     <slot
                         name="item"

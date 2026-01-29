@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -27,6 +27,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
@@ -40,9 +41,16 @@ const currentProtectionEvent: Ref<ProtectionEventTileType> =
 const showInactiveHistoricActs = ref(false);
 const formKey = ref(0);
 
-const protectionEventResolver = zodResolver(
-    ProtectionEventTileSchema.shape['aliased_data'],
+const protectionEventResolver = getFlattenResolver(
+    zodResolver(ProtectionEventTileSchema.shape['aliased_data']),
 );
+
+const protectionEventIsValid = computed(() => {
+    return baseIsValid(
+        recognitionDetailsForm as Ref<FormInstance>,
+        ProtectionEventTileSchema.shape['aliased_data'],
+    );
+});
 
 const protectionEvents = computed(() => {
     return (
@@ -53,10 +61,7 @@ const protectionEvents = computed(() => {
 
 const addOtherReferenceNumberDisabled = computed(
     () =>
-        recognitionDetailsForm.value?.states
-            ?.designation_or_protection_start_date?.invalid ||
-        recognitionDetailsForm.value?.states?.legislative_act?.invalid ||
-        recognitionDetailsForm.value?.states?.referenceNumber?.invalid ||
+        !protectionEventIsValid.value ||
         (heritageSite.value?.aliased_data?.bc_right?.aliased_data
             ?.protection_event?.length || 0) > 4,
 );
@@ -233,8 +238,8 @@ defineExpose({ isValid });
         </FieldSet>
         <div class="row">
             <Button
-                class="button-padding"
                 id="saveRecognitionDetails"
+                class="button-padding"
                 label="+ Add Protection Event"
                 :disabled="addOtherReferenceNumberDisabled"
                 @click="addProtectionEvent"
