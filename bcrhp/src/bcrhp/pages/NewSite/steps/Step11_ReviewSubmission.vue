@@ -479,7 +479,7 @@ defineExpose({ isValid });
             </dd>
             <dt>URLs</dt>
             <dd>
-                <ol class="list-decimal">
+                <ol>
                     <li
                         v-for="url in heritageSite?.aliased_data
                             .external_urls ?? []"
