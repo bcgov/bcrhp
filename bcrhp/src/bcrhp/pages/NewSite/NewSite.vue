@@ -32,10 +32,12 @@ import {
     getHeritageSite,
 } from '@/bcrhp/schemas/heritage_site.ts';
 import { getBlankHeritageSite } from '@/bcrhp/api.ts';
+import type { ErrorMessage } from '@/bcrhp/types.ts';
 
 const submissionErrors = ref([] as ErrorMessage[]);
 const submitted = ref(false);
 const submitting = ref(false);
+const devMode = ref(true);
 
 //placeholder function for final submission
 const submitNewSiteData = async () => {
@@ -101,7 +103,7 @@ const setCurrentStepValid = function (isValid: boolean, stepNumber: number) {
 };
 
 const isValid = (step: number) => {
-    return true;
+    if (devMode.value) return true;
     let stepValid = true;
 
     if (typeof steps[step - 1]?.value?.isValid === 'function') {
@@ -114,9 +116,9 @@ const isValid = (step: number) => {
     return stepValid;
 };
 
-const printDetails = () => {
-    console.log('printDetails');
-};
+// const printDetails = () => {
+//     console.log('printDetails');
+// };
 
 const stepperProps: Ref<StepperProps | null> = ref(null);
 const stepperState: Ref<StepperState | null> = ref(null);

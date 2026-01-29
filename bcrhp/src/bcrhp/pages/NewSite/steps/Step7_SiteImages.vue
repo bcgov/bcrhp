@@ -4,6 +4,7 @@ import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
@@ -54,11 +55,13 @@ const siteImagesCount = computed(() => {
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
 ) as Ref<FormInstance | null>;
-const imageFormResolver = zodResolver(
-    SiteImagesTileSchema.shape['aliased_data'],
+const imageFormResolver = getFlattenResolver(
+    zodResolver(SiteImagesTileSchema.shape['aliased_data']),
 );
 
-const isValid = () => {
+const isValid = () => true;
+
+const isImageFormValid = () => {
     return baseIsValid(
         siteImageForm as Ref<FormInstance>,
         SiteImagesTileSchema.shape['aliased_data'],
@@ -73,7 +76,9 @@ const imageViewOverrides = {
     },
 } satisfies Partial<CardXNodeXWidgetData>;
 
-const addImageDisabled = computed(() => false);
+const addImageDisabled = computed(
+    () => !isImageFormValid() || siteImagesCount.value >= 10,
+);
 
 const nextImageKey = computed(() => {
     return siteImageList.value.length;
