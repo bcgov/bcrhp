@@ -6,6 +6,7 @@ import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
@@ -33,22 +34,22 @@ const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const heritageClassForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageClassForm',
 ) as Ref<FormInstance | null>;
-const heritageClassResolver = zodResolver(
-    HeritageClassTileSchema.shape['aliased_data'],
+const heritageClassResolver = getFlattenResolver(
+    zodResolver(HeritageClassTileSchema.shape['aliased_data']),
 );
 
 const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageFunctionForm',
 ) as Ref<FormInstance | null>;
-const heritageFunctionResolver = zodResolver(
-    HeritageFunctionTileSchema.shape['aliased_data'],
+const heritageFunctionResolver = getFlattenResolver(
+    zodResolver(HeritageFunctionTileSchema.shape['aliased_data']),
 );
 
 const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
     'heritageThemeForm',
 ) as Ref<FormInstance | null>;
-const heritageThemeResolver = zodResolver(
-    HeritageThemeTileSchema.shape['aliased_data'],
+const heritageThemeResolver = getFlattenResolver(
+    zodResolver(HeritageThemeTileSchema.shape['aliased_data']),
 );
 
 //state

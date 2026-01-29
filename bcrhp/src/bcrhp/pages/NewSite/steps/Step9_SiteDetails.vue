@@ -416,9 +416,9 @@ defineExpose({ isValid });
     >
         <FieldSet
             id="architectsBuildersFieldset"
+            :key="actorKey"
             class="mt-2"
             legend="Architects / Builders"
-            :key="actorKey"
         >
             <div class="p-inputtext-fluid flex gap-4">
                 <LabelledInput
@@ -535,9 +535,9 @@ defineExpose({ isValid });
     >
         <FieldSet
             id="relatedURLsFieldset"
+            :key="urlKey"
             class="mt-2"
             legend="Related URLs"
-            :key="urlKey"
         >
             <div class="flex flex-row gap-4">
                 <GenericWidget
