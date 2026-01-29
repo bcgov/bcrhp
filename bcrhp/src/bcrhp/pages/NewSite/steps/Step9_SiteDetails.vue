@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
+// [ADDED] Import z from zod to define local schema
+import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
@@ -29,7 +31,6 @@ import {
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 
 import {
-    ExternalUrlTileSchema,
     getExternalUrl,
     type ExternalUrlTileType,
 } from '@/bcrhp/schemas/heritage_site/external_url.ts';
@@ -79,8 +80,29 @@ const chronologyResolver = getFlattenResolver(
 const constructionActorResolver = getFlattenResolver(
     zodResolver(ConstructionActorsTileSchema.shape['aliased_data']),
 );
+
+const LocalExternalUrlSchema = z.object({
+    external_url_type: z.any().refine((val: any) => val && val !== '', {
+        message: 'URL Type is required',
+    }),
+
+    // URL validation
+    external_url: z
+        .object({
+            url: z
+                .union([z.string(), z.null(), z.undefined()])
+                .refine(
+                    (val: any) => typeof val === 'string' && val.length > 0,
+                    {
+                        message: 'URL is required',
+                    },
+                ),
+        })
+        .passthrough(), // Allow props like 'url_label' to pass through without error
+});
+
 const externalUrlResolver = getFlattenResolver(
-    zodResolver(ExternalUrlTileSchema.shape['aliased_data']),
+    zodResolver(LocalExternalUrlSchema),
 );
 
 const getText = (node: any) => {
@@ -133,11 +155,9 @@ const addConstructionActorDisabled = computed(
         (constructionActors.value.length || 0) > 4,
 );
 
+// [FIX] Update validation to use local schema
 const isValidExternalUrl = () =>
-    baseIsValid(
-        externalUrlForm as Ref<FormInstance>,
-        ExternalUrlTileSchema.shape['aliased_data'],
-    );
+    baseIsValid(externalUrlForm as Ref<FormInstance>, LocalExternalUrlSchema);
 
 const addExternalUrlDisabled = computed(
     () => !isValidExternalUrl() || (externalUrls.value.length || 0) > 4,
@@ -364,7 +384,7 @@ defineExpose({ isValid });
                 </div>
             </div>
 
-            <div class="p-inputtext-fluid mt-4">
+            <div>
                 <LabelledInput
                     label="Chronology Notes (Optional)"
                     hint="Enter details about the significant event"
@@ -420,7 +440,7 @@ defineExpose({ isValid });
             class="mt-2"
             legend="Architects / Builders"
         >
-            <div class="p-inputtext-fluid flex gap-4">
+            <div>
                 <LabelledInput
                     label="Architect / Builder Name"
                     hint="Enter the company or individual's name"
@@ -481,7 +501,7 @@ defineExpose({ isValid });
                 </LabelledInput>
             </div>
 
-            <div class="p-inputtext-fluid mt-4">
+            <div>
                 <LabelledInput
                     label="Notes (Optional)"
                     hint="Provide any additional comments"
@@ -529,6 +549,7 @@ defineExpose({ isValid });
 
     <Form
         ref="externalUrlForm"
+        v-slot="$form"
         name="externalUrlForm"
         :validateOnBlur="true"
         :resolver="externalUrlResolver"
@@ -536,29 +557,47 @@ defineExpose({ isValid });
         <FieldSet
             id="relatedURLsFieldset"
             :key="urlKey"
-            class="mt-2"
             legend="Related URLs"
         >
-            <div class="flex flex-row gap-4">
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="
-                        currentExternalUrl.aliased_data.external_url_type
-                    "
-                    graph-slug="heritage_site"
-                    node-alias="external_url_type"
-                    placeholder="Select a URL Type"
-                    group-direction="column"
-                    @update:value="
-                        updateExternalUrlModelValue($event, 'external_url_type')
-                    "
-                />
-
-                <div class="p-inputtext-fluid flex-grow">
+            <div>
+                <LabelledInput
+                    label="URL Type"
+                    hint="Select the type of link"
+                    input-name="external_url_type"
+                    class="flex-grow"
+                    :error-message="$form.external_url_type?.error?.message"
+                    :required="true"
+                >
                     <GenericWidget
                         :mode="EDIT"
-                        :should-show-label="true"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentExternalUrl.aliased_data.external_url_type
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="external_url_type"
+                        placeholder="Select a URL Type"
+                        group-direction="column"
+                        @update:value="
+                            updateExternalUrlModelValue(
+                                $event,
+                                'external_url_type',
+                            )
+                        "
+                    />
+                </LabelledInput>
+
+                <LabelledInput
+                    label="URL"
+                    hint="e.g. https://www.example.com"
+                    input-name="external_url"
+                    class="flex-grow"
+                    :error-message="$form.external_url?.error?.message"
+                    :required="true"
+                >
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
                         :aliasedNodeData="
                             currentExternalUrl.aliased_data.external_url
                         "
@@ -569,7 +608,7 @@ defineExpose({ isValid });
                             updateExternalUrlModelValue($event, 'external_url')
                         "
                     />
-                </div>
+                </LabelledInput>
             </div>
         </FieldSet>
         <div class="row">
@@ -608,5 +647,16 @@ defineExpose({ isValid });
 .align-bottom {
     margin-bottom: 0;
     margin-top: auto;
+}
+
+.button-padding {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
 }
 </style>

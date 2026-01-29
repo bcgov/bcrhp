@@ -28,13 +28,13 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).fill(idir_password);
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    // --- START SUBMISSION ---
+    // --- 1 START SUBMISSION ---
     await page.goto('http://localhost/bcrhp/submissions/');
     await page
         .getByRole('link', { name: 'Submit a new Heritage Property' })
         .click();
 
-    // --- LOCATION ---
+    // --- 2 SITE LOCATION ---
     await page.getByRole('button', { name: 'Next' }).first().click();
     await page.locator('#street_address').click();
     await page.locator('#street_address').fill('street address');
@@ -56,15 +56,15 @@ test('test', async ({ page }) => {
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- SPATIAL UPLOAD ---
+    // --- 3 SPATIAL LOCATION ---
     await page.setInputFiles(
         'input[type="file"]',
-        'tests/playwright/test/polygon.shp',
+        'tests/playwright/tests/polygon.shp',
     );
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- NAMES ---
+    // --- 4 SITE NAMES ---
     await page.locator('form[name="commonNameForm"] #name').click();
     await page.locator('form[name="commonNameForm"] #name').fill('common name');
     await page.locator('form[name="otherNameForm"] #name').click();
@@ -72,7 +72,7 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: '+ Add' }).click();
     await page.getByRole('button', { name: 'Next' }).nth(1).click();
 
-    // --- PROTECTION ---
+    // --- 5 OFFICIAL RECOGNITION DETAILS ---
     await page.locator('#designation_or_protection_start_date').click();
     await page.getByText('27', { exact: true }).click();
     await page.locator('#legislative_act').click();
@@ -82,7 +82,7 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: '+ Add Protection Event' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- DESCRIPTION ---
+    // --- 6 STATEMENT OF SIGNIFICANCE ---
     await page
         .locator(
             '#physical_description > .p-editor > .p-editor-content > .ql-editor',
@@ -115,10 +115,10 @@ test('test', async ({ page }) => {
         .fill('document location');
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- IMAGE UPLOAD 1 ---
+    // --- 7 IMAGES ---
     await page.setInputFiles(
         'input[type="file"]',
-        'tests/playwright/test/house.jpg',
+        'tests/playwright/tests/house.jpg',
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -153,10 +153,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: ' Save' }).click();
     await page.waitForTimeout(2000);
 
-    // --- IMAGE UPLOAD 2 ---
+    // --- image upload 2 ---
     await page.setInputFiles(
         'input[type="file"]',
-        'tests/playwright/test/house.jpg',
+        'tests/playwright/tests/house.jpg',
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -192,7 +192,7 @@ test('test', async ({ page }) => {
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- HERITAGE CLASSES ---
+    // --- 8 SITE CLASSIFICATION ---
     await page.getByRole('spinbutton', { name: 'Enter number' }).click();
     await page
         .getByRole('radio', { name: 'Archaeological Site / Remains' })
@@ -229,7 +229,7 @@ test('test', async ({ page }) => {
     await page.locator('.bcgov-vertical-steps').click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- CHRONOLOGY ---
+    // --- 9 SITE DETAILS ---
     await page
         .getByRole('region', { name: 'Chronology' })
         .getByRole('button')
@@ -261,12 +261,28 @@ test('test', async ({ page }) => {
     await page.locator('#construction_actor_notes').click();
     await page.locator('#construction_actor_notes').fill('notes');
     await page.getByRole('button', { name: '+ Add Architect/Builder' }).click();
+    await page
+        .locator(
+            '#external_url_type > .p-treeselect-label-container > .p-treeselect-label',
+        )
+        .click();
+    await page
+        .locator('div')
+        .filter({ hasText: /^Other Website$/ })
+        .click();
+    await page.getByRole('textbox', { name: 'Enter URL Label...' }).click();
+    await page
+        .getByRole('textbox', { name: 'Enter URL Label...' })
+        .fill('url label');
+    await page.getByRole('textbox', { name: '*URL' }).click();
+    await page.getByRole('textbox', { name: '*URL' }).fill('www.google.com');
+    await page.getByRole('button', { name: '+ Add URL' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
-    // --- DOCUMENT UPLOAD ---
+    // --- 10 SUPPORTING DOCUMENTS ---
     await page.setInputFiles(
         'input[type="file"]',
-        'tests/playwright/test/test_doc.pdf',
+        'tests/playwright/tests/test_doc.pdf',
     );
     await page.waitForTimeout(2000);
     await page

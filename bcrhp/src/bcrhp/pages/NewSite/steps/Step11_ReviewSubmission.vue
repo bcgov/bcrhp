@@ -372,10 +372,10 @@ defineExpose({ isValid });
             </dd>
             <dt>URLs</dt>
             <dd>
-                <ol class="list-decimal">
+                <ol>
                     <li
-                        v-for="url in heritageSite?.aliased_data.external_url ??
-                        []"
+                        v-for="url in heritageSite?.aliased_data
+                            .external_urls ?? []"
                         :key="url"
                     >
                         {{ url.aliased_data.external_url_type.display_value }}:
