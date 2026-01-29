@@ -59,30 +59,21 @@ const handleClick = (index: number) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2">
-        <div
-            v-if="label"
-            class="flex justify-between items-center"
-        >
-            <label class="font-semibold text-gray-700">
+    <div>
+        <div v-if="label">
+            <label>
                 {{ label }}
-                <span class="text-gray-500 text-sm"
-                    >({{ items?.length || 0 }})</span
-                >
+                <span>({{ items?.length || 0 }})</span>
             </label>
             <slot name="actions"></slot>
         </div>
 
-        <div
-            v-if="items && items.length > 0"
-            class="flex flex-col items-start gap-2"
-        >
+        <div v-if="items && items.length > 0">
             <Chip
                 v-for="(item, index) in items"
                 :key="index"
                 :label="String(resolveLabel(item) || 'Untitled')"
                 :removable="!disabled"
-                class="text-lg py-2 px-3"
                 @remove="handleRemove(index)"
                 @click="handleClick(index)"
             >
@@ -99,11 +90,6 @@ const handleClick = (index: number) => {
             </Chip>
         </div>
 
-        <div
-            v-else
-            class="text-gray-400 italic text-sm"
-        >
-            No items added.
-        </div>
+        <div v-else>No items added.</div>
     </div>
 </template>
