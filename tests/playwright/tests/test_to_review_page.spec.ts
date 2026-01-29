@@ -59,7 +59,7 @@ test('test', async ({ page }) => {
     // --- SPATIAL UPLOAD ---
     await page.setInputFiles(
         'input[type="file"]',
-        'tests/playwright/test/area.shp',
+        'tests/playwright/test/polygon.shp',
     );
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
