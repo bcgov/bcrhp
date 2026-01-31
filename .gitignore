@@ -158,3 +158,6 @@ node_modules
 CACHE
 
 settings_docker.py
+
+#test resuts
+test-results

@@ -399,7 +399,7 @@ defineExpose({ isValid });
                                         "
                                     />
                                     <Button
-                                        icon="pi pi-times"
+                                        icon="pi pi-times-circle"
                                         text
                                         rounded
                                         size="small"
@@ -412,7 +412,7 @@ defineExpose({ isValid });
                             </Chip>
                         </div>
 
-                        <div class="w-full">
+                        <div style="margin-top: 0.3rem">
                             <ChipsList
                                 :items="getLegalsForAddress(address)"
                                 :display-keys="[
@@ -453,7 +453,7 @@ defineExpose({ isValid });
             :validateOnValueUpdate="true"
             :resolver="legalAddressResolver"
         >
-            <div class="flex flex-col gap-2">
+            <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
                     hint="Click Validate to generate the legal description"
@@ -461,11 +461,11 @@ defineExpose({ isValid });
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
                 >
-                    <div class="p-inputtext-fluid">
+                    <div>
                         <div class="row">
                             <GenericWidget
                                 :ref="pidField"
-                                style="flex-grow: 1"
+                                style="flex-grow: 1; margin-left: 1rem"
                                 :mode="EDIT"
                                 :should-show-label="false"
                                 :aliased-node-data="
@@ -483,69 +483,50 @@ defineExpose({ isValid });
                         </div>
                     </div>
                 </LabelledInput>
-
-                <div
-                    class="row"
-                    style="
-                        align-items: center;
-                        margin-bottom: 0.25rem;
-                        margin-top: 1rem;
-                    "
-                >
-                    <label class="font-bold text-gray-700"
-                        >Legal Description</label
-                    >
-
-                    <div
-                        v-tooltip.top="
-                            'Manually enter if not found or incorrect'
-                        "
-                        class="flex items-center gap-2"
-                        style="margin-left: 1rem"
-                    >
-                        <Checkbox
-                            id="overrideLegalDescription"
-                            v-model="isOverrideActive"
-                            binary
-                            :pt="{ root: { class: 'w-4 h-4' } }"
-                        />
-                        <span
-                            class="text-sm text-gray-600 cursor-pointer select-none"
-                            >Override</span
-                        >
-                    </div>
-                </div>
-
-                <LabelledInput
-                    input-name="legalAddress"
-                    :error-message="$form.legalAddress?.error?.message"
-                    :required="true"
-                >
-                    <fieldset
-                        :disabled="!isOverrideActive"
-                        style="
-                            border: none;
-                            padding: 0;
-                            margin: 0;
-                            min-width: 0;
-                        "
-                    >
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliased-node-data="
-                                currentLegalDescription?.aliased_data
-                                    ?.legal_description
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="legal_description"
-                            @update:value="
-                                updateLegal($event, 'legal_description')
-                            "
-                        />
-                    </fieldset>
-                </LabelledInput>
             </div>
+
+            <LabelledInput
+                label="Legal Description"
+                input-name="legalAddress"
+                :error-message="$form.legalAddress?.error?.message"
+                :required="true"
+            >
+                <fieldset
+                    :disabled="!isOverrideActive"
+                    style="border: none; padding: 0; margin: 0; min-width: 0"
+                >
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliased-node-data="
+                            currentLegalDescription?.aliased_data
+                                ?.legal_description
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="legal_description"
+                        @update:value="updateLegal($event, 'legal_description')"
+                    />
+                </fieldset>
+                <div
+                    style="
+                        margin-left: 1rem;
+                        margin-top: 0.5em;
+                        display: flex;
+                        align-items: center;
+                    "
+                    v-tooltip.top="'Manually enter if not found or incorrect'"
+                >
+                    <Checkbox
+                        id="overrideLegalDescription"
+                        v-model="isOverrideActive"
+                        binary
+                        :pt="{ root: { class: 'w-4 h-4' } }"
+                    />
+                    <span style="font-size: 18px; align-self: center"
+                        >Override</span
+                    >
+                </div>
+            </LabelledInput>
 
             <div class="row mt-4">
                 <Button

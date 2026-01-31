@@ -342,7 +342,6 @@ test('test', async ({ page }) => {
         .getByRole('button')
         .click();
     await page.getByText('Construction', { exact: true }).click();
-    await page.waitForTimeout(500);
     await page
         .getByRole('combobox', { name: 'Start Year' })
         .and(page.locator('#start_year'))
@@ -354,25 +353,13 @@ test('test', async ({ page }) => {
         .click();
     await page.waitForTimeout(500);
     await page.getByText('2027').click();
-    await page.pause();
+    await page.getByRole('checkbox', { name: 'Circa' }).check();
     await page
-        .locator(
-            'div[data-graph-slug="heritage_site"][data-node-alias="dates_approximate"] input[type="checkbox"]',
-        )
+        .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
         .click();
     await page
-        .locator(
-            'div[data-graph-slug="heritage_site"][data-node-alias="chronology_notes"] input[type="text"]',
-        )
-        .click();
-    await page
-        .locator(
-            'div[data-graph-slug="heritage_site"][data-node-alias="chronology_notes"] input[type="text"]',
-        )
+        .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
         .fill('Should be 2016, widget is broken');
-    await page.locator(
-        'div[data-graph-slug="heritage_site"][data-node-alias="chronology_notes"] input[type="text"]',
-    );
     await page.getByRole('button', { name: '+ Add Chronology' }).click();
     await page
         .getByLabel('Chronology', { exact: true })
@@ -382,26 +369,6 @@ test('test', async ({ page }) => {
         .locator('div')
         .filter({ hasText: /^Significant$/ })
         .click();
-    await page.waitForTimeout(500);
-    await page
-        .getByRole('combobox', { name: 'Start Year' })
-        .and(page.locator('#start_year'))
-        .click();
-    await page
-        .locator('span.p-datepicker-year')
-        .filter({ hasText: '2020' })
-        .click();
-
-    await page
-        .getByRole('combobox', { name: 'End Year' })
-        .and(page.locator('#end_year'))
-        .click();
-    await page.waitForTimeout(500);
-    await page
-        .locator('span.p-datepicker-year')
-        .filter({ hasText: '2021' })
-        .click();
-
     await page
         .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
         .click();
