@@ -106,7 +106,10 @@ defineExpose({ isValid });
         :validateOnBlur="true"
         :resolver="supportingDocumentsResolver"
     >
-        <FieldSet id="documentsFieldset">
+        <FieldSet
+            id="documentsFieldset"
+            legend="Required Documents"
+        >
             <div class="flex flex-row gap-4">
                 <div
                     class="instructions"

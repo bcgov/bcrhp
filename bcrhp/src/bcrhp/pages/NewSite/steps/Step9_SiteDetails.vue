@@ -293,8 +293,8 @@ defineExpose({ isValid });
 </script>
 
 <template>
-    <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
-    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div>
+    <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
+    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div> -->
     <Form
         ref="chronologyForm"
         v-slot="$form"
@@ -627,6 +627,7 @@ defineExpose({ isValid });
             />
         </div>
     </Form>
+    <br /><br /><br />
 </template>
 
 <style scoped>

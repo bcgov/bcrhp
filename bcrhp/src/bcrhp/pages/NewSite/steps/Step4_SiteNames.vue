@@ -3,6 +3,7 @@ import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
+import FieldSet from 'primevue/fieldset';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
@@ -158,77 +159,82 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <Form
-            ref="commonNameForm"
-            v-slot="$form"
-            name="commonNameForm"
-            :validateOnBlur="true"
-            :resolver="zodCommonNameResolver"
+    <div>
+        <FieldSet
+            id="siteNamesFieldSet"
+            legend="Site Names"
         >
-            <LabelledInput
-                label="Common Name"
-                hint="The common name is the most recognizable name for the site"
-                input-name="commonName"
-                :error-message="$form.commonName?.error?.message"
-                :required="true"
+            <Form
+                ref="commonNameForm"
+                v-slot="$form"
+                name="commonNameForm"
+                :validateOnBlur="true"
+                :resolver="zodCommonNameResolver"
             >
-                <div class="p-inputtext-fluid">
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="currentCommonName"
-                        graph-slug="heritage_site"
-                        node-alias="name"
-                        @update:value="updateCommonName($event, 'name')"
-                    />
-                </div>
-            </LabelledInput>
-        </Form>
+                <LabelledInput
+                    label="Common Name"
+                    hint="The common name is the most recognizable name for the site"
+                    input-name="commonName"
+                    :error-message="$form.commonName?.error?.message"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="currentCommonName"
+                            graph-slug="heritage_site"
+                            node-alias="name"
+                            @update:value="updateCommonName($event, 'name')"
+                        />
+                    </div>
+                </LabelledInput>
+            </Form>
 
-        <Form
-            ref="otherNameForm"
-            v-slot="$form"
-            name="otherNameForm"
-            :validateOnBlur="true"
-            :resolver="zodOtherNameResolver"
-        >
-            <LabelledInput
-                label="Other Names (Optional)"
-                hint="Click Add to enter one or more additional names as applicable"
-                input-name="otherName"
-                :error-message="$form.otherName?.error?.message"
+            <Form
+                ref="otherNameForm"
+                v-slot="$form"
+                name="otherNameForm"
+                :validateOnBlur="true"
+                :resolver="zodOtherNameResolver"
             >
-                <GenericWidget
-                    :key="otherNameKey"
-                    :mode="EDIT"
-                    :should-show-label="false"
-                    :aliasedNodeData="currentOtherName"
-                    graph-slug="heritage_site"
-                    node-alias="name"
-                    @update:value="updateOtherName($event, 'name')"
-                />
-            </LabelledInput>
+                <LabelledInput
+                    label="Other Names (Optional)"
+                    hint="Click Add to enter one or more additional names as applicable"
+                    input-name="otherName"
+                    :error-message="$form.otherName?.error?.message"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :key="otherNameKey"
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="currentOtherName"
+                            graph-slug="heritage_site"
+                            node-alias="name"
+                            @update:value="updateOtherName($event, 'name')"
+                        />
+                    </div>
+                </LabelledInput>
+            </Form>
+        </FieldSet>
+        <br />
+        <div class="row">
+            <Button
+                id="addOtherName"
+                class="button-padding"
+                label="+ Add"
+                :aria-disabled="addOtherNameDisabled"
+                :disabled="addOtherNameDisabled"
+                @click="saveOtherName"
+            ></Button>
 
-            <div class="row">
-                <Button
-                    id="addOtherName"
-                    class="button-padding"
-                    label="+ Add"
-                    :aria-disabled="addOtherNameDisabled"
-                    :disabled="addOtherNameDisabled"
-                    @click="saveOtherName"
-                ></Button>
-
-                <ChipsList
-                    :items="otherNames"
-                    display-key="aliased_data.name.display_value"
-                    @remove="handleRemoveOtherName"
-                />
-            </div>
-        </Form>
+            <ChipsList
+                :items="otherNames"
+                display-key="aliased_data.name.display_value"
+                @remove="handleRemoveOtherName"
+            />
+        </div>
         <br /><br /><br /><br /><br />
     </div>
 </template>
-
-<style></style>

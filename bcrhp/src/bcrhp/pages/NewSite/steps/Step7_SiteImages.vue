@@ -3,6 +3,7 @@ import { ref, useTemplateRef, inject, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
+import FieldSet from 'primevue/fieldset'; // Added import
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
@@ -154,226 +155,237 @@ defineExpose({ isValid });
         :validateOnBlur="true"
         :resolver="imageFormResolver"
     >
-        <div
-            class="flex flex-row"
-            style="flex-wrap: nowrap"
-        >
-            <div>
-                <GenericWidget
-                    :key="siteImageKey"
-                    graph-slug="heritage_site"
-                    node-alias="site_images"
-                    :should-show-label="false"
-                    :mode="EDIT"
-                    :aliased-node-data="
-                        currentSiteImage?.aliased_data?.site_images
-                    "
-                    @update:value="updateModelValue($event, 'site_images')"
-                ></GenericWidget>
-            </div>
-
-            <div class="placeholders">
+        <FieldSet legend="Site Images">
+            <div
+                class="flex flex-row"
+                style="flex-wrap: nowrap"
+            >
                 <div>
-                    <Button
-                        v-if="!addingNewImage && siteImagesCount < 10"
-                        id="addImage"
-                        label="+ Add"
-                        class="inline-block"
-                        :aria-disabled="addImageDisabled"
-                        :disabled="addImageDisabled"
-                        @click="addNewImage"
-                    ></Button>
-                    <Button
-                        v-if="addingNewImage && siteImagesCount < 10"
-                        id="addOtherName"
-                        class="inline-block"
-                        :aria-disabled="addImageDisabled"
-                        :disabled="addImageDisabled"
-                        tooltip="Save the new image before adding another"
-                        @click="saveImage"
-                        ><i class="fa fa-save mr-2"></i>
-                        Save
-                    </Button>
-                </div>
-                <div class="flex flex-row image-placeholders">
-                    <div
-                        v-for="(image, index) in siteImageList"
-                        :key="index"
-                        :data-selected="index === siteImageKey"
-                        class="image-placeholder"
-                        @click="setCurrentImage(index)"
-                    >
-                        <div
-                            class="fa fa-remove image-icons image-delete-icon"
-                            tooltip="Remove Image"
-                            @click="deleteSiteImage(index)"
-                        ></div>
-                        <div
-                            v-if="index !== 0"
-                            class="fa fa-flag image-icons image-primary-icon"
-                            tooltip="Set as Primary Image"
-                            @click="setPrimaryImage(index)"
-                        ></div>
-                        <GenericWidget
-                            graph-slug="heritage_site"
-                            :mode="VIEW"
-                            :should-show-label="false"
-                            node-alias="site_document"
-                            :aliased-node-data="image.aliased_data.site_images"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="flex flex-row">
-            <div style="flex-grow: 1">
-                <LabelledInput
-                    label="Image Type"
-                    hint="Select Historical or Contemporary image type"
-                    input-name="imageType"
-                    :required="true"
-                >
                     <GenericWidget
                         :key="siteImageKey"
                         graph-slug="heritage_site"
-                        node-alias="image_type"
+                        node-alias="site_images"
                         :should-show-label="false"
                         :mode="EDIT"
                         :aliased-node-data="
-                            currentSiteImage?.aliased_data?.image_type
+                            currentSiteImage?.aliased_data?.site_images
                         "
-                        @update:value="updateModelValue($event, 'image_type')"
+                        @update:value="updateModelValue($event, 'site_images')"
                     ></GenericWidget>
-                </LabelledInput>
-            </div>
+                </div>
 
-            <div style="flex-grow: 1">
-                <LabelledInput
-                    label="Image View"
-                    hint="Select the view that best describes the image"
-                    input-name="imageView"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
+                <div class="placeholders">
+                    <div>
+                        <Button
+                            v-if="!addingNewImage && siteImagesCount < 10"
+                            id="addImage"
+                            label="+ Add"
+                            class="inline-block"
+                            :aria-disabled="addImageDisabled"
+                            :disabled="addImageDisabled"
+                            @click="addNewImage"
+                        ></Button>
+                        <Button
+                            v-if="addingNewImage && siteImagesCount < 10"
+                            id="addOtherName"
+                            class="inline-block"
+                            :aria-disabled="addImageDisabled"
+                            :disabled="addImageDisabled"
+                            tooltip="Save the new image before adding another"
+                            @click="saveImage"
+                            ><i class="fa fa-save mr-2"></i>
+                            Save
+                        </Button>
+                    </div>
+                    <div class="flex flex-row image-placeholders">
+                        <div
+                            v-for="(image, index) in siteImageList"
+                            :key="index"
+                            :data-selected="index === siteImageKey"
+                            class="image-placeholder"
+                            @click="setCurrentImage(index)"
+                        >
+                            <div
+                                class="fa fa-remove image-icons image-delete-icon"
+                                tooltip="Remove Image"
+                                @click="deleteSiteImage(index)"
+                            ></div>
+                            <div
+                                v-if="index !== 0"
+                                class="fa fa-flag image-icons image-primary-icon"
+                                tooltip="Set as Primary Image"
+                                @click="setPrimaryImage(index)"
+                            ></div>
+                            <GenericWidget
+                                graph-slug="heritage_site"
+                                :mode="VIEW"
+                                :should-show-label="false"
+                                node-alias="site_document"
+                                :aliased-node-data="
+                                    image.aliased_data.site_images
+                                "
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-row">
+                <div style="flex-grow: 1">
+                    <LabelledInput
+                        label="Image Type"
+                        hint="Select Historical or Contemporary image type"
+                        input-name="imageType"
+                        :required="true"
+                    >
                         <GenericWidget
                             :key="siteImageKey"
                             graph-slug="heritage_site"
-                            node-alias="image_view"
-                            :mode="EDIT"
-                            :card-x-node-x-widget-data-overrides="
-                                imageViewOverrides
-                            "
-                            :aliased-node-data="
-                                currentSiteImage?.aliased_data?.image_view
-                            "
+                            node-alias="image_type"
                             :should-show-label="false"
-                            placeholder="Select an Image View"
-                            @update:value="
-                                updateModelValue($event, 'image_view')
+                            :mode="EDIT"
+                            :aliased-node-data="
+                                currentSiteImage?.aliased_data?.image_type
                             "
-                        />
-                    </div>
-                </LabelledInput>
-            </div>
-        </div>
-        <LabelledInput
-            label="Image Description"
-            hint="Summarize the image content including site address and site name. Include additional information that does not fit fields above"
-            input-name="definingElements"
-            :error-message="$form.imageDescription?.error?.message"
-            :required="true"
-        >
-            <div class="p-inputtext-fluid">
-                <GenericWidget
-                    :key="siteImageKey"
-                    :mode="EDIT"
-                    :should-show-label="false"
-                    :aliasedNodeData="
-                        currentSiteImage?.aliased_data?.image_description
-                    "
-                    graph-slug="heritage_site"
-                    node-alias="image_description"
-                    placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
-                    @update:value="
-                        updateModelValue($event, 'image_description')
-                    "
-                />
-            </div>
-        </LabelledInput>
-        <LabelledInput
-            label="Image Features"
-            hint="Enter the features or subjects depicted by the photograph"
-            input-name="imageFeatures"
-            :error-message="$form.imageFeatures?.error?.message"
-        >
-            <div>
-                <GenericWidget
-                    :key="siteImageKey"
-                    graph-slug="heritage_site"
-                    node-alias="image_features"
-                    :mode="EDIT"
-                    :aliasedNodeData="
-                        currentSiteImage?.aliased_data?.image_features
-                    "
-                    :should-show-label="false"
-                    placeholder="E.g. Stained Glass Window"
-                    @update:value="updateModelValue($event, 'image_features')"
-                />
-            </div>
-        </LabelledInput>
-        <GenericWidget
-            :key="siteImageKey"
-            :mode="EDIT"
-            :should-show-label="true"
-            :aliasedNodeData="currentSiteImage?.aliased_data?.image_date"
-            graph-slug="heritage_site"
-            node-alias="image_date"
-            placeholder="Date the image was created"
-            group-direction="column"
-            @update:value="updateModelValue($event, 'image_date')"
-        />
+                            @update:value="
+                                updateModelValue($event, 'image_type')
+                            "
+                        ></GenericWidget>
+                    </LabelledInput>
+                </div>
 
-        <LabelledInput
-            label="Photographer"
-            hint="Enter the name of the photographer"
-            input-name="photographer"
-            :error-message="$form.photographer?.error?.message"
-        >
-            <div>
-                <GenericWidget
-                    :key="siteImageKey"
-                    :mode="EDIT"
-                    :should-show-label="false"
-                    :aliasedNodeData="
-                        currentSiteImage?.aliased_data?.photographer
-                    "
-                    graph-slug="heritage_site"
-                    node-alias="photographer"
-                    placeholder="First Name Last Name"
-                    @update:value="updateModelValue($event, 'photographer')"
-                />
+                <div style="flex-grow: 1">
+                    <LabelledInput
+                        label="Image View"
+                        hint="Select the view that best describes the image"
+                        input-name="imageView"
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <GenericWidget
+                                :key="siteImageKey"
+                                graph-slug="heritage_site"
+                                node-alias="image_view"
+                                :mode="EDIT"
+                                :card-x-node-x-widget-data-overrides="
+                                    imageViewOverrides
+                                "
+                                :aliased-node-data="
+                                    currentSiteImage?.aliased_data?.image_view
+                                "
+                                :should-show-label="false"
+                                placeholder="Select an Image View"
+                                @update:value="
+                                    updateModelValue($event, 'image_view')
+                                "
+                            />
+                        </div>
+                    </LabelledInput>
+                </div>
             </div>
-        </LabelledInput>
-        <LabelledInput
-            label="Copyright"
-            hint="Enter the name of the copyright holder for the image"
-            input-name="copyright"
-            :error-message="$form.copyright?.error?.message"
-        >
-            <div>
-                <GenericWidget
-                    :key="siteImageKey"
-                    :mode="EDIT"
-                    :should-show-label="false"
-                    :aliasedNodeData="currentSiteImage?.aliased_data.copyright"
-                    graph-slug="heritage_site"
-                    node-alias="copyright"
-                    placeholder="E.g. City of Nelson"
-                    @update:value="updateModelValue($event, 'copyright')"
-                />
-            </div>
-        </LabelledInput>
+            <LabelledInput
+                label="Image Description"
+                hint="Summarize the image content including site address and site name. Include additional information that does not fit fields above"
+                input-name="definingElements"
+                :error-message="$form.imageDescription?.error?.message"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :key="siteImageKey"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentSiteImage?.aliased_data?.image_description
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="image_description"
+                        placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
+                        @update:value="
+                            updateModelValue($event, 'image_description')
+                        "
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Image Features"
+                hint="Enter the features or subjects depicted by the photograph"
+                input-name="imageFeatures"
+                :error-message="$form.imageFeatures?.error?.message"
+            >
+                <div>
+                    <GenericWidget
+                        :key="siteImageKey"
+                        graph-slug="heritage_site"
+                        node-alias="image_features"
+                        :mode="EDIT"
+                        :aliasedNodeData="
+                            currentSiteImage?.aliased_data?.image_features
+                        "
+                        :should-show-label="false"
+                        placeholder="E.g. Stained Glass Window"
+                        @update:value="
+                            updateModelValue($event, 'image_features')
+                        "
+                    />
+                </div>
+            </LabelledInput>
+            <GenericWidget
+                :key="siteImageKey"
+                :mode="EDIT"
+                :should-show-label="true"
+                :aliasedNodeData="currentSiteImage?.aliased_data?.image_date"
+                graph-slug="heritage_site"
+                node-alias="image_date"
+                placeholder="Date the image was created"
+                group-direction="column"
+                @update:value="updateModelValue($event, 'image_date')"
+            />
+
+            <LabelledInput
+                label="Photographer"
+                hint="Enter the name of the photographer"
+                input-name="photographer"
+                :error-message="$form.photographer?.error?.message"
+            >
+                <div>
+                    <GenericWidget
+                        :key="siteImageKey"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentSiteImage?.aliased_data?.photographer
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="photographer"
+                        placeholder="First Name Last Name"
+                        @update:value="updateModelValue($event, 'photographer')"
+                    />
+                </div>
+            </LabelledInput>
+            <LabelledInput
+                label="Copyright"
+                hint="Enter the name of the copyright holder for the image"
+                input-name="copyright"
+                :error-message="$form.copyright?.error?.message"
+            >
+                <div>
+                    <GenericWidget
+                        :key="siteImageKey"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentSiteImage?.aliased_data.copyright
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="copyright"
+                        placeholder="E.g. City of Nelson"
+                        @update:value="updateModelValue($event, 'copyright')"
+                    />
+                </div>
+            </LabelledInput>
+        </FieldSet>
     </Form>
+    <br /><br />
 </template>
 
 <style scoped>

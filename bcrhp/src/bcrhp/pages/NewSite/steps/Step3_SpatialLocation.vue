@@ -123,13 +123,13 @@ defineExpose({ isValid });
         :validateOnValueUpdate="true"
         :resolver="siteBoundaryResolver"
     >
-        <div class="flex flex-col container-width">
+        <div>
             <FieldSet
                 id="siteBoundaryFieldSet"
                 legend="Site Boundary"
                 style="display: inline-block"
             >
-                <div class="flex flex-row container-width">
+                <div>
                     <div>
                         <LabelledCheckboxInput
                             v-if="hasSinglePID"
