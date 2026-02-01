@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -30,51 +30,45 @@ import {
 } from '@/bcrhp/utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+const emit = defineEmits(['update:stepIsValid']);
 
-const heritageClassForm: Ref<FormInstance | null> = useTemplateRef(
+const heritageClassForm = useTemplateRef(
     'heritageClassForm',
 ) as Ref<FormInstance | null>;
+const heritageFunctionForm = useTemplateRef(
+    'heritageFunctionForm',
+) as Ref<FormInstance | null>;
+const heritageThemeForm = useTemplateRef(
+    'heritageThemeForm',
+) as Ref<FormInstance | null>;
+
 const heritageClassResolver = getFlattenResolver(
     zodResolver(HeritageClassTileSchema.shape['aliased_data']),
 );
-
-const heritageFunctionForm: Ref<FormInstance | null> = useTemplateRef(
-    'heritageFunctionForm',
-) as Ref<FormInstance | null>;
 const heritageFunctionResolver = getFlattenResolver(
     zodResolver(HeritageFunctionTileSchema.shape['aliased_data']),
 );
-
-const heritageThemeForm: Ref<FormInstance | null> = useTemplateRef(
-    'heritageThemeForm',
-) as Ref<FormInstance | null>;
 const heritageThemeResolver = getFlattenResolver(
     zodResolver(HeritageThemeTileSchema.shape['aliased_data']),
 );
 
-//state
-const currentHeritageClass: Ref<HeritageClassTileType> =
-    ref(getHeritageClass());
-const currentHeritageFunction: Ref<HeritageFunctionTileType> = ref(
-    getHeritageFunction(),
-);
+const currentHeritageClass = ref(getHeritageClass());
+const currentHeritageFunction = ref(getHeritageFunction());
 
-//keys for resetting
 const classKey = ref(0);
 const funcKey = ref(0);
 const themeKey = ref(0);
 
-//computed lists
-const heritageClasses = computed(() => {
-    const list = heritageSite?.value.aliased_data.heritage_class;
-    return Array.isArray(list) ? list : [];
-});
-const heritageFunctions = computed(() => {
-    const list = heritageSite?.value.aliased_data.heritage_function;
-    return Array.isArray(list) ? list : [];
-});
-
-const isValid = () => true;
+const heritageClasses = computed(() =>
+    Array.isArray(heritageSite.value.aliased_data.heritage_class)
+        ? heritageSite.value.aliased_data.heritage_class
+        : [],
+);
+const heritageFunctions = computed(() =>
+    Array.isArray(heritageSite.value.aliased_data.heritage_function)
+        ? heritageSite.value.aliased_data.heritage_function
+        : [],
+);
 
 const isValidHeritageClass = () =>
     baseIsValid(
@@ -87,80 +81,76 @@ const isValidHeritageFunction = () =>
         HeritageFunctionTileSchema.shape['aliased_data'],
     );
 
+const isValid = () => {
+    // Heritage Class
+    const hasSavedClass = heritageClasses.value.length > 0;
+    const classValid = hasSavedClass || isValidHeritageClass();
+
+    // Heritage Function
+    const hasSavedFunction = heritageFunctions.value.length > 0;
+    const functionValid = hasSavedFunction || isValidHeritageFunction();
+
+    // Heritage Theme
+    const themeData =
+        heritageSite.value?.aliased_data?.heritage_theme?.aliased_data
+            ?.heritage_theme;
+    const themeValid = !!(themeData?.display_value || themeData?.node_value);
+
+    return classValid && functionValid && themeValid;
+};
+
 const addHeritageClassDisabled = computed(
-    () => !isValidHeritageClass() || (heritageClasses.value.length || 0) > 4,
+    () => !isValidHeritageClass() || heritageClasses.value.length >= 5,
 );
 const addHeritageFunctionDisabled = computed(
-    () =>
-        !isValidHeritageFunction() || (heritageFunctions.value.length || 0) > 4,
+    () => !isValidHeritageFunction() || heritageFunctions.value.length >= 5,
 );
 
 const getText = (node: any) => {
     if (!node) return '';
-    if (node.display_value) return node.display_value;
-    if (typeof node.node_value === 'string') return node.node_value;
-    if (node.node_value?.en?.value) return node.node_value.en.value;
-    return '';
+    return (
+        node.display_value ||
+        node.node_value?.en?.value ||
+        (typeof node.node_value === 'string' ? node.node_value : '')
+    );
 };
 
 const saveHeritageClass = function () {
-    //if an object/null force []
-    if (!Array.isArray(heritageSite.value.aliased_data.heritage_class)) {
-        heritageSite.value.aliased_data.heritage_class = [];
-    }
-
     const data = currentHeritageClass.value.aliased_data;
-
-    //format label
-    const cat = getText(data.heritage_category);
-    const own = getText(data.ownership);
-    const count = getText(data.contributing_resource_count);
-    let label = [cat, own].filter(Boolean).join(' ');
-    if (count) label += ` (${count})`;
-
-    heritageSite.value?.aliased_data.heritage_class.push({
+    const label = `${getText(data.heritage_category)} ${getText(data.ownership)} (${getText(data.contributing_resource_count)})`;
+    heritageSite.value.aliased_data.heritage_class.push({
         ...currentHeritageClass.value,
-        customDisplay: label || 'Untitled Class',
+        customDisplay: label,
     });
-
-    //reset
     currentHeritageClass.value = getHeritageClass();
     classKey.value++;
     heritageClassForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const saveHeritageFunction = function () {
-    if (!Array.isArray(heritageSite.value.aliased_data.heritage_function)) {
-        heritageSite.value.aliased_data.heritage_function = [];
-    }
-
     const data = currentHeritageFunction.value.aliased_data;
-    const cat = getText(data.functional_category);
-    const state = getText(data.functional_state);
-    const label = [cat, state].filter(Boolean).join(' - ');
-
-    heritageSite.value?.aliased_data.heritage_function.push({
+    const label = `${getText(data.functional_category)} - ${getText(data.functional_state)}`;
+    heritageSite.value.aliased_data.heritage_function.push({
         ...currentHeritageFunction.value,
-        customDisplay: label || 'Untitled Function',
+        customDisplay: label,
     });
-
     currentHeritageFunction.value = getHeritageFunction();
     funcKey.value++;
     heritageFunctionForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const deleteHeritageClassCallback = (index: number) => {
-    if (Array.isArray(heritageSite.value.aliased_data.heritage_class)) {
-        heritageSite.value.aliased_data.heritage_class.splice(index, 1);
-    }
-};
-const deleteHeritageFunctionCallback = (index: number) => {
-    if (Array.isArray(heritageSite.value.aliased_data.heritage_function)) {
-        heritageSite.value.aliased_data.heritage_function.splice(index, 1);
-    }
+    heritageSite.value.aliased_data.heritage_class.splice(index, 1);
+    emit('update:stepIsValid', isValid());
 };
 
-//updates
+const deleteHeritageFunctionCallback = (index: number) => {
+    heritageSite.value.aliased_data.heritage_function.splice(index, 1);
+    emit('update:stepIsValid', isValid());
+};
+
 const updateHeritageClassModelValue = (
     newValue: AliasedNodeData,
     attribute_name: string,
@@ -171,7 +161,9 @@ const updateHeritageClassModelValue = (
         currentHeritageClass.value.aliased_data,
         heritageClassForm as Ref<FormInstance>,
     );
+    emit('update:stepIsValid', isValid());
 };
+
 const updateFunctionCategoryModelValue = (
     newValue: AliasedNodeData,
     attribute_name: string,
@@ -182,7 +174,9 @@ const updateFunctionCategoryModelValue = (
         currentHeritageFunction.value.aliased_data,
         heritageFunctionForm as Ref<FormInstance>,
     );
+    setTimeout(() => emit('update:stepIsValid', isValid()), 0);
 };
+
 const updateHeritageThemeModelValue = (
     newValue: AliasedNodeData,
     attribute_name: string,
@@ -193,10 +187,10 @@ const updateHeritageThemeModelValue = (
         heritageSite.value.aliased_data.heritage_theme.aliased_data,
         heritageThemeForm as Ref<FormInstance>,
     );
+    setTimeout(() => emit('update:stepIsValid', isValid()), 0);
 };
 
 defineExpose({ isValid });
-onMounted(() => {});
 </script>
 
 <template>
@@ -214,8 +208,10 @@ onMounted(() => {});
         >
             <LabelledInput
                 label="Number of Contributing Resources"
-                input-name="contributingResources"
-                :error-message="$form.contributingResources?.error?.message"
+                input-name="contributing_resource_count"
+                :error-message="
+                    $form.contributing_resource_count?.error?.message
+                "
                 :required="true"
             >
                 <div>
@@ -237,7 +233,6 @@ onMounted(() => {});
                     />
                 </div>
             </LabelledInput>
-
             <div>
                 <GenericWidget
                     :mode="EDIT"
@@ -287,7 +282,9 @@ onMounted(() => {});
             />
         </div>
     </Form>
+
     <br /><br />
+
     <Form
         ref="heritageFunctionForm"
         v-slot="$form"
@@ -298,16 +295,15 @@ onMounted(() => {});
         <FieldSet
             id="heritageFunctionFieldset"
             :key="funcKey"
-            class="mt-2"
             legend="Heritage Function"
         >
             <LabelledInput
                 label="Function Category"
-                input-name="functionCategory"
-                :error-message="$form.functionCategory?.error?.message"
+                input-name="functional_category"
+                :error-message="$form.functional_category?.error?.message"
                 :required="true"
             >
-                <div class="p-inputtext-fluid flex flex-row gap-2 items-start">
+                <div>
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
@@ -318,7 +314,6 @@ onMounted(() => {});
                         graph-slug="heritage_site"
                         node-alias="functional_category"
                         placeholder="Select a Function Category"
-                        group-direction="column"
                         @update:value="
                             updateFunctionCategoryModelValue(
                                 $event,
@@ -327,7 +322,7 @@ onMounted(() => {});
                         "
                     />
                     <br />
-                    <div class="inline-block flex-grow">
+                    <div class="flex-grow">
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
@@ -337,7 +332,6 @@ onMounted(() => {});
                             "
                             graph-slug="heritage_site"
                             node-alias="functional_state"
-                            group-direction="column"
                             @update:value="
                                 updateFunctionCategoryModelValue(
                                     $event,
@@ -365,7 +359,9 @@ onMounted(() => {});
             />
         </div>
     </Form>
+
     <br /><br />
+
     <Form
         ref="heritageThemeForm"
         v-slot="$form"
@@ -376,13 +372,12 @@ onMounted(() => {});
         <FieldSet
             id="heritageThemeFieldset"
             :key="themeKey"
-            class="mt-2"
             legend="Heritage Theme"
         >
             <LabelledInput
                 label="Heritage Theme"
-                input-name="heritageTheme"
-                :error-message="$form.heritageTheme?.error?.message"
+                input-name="heritage_theme"
+                :error-message="$form.heritage_theme?.error?.message"
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
@@ -396,7 +391,6 @@ onMounted(() => {});
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
                         placeholder="Select a Heritage Theme"
-                        group-direction="column"
                         @update:value="
                             updateHeritageThemeModelValue(
                                 $event,
@@ -408,7 +402,4 @@ onMounted(() => {});
             </LabelledInput>
         </FieldSet>
     </Form>
-    <br /><br /><br />
 </template>
-
-<style></style>

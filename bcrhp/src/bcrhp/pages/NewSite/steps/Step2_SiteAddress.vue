@@ -45,7 +45,10 @@ const propertyAddressList = computed(() => {
     );
 });
 const legalDescriptionList = computed(() => {
-    return currentPropertyAddress.value?.aliased_data?.legal_description ?? [];
+    return (
+        currentPropertyAddress.value?.aliased_data
+            ?.bc_property_legal_description ?? []
+    );
 });
 
 let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
@@ -182,8 +185,8 @@ const getAddressLabel = (addr: any) => {
 };
 
 const getLegalsForAddress = (addr: any) => {
-    return Array.isArray(addr?.aliased_data?.legal_description)
-        ? addr.aliased_data.legal_description
+    return Array.isArray(addr?.aliased_data?.bc_property_legal_description)
+        ? addr.aliased_data.bc_property_legal_description
         : [];
 };
 
@@ -202,13 +205,14 @@ function openLegalDialog(addressIndex: number) {
 function saveLegalDescription() {
     if (legalDescriptionTargetAddress.value) {
         if (
-            !legalDescriptionTargetAddress.value.aliased_data.legal_description
+            !legalDescriptionTargetAddress.value.aliased_data
+                .bc_property_legal_description
         ) {
-            legalDescriptionTargetAddress.value.aliased_data.legal_description =
+            legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description =
                 [];
         }
 
-        legalDescriptionTargetAddress.value.aliased_data.legal_description.push(
+        legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description.push(
             currentLegalDescription.value,
         );
     }
@@ -221,8 +225,11 @@ function saveLegalDescription() {
 
 function deleteLegalDescription(addressIndex: number, legalIndex: number) {
     const address = propertyAddressList.value[addressIndex];
-    if (address && address.aliased_data.legal_description) {
-        address.aliased_data.legal_description.splice(legalIndex, 1);
+    if (address && address.aliased_data.bc_property_legal_description) {
+        address.aliased_data.bc_property_legal_description.splice(
+            legalIndex,
+            1,
+        );
     }
 }
 
@@ -315,7 +322,7 @@ defineExpose({ isValid });
             >
                 <div
                     style="
-                        flex: 0 0 15 rem;
+                        flex: 0 0 10rem;
                         margin-left: 0.75rem;
                         margin-bottom: 1rem;
                     "
@@ -508,13 +515,13 @@ defineExpose({ isValid });
                     />
                 </fieldset>
                 <div
+                    v-tooltip.top="'Manually enter if not found or incorrect'"
                     style="
                         margin-left: 1rem;
                         margin-top: 0.5em;
                         display: flex;
                         align-items: center;
                     "
-                    v-tooltip.top="'Manually enter if not found or incorrect'"
                 >
                     <Checkbox
                         id="overrideLegalDescription"

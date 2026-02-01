@@ -45,12 +45,12 @@ const protectionEventResolver = getFlattenResolver(
     zodResolver(ProtectionEventTileSchema.shape['aliased_data']),
 );
 
-const protectionEventIsValid = computed(() => {
+const isProtectionEventFormValid = () => {
     return baseIsValid(
         recognitionDetailsForm as Ref<FormInstance>,
         ProtectionEventTileSchema.shape['aliased_data'],
     );
-});
+};
 
 const protectionEvents = computed(() => {
     return (
@@ -59,16 +59,32 @@ const protectionEvents = computed(() => {
     );
 });
 
-const addOtherReferenceNumberDisabled = computed(
-    () =>
-        !protectionEventIsValid.value ||
-        (heritageSite.value?.aliased_data?.bc_right?.aliased_data
-            ?.protection_event?.length || 0) > 4,
-);
-
 const isValid = () => {
-    return true;
+    const hasSavedEvents = protectionEvents.value.length > 0;
+
+    const data = currentProtectionEvent.value.aliased_data;
+
+    const hasDesignationDate =
+        !!data.designation_or_protection_start_date?.node_value;
+    const hasLegislativeAct = !!(
+        data.legislative_act?.node_value || data.legislative_act?.display_value
+    );
+
+    const refNumValue = data.reference_number?.display_value || '';
+    const hasReferenceNumber = refNumValue.length > 0;
+
+    const currentFormIsComplete =
+        hasDesignationDate && hasLegislativeAct && hasReferenceNumber;
+
+    return (
+        hasSavedEvents ||
+        (currentFormIsComplete && isProtectionEventFormValid())
+    );
 };
+
+const addProtectionEventDisabled = computed(
+    () => !isProtectionEventFormValid() || protectionEvents.value.length >= 5,
+);
 
 const updateModelValue = function (
     newValue: AliasedNodeData,
@@ -80,13 +96,13 @@ const updateModelValue = function (
         currentProtectionEvent.value?.aliased_data,
         recognitionDetailsForm as Ref<FormInstance>,
     );
-    emit('update:stepIsValid', isValid());
+
+    setTimeout(() => {
+        emit('update:stepIsValid', isValid());
+    }, 0);
 };
 
 const addProtectionEvent = function () {
-    console.log('addProtectionEvent');
-
-    // 1. Ensure Array Exists
     if (
         !heritageSite.value.aliased_data.bc_right.aliased_data.protection_event
     ) {
@@ -95,18 +111,16 @@ const addProtectionEvent = function () {
     }
 
     const data = currentProtectionEvent.value.aliased_data;
-
-    // 2. Direct Extraction (Standard Arches path: node_value.en.value)
-    // We assume the widget provides the standard object structure.
     const dateTxt = data.designation_or_protection_start_date?.node_value || '';
-    const actTxt = data.legislative_act?.node_value?.en?.value || '';
-    const refTxt = data.reference_number?.node_value?.en?.value || '';
+    const actTxt =
+        data.legislative_act?.node_value?.en?.value ||
+        data.legislative_act?.display_value ||
+        '';
+    const refTxt = data.reference_number?.node_value || '';
 
-    // 3. Construct Label
     let label = [dateTxt, actTxt].filter(Boolean).join(' - ');
     if (refTxt) label += ` (${refTxt})`;
 
-    // 4. Attach Label & Push
     const eventToSave = {
         ...currentProtectionEvent.value,
         customDisplay: label || 'Untitled Protection Event',
@@ -116,7 +130,6 @@ const addProtectionEvent = function () {
         eventToSave,
     );
 
-    // 5. Reset
     currentProtectionEvent.value = getProtectionEvent();
     formKey.value++;
     recognitionDetailsForm.value?.reset();
@@ -129,6 +142,7 @@ function deleteProtectionEvent(index: number) {
         index,
         1,
     );
+    emit('update:stepIsValid', isValid());
 }
 
 defineExpose({ isValid });
@@ -145,12 +159,15 @@ defineExpose({ isValid });
         <FieldSet
             id="recognitionDetailsFieldset"
             :key="formKey"
+            legend="Protection Event"
         >
             <LabelledInput
                 label="Designation or Recognition Start Date"
                 hint="The date the designation or recognition was brought into effect"
-                input-name="designationDate"
-                :error-message="$form.designationDate?.error?.message"
+                input-name="designation_or_protection_start_date"
+                :error-message="
+                    $form.designation_or_protection_start_date?.error?.message
+                "
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
@@ -174,14 +191,15 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
+
             <LabelledInput
                 label="Legislative Act"
                 hint="Designation or recognition type that applies to the site"
-                input-name="legislativeAct"
-                :error-message="$form.legislativeAct?.error?.message"
+                input-name="legislative_act"
+                :error-message="$form.legislative_act?.error?.message"
                 :required="true"
             >
-                <div class="p-inputtext-fluid flex">
+                <div class="p-inputtext-fluid flex gap-4">
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
@@ -196,7 +214,7 @@ defineExpose({ isValid });
                             updateModelValue($event, 'legislative_act')
                         "
                     />
-                    <div class="inline-block">
+                    <div class="inline-block pt-2">
                         <LabelledCheckboxInput
                             label="Historic Acts"
                             hint="Show inactive acts"
@@ -204,12 +222,7 @@ defineExpose({ isValid });
                         >
                             <Checkbox
                                 id="showInactiveHistoricActs"
-                                ref="showInactiveHistoricActs"
-                                :model-value="showInactiveHistoricActs"
-                                aria-describedby="show-inactive-historic-acts-help"
-                                aria-required="false"
-                                class="inline-block"
-                                fluid
+                                v-model="showInactiveHistoricActs"
                                 binary
                                 small
                             />
@@ -217,11 +230,12 @@ defineExpose({ isValid });
                     </div>
                 </div>
             </LabelledInput>
+
             <LabelledInput
                 label="Reference Number"
                 hint="The bylaw or resolution number"
-                input-name="referenceNumber"
-                :error-message="$form.referenceNumber?.error?.message"
+                input-name="reference_number"
+                :error-message="$form.reference_number?.error?.message"
                 :required="true"
             >
                 <GenericWidget
@@ -236,14 +250,16 @@ defineExpose({ isValid });
                 />
             </LabelledInput>
         </FieldSet>
-        <div class="row">
+
+        <div class="row mt-4">
             <Button
                 id="saveRecognitionDetails"
                 class="button-padding"
                 label="+ Add Protection Event"
-                :disabled="addOtherReferenceNumberDisabled"
+                :disabled="addProtectionEventDisabled"
                 @click="addProtectionEvent"
             ></Button>
+
             <ChipsList
                 label="Protection Events"
                 :items="protectionEvents"
@@ -258,5 +274,3 @@ defineExpose({ isValid });
     </Form>
     <br /><br /><br />
 </template>
-
-<style></style>

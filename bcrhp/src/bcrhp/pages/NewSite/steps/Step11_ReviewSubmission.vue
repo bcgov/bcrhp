@@ -121,6 +121,7 @@ defineExpose({ isValid });
             <dt>Common</dt>
             <dd>
                 {{ commonName?.name?.display_value || 'None provided' }}
+                {{ commonName?.name?.display_value || 'None provided' }}
             </dd>
         </div>
         <div class="div-grid-cols">
@@ -358,6 +359,10 @@ defineExpose({ isValid });
                                 .construction_actor_type.display_value
                         }}
                         {{
+                            constructionActor.aliased_data
+                                .construction_actor_type.display_value
+                        }}
+                        {{
                             constructionActor.aliased_data.construction_actor
                                 .display_value
                         }}
@@ -408,6 +413,10 @@ defineExpose({ isValid });
     grid-template-columns: 200px 1fr;
     gap: 0.75rem 1rem;
     align-items: start;
+}
+.div-grid-cols dt {
+    font-weight: bold;
+    color: #444;
 }
 .div-grid-cols dt {
     font-weight: bold;

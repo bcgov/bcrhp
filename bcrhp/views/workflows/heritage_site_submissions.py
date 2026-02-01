@@ -1,5 +1,7 @@
 import logging
 import traceback
+
+from arches.app.utils.betterJSONSerializer import JSONSerializer
 from arches.app.utils.response import JSONResponse
 from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
@@ -17,9 +19,11 @@ from arches_querysets.rest_framework.serializers import (
 from arches_querysets.rest_framework.view_mixins import ArchesModelAPIMixin
 
 logger = logging.getLogger(__name__)
+from rest_framework import serializers
 
 
 class HeritageSiteSerializer(ArchesResourceSerializer):
+
     class Meta(ArchesResourceSerializer.Meta):
         # used by ArchesModelAPIMixin
         graph_slug = "heritage_site"
@@ -40,6 +44,32 @@ class HeritageSiteSerializer(ArchesResourceSerializer):
         # slug from the Meta field
         graph_slug = graph_slug or getattr(self.Meta, "graph_slug", None)
         super().__init__(*args, context=context, graph_slug=graph_slug, **kwargs)
+        # Override validation for all DateTimeField/DateField instances
+        self._modify_datetime_validators(self)
+
+    def _modify_datetime_validators(self, serializer):
+        """
+        Recursively modify all DateTimeField and DateField validators in the serializer
+        """
+        if hasattr(serializer, "fields"):
+            for field_name, field in serializer.fields.items():
+                if isinstance(field, serializers.DateTimeField) or isinstance(
+                    field, serializers.DateField
+                ):
+                    # Replace the input formats with our custom formats
+                    field.input_formats = [
+                        "%Y",
+                        "%Y-%m-%d",
+                        "%Y-%m-%dT%H:%M:%S",
+                        "%Y-%m-%dT%H:%M:%S.%f%z",
+                    ]
+
+                # Recursively process nested serializers
+                if hasattr(field, "fields"):
+                    self._modify_datetime_validators(field)
+                # Handle ListSerializer children
+                elif hasattr(field, "child") and hasattr(field.child, "fields"):
+                    self._modify_datetime_validators(field.child)
 
     @property
     def graph_slug(self):
@@ -122,7 +152,22 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
     ]
 
     def patch_data(self, site):
-        pass
+        # This seems wrong. We should allow a GeoJSON to be supplied as an object,
+        # not already serialized?
+        for loc in site["aliased_data"]["heritage_site_location"]:
+            for sb in loc["aliased_data"]["site_boundary"]:
+                print(sb["aliased_data"]["site_boundary"])
+                print(
+                    sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
+                        "geometry"
+                    ].pop("bbox")
+                )
+                sb["aliased_data"]["site_boundary"][
+                    "node_value"
+                ] = JSONSerializer().serialize(
+                    sb["aliased_data"]["site_boundary"]["node_value"]
+                )
+        site["aliased_data"].pop("borden_number")
 
     def prune_data(self, site):
         allowed_sections = self.required_sections + self.optional_sections
@@ -132,7 +177,7 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
 
     def create(self, request, *args, **kwargs):
         raw = request.data
-        # print(f"Raw: {raw}")
+        print(f"Raw: {raw}")
         # cleaned_object = {
         #     "aliased_data": {
         #         "project_details": raw.get("aliased_data")["project_details"],
@@ -141,14 +186,27 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         # }
         cleaned_object = raw
         logger.info(f"Before clean")
-        # patched = self.patch_data(cleaned_object)
+        self.patch_data(cleaned_object)
+        patched = cleaned_object
         # logger.info(f"After clean")
         # print(f"\n\n\nCleaned: {patched}\n\n\n")
-        serializer = self.get_serializer(data=raw)
+        # for loc in raw["aliased_data"]["heritage_site_location"]:
+        #     for sb in loc["aliased_data"]["site_boundary"]:
+        #         print(sb["aliased_data"]["site_boundary"])
+        #         print(
+        #             sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
+        #                 "geometry"
+        #             ].pop("bbox")
+        #         )
+        #         sb["aliased_data"]["site_boundary"][
+        #             "node_value"
+        #         ] = JSONSerializer().serialize(
+        #             sb["aliased_data"]["site_boundary"]["node_value"]
+        #         )
+        serializer = self.get_serializer(data=patched)
         logger.info(f"After get_serializer")
 
         logger.info(f"Checking valid")
-        raw["aliased_data"]["heritage_theme"] = raw["aliased_data"]["heritage_theme"][0]
         # serializer.debug_validation()
         # inspect_nested_data(raw)
 

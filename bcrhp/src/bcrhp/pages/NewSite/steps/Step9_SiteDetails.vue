@@ -125,8 +125,8 @@ const constructionActors = computed(() =>
         : [],
 );
 const externalUrls = computed(() =>
-    Array.isArray(heritageSite.value?.aliased_data?.external_urls)
-        ? heritageSite.value.aliased_data.external_urls
+    Array.isArray(heritageSite.value?.aliased_data?.external_url)
+        ? heritageSite.value.aliased_data.external_url
         : [],
 );
 
@@ -216,8 +216,8 @@ const saveArchitectOrBuilder = function () {
 };
 
 const saveExternalUrl = function () {
-    if (!Array.isArray(heritageSite.value.aliased_data.external_urls)) {
-        heritageSite.value.aliased_data.external_urls = [];
+    if (!Array.isArray(heritageSite.value.aliased_data.external_url)) {
+        heritageSite.value.aliased_data.external_url = [];
     }
 
     const data = currentExternalUrl.value.aliased_data;
@@ -229,7 +229,7 @@ const saveExternalUrl = function () {
     if (label && url) label += `: ${url}`;
     else if (url) label = url;
 
-    heritageSite.value.aliased_data.external_urls.push({
+    heritageSite.value.aliased_data.external_url.push({
         ...currentExternalUrl.value,
         customDisplay: label || 'Untitled URL',
     });
@@ -247,7 +247,7 @@ const deleteArchitectBuilderCallback = (index: number) => {
     heritageSite.value.aliased_data.construction_actors.splice(index, 1);
 };
 const deleteURLCallback = (index: number) => {
-    heritageSite.value.aliased_data.external_urls.splice(index, 1);
+    heritageSite.value.aliased_data.external_url.splice(index, 1);
 };
 
 const updateChronologyModelValue = (
@@ -293,8 +293,8 @@ defineExpose({ isValid });
 </script>
 
 <template>
-    <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
-    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div>
+    <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
+    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div> -->
     <Form
         ref="chronologyForm"
         v-slot="$form"
@@ -627,6 +627,7 @@ defineExpose({ isValid });
             />
         </div>
     </Form>
+    <br /><br /><br />
 </template>
 
 <style scoped>
