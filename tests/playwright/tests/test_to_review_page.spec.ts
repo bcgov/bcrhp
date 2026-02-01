@@ -1,17 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 test.use({
-    viewport: null,
+    // viewport: null,
 
-    launchOptions: {
-        args: ['--start-maximized'],
-    },
+    // launchOptions: {
+    //     args: ['--start-maximized'],
+    // },
 
     ignoreHTTPSErrors: true,
     headless: false,
 });
 
 test('test', async ({ page }) => {
+    test.setTimeout(120000);
     const idir_username = process.env.IDIR_USERNAME;
     const idir_password = process.env.IDIR_PASSWORD;
 
@@ -27,6 +28,8 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill(idir_password);
     await page.getByRole('button', { name: 'Continue' }).click();
+    // Need to git the auth time to complete.
+    await page.waitForTimeout(2000);
 
     // --- 1 START SUBMISSION ---
     await page.goto('http://localhost/bcrhp/submissions/');
@@ -44,8 +47,11 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Postal Code' }).fill('T5T5T5');
     await page.getByRole('textbox', { name: 'Locality' }).click();
     await page.getByRole('textbox', { name: 'Locality' }).fill('locality');
-    await page.locator('.ql-editor').first().click();
-    await page.locator('.ql-editor').first().fill('location description');
+    await page.locator('#location_description .ql-editor').first().click();
+    await page
+        .locator('#location_description .ql-editor')
+        .first()
+        .fill('location description');
     await page.getByRole('button', { name: '+ Add Address' }).click();
     await page.getByRole('button', { name: '+ Add Legal Description' }).click();
     await page.getByRole('spinbutton', { name: 'Enter number' }).click();
@@ -57,10 +63,7 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 3 SPATIAL LOCATION ---
-    await page.setInputFiles(
-        'input[type="file"]',
-        'tests/playwright/tests/polygon.shp',
-    );
+    await page.setInputFiles('input[type="file"]', 'tests/polygon.shp');
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
@@ -77,8 +80,10 @@ test('test', async ({ page }) => {
     await page.getByText('27', { exact: true }).click();
     await page.locator('#legislative_act').click();
     await page.getByText('Municipal, Community Charter').click();
-    await page.getByRole('textbox', { name: 'E.g. Bylaw' }).click();
-    await page.getByRole('textbox', { name: 'E.g. Bylaw' }).fill('bylaw 123');
+    await page.locator('#reference_number').click();
+    await page.locator('#reference_number').fill('bylaw 123');
+    // await page.getByRole('textbox', { name: 'E.g. Bylaw' }).click();
+    // await page.getByRole('textbox', { name: 'E.g. Bylaw' }).fill('bylaw 123');
     await page.getByRole('button', { name: '+ Add Protection Event' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
@@ -109,16 +114,18 @@ test('test', async ({ page }) => {
             '#defining_elements > .p-editor > .p-editor-content > .ql-editor',
         )
         .fill('character defining elements');
-    await page.getByRole('textbox', { name: 'Enter text' }).click();
-    await page
-        .getByRole('textbox', { name: 'Enter text' })
-        .fill('document location');
+    await page.locator('#document_location').click();
+    await page.locator('#document_location').fill('Somewhere around here...');
+    // await page.getByRole('textbox', { name: 'Enter text' }).click();
+    // await page
+    //     .getByRole('textbox', { name: 'Enter text' })
+    //     .fill('document location');
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 7 IMAGES ---
     await page.setInputFiles(
-        'input[type="file"]',
-        'tests/playwright/tests/house.jpg',
+        'div[data-node-alias="site_images"] input[type="file"]',
+        '/Users/brett/Downloads/east_side.JPG',
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -154,9 +161,10 @@ test('test', async ({ page }) => {
     await page.waitForTimeout(2000);
 
     // --- image upload 2 ---
+    // await page.setInputFiles('input[type="file"]', 'tests/house.jpg');
     await page.setInputFiles(
-        'input[type="file"]',
-        'tests/playwright/tests/house.jpg',
+        'div[data-node-alias="site_images"] input[type="file"]',
+        'tests/house.jpg',
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -193,7 +201,9 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 8 SITE CLASSIFICATION ---
-    await page.getByRole('spinbutton', { name: 'Enter number' }).click();
+    page.locator('#contributing_resource_count').click();
+    page.locator('#contributing_resource_count').fill('2');
+    // await page.getByRole('spinbutton', { name: 'Enter number' }).click();
     await page
         .getByRole('radio', { name: 'Archaeological Site / Remains' })
         .check();
@@ -204,14 +214,24 @@ test('test', async ({ page }) => {
         .getByText('Select an option')
         .click();
     await page
-        .getByLabel('Commerce / Commercial Services')
-        .getByRole('button')
-        .filter({ hasText: /^$/ })
+        .locator('div')
+        .filter({ hasText: /^Commerce \/ Commercial Services$/ })
         .click();
-    await page.getByText('Bank or Stock Exchange').click();
     await page.locator('#functional_state').getByRole('button').click();
     await page.getByText('Current').click();
     await page.getByRole('button', { name: '+ Add Function' }).click();
+    // await page
+    //     .locator('#functional_category')
+    //     .getByText('Select an option')
+    //     .click();
+    // await page
+    //     .locator('div')
+    //     .filter({ hasText: /Bank or Stock Exchange/ })
+    //     .click();
+    // // await page.getByText('Bank or Stock Exchange').click();
+    // await page.locator('#functional_state').getByRole('button').click();
+    // await page.getByText('Current').click();
+    // await page.getByRole('button', { name: '+ Add Function' }).click();
     await page
         .getByLabel('Heritage Theme')
         .getByText('Select an option')
@@ -253,7 +273,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: '+ Add Chronology' }).click();
     await page.locator('#construction_actor').click();
     await page.locator('#construction_actor').fill('bob');
-    await page.getByText('Select the type').click();
+    await page
+        .locator('#construction_actor_type div.p-treeselect-label')
+        .click();
+    // await page.getByText('Select the type').click();
     await page
         .locator('div')
         .filter({ hasText: /^Builder$/ })
@@ -281,8 +304,8 @@ test('test', async ({ page }) => {
 
     // --- 10 SUPPORTING DOCUMENTS ---
     await page.setInputFiles(
-        'input[type="file"]',
-        'tests/playwright/tests/test_doc.pdf',
+        'div[data-node-alias="site_images"] input[type="file"]',
+        'tests/test_doc.pdf',
     );
     await page.waitForTimeout(2000);
     await page

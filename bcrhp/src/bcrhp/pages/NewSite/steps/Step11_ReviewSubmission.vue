@@ -16,21 +16,11 @@ const propertyAddresses = computed(() => {
     );
 });
 
-// Helper to safely get the addresses
-const propertyAddresses = computed(() => {
-    return (
-        heritageSite.value?.aliased_data?.heritage_site_location?.[0]
-            ?.aliased_data?.bc_property_address ?? []
-    );
-});
-
 const commonName = computed(() => {
-    const commonNames = heritageSite.value?.aliased_data?.site_names.filter(
     const commonNames = heritageSite.value?.aliased_data?.site_names.filter(
         (name: SiteNamesTileType) =>
             name?.aliased_data.name_type.display_value === 'Common',
     );
-    return commonNames?.length > 0 ? commonNames[0].aliased_data : null;
     return commonNames?.length > 0 ? commonNames[0].aliased_data : null;
 });
 
@@ -40,14 +30,8 @@ const otherNames = computed(() => {
             (name: SiteNamesTileType) =>
                 name?.aliased_data.name_type.display_value === 'Other',
         ) ?? []
-    return (
-        heritageSite.value?.aliased_data?.site_names.filter(
-            (name: SiteNamesTileType) =>
-                name?.aliased_data.name_type.display_value === 'Other',
-        ) ?? []
     );
 });
-
 
 const isValid = function () {
     return true;
@@ -56,28 +40,12 @@ const isValid = function () {
 defineExpose({ isValid });
 </script>
 
-
 <template>
     <div class="step-title">Submission Details</div>
-    <p>
     <p>
         Please review the entered information prior to submitting the
         application:
     </p>
-
-    <Fieldset legend="Address Information">
-        <div v-if="propertyAddresses.length === 0">No address provided.</div>
-
-        <div
-            v-for="(property_address, index) in propertyAddresses"
-            :key="property_address"
-            :class="{ 'border-t pt-4 mt-4': index > 0 }"
-        >
-            <div class="div-grid-cols">
-                <dt>Street Address</dt>
-                <dd>
-                    {{
-                        property_address.aliased_data.street_address
 
     <Fieldset legend="Address Information">
         <div v-if="propertyAddresses.length === 0">No address provided.</div>
@@ -141,58 +109,8 @@ defineExpose({ isValid });
                         No legal descriptions recorded.
                     </div>
                 </dd>
-                    }},
-                    {{ property_address.aliased_data.locality.display_value }},
-                    {{ property_address.aliased_data.city.display_value }},
-                    {{
-                        property_address.aliased_data.postal_code.display_value
-                    }}
-                </dd>
-
-                <dt>Detailed Location</dt>
-                <dd>
-                    {{
-                        property_address.aliased_data.location_description
-                            .display_value || '-'
-                    }}
-                </dd>
-
-                <dt>Legal Description(s)</dt>
-                <dd>
-                    <div
-                        v-for="legalDescription in property_address.aliased_data
-                            .bc_property_legal_description || []"
-                        :key="legalDescription"
-                    >
-                        <div>
-                            <span>PID:</span>
-                            {{
-                                legalDescription.aliased_data.pid
-                                    ?.display_value || 'N/A'
-                            }}
-                        </div>
-                        <div>
-                            <span>Description:</span>
-                            {{
-                                legalDescription.aliased_data.legal_description
-                                    ?.display_value || 'N/A'
-                            }}
-                        </div>
-                    </div>
-
-                    <div
-                        v-if="
-                            !property_address.aliased_data
-                                .bc_property_legal_description?.length
-                        "
-                    >
-                        No legal descriptions recorded.
-                    </div>
-                </dd>
             </div>
         </div>
-    </Fieldset>
-
     </Fieldset>
 
     <Fieldset
@@ -220,7 +138,6 @@ defineExpose({ isValid });
         </div>
     </Fieldset>
 
-
     <Fieldset
         legend="Official Recognition Details"
         class="review-fieldset"
@@ -229,7 +146,6 @@ defineExpose({ isValid });
             v-for="recognitionDetail in heritageSite?.aliased_data.bc_right
                 .aliased_data.protection_event ?? []"
             :key="recognitionDetail"
-            class="div-grid-cols mb-4"
             class="div-grid-cols mb-4"
         >
             <dt>Start Date</dt>
@@ -256,7 +172,6 @@ defineExpose({ isValid });
         </div>
     </Fieldset>
 
-
     <Fieldset
         legend="Statement of Significance"
         class="review-fieldset"
@@ -268,7 +183,6 @@ defineExpose({ isValid });
                     heritageSite?.aliased_data
                         ?.bc_statement_of_significance?.[0]?.aliased_data
                         ?.physical_description.display_value || '-'
-                        ?.physical_description.display_value || '-'
                 "
             ></dd>
         </div>
@@ -278,7 +192,6 @@ defineExpose({ isValid });
                 v-html="
                     heritageSite?.aliased_data
                         ?.bc_statement_of_significance?.[0]?.aliased_data
-                        ?.heritage_value.display_value || '-'
                         ?.heritage_value.display_value || '-'
                 "
             ></dd>
@@ -290,7 +203,6 @@ defineExpose({ isValid });
                     heritageSite?.aliased_data
                         ?.bc_statement_of_significance?.[0]?.aliased_data
                         ?.defining_elements.display_value || '-'
-                        ?.defining_elements.display_value || '-'
                 "
             ></dd>
         </div>
@@ -301,12 +213,10 @@ defineExpose({ isValid });
                     heritageSite?.aliased_data
                         ?.bc_statement_of_significance?.[0]?.aliased_data
                         ?.document_location.display_value || '-'
-                        ?.document_location.display_value || '-'
                 }}
             </dd>
         </div>
     </Fieldset>
-
 
     <Fieldset
         legend="Images"
@@ -315,7 +225,6 @@ defineExpose({ isValid });
         <div
             v-for="image in heritageSite?.aliased_data.site_images ?? []"
             :key="image"
-            class="div-grid-cols image-section"
             class="div-grid-cols image-section"
         >
             <dt>Image</dt>
@@ -352,7 +261,6 @@ defineExpose({ isValid });
         </div>
     </Fieldset>
 
-
     <Fieldset
         legend="Site Classification"
         class="review-fieldset"
@@ -370,20 +278,16 @@ defineExpose({ isValid });
                             heritageClass.aliased_data.heritage_category
                                 .display_value
                         }}
-                        }}
                         {{ heritageClass.aliased_data.ownership.display_value }}
-                        {{
                         {{
                             heritageClass.aliased_data
                                 .contributing_resource_count.display_value
-                        }}
                         }}
                     </li>
                 </ol>
             </dd>
             <dt>Heritage Function</dt>
             <dd>
-                <ol>
                 <ol>
                     <li
                         v-for="heritageFunction in heritageSite?.aliased_data
@@ -411,7 +315,6 @@ defineExpose({ isValid });
         </div>
     </Fieldset>
 
-
     <Fieldset
         legend="Site Details"
         class="review-fieldset"
@@ -419,7 +322,6 @@ defineExpose({ isValid });
         <div class="div-grid-cols">
             <dt>Chronology</dt>
             <dd>
-                <ol class="list-decimal">
                 <ol class="list-decimal">
                     <li
                         v-for="chronology in heritageSite?.aliased_data
@@ -447,7 +349,6 @@ defineExpose({ isValid });
             <dt>Architects / Builders</dt>
             <dd>
                 <ol class="list-decimal">
-                <ol class="list-decimal">
                     <li
                         v-for="constructionActor in heritageSite?.aliased_data
                             .construction_actors"
@@ -458,7 +359,6 @@ defineExpose({ isValid });
                                 .construction_actor_type.display_value
                         }}
                         {{
-                            constructionActor.aliased_data.construction_actor
                             constructionActor.aliased_data
                                 .construction_actor_type.display_value
                         }}
@@ -468,8 +368,6 @@ defineExpose({ isValid });
                         }}
                         <div>
                             {{
-                                constructionActor.aliased_data
-                                    .construction_actor_notes.display_value
                                 constructionActor.aliased_data
                                     .construction_actor_notes.display_value
                             }}
@@ -493,7 +391,6 @@ defineExpose({ isValid });
         </div>
     </Fieldset>
 </template>
-
 
 <style scoped>
 .step-title {
@@ -535,7 +432,6 @@ defineExpose({ isValid });
 fieldset.review-fieldset > legend {
     margin-bottom: 0.5rem;
     font-size: 1rem;
-    font-weight: 700;
     font-weight: 700;
 }
 fieldset.review-fieldset div[data-node-alias='site_images'] {
