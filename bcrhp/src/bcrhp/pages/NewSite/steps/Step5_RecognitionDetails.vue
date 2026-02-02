@@ -60,31 +60,26 @@ const protectionEvents = computed(() => {
 });
 
 const isValid = () => {
-    const hasSavedEvents = protectionEvents.value.length > 0;
+    return protectionEvents.value.length > 0;
+};
 
+const addProtectionEventDisabled = computed(() => {
     const data = currentProtectionEvent.value.aliased_data;
 
-    const hasDesignationDate =
-        !!data.designation_or_protection_start_date?.node_value;
     const hasLegislativeAct = !!(
         data.legislative_act?.node_value || data.legislative_act?.display_value
     );
 
     const refNumValue = data.reference_number?.display_value || '';
-    const hasReferenceNumber = refNumValue.length > 0;
-
-    const currentFormIsComplete =
-        hasDesignationDate && hasLegislativeAct && hasReferenceNumber;
+    const hasReferenceNumber = refNumValue.trim().length > 0;
 
     return (
-        hasSavedEvents ||
-        (currentFormIsComplete && isProtectionEventFormValid())
+        !hasLegislativeAct ||
+        !hasReferenceNumber ||
+        !isProtectionEventFormValid() ||
+        protectionEvents.value.length >= 5
     );
-};
-
-const addProtectionEventDisabled = computed(
-    () => !isProtectionEventFormValid() || protectionEvents.value.length >= 5,
-);
+});
 
 const updateModelValue = function (
     newValue: AliasedNodeData,
