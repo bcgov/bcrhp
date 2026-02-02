@@ -315,7 +315,7 @@ test('test', async ({ page }) => {
 
     // --- 10 SUPPORTING DOCUMENTS ---
     await page.setInputFiles(
-        'div[data-node-alias="site_images"] input[type="file"]',
+        'div[data-node-alias="site_document"] input[type="file"]',
         path.join(__dirname, 'test_doc.pdf'),
     );
     await page.waitForTimeout(2000);
