@@ -33,10 +33,14 @@ import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
-//refs and state
+// State
 let hasPropertyAddress = ref(true);
 let currentPropertyAddress: Ref<BcPropertyAddressTileType> =
     ref(getPropertyAddress());
+let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
+    getLegalDescription(),
+);
+const isOverrideActive = ref(false);
 
 const propertyAddressList = computed(() => {
     return (
@@ -44,31 +48,13 @@ const propertyAddressList = computed(() => {
             ?.aliased_data?.bc_property_address ?? []
     );
 });
-const legalDescriptionList = computed(() => {
-    return (
-        currentPropertyAddress.value?.aliased_data
-            ?.bc_property_legal_description ?? []
-    );
-});
 
-let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
-    getLegalDescription(),
-);
-const isOverrideActive = ref(false);
-
-//keys to force UI resets
 const addressFormKey = ref(0);
-const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
 const addLegalDescriptionVisible = ref(false);
 const pidField = ref<any>();
 const legalDescriptionTargetAddress: Ref<BcPropertyAddressTileType | null> =
     ref(null);
-
-const nextAddressKey = computed(() => propertyAddressList?.value?.length ?? 0);
-const nextLegalDescriptionKey = computed(
-    () => `${addressFormKey.value}_${legalDescriptionList.value.length}`,
-);
 
 const propertyAddressForm: Ref<FormInstance | null> = useTemplateRef(
     'propertyAddressForm',
@@ -80,10 +66,34 @@ const legalDescriptionForm: Ref<FormInstance | null> = useTemplateRef(
 const propertyAddressResolver = getFlattenResolver(
     zodResolver(BcPropertyAddressTileSchema.shape['aliased_data']),
 );
-
 const legalAddressResolver = getFlattenResolver(
     zodResolver(BcPropertyLegalDescriptionTileSchema.shape['aliased_data']),
 );
+
+/**
+ * UPDATED VALIDATION LOGIC
+ */
+
+// Strictly check the Street Address display value for the Add Button
+const currentAddressHasStreet = computed(() => {
+    const streetVal =
+        currentPropertyAddress.value?.aliased_data?.street_address
+            ?.display_value || '';
+    return streetVal.trim().length > 0;
+});
+
+// Check if at least one address has a legal description
+const hasAtLeastOneLegal = computed(() => {
+    return propertyAddressList.value.some(
+        (addr) =>
+            (addr.aliased_data.bc_property_legal_description?.length ?? 0) > 0,
+    );
+});
+
+const isValid = () => {
+    if (!hasPropertyAddress.value) return true;
+    return propertyAddressList.value.length > 0 && hasAtLeastOneLegal.value;
+};
 
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
     baseUpdateModelValue(
@@ -92,6 +102,7 @@ const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
         currentPropertyAddress.value.aliased_data,
         propertyAddressForm as Ref<FormInstance>,
     );
+    // Immediate emit to catch the "Add Address" button state
     emit('update:stepIsValid', isValid());
 };
 
@@ -102,7 +113,6 @@ const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
         currentLegalDescription.value.aliased_data,
         legalDescriptionForm as Ref<FormInstance>,
     );
-    emit('update:stepIsValid', isValid());
 };
 
 const saveAddress = function () {
@@ -114,30 +124,22 @@ const saveAddress = function () {
             getHeritageSiteLocation(),
         ];
     }
-    if (
-        heritageSite.value &&
-        !heritageSite.value.aliased_data.heritage_site_location[0].aliased_data
-            .bc_property_address
-    ) {
-        heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.bc_property_address =
-            [];
-    }
+    const location =
+        heritageSite.value.aliased_data.heritage_site_location[0].aliased_data;
+    if (!location.bc_property_address) location.bc_property_address = [];
 
     if (addingNewAddress.value) {
-        heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.bc_property_address.push(
-            currentPropertyAddress.value,
-        );
+        location.bc_property_address.push(currentPropertyAddress.value);
     }
 
     currentPropertyAddress.value = getPropertyAddress();
     addingNewAddress.value = true;
-    addressFormKey.value = nextAddressKey.value;
-
+    addressFormKey.value++;
     propertyAddressForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const setCurrentPropertyAddress = function (index: number) {
-    console.log(`Editing address at index ${index}`);
     currentPropertyAddress.value = propertyAddressList.value[index];
     addressFormKey.value = index;
     addingNewAddress.value = false;
@@ -148,38 +150,31 @@ function deleteAddress(index: number) {
         index,
         1,
     );
+    emit('update:stepIsValid', isValid());
 }
 
 const hasAddressChanged = function () {
     hasPropertyAddress.value = !hasPropertyAddress.value;
+    emit('update:stepIsValid', isValid());
 };
 
-const disableAddressSection = computed(() => !hasPropertyAddress.value);
-
-//helper for chip list
 const getAddressLabel = (addr: any) => {
     const data = addr?.aliased_data || {};
-
     const getString = (node: any) => {
         if (!node) return '';
-        let val = '';
-        if (node.display_value) val = node.display_value;
-        else if (typeof node.node_value === 'string') val = node.node_value;
-        else if (node.node_value?.en?.value) val = node.node_value.en.value;
-        else if (typeof node === 'string') val = node;
-
-        // Strip HTML tags
+        let val =
+            node.display_value ||
+            node.node_value?.en?.value ||
+            (typeof node.node_value === 'string' ? node.node_value : '');
         return val.replace(/<[^>]*>?/gm, '');
     };
-
     const street = getString(data.street_address);
     const city = getString(data.city);
     const locality = getString(data.locality);
     const postal = getString(data.postal_code);
-
     return (
         [street, city, locality, postal]
-            .filter((s) => s && s.trim().length > 0)
+            .filter((s) => s?.trim().length > 0)
             .join(' - ') || 'Untitled Address'
     );
 };
@@ -191,14 +186,10 @@ const getLegalsForAddress = (addr: any) => {
 };
 
 function openLegalDialog(addressIndex: number) {
-    // Set separate target for dialog interaction
     legalDescriptionTargetAddress.value =
         propertyAddressList.value[addressIndex];
-
     currentLegalDescription.value = getLegalDescription();
     isOverrideActive.value = false;
-    legalFormKey.value = nextLegalDescriptionKey.value;
-    legalDescriptionForm.value?.reset();
     addLegalDescriptionVisible.value = true;
 }
 
@@ -211,16 +202,12 @@ function saveLegalDescription() {
             legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description =
                 [];
         }
-
         legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description.push(
             currentLegalDescription.value,
         );
     }
-
-    currentLegalDescription.value = getLegalDescription();
-    isOverrideActive.value = false;
     addLegalDescriptionVisible.value = false;
-    legalDescriptionTargetAddress.value = null;
+    emit('update:stepIsValid', isValid());
 }
 
 function deleteLegalDescription(addressIndex: number, legalIndex: number) {
@@ -231,11 +218,8 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
             1,
         );
     }
+    emit('update:stepIsValid', isValid());
 }
-
-const isValid = () => {
-    return true;
-};
 
 defineExpose({ isValid });
 </script>
@@ -256,11 +240,7 @@ defineExpose({ isValid });
         >
             <Checkbox
                 id="hasCivicAddress"
-                ref="hasCivicAddress"
                 :model-value="!hasPropertyAddress"
-                aria-describedby="has-civic-address-help"
-                aria-required="true"
-                fluid
                 binary
                 small
                 @change="hasAddressChanged"
@@ -271,7 +251,7 @@ defineExpose({ isValid });
             id="propertyAddressFieldset"
             :key="addressFormKey"
             legend="Civic Address"
-            :disabled="disableAddressSection"
+            :disabled="!hasPropertyAddress"
         >
             <div
                 class="row"
@@ -367,6 +347,7 @@ defineExpose({ isValid });
             <Button
                 style="align-self: flex-start"
                 class="w-fit mb-6"
+                :disabled="!currentAddressHasStreet"
                 @click="saveAddress"
             >
                 + Add Address
@@ -390,9 +371,9 @@ defineExpose({ isValid });
                         <div class="flex justify-between items-start">
                             <Chip>
                                 <div class="flex items-center gap-3">
-                                    <span class="font-medium text-gray-800">
-                                        {{ getAddressLabel(address) }}
-                                    </span>
+                                    <span class="font-medium text-gray-800">{{
+                                        getAddressLabel(address)
+                                    }}</span>
                                     &nbsp; &nbsp;
                                     <Button
                                         icon="pi pi-pencil"
@@ -400,7 +381,6 @@ defineExpose({ isValid });
                                         rounded
                                         size="small"
                                         style="width: 1.5rem; height: 1.5rem"
-                                        aria-label="Edit"
                                         @click.stop="
                                             setCurrentPropertyAddress(index)
                                         "
@@ -412,7 +392,6 @@ defineExpose({ isValid });
                                         size="small"
                                         severity="danger"
                                         style="width: 1.5rem; height: 1.5rem"
-                                        aria-label="Remove"
                                         @click.stop="deleteAddress(index)"
                                     />
                                 </div>
@@ -440,57 +419,44 @@ defineExpose({ isValid });
             </div>
         </div>
     </Form>
-    <br /><br /><br /><br />
 
     <Dialog
         v-model:visible="addLegalDescriptionVisible"
         modal
-        header="&nbsp;"
+        header="Add Legal Description"
         :style="{ width: '32rem' }"
-        :breakpoints="{ '960px': '90vw' }"
         :closable="true"
-        :dismissableMask="false"
-        @show="pidField"
     >
         <Form
             ref="legalDescriptionForm"
             v-slot="$form"
             name="legalDescriptionForm"
-            :validateOnBlur="true"
-            :validateOnValueUpdate="true"
             :resolver="legalAddressResolver"
         >
-            <div>
-                <LabelledInput
-                    label="Parcel Identifier (PID)"
-                    hint="Click Validate to generate the legal description"
-                    input-name="parcelId"
-                    :error-message="$form.parcelId?.error?.message"
-                    :required="true"
-                >
-                    <div>
-                        <div class="row">
-                            <GenericWidget
-                                :ref="pidField"
-                                style="flex-grow: 1; margin-left: 1rem"
-                                :mode="EDIT"
-                                :should-show-label="false"
-                                :aliased-node-data="
-                                    currentLegalDescription?.aliased_data?.pid
-                                "
-                                graph-slug="heritage_site"
-                                node-alias="pid"
-                                @update:value="updateLegal($event, 'pid')"
-                            />
-                            <Button
-                                id="validateParcel"
-                                label="Validate"
-                                class="button-padding"
-                            ></Button>
-                        </div>
-                    </div>
-                </LabelledInput>
-            </div>
+            <LabelledInput
+                label="Parcel Identifier (PID)"
+                input-name="parcelId"
+                :error-message="$form.parcelId?.error?.message"
+                :required="true"
+            >
+                <div class="row">
+                    <GenericWidget
+                        style="flex-grow: 1; margin-left: 1rem"
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliased-node-data="
+                            currentLegalDescription?.aliased_data?.pid
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="pid"
+                        @update:value="updateLegal($event, 'pid')"
+                    />
+                    <Button
+                        label="Validate"
+                        class="button-padding"
+                    />
+                </div>
+            </LabelledInput>
 
             <LabelledInput
                 label="Legal Description"
@@ -515,7 +481,6 @@ defineExpose({ isValid });
                     />
                 </fieldset>
                 <div
-                    v-tooltip.top="'Manually enter if not found or incorrect'"
                     style="
                         margin-left: 1rem;
                         margin-top: 0.5em;
@@ -524,12 +489,11 @@ defineExpose({ isValid });
                     "
                 >
                     <Checkbox
-                        id="overrideLegalDescription"
                         v-model="isOverrideActive"
                         binary
-                        :pt="{ root: { class: 'w-4 h-4' } }"
+                        small
                     />
-                    <span style="font-size: 18px; align-self: center"
+                    <span style="font-size: 18px; margin-left: 0.5rem"
                         >Override</span
                     >
                 </div>
@@ -549,6 +513,7 @@ defineExpose({ isValid });
             </div>
         </Form>
     </Dialog>
+    <br /><br /><br />
 </template>
 
 <style>
