@@ -70,24 +70,38 @@ export async function submitHeritageSite(
     const csrftoken = await getToken();
     const fd = new FormData();
 
-    fd.append('json', JSON.stringify(site));
     // Push image files onto form data
-    site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
-        const file: FileReference = image_tile.aliased_data.site_images
-            .node_value[0] as FileReference;
-        fd.append(`file-list_${file.node_id}`, file.file as File, file.name);
-    });
+    console.log(`Number of images: ${site.aliased_data.site_images.length}`);
+    console.log(`Number of documents: ${site.aliased_data.site_document}`);
+    site.aliased_data.site_images.forEach(
+        (image_tile: SiteImagesTileType, index: number) => {
+            const file: FileReference = image_tile.aliased_data.site_images
+                .node_value[0] as FileReference;
+            if (file) {
+                file.file_id = `file-list_${file.node_id}`;
+                fd.append(
+                    `file-list_${file.node_id}`,
+                    file.file as File,
+                    file.name,
+                );
+            } else {
+                console.log('no file found for image tile', image_tile);
+            }
+        },
+    );
     // Push documents onto form data
     site.aliased_data.site_document.forEach(
-        (document_tile: SiteDocumentTileType) => {
+        (document_tile: SiteDocumentTileType, index: number) => {
             const file = document_tile.aliased_data.site_document.node_value[0];
+            file.file_id = `file-list_${file.node_id}-${index}`;
             fd.append(
-                `file-list_${file.node_id}`,
+                `file-list_${file.node_id}-${index}`,
                 file.file as File,
                 file.name,
             );
         },
     );
+    fd.append('json', JSON.stringify(site));
 
     const headers: Record<string, string> = {
         'X-CSRFToken': csrftoken,

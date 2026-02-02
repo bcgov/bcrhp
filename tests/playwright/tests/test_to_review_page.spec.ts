@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
+// import { fileURLToPath } from 'url';
 
 test.use({
     // viewport: null,
@@ -16,6 +18,9 @@ test('test', async ({ page }) => {
     const idir_username = process.env.IDIR_USERNAME;
     const idir_password = process.env.IDIR_PASSWORD;
 
+    // Get the directory of the current file
+    const __dirname = path.dirname(__filename);
+
     if (!idir_username || !idir_password)
         throw new Error('Missing TEST_USER/TEST_PASSWORD env vars');
 
@@ -28,8 +33,9 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill(idir_password);
     await page.getByRole('button', { name: 'Continue' }).click();
-    // Need to git the auth time to complete.
-    await page.waitForTimeout(2000);
+    await expect(
+        page.getByRole('link', { name: 'Local Government Workflows' }),
+    ).toBeVisible({ timeout: 10000 });
 
     // --- 1 START SUBMISSION ---
     await page.goto('http://localhost/bcrhp/submissions/');
@@ -63,7 +69,10 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 3 SPATIAL LOCATION ---
-    await page.setInputFiles('input[type="file"]', 'tests/polygon.shp');
+    await page.setInputFiles(
+        'input[type="file"]',
+        path.join(__dirname, 'polygon.shp'),
+    );
     await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
@@ -125,7 +134,7 @@ test('test', async ({ page }) => {
     // --- 7 IMAGES ---
     await page.setInputFiles(
         'div[data-node-alias="site_images"] input[type="file"]',
-        '/Users/brett/Downloads/east_side.JPG',
+        path.join(__dirname, 'house.jpg'),
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -164,7 +173,7 @@ test('test', async ({ page }) => {
     // await page.setInputFiles('input[type="file"]', 'tests/house.jpg');
     await page.setInputFiles(
         'div[data-node-alias="site_images"] input[type="file"]',
-        'tests/house.jpg',
+        path.join(__dirname, 'house.jpg'),
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -298,14 +307,16 @@ test('test', async ({ page }) => {
         .getByRole('textbox', { name: 'Enter URL Label...' })
         .fill('url label');
     await page.getByRole('textbox', { name: '*URL' }).click();
-    await page.getByRole('textbox', { name: '*URL' }).fill('www.google.com');
+    await page
+        .getByRole('textbox', { name: '*URL' })
+        .fill('https://www.google.com');
     await page.getByRole('button', { name: '+ Add URL' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 10 SUPPORTING DOCUMENTS ---
     await page.setInputFiles(
         'div[data-node-alias="site_images"] input[type="file"]',
-        'tests/test_doc.pdf',
+        path.join(__dirname, 'test_doc.pdf'),
     );
     await page.waitForTimeout(2000);
     await page

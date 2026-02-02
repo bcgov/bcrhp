@@ -1,8 +1,11 @@
 import logging
 import traceback
+from urllib.parse import urlparse, parse_qs
 
 from arches.app.utils.betterJSONSerializer import JSONSerializer
 from arches.app.utils.response import JSONResponse
+from arches.app.models.concept import Concept
+from arches.app.models.models import Node
 from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
 
@@ -151,6 +154,40 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         "construction_actors",
     ]
 
+    def get_default_registration_status_uuid(self):
+        return self.get_concept_uuid(
+            "heritage_site", "registration_status", "Registered"
+        )
+
+    def get_default_registry_type_uuid(self):
+        return self.get_concept_uuid(
+            "heritage_site", "registry_types", "Local/Regional Heritage Site"
+        )
+
+    def get_concept_uuid(self, graph_slug, node_alias, pref_label):
+        config = self.get_card_x_node_x_widget(graph_slug, node_alias)
+        print(JSONSerializer().serialize(config))
+
+        if "url" in config.config:
+            url = config.config["url"]
+            concept_id = parse_qs(urlparse(url).query).get("conceptid", [None])[0]
+        else:
+            node = Node.objects.filter(alias=node_alias).first()
+            print(f"Got node config: {node.config}")
+            concept_id = node.config["rdmCollection"]
+            print(f"Got concept id: {concept_id}")
+
+        parent_concept = Concept().get(concept_id)
+        child_concepts = parent_concept.get_child_collections(
+            concept_id,
+        )
+
+        filtered = [t for t in child_concepts if t[1] == pref_label]
+        print(f"Filtered: {JSONSerializer().serialize(filtered)}")
+
+        # print(f"Returning {filtered[0][2]}")
+        return filtered[0][2] if filtered else None
+
     def patch_data(self, site):
         # This seems wrong. We should allow a GeoJSON to be supplied as an object,
         # not already serialized?
@@ -168,6 +205,12 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
                     sb["aliased_data"]["site_boundary"]["node_value"]
                 )
         site["aliased_data"].pop("borden_number")
+        site["aliased_data"]["bc_right"]["aliased_data"]["registration_status"][
+            "node_value"
+        ] = self.get_default_registration_status_uuid()
+        site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
+            "node_value"
+        ] = [self.get_default_registry_type_uuid()]
 
     def prune_data(self, site):
         allowed_sections = self.required_sections + self.optional_sections
@@ -185,6 +228,16 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         #     },
         # }
         cleaned_object = raw
+        logger.info("FILES keys=%s", list(request.FILES.keys()))
+
+        for field_name, f in request.FILES.items():  # one file per field
+            logger.info(
+                "file field=%s name=%s size=%s content_type=%s",
+                field_name,
+                f.name,
+                f.size,
+                getattr(f, "content_type", None),
+            )
         logger.info(f"Before clean")
         self.patch_data(cleaned_object)
         patched = cleaned_object
