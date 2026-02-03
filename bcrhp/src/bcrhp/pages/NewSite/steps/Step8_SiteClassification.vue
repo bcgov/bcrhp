@@ -17,12 +17,10 @@ import { HeritageThemeTileSchema } from '@/bcrhp/schemas/heritage_site/heritage_
 import {
     HeritageFunctionTileSchema,
     getHeritageFunction,
-    type HeritageFunctionTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_function.ts';
 import {
     HeritageClassTileSchema,
     getHeritageClass,
-    type HeritageClassTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_class.ts';
 import {
     updateModelValue as baseUpdateModelValue,
@@ -51,6 +49,14 @@ const heritageFunctionResolver = getFlattenResolver(
 const heritageThemeResolver = getFlattenResolver(
     zodResolver(HeritageThemeTileSchema.shape['aliased_data']),
 );
+
+const conceptSelectOverride = {
+    widget: {
+        widgetid: '',
+        component:
+            'arches_component_lab/widgets/ConceptMultiselectWidget/ConceptMultiselectWidget.vue',
+    },
+};
 
 const currentHeritageClass = ref(getHeritageClass());
 const currentHeritageFunction = ref(getHeritageFunction());
@@ -338,6 +344,9 @@ defineExpose({ isValid });
                             :aliasedNodeData="
                                 currentHeritageFunction.aliased_data
                                     .functional_state
+                            "
+                            :card-x-node-x-widget-data-overrides="
+                                conceptSelectOverride
                             "
                             graph-slug="heritage_site"
                             node-alias="functional_state"
