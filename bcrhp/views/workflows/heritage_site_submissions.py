@@ -20,6 +20,7 @@ from arches_querysets.rest_framework.serializers import (
     ArchesResourceSerializer,
 )
 from arches_querysets.rest_framework.view_mixins import ArchesModelAPIMixin
+from arches_querysets.rest_framework.generic_views import ArchesResourceBlankView
 
 logger = logging.getLogger(__name__)
 from rest_framework import serializers
@@ -128,6 +129,20 @@ def format_deep_errors(errors, path=""):
                 formatted.append(f"{new_path}: {value}")
 
     return formatted
+
+
+class PatchedArchesResourceBlankView(ArchesResourceBlankView):
+    # This is just a patched version of the parent that takes
+    # a parameter to control whether the 1:m values are filled with
+    # a single aliased tile data value
+    permission_classes = [ReadOnly]
+    serializer_class = ArchesResourceSerializer
+
+    def get_serializer_context(self):
+        serializer_context = super().get_serializer_context()
+        fill_blanks = self.request.GET.get("fill_blanks", "").lower() == "true"
+        serializer_context["fill_blanks"] = fill_blanks
+        return serializer_context
 
 
 class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):

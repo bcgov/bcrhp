@@ -8,7 +8,7 @@ from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
 from bcrhp.views.root import BcrhpRootView
 from bcgov_arches_common.views.map import BCTileserverProxyView
-from bcrhp.views.workflows.heritage_site_submissions import SubmitHeritageSite
+from bcrhp.views.workflows.heritage_site_submissions import SubmitHeritageSite, PatchedArchesResourceBlankView
 import re
 
 uuid_regex = settings.UUID_REGEX
@@ -80,11 +80,17 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
+    path(
+        f"{bc_path_prefix()}bcrhp/api/resource/<slug:graph>/blank",
+        PatchedArchesResourceBlankView.as_view(),
+        name="api-resource-blank",
+    ),
     path(bc_path_prefix(), include("bcgov_arches_common.urls")),
     path(bc_path_prefix(), include("arches_querysets.urls")),
     path(bc_path_prefix(), include("arches_component_lab.urls")),
     path(bc_path_prefix(), include("arches.urls")),
 ]
+
 
 # Adds URL pattern to serve media files during development
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
