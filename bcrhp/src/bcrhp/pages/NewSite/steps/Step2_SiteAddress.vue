@@ -85,6 +85,20 @@ const legalAddressResolver = getFlattenResolver(
     zodResolver(BcPropertyLegalDescriptionTileSchema.shape['aliased_data']),
 );
 
+const currentAddressHasStreet = computed(() => {
+    const streetVal =
+        currentPropertyAddress.value?.aliased_data?.street_address
+            ?.display_value || '';
+    return streetVal.trim().length > 0;
+});
+
+const hasAtLeastOneLegal = computed(() => {
+    return propertyAddressList.value.some(
+        (addr: any) =>
+            (addr.aliased_data.bc_property_legal_description?.length ?? 0) > 0,
+    );
+});
+
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
     baseUpdateModelValue(
         newValue,
@@ -134,6 +148,7 @@ const saveAddress = function () {
     addressFormKey.value = nextAddressKey.value;
 
     propertyAddressForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const setCurrentPropertyAddress = function (index: number) {
@@ -148,10 +163,12 @@ function deleteAddress(index: number) {
         index,
         1,
     );
+    emit('update:stepIsValid', isValid());
 }
 
 const hasAddressChanged = function () {
     hasPropertyAddress.value = !hasPropertyAddress.value;
+    emit('update:stepIsValid', isValid());
 };
 
 const disableAddressSection = computed(() => !hasPropertyAddress.value);
@@ -221,6 +238,7 @@ function saveLegalDescription() {
     isOverrideActive.value = false;
     addLegalDescriptionVisible.value = false;
     legalDescriptionTargetAddress.value = null;
+    emit('update:stepIsValid', isValid());
 }
 
 function deleteLegalDescription(addressIndex: number, legalIndex: number) {
@@ -231,10 +249,12 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
             1,
         );
     }
+    emit('update:stepIsValid', isValid());
 }
 
 const isValid = () => {
-    return true;
+    if (!hasPropertyAddress.value) return true;
+    return propertyAddressList.value.length > 0 && hasAtLeastOneLegal.value;
 };
 
 defineExpose({ isValid });
@@ -367,6 +387,7 @@ defineExpose({ isValid });
             <Button
                 style="align-self: flex-start"
                 class="w-fit mb-6"
+                :disabled="!currentAddressHasStreet"
                 @click="saveAddress"
             >
                 + Add Address
