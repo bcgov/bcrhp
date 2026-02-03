@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { computed, inject, type Ref } from 'vue';
+import Message from 'primevue/message';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { SiteNamesTileType } from '@/bcrhp/schemas/heritage_site/site_names.ts';
 import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';
+import type { ErrorMessage } from '@/bcrhp/types.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+
+defineProps<{
+    submissionErrors: ErrorMessage[];
+}>();
 
 // Helper to safely get the addresses
 const propertyAddresses = computed(() => {
@@ -42,6 +48,33 @@ defineExpose({ isValid });
 
 <template>
     <div class="step-title">Submission Details</div>
+    <section
+        v-if="submissionErrors && submissionErrors.length"
+        class="mt-4"
+    >
+        <h3 class="text-lg font-semibold mb-2 text-red-600">
+            Submission Errors
+        </h3>
+
+        <div class="flex flex-col gap-2">
+            <Message
+                v-for="(error, index) in submissionErrors"
+                :key="index"
+                severity="error"
+                :closable="false"
+            >
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1">
+                    <span class="font-medium">{{ error.error }}</span>
+                    <span class="text-sm text-gray-600"
+                        >({{ error.type }})</span
+                    >
+                </div>
+                <div class="text-sm">
+                    {{ error.message }}
+                </div>
+            </Message>
+        </div>
+    </section>
     <p>
         Please review the entered information prior to submitting the
         application:
