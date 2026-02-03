@@ -82,15 +82,13 @@ const isValidHeritageFunction = () =>
     );
 
 const isValid = () => {
-    // Heritage Class
-    const hasSavedClass = heritageClasses.value.length > 0;
-    const classValid = hasSavedClass || isValidHeritageClass();
+    // 1. Must have at least one Heritage Class saved in the list
+    const classValid = heritageClasses.value.length > 0;
 
-    // Heritage Function
-    const hasSavedFunction = heritageFunctions.value.length > 0;
-    const functionValid = hasSavedFunction || isValidHeritageFunction();
+    // 2. Must have at least one Heritage Function saved in the list
+    const functionValid = heritageFunctions.value.length > 0;
 
-    // Heritage Theme
+    // 3. Heritage Theme must have a value selected
     const themeData =
         heritageSite.value?.aliased_data?.heritage_theme?.aliased_data
             ?.heritage_theme;
@@ -99,9 +97,20 @@ const isValid = () => {
     return classValid && functionValid && themeValid;
 };
 
-const addHeritageClassDisabled = computed(
-    () => !isValidHeritageClass() || heritageClasses.value.length >= 5,
-);
+const addHeritageClassDisabled = computed(() => {
+    const data = currentHeritageClass.value.aliased_data;
+    const hasResourceCount = !!(
+        data.contributing_resource_count?.display_value ||
+        data.contributing_resource_count?.node_value
+    );
+
+    return (
+        !hasResourceCount ||
+        !isValidHeritageClass() ||
+        heritageClasses.value.length >= 5
+    );
+});
+
 const addHeritageFunctionDisabled = computed(
     () => !isValidHeritageFunction() || heritageFunctions.value.length >= 5,
 );
