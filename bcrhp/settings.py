@@ -206,7 +206,6 @@ INSTALLED_APPS = (
     "django_celery_results",
     # "compressor",
     # "silk",
-    "django_vite",
     "storages",
     "bcrhp",
     "arches_component_lab",
@@ -215,24 +214,28 @@ INSTALLED_APPS = (
 )
 INSTALLED_APPS += ("arches.app",)
 
-DJANGO_VITE = {
-    "default": {
-        "dev_mode": False,
-        # "static_url_prefix": "/bcrhp/static",
-        "static_url_prefix": "/",
-    }
-}
+USE_VITE = False
 
-# django_vite SETTINGS
-BASE_DIR = "/web_root/bcrhp/bcrhp/src"
-# Where ViteJS assets are built.
-DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, "staticfiles", "dist")
-# If use HMR or not.
-# DJANGO_VITE_DEV_MODE = DEBUG
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-# END django_vite SETTINGS
+if USE_VITE:
+    INSTALLED_APPS += ("django_vite",)
+    DJANGO_VITE = {
+        "default": {
+            "dev_mode": False,
+            # "static_url_prefix": "/bcrhp/static",
+            "static_url_prefix": "/",
+        }
+    }
+
+    # django_vite SETTINGS
+    BASE_DIR = "/web_root/bcrhp/bcrhp/src"
+    # Where ViteJS assets are built.
+    DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, "staticfiles", "dist")
+    # If use HMR or not.
+    # DJANGO_VITE_DEV_MODE = DEBUG
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+    ]
+    # END django_vite SETTINGS
 
 
 # TODO - REMOVE THIS?
