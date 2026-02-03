@@ -148,6 +148,7 @@ LOAD_PACKAGE_ONTOLOGIES = True
 # This is the namespace to use for export of data (for RDF/XML for example)
 # It must point to the url where you host your site
 # Make sure to use a trailing slash
+WEBPACK_SERVER_ADDRESS = get_env_variable("WEBPACK_SERVER_ADDRESS")
 PUBLIC_SERVER_ADDRESS = get_env_variable("PUBLIC_SERVER_ADDRESS")
 
 ARCHES_NAMESPACE_FOR_DATA_EXPORT = PUBLIC_SERVER_ADDRESS
