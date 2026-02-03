@@ -15,7 +15,8 @@ class BcrhpRootView(BaseManagerView):
             request,
             (
                 "bcrhp/root_vue_dev.htm"
-                if settings.DJANGO_VITE["default"]["dev_mode"]
+                if hasattr(settings, "DJANGO_VITE")
+                and settings.DJANGO_VITE["default"]["dev_mode"]
                 else "bcrhp/root.htm"
             ),
             context,
