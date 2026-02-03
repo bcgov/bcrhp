@@ -238,14 +238,9 @@ if USE_VITE:
     # END django_vite SETTINGS
 
 
-# TODO - REMOVE THIS?
-# Name of static files folder (after called python manage.py collectstatic)
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-## END TODO
-
-# Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
-# when run command python manage.py collectstatic
-# STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
+    # Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
+    # when run command python manage.py collectstatic
+    # STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
 
 
 ROOT_HOSTCONF = "bcrhp.hosts"
