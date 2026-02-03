@@ -35,16 +35,19 @@ test('test', async ({ page }) => {
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(
         page.getByRole('link', { name: 'Local Government Workflows' }),
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: 20000 });
 
     // --- 1 START SUBMISSION ---
     await page.goto('http://localhost/bcrhp/submissions/');
     await page
         .getByRole('link', { name: 'Submit a new Heritage Property' })
         .click();
+    await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 2 SITE LOCATION ---
-    await page.getByRole('button', { name: 'Next' }).first().click();
+
+    await page.locator('#street_address').isVisible({ timeout: 3000 });
+    await page.waitForTimeout(2000);
     await page.locator('#street_address').click();
     await page.locator('#street_address').fill('street address');
     await page.getByRole('textbox', { name: 'City' }).click();

@@ -5,6 +5,7 @@ import Step from 'primevue/step';
 import StepPanel from 'primevue/steppanel';
 import StepList from 'primevue/steplist';
 import StepPanels from 'primevue/steppanels';
+import ProgressSpinner from 'primevue/progressspinner';
 import StepperNavigation from '@/bcgov_arches_common/components/Stepper/components/StepperNavigation/StepperNavigation.vue';
 
 import Panel from 'primevue/panel';
@@ -49,10 +50,8 @@ const submitNewSiteData = async () => {
             heritageSite.value =
                 updatedHeritageSite as Promise<HeritageSiteType>;
             myStepper.value.d_value++;
-            setCurrentStepValid(
-                steps[myStepper.value.d_value - 1].value.isValid(),
-                myStepper.value.d_value,
-            );
+            // Didn't throw an exception so the last step is valid.
+            setCurrentStepValid(true, myStepper.value.d_value);
             submissionErrors.value = [];
             submitting.value = false;
         })
@@ -63,8 +62,14 @@ const submitNewSiteData = async () => {
         });
 };
 
+const print = () => {
+    window.print();
+};
+
 const activateNextStep = async () => {
-    if (currentStep.value === 11) {
+    if (currentStep.value === steps.length) {
+        print();
+    } else if (currentStep.value === 11) {
         submitNewSiteData();
     } else {
         myStepper.value.d_value++;
@@ -176,6 +181,12 @@ const showDebug = ref(false);
 </script>
 
 <template>
+    <div
+        v-if="submitting"
+        class="submit-overlay"
+    >
+        <ProgressSpinner />
+    </div>
     <div
         id="debug-div"
         :v-show="showDebug"
@@ -328,6 +339,7 @@ const showDebug = ref(false);
                             <h3>Review Submission</h3>
                             <ReviewSubmission
                                 ref="step11"
+                                :submission-errors="submissionErrors"
                                 @update:step-is-valid="
                                     setCurrentStepValid($event, 11)
                                 "
@@ -335,6 +347,13 @@ const showDebug = ref(false);
                         </StepPanel>
                         <StepPanel :value="12">
                             <h3>Submission Complete</h3>
+                            <ReviewSubmission
+                                ref="step12"
+                                :submission-errors="submissionErrors"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 12)
+                                "
+                            ></ReviewSubmission>
                         </StepPanel>
                         <StepperNavigation
                             :step-number="currentStep"
@@ -355,8 +374,29 @@ const showDebug = ref(false);
 .language-selector {
     display: none;
 }
+@media print {
+    aside,
+    .bcgov-vertical-steps,
+    .stepper-nav-panel,
+    .sidenav {
+        display: none !important;
+    }
+}
 </style>
 <style scoped>
+.submit-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.7;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    z-index: 500;
+    left: 0;
+    top: 0;
+}
 .dashboard-card {
     font-size: 1.1rem;
     margin: 1rem;
