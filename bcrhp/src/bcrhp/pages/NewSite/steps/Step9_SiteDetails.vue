@@ -149,19 +149,65 @@ const isValidConstructionActors = () =>
         ConstructionActorsTileSchema.shape['aliased_data'],
     );
 
-const addConstructionActorDisabled = computed(
-    () =>
-        !isValidConstructionActors() ||
-        (constructionActors.value.length || 0) > 4,
-);
+const addConstructionActorDisabled = computed(() => {
+    const data = currentConstructionActor.value.aliased_data;
 
-// [FIX] Update validation to use local schema
+    const hasName = !!(
+        data.construction_actor?.display_value ||
+        data.construction_actor?.node_value
+    );
+
+    const hasType = !!(
+        data.construction_actor_type?.display_value ||
+        data.construction_actor_type?.node_value
+    );
+
+    return (
+        !hasName ||
+        !hasType ||
+        !isValidConstructionActors() ||
+        (constructionActors.value.length || 0) > 4
+    );
+});
+
 const isValidExternalUrl = () =>
     baseIsValid(externalUrlForm as Ref<FormInstance>, LocalExternalUrlSchema);
 
-const addExternalUrlDisabled = computed(
-    () => !isValidExternalUrl() || (externalUrls.value.length || 0) > 4,
-);
+const addExternalUrlDisabled = computed(() => {
+    const data = currentExternalUrl.value.aliased_data;
+
+    //URL Type
+    const hasUrlType = !!(
+        data.external_url_type?.display_value ||
+        data.external_url_type?.node_value
+    );
+
+    //extract data from node_value
+    const urlData = data.external_url?.node_value;
+
+    let urlString = '';
+    let labelString = '';
+
+    if (urlData) {
+        if (typeof urlData === 'string') {
+            urlString = urlData;
+        } else {
+            urlString = urlData.url || '';
+            labelString = urlData.url_label || '';
+        }
+    }
+
+    const hasUrl = urlString.trim().length > 0;
+    const hasUrlLabel = labelString.trim().length > 0;
+
+    return (
+        !hasUrlType ||
+        !hasUrl ||
+        !hasUrlLabel ||
+        !isValidExternalUrl() ||
+        (externalUrls.value.length || 0) > 4
+    );
+});
 
 const saveChronology = function () {
     if (!Array.isArray(heritageSite.value.aliased_data.chronology)) {
