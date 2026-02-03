@@ -154,7 +154,6 @@ defineExpose({ isValid });
             <dt>Common</dt>
             <dd>
                 {{ commonName?.name?.display_value || 'None provided' }}
-                {{ commonName?.name?.display_value || 'None provided' }}
             </dd>
         </div>
         <div class="div-grid-cols">
@@ -412,8 +411,8 @@ defineExpose({ isValid });
             <dd>
                 <ol>
                     <li
-                        v-for="url in heritageSite?.aliased_data
-                            .external_urls ?? []"
+                        v-for="url in heritageSite?.aliased_data.external_url ??
+                        []"
                         :key="url"
                     >
                         {{ url.aliased_data.external_url_type.display_value }}:
