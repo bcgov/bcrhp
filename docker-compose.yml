@@ -18,11 +18,22 @@ services:
     ports:
       - 8025:8000
       - 5688:5678
-      - 80:80
+#      - 80:80
       - 443:443
       - 5173:5173
     stdin_open: true
     tty: true
+
+  bcrhp-proxy:
+    container_name: bcrhp-proxy7-6
+    image: nginx:1.25-alpine
+    depends_on:
+      - bcrhp
+    ports:
+      - "80:80"          # expose the proxy on host:81
+    volumes:
+      - ./docker/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
 
 #  bcrhp-webpack:
 #    container_name: bcrhp-webpack7-6
