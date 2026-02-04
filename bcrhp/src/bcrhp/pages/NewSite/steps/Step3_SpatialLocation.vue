@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { computed, inject, useTemplateRef } from 'vue';
+import { computed, inject, useTemplateRef, ref } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
-
 import { Form, type FormInstance } from '@primevue/forms';
-
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
-
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
-
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import {
@@ -39,6 +35,8 @@ import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_
 import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+
+const isBoundaryBypassed = ref(false);
 
 const ensureSiteLocation = () => {
     if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
@@ -75,6 +73,8 @@ const mapOverrides = {
 } satisfies Partial<CardXNodeXWidgetData>;
 
 const isValid = () => {
+    if (isBoundaryBypassed.value === true) return true;
+
     let formIsValid = baseIsValid(
         siteBoundaryForm as Ref<FormInstance>,
         SiteBoundaryTileSchema.shape['aliased_data'],
@@ -94,6 +94,10 @@ const isValid = () => {
 const siteBoundaryResolver = getFlattenResolver(
     zodResolver(SiteBoundaryTileSchema.shape['aliased_data']),
 );
+
+const onBypassToggle = () => {
+    emit('update:stepIsValid', isValid());
+};
 
 const updateModelValue = async function (
     newValue: AliasedNodeData,
@@ -124,32 +128,31 @@ defineExpose({ isValid });
         :resolver="siteBoundaryResolver"
     >
         <div>
+            <div class="mb-4">
+                <LabelledCheckboxInput
+                    label="Bypass Site Boundary"
+                    hint="Check this box if the geometry is incorrect or unavailable at this time."
+                    input-name="bypassBoundary"
+                >
+                    <Checkbox
+                        id="boundaryIncorrect"
+                        v-model="isBoundaryBypassed"
+                        :binary="true"
+                        @change="onBypassToggle"
+                        small
+                    />
+                </LabelledCheckboxInput>
+            </div>
             <FieldSet
                 id="siteBoundaryFieldSet"
                 legend="Site Boundary"
-                style="display: inline-block"
+                :disabled="isBoundaryBypassed"
             >
                 <div>
                     <div>
-                        <LabelledCheckboxInput
-                            v-if="hasSinglePID"
-                            label="Site Boundary incorrect"
-                            hint="If the geometry is incorrect, and you have the geometry in Shapefile, KML or GeoJason, check this box and drag it into the Site Boundary field."
-                            input-name="hasCivicAddress"
-                        >
-                            <Checkbox
-                                id="boundaryIncorrect"
-                                ref="boundaryIncorrectField"
-                                aria-describedby="has-civic-address-help"
-                                aria-required="true"
-                                fluid
-                                binary
-                                small
-                            />
-                        </LabelledCheckboxInput>
                         <LabelledInput
                             label="Site Boundary"
-                            :required="true"
+                            :required="!isBoundaryBypassed"
                         >
                             <div class="instructions">
                                 <ol>
@@ -175,8 +178,8 @@ defineExpose({ isValid });
                                 :mode="EDIT"
                                 :aliased-node-data="
                                     heritageSite.value?.aliased_data
-                                        ?.heritage_site_location.aliased_data
-                                        ?.site_boundary.aliased_data
+                                        ?.heritage_site_location[0].aliased_data
+                                        ?.site_boundary[0].aliased_data
                                         .site_boundary
                                 "
                                 @update:value="
