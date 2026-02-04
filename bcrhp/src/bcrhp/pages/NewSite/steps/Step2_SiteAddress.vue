@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
+import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -78,7 +79,22 @@ const legalDescriptionForm: Ref<FormInstance | null> = useTemplateRef(
 ) as Ref<FormInstance | null>;
 
 const propertyAddressResolver = getFlattenResolver(
-    zodResolver(BcPropertyAddressTileSchema.shape['aliased_data']),
+    zodResolver(
+        BcPropertyAddressTileSchema.shape['aliased_data'].extend({
+            // This tells the form to fail validation if the pattern isn't A1B 2C3
+            postal_code: z.any().refine(
+                (val: any) => {
+                    const str = val?.display_value || val || '';
+                    // If empty, we let it pass (unless you want it required)
+                    if (!str) return true;
+                    return /^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(str);
+                },
+                {
+                    message: 'Invalid format. Please use A1B 2C3',
+                },
+            ),
+        }),
+    ),
 );
 
 const legalAddressResolver = getFlattenResolver(
@@ -92,26 +108,52 @@ const currentAddressHasStreet = computed(() => {
     return streetVal.trim().length > 0;
 });
 
-const hasAtLeastOneLegal = computed(() => {
-    return propertyAddressList.value.some(
-        (addr: any) =>
-            (addr.aliased_data.bc_property_legal_description?.length ?? 0) > 0,
-    );
-});
-
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
+    let sanitizedValue = newValue;
+
+    if (attribute_name === 'postal_code') {
+        let raw = (newValue?.display_value || '')
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '');
+
+        if (raw.length > 3) {
+            raw = raw.slice(0, 3) + ' ' + raw.slice(3, 6);
+        }
+
+        const formatted = raw.slice(0, 7);
+        sanitizedValue = {
+            ...newValue,
+            display_value: formatted,
+            node_value: formatted,
+        };
+    }
+
     baseUpdateModelValue(
-        newValue,
+        sanitizedValue,
         attribute_name,
         currentPropertyAddress.value.aliased_data,
         propertyAddressForm as Ref<FormInstance>,
     );
+
     emit('update:stepIsValid', isValid());
 };
 
 const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
+    let sanitizedValue = newValue;
+
+    if (attribute_name === 'pid') {
+        const rawValue = newValue?.display_value || '';
+        const limitedValue = rawValue.toString().slice(0, 9);
+
+        sanitizedValue = {
+            ...newValue,
+            display_value: limitedValue,
+            node_value: limitedValue,
+        };
+    }
+
     baseUpdateModelValue(
-        newValue,
+        sanitizedValue,
         attribute_name,
         currentLegalDescription.value.aliased_data,
         legalDescriptionForm as Ref<FormInstance>,
@@ -254,7 +296,7 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
 
 const isValid = () => {
     if (!hasPropertyAddress.value) return true;
-    return propertyAddressList.value.length > 0 && hasAtLeastOneLegal.value;
+    return propertyAddressList.value.length > 0;
 };
 
 defineExpose({ isValid });
@@ -353,6 +395,7 @@ defineExpose({ isValid });
                         :aliased-node-data="
                             currentPropertyAddress?.aliased_data?.postal_code
                         "
+                        :error-message="$form.postal_code?.error?.message"
                         graph-slug="heritage_site"
                         node-alias="postal_code"
                         @update:value="updateAddress($event, 'postal_code')"
