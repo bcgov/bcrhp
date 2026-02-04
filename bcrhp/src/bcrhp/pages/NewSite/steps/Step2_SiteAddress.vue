@@ -598,4 +598,9 @@ defineExpose({ isValid });
 .input-grow {
     width: 100%;
 }
+
+.p-message:not(:has(.p-message-text:not(:empty))) {
+    display: none !important;
+    gap: 0 !important;
+}
 </style>
