@@ -2,6 +2,7 @@
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 import { z } from 'zod';
+import { getBCPostalCodeSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -81,18 +82,7 @@ const legalDescriptionForm: Ref<FormInstance | null> = useTemplateRef(
 const propertyAddressResolver = getFlattenResolver(
     zodResolver(
         BcPropertyAddressTileSchema.shape['aliased_data'].extend({
-            // This tells the form to fail validation if the pattern isn't A1B 2C3
-            postal_code: z.any().refine(
-                (val: any) => {
-                    const str = val?.display_value || val || '';
-                    // If empty, we let it pass (unless you want it required)
-                    if (!str) return true;
-                    return /^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(str);
-                },
-                {
-                    message: 'Invalid format. Please use A1B 2C3',
-                },
-            ),
+            postal_code: getBCPostalCodeSchema(),
         }),
     ),
 );
@@ -108,19 +98,20 @@ const currentAddressHasStreet = computed(() => {
     return streetVal.trim().length > 0;
 });
 
+function formatBCPostalCode(value: string): string {
+    const raw = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    if (raw.length > 3) {
+        return (raw.slice(0, 3) + ' ' + raw.slice(3, 6)).slice(0, 7);
+    }
+    return raw.slice(0, 3);
+}
+
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
     let sanitizedValue = newValue;
 
     if (attribute_name === 'postal_code') {
-        let raw = (newValue?.display_value || '')
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, '');
-
-        if (raw.length > 3) {
-            raw = raw.slice(0, 3) + ' ' + raw.slice(3, 6);
-        }
-
-        const formatted = raw.slice(0, 7);
+        const formatted = formatBCPostalCode(newValue?.display_value || '');
         sanitizedValue = {
             ...newValue,
             display_value: formatted,
@@ -133,9 +124,9 @@ const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
         attribute_name,
         currentPropertyAddress.value.aliased_data,
         propertyAddressForm as Ref<FormInstance>,
-    );
-
-    emit('update:stepIsValid', isValid());
+    ).then(() => {
+        emit('update:stepIsValid', isValid());
+    });
 };
 
 const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
