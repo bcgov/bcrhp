@@ -2,7 +2,10 @@
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 import { z } from 'zod';
-import { getBCPostalCodeSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import {
+    getBCPostalCodeSchema,
+    formatBCPostalCode,
+} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -97,15 +100,6 @@ const currentAddressHasStreet = computed(() => {
             ?.display_value || '';
     return streetVal.trim().length > 0;
 });
-
-function formatBCPostalCode(value: string): string {
-    const raw = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-
-    if (raw.length > 3) {
-        return (raw.slice(0, 3) + ' ' + raw.slice(3, 6)).slice(0, 7);
-    }
-    return raw.slice(0, 3);
-}
 
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
     let sanitizedValue = newValue;
