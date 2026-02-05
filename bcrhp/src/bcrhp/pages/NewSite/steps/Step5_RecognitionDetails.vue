@@ -186,7 +186,6 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
-
             <LabelledInput
                 label="Legislative Act"
                 hint="Designation or recognition type that applies to the site"
@@ -194,37 +193,32 @@ defineExpose({ isValid });
                 :error-message="$form.legislative_act?.error?.message"
                 :required="true"
             >
-                <div class="p-inputtext-fluid flex gap-4">
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentProtectionEvent.aliased_data.legislative_act
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="legislative_act"
-                        placeholder="Select a Legislative Act"
-                        group-direction="column"
-                        @update:value="
-                            updateModelValue($event, 'legislative_act')
-                        "
-                    />
-                    <div class="inline-block pt-2">
-                        <LabelledCheckboxInput
-                            label="Historic Acts"
-                            hint="Show inactive acts"
-                            input-name="showInactiveHistoricActs"
-                        >
-                            <Checkbox
-                                id="showInactiveHistoricActs"
-                                v-model="showInactiveHistoricActs"
-                                binary
-                                small
-                            />
-                        </LabelledCheckboxInput>
-                    </div>
-                </div>
+                <GenericWidget
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliasedNodeData="
+                        currentProtectionEvent.aliased_data.legislative_act
+                    "
+                    graph-slug="heritage_site"
+                    node-alias="legislative_act"
+                    placeholder="Select a Legislative Act"
+                    group-direction="column"
+                    @update:value="updateModelValue($event, 'legislative_act')"
+                />
             </LabelledInput>
+            <!-- not sure what this checkbox is for -->
+            <LabelledCheckboxInput
+                label="Historic Acts"
+                hint="Show inactive acts"
+                input-name="showInactiveHistoricActs"
+            >
+                <Checkbox
+                    id="showInactiveHistoricActs"
+                    v-model="showInactiveHistoricActs"
+                    binary
+                    small
+                />
+            </LabelledCheckboxInput>
 
             <LabelledInput
                 label="Reference Number"
@@ -246,7 +240,7 @@ defineExpose({ isValid });
             </LabelledInput>
         </FieldSet>
 
-        <div class="row mt-4">
+        <div class="row">
             <Button
                 id="saveRecognitionDetails"
                 class="button-padding"
