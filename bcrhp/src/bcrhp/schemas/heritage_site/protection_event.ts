@@ -12,7 +12,7 @@ import type { StringValue } from '@/arches_component_lab/datatypes/string/types.
 import {
     blankStringValue,
     blankResourceInstanceValue,
-    currentDateValue,
+    blankDateValue,
 } from '@/bcrhp/utils.ts';
 
 export const ProtectionEventTileSchema = TileSchema.extend({
@@ -36,8 +36,8 @@ export class ProtectionEvent implements ProtectionEventTileType {
     constructor() {
         this.aliased_data = {
             protection_notes: blankStringValue(),
-            designation_or_protection_start_date: currentDateValue(),
-            designation_or_protection_end_date: currentDateValue(),
+            designation_or_protection_start_date: blankDateValue(),
+            designation_or_protection_end_date: blankDateValue(),
             responsible_government: blankResourceInstanceValue(),
             legislative_act: blankResourceInstanceValue(),
             reference_number: blankStringValue(),
