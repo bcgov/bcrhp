@@ -1,51 +1,52 @@
 import { z } from 'zod';
+import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import {
+    getStringValueSchema,
+    getRichTextValueSchema,
+} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+
+import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { blankStringValue } from '@/bcrhp/utils.ts';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 
 // Auto-generated tile schema for alias: bc_statement_of_significance
 
-const HeritageValueNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const DefiningElementsNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const PhysicalDescriptionNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const SignificanceTypeNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-const DocumentLocationNodeSchema = z.object({
-    node_value: z.string().nullable(),
-    display_value: z.string(),
-    details: z.array(z.unknown()),
-});
-
-export const BcStatementOfSignificanceTileSchema = z.object({
-    tileid: z.string().nullable(),
-    resourceinstance: z.string().nullable(),
-    nodegroup: z.string().nullable(),
-    parenttile: z.string().nullable(),
+export const BcStatementOfSignificanceTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        heritage_value: HeritageValueNodeSchema,
-        defining_elements: DefiningElementsNodeSchema,
-        physical_description: PhysicalDescriptionNodeSchema,
-        significance_type: SignificanceTypeNodeSchema,
-        document_location: DocumentLocationNodeSchema,
+        heritage_value: getRichTextValueSchema(),
+        defining_elements: getRichTextValueSchema(),
+        physical_description: getRichTextValueSchema(),
+        significance_type: ConceptValueSchema,
+        document_location: getStringValueSchema(),
     }),
-    sortorder: z.number().nullable(),
-    provisionaledits: z.unknown().nullable(),
 });
+// @ts-ignore
+export type BcStatementOfSignificanceTileType = z.infer<
+    typeof BcStatementOfSignificanceTileSchema
+>;
 
-export type BcStatementOfSignificanceTileType = z.infer<typeof BcStatementOfSignificanceTileSchema>;
+export function getStatementOfSignificance(): BcStatementOfSignificanceTileType {
+    return new StatementOfSignificance();
+}
+
+// @todo - Figure out object state - New/Updated/Deleted
+export class StatementOfSignificance implements BcStatementOfSignificanceTileType {
+    constructor() {
+        this.aliased_data = {
+            heritage_value: blankStringValue(),
+            defining_elements: blankStringValue(),
+            physical_description: blankStringValue(),
+            significance_type: blankConceptValue(),
+            document_location: blankStringValue(),
+        };
+    }
+    aliased_data: {
+        heritage_value: StringValue;
+        defining_elements: StringValue;
+        physical_description: StringValue;
+        significance_type: ConceptValue;
+        document_location: StringValue;
+    };
+}

@@ -5,6 +5,7 @@ import Step from 'primevue/step';
 import StepPanel from 'primevue/steppanel';
 import StepList from 'primevue/steplist';
 import StepPanels from 'primevue/steppanels';
+import ProgressSpinner from 'primevue/progressspinner';
 import StepperNavigation from '@/bcgov_arches_common/components/Stepper/components/StepperNavigation/StepperNavigation.vue';
 
 import Panel from 'primevue/panel';
@@ -25,14 +26,65 @@ import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
 import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 
-import { getHeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-// import { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import { submitHeritageSite } from '@/bcrhp/api.ts';
 
-const activateNextStep = () => {
-    myStepper.value.d_value++;
+import {
+    type HeritageSiteType,
+    getHeritageSite,
+} from '@/bcrhp/schemas/heritage_site.ts';
+import { getBlankHeritageSite } from '@/bcrhp/api.ts';
+import type { ErrorMessage } from '@/bcrhp/types.ts';
+
+const submissionErrors = ref([] as ErrorMessage[]);
+const submitted = ref(false);
+const submitting = ref(false);
+const devMode = ref(true);
+
+//placeholder function for final submission
+const submitNewSiteData = async () => {
+    console.log('submit Heritage Site', heritageSite);
+    submitting.value = true;
+    submissionErrors.value = [];
+    submitHeritageSite(heritageSite.value)
+        .then((updatedHeritageSite) => {
+            heritageSite.value =
+                updatedHeritageSite as Promise<HeritageSiteType>;
+            myStepper.value.d_value++;
+            // Didn't throw an exception so the last step is valid.
+            setCurrentStepValid(true, myStepper.value.d_value);
+            submissionErrors.value = [];
+            submitting.value = false;
+        })
+        .catch((error) => {
+            console.log('error', error);
+            submissionErrors.value.push(error);
+            submitting.value = false;
+        });
+};
+
+const print = () => {
+    window.print();
+};
+
+const activateNextStep = async () => {
+    if (currentStep.value === steps.length) {
+        print();
+    } else if (currentStep.value === 11) {
+        submitNewSiteData();
+    } else {
+        myStepper.value.d_value++;
+        setCurrentStepValid(
+            steps[myStepper.value.d_value - 1].value.isValid(),
+            myStepper.value.d_value,
+        );
+    }
 };
 
 const activatePreviousStep = () => {
+    setCurrentStepValid(
+        steps[myStepper.value.d_value - 2].value.isValid(),
+        myStepper.value.d_value - 1,
+    );
     myStepper.value.d_value--;
 };
 
@@ -41,23 +93,38 @@ function activateStep(step: number) {
         myStepper.value.d_value = lastStep;
     } else {
         lastStep = step;
+        setCurrentStepValid(steps[step - 1].value.isValid(), step);
     }
 }
 
+const stepStatuses: Ref<boolean[]> = ref([]);
+
+const currentStepIsValid = computed(() => {
+    return stepStatuses.value[currentStep.value - 1];
+});
+
+const setCurrentStepValid = function (isValid: boolean, stepNumber: number) {
+    stepStatuses.value[stepNumber - 1] = isValid;
+};
+
 const isValid = (step: number) => {
+    if (devMode.value) return true;
     let stepValid = true;
+
     if (typeof steps[step - 1]?.value?.isValid === 'function') {
         stepValid = steps[step - 1]?.value?.isValid();
     }
     if (step === steps.length) {
         submitted.value = true;
     }
+
     return stepValid;
 };
 
-const printDetails = () => {
-    console.log('printDetails');
-};
+// const printDetails = () => {
+//     console.log('printDetails');
+// };
+
 const stepperProps: Ref<StepperProps | null> = ref(null);
 const stepperState: Ref<StepperState | null> = ref(null);
 const myStepper = ref();
@@ -78,8 +145,7 @@ let lastStep = 1;
 const currentStep = computed(() => {
     return myStepper.value?.d_value;
 });
-const submitted = ref(false);
-const heritageSite: Ref<typeof HeritageSite> = ref(getHeritageSite());
+const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSite());
 
 provide('heritageSite', heritageSite);
 
@@ -98,6 +164,9 @@ onMounted(() => {
         step11,
         step12,
     );
+    getBlankHeritageSite().then((response) => {
+        heritageSite.value = response as unknown as HeritageSiteType;
+    });
 });
 
 const nextLabel = computed(() => {
@@ -112,6 +181,12 @@ const showDebug = ref(false);
 </script>
 
 <template>
+    <div
+        v-if="submitting"
+        class="submit-overlay"
+    >
+        <ProgressSpinner />
+    </div>
     <div
         id="debug-div"
         :v-show="showDebug"
@@ -160,235 +235,134 @@ const showDebug = ref(false);
                         the BC Register of Historic Places
                     </p>
                     <StepPanels>
+                        <StepperNavigation
+                            :step-number="currentStep"
+                            :is-valid="currentStepIsValid"
+                            :show-previous="showPrevious"
+                            :next-label="nextLabel"
+                            @next-click="activateNextStep"
+                            @previous-click="activatePreviousStep"
+                        ></StepperNavigation>
                         <StepPanel :value="1">
                             <NewSiteStep1 ref="step1"></NewSiteStep1>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :show-previous="false"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                            ></StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="2">
-                            <h3>Site Location</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
-                            <SiteAddress ref="step2"></SiteAddress>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
+                            <h3 class="heading-margin-bottom">Site Location</h3>
+                            <SiteAddress
+                                ref="step2"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 2)
+                                "
+                            ></SiteAddress>
                         </StepPanel>
                         <StepPanel :value="3">
                             <h3 class="heading-margin-bottom">
                                 Spatial Location
                             </h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
-                            <SpatialLocation ref="step3"></SpatialLocation>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
+                            <SpatialLocation
+                                ref="step3"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 3)
+                                "
+                            ></SpatialLocation>
                         </StepPanel>
                         <StepPanel :value="4">
                             <h3>Heritage Site Name(s)</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
-                            <SiteNames ref="step4"></SiteNames>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <SiteNames
+                                ref="step4"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 4)
+                                "
+                            ></SiteNames>
                         </StepPanel>
                         <StepPanel :value="5">
                             <h3>Official Recognition Details</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <RecognitionDetails
                                 ref="step5"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 5)
+                                "
                             ></RecognitionDetails>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="6">
                             <h3>Statement of Significance</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
-                            <SOS ref="step6"></SOS>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <SOS
+                                ref="step6"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 6)
+                                "
+                            ></SOS>
                         </StepPanel>
                         <StepPanel :value="7">
                             <h3>Images</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <p>
                                 Upload 1-10 images for the historic site. File
                                 types must be jpg/jpeg with a max file size of
                                 2MB. Include illustrations, plans, etc. in the
                                 Supporting Documents section
                             </p>
-                            <SiteImages ref="step7"></SiteImages>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <SiteImages
+                                ref="step7"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 7)
+                                "
+                            ></SiteImages>
                         </StepPanel>
                         <StepPanel :value="8">
                             <h3>Site Classification</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SiteClassification
                                 ref="step8"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 8)
+                                "
                             ></SiteClassification>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="9">
                             <h3>Site Details</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
-                            <SiteDetails ref="step9"></SiteDetails>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <SiteDetails
+                                ref="step9"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 9)
+                                "
+                            ></SiteDetails>
                         </StepPanel>
                         <StepPanel :value="10">
                             <h3>Supporting Documents</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
                             <SupportingDocuments
                                 ref="step10"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 10)
+                                "
                             ></SupportingDocuments>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Next"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
                         </StepPanel>
                         <StepPanel :value="11">
                             <h3>Review Submission</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="showPrevious"
-                                :next-label="nextLabel"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            ></StepperNavigation>
-                            <ReviewSubmission ref="step11"></ReviewSubmission>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                next-label="Submit"
-                                @next-click="activateNextStep"
-                                @previous-click="activatePreviousStep"
-                            >
-                            </StepperNavigation>
+                            <ReviewSubmission
+                                ref="step11"
+                                :submission-errors="submissionErrors"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 11)
+                                "
+                            ></ReviewSubmission>
                         </StepPanel>
                         <StepPanel :value="12">
                             <h3>Submission Complete</h3>
-                            <StepperNavigation
-                                :step-number="currentStep"
-                                :validate-fn="isValid"
-                                :show-previous="false"
-                                next-label="Print"
-                                @next-click="printDetails"
-                            ></StepperNavigation>
+                            <ReviewSubmission
+                                ref="step12"
+                                :submission-errors="submissionErrors"
+                                @update:step-is-valid="
+                                    setCurrentStepValid($event, 12)
+                                "
+                            ></ReviewSubmission>
                         </StepPanel>
+                        <StepperNavigation
+                            :step-number="currentStep"
+                            :is-valid="currentStepIsValid"
+                            :show-previous="showPrevious"
+                            :next-label="nextLabel"
+                            @next-click="activateNextStep"
+                            @previous-click="activatePreviousStep"
+                        ></StepperNavigation>
                     </StepPanels>
                 </div>
             </div>
@@ -397,8 +371,32 @@ const showDebug = ref(false);
 </template>
 <style>
 @import url('@/bcgov_arches_common/css/arches_common.css');
+.language-selector {
+    display: none;
+}
+@media print {
+    aside,
+    .bcgov-vertical-steps,
+    .stepper-nav-panel,
+    .sidenav {
+        display: none !important;
+    }
+}
 </style>
 <style scoped>
+.submit-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.7;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: white;
+    z-index: 500;
+    left: 0;
+    top: 0;
+}
 .dashboard-card {
     font-size: 1.1rem;
     margin: 1rem;

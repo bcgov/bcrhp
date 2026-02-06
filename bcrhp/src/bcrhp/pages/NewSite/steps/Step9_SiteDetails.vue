@@ -1,236 +1,367 @@
 <script setup lang="ts">
-import {
-    useTemplateRef,
-    inject,
-    ref,
-    onMounted,
-    computed,
-    reactive,
-} from 'vue';
+import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
+// [ADDED] Import z from zod to define local schema
+import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
-import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import { Form, FormField, type FormInstance } from '@primevue/forms';
+import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { camelCase } from 'lodash';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
-import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
+import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
+
 import {
-    ChronologySchema,
-    ArchitectBuilderSchema,
-    URLsSchema,
-    Chronology,
-    ArchitectOrBuilder,
-    URLs,
-    getArchitectOrBuilderSchema,
-    getChronologySchema,
-    getURLsSchema,
-} from '@/bcrhp/schema/SiteDetailsSchema.ts';
+    ChronologyTileSchema,
+    getChronology,
+    type ChronologyTileType,
+} from '@/bcrhp/schemas/heritage_site/chronology.ts';
+
+import {
+    ConstructionActorsTileSchema,
+    getConstructionActor,
+    type ConstructionActorsTileType,
+} from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
+
+import {
+    getExternalUrl,
+    type ExternalUrlTileType,
+} from '@/bcrhp/schemas/heritage_site/external_url.ts';
+
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import {
+    isValid as baseIsValid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-const heritageSiteRef: Ref<typeof HeritageSite> = ref(heritageSite);
-const chronologies = ref([] as Array<string>);
-const currentChronology: typeof Chronology = reactive(getChronologySchema());
-const currentArchitectOrBuilder: typeof ArchitectOrBuilder = reactive(
-    getArchitectOrBuilderSchema(),
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+const emit = defineEmits(['update:stepIsValid']);
+
+//state
+const currentChronology = ref<ChronologyTileType>(getChronology());
+const currentConstructionActor = ref<ConstructionActorsTileType>(
+    getConstructionActor(),
 );
-const currentURL: typeof URLs = reactive(getURLsSchema());
-const architectsOrBuilders = ref([] as Array<string>);
-const urls = ref([] as Array<string>);
+const currentExternalUrl = ref<ExternalUrlTileType>(getExternalUrl());
 
-const chronologyForm: Ref<FormInstance | null> = useTemplateRef(
+const checkboxOverrides = {
+    widget: {
+        widgetid: '',
+        component:
+            'bcgov_arches_common/widgets/BooleanCheckboxWidget/BooleanCheckboxWidget.vue',
+    },
+} satisfies Partial<CardXNodeXWidgetData>;
+
+//update keys to reset forms
+const chronologyKey = ref(0);
+const actorKey = ref(0);
+const urlKey = ref(0);
+
+const chronologyForm = useTemplateRef(
     'chronologyForm',
 ) as Ref<FormInstance | null>;
-const architectOrBuilderForm: Ref<FormInstance | null> = useTemplateRef(
-    'architectOrBuilderForm',
+const constructionActorForm = useTemplateRef(
+    'constructionActorForm',
 ) as Ref<FormInstance | null>;
-const relatedURLsForm: Ref<FormInstance | null> = useTemplateRef(
-    'relatedURLsForm',
+const externalUrlForm = useTemplateRef(
+    'externalUrlForm',
 ) as Ref<FormInstance | null>;
-const zodCircaResolver = zodResolver(ChronologySchema.shape.circa);
-const zodChronologyNotesResolver = zodResolver(
-    ChronologySchema.shape.chronologyNotes,
-);
-const zodArchitectOrBuilderNameResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderName,
-);
-const zodArchitectOrBuilderNotesResolver = zodResolver(
-    ArchitectBuilderSchema.shape.architectOrBuilderNotes,
-);
-const zodLinkTextResolver = zodResolver(URLsSchema.shape.linkText);
-const zodURLResolver = zodResolver(URLsSchema.shape.url);
 
-const isValidChronology = () => {
-    return chronologyForm.value?.valid;
+const chronologyResolver = getFlattenResolver(
+    zodResolver(ChronologyTileSchema.shape['aliased_data']),
+);
+const constructionActorResolver = getFlattenResolver(
+    zodResolver(ConstructionActorsTileSchema.shape['aliased_data']),
+);
+
+const LocalExternalUrlSchema = z.object({
+    external_url_type: z.any().refine((val: any) => val && val !== '', {
+        message: 'URL Type is required',
+    }),
+
+    // URL validation
+    external_url: z
+        .object({
+            url: z
+                .union([z.string(), z.null(), z.undefined()])
+                .refine(
+                    (val: any) => typeof val === 'string' && val.length > 0,
+                    {
+                        message: 'URL is required',
+                    },
+                ),
+        })
+        .passthrough(), // Allow props like 'url_label' to pass through without error
+});
+
+const externalUrlResolver = getFlattenResolver(
+    zodResolver(LocalExternalUrlSchema),
+);
+
+const getText = (node: any) => {
+    if (!node) return '';
+    if (node.display_value) return node.display_value;
+    if (typeof node.node_value === 'string') return node.node_value;
+    if (node.node_value?.en?.value) return node.node_value.en.value;
+    if (node.url) return node.url;
+    return '';
 };
-const isValidArchitectOrBuilder = () => {
-    return architectOrBuilderForm.value?.valid;
-};
-const isValidRelatedURLs = () => {
-    return relatedURLsForm.value?.valid;
-};
+
+const chronologies = computed(() =>
+    Array.isArray(heritageSite.value?.aliased_data?.chronology)
+        ? heritageSite.value.aliased_data.chronology
+        : [],
+);
+const constructionActors = computed(() =>
+    Array.isArray(heritageSite.value?.aliased_data?.construction_actors)
+        ? heritageSite.value.aliased_data.construction_actors
+        : [],
+);
+const externalUrls = computed(() =>
+    Array.isArray(heritageSite.value?.aliased_data?.external_url)
+        ? heritageSite.value.aliased_data.external_url
+        : [],
+);
+
+const isValid = () => true;
+
+const isValidChronology = computed(() => {
+    return baseIsValid(
+        chronologyForm as Ref<FormInstance>,
+        ChronologyTileSchema.shape['aliased_data'],
+    );
+});
 
 const addChronologyDisabled = computed(
-    () =>
-        chronologyForm.value?.states?.chronology?.pristine ||
-        chronologyForm.value?.states?.start_year?.pristine ||
-        chronologyForm.value?.states?.end_year?.pristine ||
-        chronologyForm.value?.states?.chronology?.invalid ||
-        chronologyForm.value?.states?.start_year?.invalid ||
-        chronologyForm.value?.states?.end_year?.invalid ||
-        heritageSiteRef.value.siteDetails?.chronologies?.length > 4,
+    () => !isValidChronology.value || (chronologies.value.length || 0) > 4,
 );
-const addArchitectOrBuilderDisabled = computed(
-    () =>
-        architectOrBuilderForm.value?.states?.architectOrBuilderName
-            ?.pristine ||
-        architectOrBuilderForm.value?.states?.construction_actor_type
-            ?.pristine ||
-        architectOrBuilderForm.value?.states?.architectOrBuilderName?.invalid ||
-        architectOrBuilderForm.value?.states?.construction_actor_type
-            ?.invalid ||
-        heritageSiteRef.value.siteDetails?.architectsOrBuilders?.length > 4,
-);
-const addURLDisabled = computed(
-    () =>
-        relatedURLsForm.value?.states?.external_url_type?.pristine ||
-        relatedURLsForm.value?.states?.linkText?.pristine ||
-        relatedURLsForm.value?.states?.url?.pristine ||
-        relatedURLsForm.value?.states?.external_url_type?.invalid ||
-        relatedURLsForm.value?.states?.linkText?.invalid ||
-        relatedURLsForm.value?.states?.url?.invalid ||
-        heritageSiteRef.value.siteDetails?.urls?.length > 4,
-);
+
+const isValidConstructionActors = () =>
+    baseIsValid(
+        constructionActorForm as Ref<FormInstance>,
+        ConstructionActorsTileSchema.shape['aliased_data'],
+    );
+
+const addConstructionActorDisabled = computed(() => {
+    const data = currentConstructionActor.value.aliased_data;
+
+    const hasName = !!(
+        data.construction_actor?.display_value ||
+        data.construction_actor?.node_value
+    );
+
+    const hasType = !!(
+        data.construction_actor_type?.display_value ||
+        data.construction_actor_type?.node_value
+    );
+
+    return (
+        !hasName ||
+        !hasType ||
+        !isValidConstructionActors() ||
+        (constructionActors.value.length || 0) > 4
+    );
+});
+
+const isValidExternalUrl = () =>
+    baseIsValid(externalUrlForm as Ref<FormInstance>, LocalExternalUrlSchema);
+
+const addExternalUrlDisabled = computed(() => {
+    const data = currentExternalUrl.value.aliased_data;
+
+    //URL Type
+    const hasUrlType = !!(
+        data.external_url_type?.display_value ||
+        data.external_url_type?.node_value
+    );
+
+    //extract data from node_value
+    const urlData = data.external_url?.node_value;
+
+    let urlString = '';
+    let labelString = '';
+
+    if (urlData) {
+        if (typeof urlData === 'string') {
+            urlString = urlData;
+        } else {
+            urlString = urlData.url || '';
+            labelString = urlData.url_label || '';
+        }
+    }
+
+    const hasUrl = urlString.trim().length > 0;
+    const hasUrlLabel = labelString.trim().length > 0;
+
+    return (
+        !hasUrlType ||
+        !hasUrl ||
+        !hasUrlLabel ||
+        !isValidExternalUrl() ||
+        (externalUrls.value.length || 0) > 4
+    );
+});
 
 const saveChronology = function () {
-    console.log('saveChronology');
-    heritageSiteRef.value.siteDetails.chronologies.push({
-        eventType: chronologyForm.value?.states?.chronology.value,
-        startYear: chronologyForm.value?.states?.start_year.value,
-        endYear: chronologyForm.value?.states?.end_year.value,
-        circa: currentChronology.circa?.toString(),
-        chronologyNotes: currentChronology.chronologyNotes,
+    if (!Array.isArray(heritageSite.value.aliased_data.chronology)) {
+        heritageSite.value.aliased_data.chronology = [];
+    }
+
+    const data = currentChronology.value.aliased_data;
+    const start = getText(data.start_year);
+    const end = getText(data.end_year);
+    const type = getText(data.chronology);
+
+    let label = type;
+    if (start || end) label += ` (${start} - ${end})`;
+    if (currentChronology.value.circa) label += ' [Circa]';
+    if (currentChronology.value.chronologyNotes)
+        label += ` - ${currentChronology.value.chronologyNotes}`;
+
+    heritageSite.value.aliased_data.chronology.push({
+        ...currentChronology.value,
+        customDisplay: label || 'Untitled Chronology',
     });
 
+    currentChronology.value = getChronology();
+    chronologyKey.value++;
     chronologyForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
 const saveArchitectOrBuilder = function () {
-    console.log('saveArchitectOrBuilder');
-    heritageSiteRef.value.siteDetails.architectsOrBuilders.push({
-        architectOrBuilderName:
-            currentArchitectOrBuilder.architectOrBuilderName,
-        architectOrBuilderType:
-            architectOrBuilderForm.value?.states?.construction_actor_type.value,
-        architectOrBuilderNotes:
-            currentArchitectOrBuilder.architectOrBuilderNotes,
+    if (!Array.isArray(heritageSite.value.aliased_data.construction_actors)) {
+        heritageSite.value.aliased_data.construction_actors = [];
+    }
+
+    const data = currentConstructionActor.value.aliased_data;
+    const name = getText(data.construction_actor);
+    const type = getText(data.construction_actor_type);
+    const notes = getText(data.construction_actor_notes);
+
+    let label = name;
+    if (type) label += ` (${type})`;
+    if (notes) label += ` - ${notes}`;
+
+    heritageSite.value.aliased_data.construction_actors.push({
+        ...currentConstructionActor.value,
+        customDisplay: label || 'Untitled Actor',
     });
 
-    architectOrBuilderForm.value?.reset();
+    currentConstructionActor.value = getConstructionActor();
+    actorKey.value++;
+    constructionActorForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
-const saveURL = function () {
-    console.log('saveURL');
-    heritageSiteRef.value.siteDetails.urls.push({
-        urlType: relatedURLsForm.value?.states?.external_url_type.value,
-        linkText: currentURL.linkText,
-        url: currentURL.url,
+
+const saveExternalUrl = function () {
+    if (!Array.isArray(heritageSite.value.aliased_data.external_url)) {
+        heritageSite.value.aliased_data.external_url = [];
+    }
+
+    const data = currentExternalUrl.value.aliased_data;
+
+    const type = getText(data.external_url_type);
+    const url = getText(data.external_url);
+
+    let label = type;
+    if (label && url) label += `: ${url}`;
+    else if (url) label = url;
+
+    heritageSite.value.aliased_data.external_url.push({
+        ...currentExternalUrl.value,
+        customDisplay: label || 'Untitled URL',
     });
 
-    relatedURLsForm.value?.reset();
+    currentExternalUrl.value = getExternalUrl();
+    urlKey.value++;
+    externalUrlForm.value?.reset();
+    emit('update:stepIsValid', isValid());
 };
 
-const deleteChronologyCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.chronologies.splice(index, 1);
+const deleteChronologyCallback = (index: number) => {
+    heritageSite.value.aliased_data.chronology.splice(index, 1);
+};
+const deleteArchitectBuilderCallback = (index: number) => {
+    heritageSite.value.aliased_data.construction_actors.splice(index, 1);
+};
+const deleteURLCallback = (index: number) => {
+    heritageSite.value.aliased_data.external_url.splice(index, 1);
 };
 
-const deleteArchitectBuilderCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.architectsOrBuilders.splice(index, 1);
-};
-
-const deleteURLCallback = function (index: number) {
-    heritageSiteRef.value.siteDetails.urls.splice(index, 1);
-};
-
-const updateChronologyModelValue = function (
-    newValue: object,
+const updateChronologyModelValue = (
+    newValue: AliasedNodeData,
     attribute_name: string,
-) {
-    console.log('updateChronologyModelValue', attribute_name, newValue);
-
-    const validator = ChronologySchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentChronology[attribute_name] = result.data;
-    }
+) => {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentChronology.value.aliased_data,
+        chronologyForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
-const updateArchitectOrBuilderTypeModelValue = function (
-    newValue: object,
+const updateConstructionActorValue = (
+    newValue: AliasedNodeData,
     attribute_name: string,
-) {
-    console.log('updateModelValue', attribute_name, newValue);
-
-    const validator = ArchitectBuilderSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentArchitectOrBuilder[attribute_name] = result.data;
-    }
+) => {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentConstructionActor.value.aliased_data,
+        constructionActorForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
-const updateURLTypeModelValue = function (
-    newValue: object,
+const updateExternalUrlModelValue = (
+    newValue: AliasedNodeData,
     attribute_name: string,
-) {
-    console.log('updateModelValue', attribute_name, newValue);
-
-    const validator = URLsSchema.shape[camelCase(attribute_name)];
-    const result = validator.safeParse(newValue);
-
-    if (result.success) {
-        currentURL[attribute_name] = result.data;
-    }
+) => {
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        currentExternalUrl.value.aliased_data,
+        externalUrlForm as Ref<FormInstance>,
+    );
+    emit('update:stepIsValid', isValid());
 };
 
-defineExpose({
-    isValidChronology,
-    isValidArchitectOrBuilder,
-    isValidRelatedURLs,
-});
-
-onMounted(() => {
-    heritageSiteRef.value.siteDetails.chronologies = chronologies;
-    heritageSiteRef.value.siteDetails.architectsOrBuilders =
-        architectsOrBuilders;
-    heritageSiteRef.value.siteDetails.urls = urls;
-});
+defineExpose({ isValid });
 </script>
+
 <template>
+    <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
+    <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div> -->
     <Form
         ref="chronologyForm"
         v-slot="$form"
         name="chronologyForm"
         :validateOnBlur="true"
+        :resolver="chronologyResolver"
     >
         <FieldSet
             id="chronologyFieldset"
+            :key="chronologyKey"
             legend="Chronology"
         >
-            <div class="flex flex-row flex-wrap gap-4">
-                <div class="inline-block">
+            <div class="flex flex-row flex-wrap">
+                <div class="flex-grow">
                     <div class="flex flex-col">
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="true"
-                            :aliasedNodeData="null"
+                            :aliasedNodeData="
+                                currentChronology.aliased_data.chronology
+                            "
                             graph-slug="heritage_site"
                             node-alias="chronology"
                             group-direction="column"
@@ -240,138 +371,156 @@ onMounted(() => {
                         />
                     </div>
                 </div>
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="null"
-                    graph-slug="heritage_site"
-                    node-alias="start_year"
-                    placeholder="Select a Start Year"
-                    group-direction="column"
-                    @update:value="
-                        updateChronologyModelValue($event, 'start_year')
-                    "
-                />
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="null"
-                    graph-slug="heritage_site"
-                    node-alias="end_year"
-                    placeholder="Select an End Year"
-                    group-direction="column"
-                    @update:value="
-                        updateChronologyModelValue($event, 'end_year')
-                    "
-                />
+                <div class="flex flex-row flex-grow">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="true"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.start_year
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="start_year"
+                        placeholder="Select a Start Year"
+                        group-direction="column"
+                        class="flex-grow"
+                        @update:value="
+                            updateChronologyModelValue($event, 'start_year')
+                        "
+                    />
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="true"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.end_year
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="end_year"
+                        placeholder="Select an End Year"
+                        group-direction="column"
+                        class="flex-grow"
+                        @update:value="
+                            updateChronologyModelValue($event, 'end_year')
+                        "
+                    />
 
-                <div class="inline-block">
-                    <FormField
-                        :resolver="zodCircaResolver"
-                        name="circa"
-                    >
-                        <Checkbox
-                            v-model="currentChronology.circa"
-                            inputId="circa"
-                            value="Circa"
-                        />
-                    </FormField>
-                    <label for="circa"> Circa </label>
+                    <div class="align-bottom">
+                        <div class="flex flex-row flex-row-checkbox">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentChronology.aliased_data
+                                        .dates_approximate
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="dates_approximate"
+                                :card-x-node-x-widget-data-overrides="
+                                    checkboxOverrides
+                                "
+                                @update:value="
+                                    updateChronologyModelValue(
+                                        $event,
+                                        'dates_approximate',
+                                    )
+                                "
+                            />
+                            <div>Circa</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodChronologyNotesResolver"
-                    name="chronologyNotes"
+
+            <div>
+                <LabelledInput
+                    label="Chronology Notes (Optional)"
+                    hint="Enter details about the significant event"
+                    input-name="chronologyNotes"
+                    :error-message="$form.chronologyNotes?.error?.message"
                 >
-                    <LabelledInput
-                        label="Chronology Notes (Optional)"
-                        hint="Enter details about the significant event"
-                        input-name="chronologyNotes"
-                        :error-message="$form.chronologyNotes?.error?.message"
-                    >
-                        <InputText
-                            id="chronologyNotes"
-                            ref="chronologyNotesField"
-                            v-model="currentChronology.chronologyNotes"
-                            placeholder="E.g. Date of major renovations"
-                            theme="snow"
-                            aria-describedby="chronology-help"
-                            fluid
-                            class="inline-block"
-                        />
-                        <Button
-                            id="saveChronology"
-                            label="Add"
-                            class="inline-block"
-                            :disabled="addChronologyDisabled"
-                            @click="saveChronology"
-                        ></Button>
-                    </LabelledInput>
-                </FormField>
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentChronology.aliased_data.chronology_notes
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="chronology_notes"
+                        @update:value="
+                            updateChronologyModelValue(
+                                $event,
+                                'chronology_notes',
+                            )
+                        "
+                    />
+                </LabelledInput>
             </div>
-            <MultiValuePlaceholder
-                v-slot="slotProps"
-                label="Chronologies"
-                :showDeleteButton="true"
-                :displayValues="chronologies"
-                :deleteCallback="deleteChronologyCallback"
-            >
-                <div
-                    v-for="slot in slotProps"
-                    :key="slot"
-                    class="parent value"
-                >
-                    {{ slot.eventType }} {{ slot.circa }} {{ slot.startYear }}
-                    {{ slot.endYear }} {{ slot.chronologyNotes }}
-                </div>
-            </MultiValuePlaceholder>
         </FieldSet>
+        <div class="row">
+            <Button
+                id="saveChronology"
+                label="+ Add Chronology"
+                class="button-padding"
+                :aria-disabled="addChronologyDisabled"
+                :disabled="addChronologyDisabled"
+                @click="saveChronology"
+            />
+            <ChipsList
+                label="Chronologies"
+                :items="chronologies"
+                display-key="customDisplay"
+                @remove="deleteChronologyCallback"
+            />
+        </div>
     </Form>
+
     <Form
-        ref="architectOrBuilderForm"
+        ref="constructionActorForm"
         v-slot="$form"
-        name="architectOrBuilderForm"
+        name="constructionActorForm"
         :validateOnBlur="true"
+        :resolver="constructionActorResolver"
     >
-        <Fieldset
+        <FieldSet
             id="architectsBuildersFieldset"
-            class="p-fieldset p-component mt-2"
+            :key="actorKey"
+            class="mt-2"
             legend="Architects / Builders"
         >
-            <div class="p-inputtext-fluid flex">
-                <FormField
-                    :resolver="zodArchitectOrBuilderNameResolver"
-                    name="architectOrBuilderName"
+            <div>
+                <LabelledInput
+                    label="Architect / Builder Name"
+                    hint="Enter the company or individual's name"
+                    input-name="architectOrBuilderName"
+                    class="flex-grow"
+                    :error-message="
+                        $form.architectOrBuilderName?.error?.message
+                    "
+                    :required="true"
                 >
-                    <LabelledInput
-                        label="Architect / Builder Name"
-                        hint="Enter the company or individual's name"
-                        input-name="architectOrBuilderName"
-                        class="inline-block"
-                        :error-message="
-                            $form.architectOrBuilderName?.error?.message
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliased-node-data="
+                            currentConstructionActor.aliased_data
+                                .construction_actor
                         "
-                        :required="true"
-                    >
-                        <div class="p-inputtext-fluid">
-                            <InputText
-                                id="architectOrBuilderName"
-                                ref="architectOrBuilderNameField"
-                                v-model="
-                                    currentArchitectOrBuilder.architectOrBuilderName
-                                "
-                                placeholder="First Name Last Name"
-                                aria-describedby="architect-or-builder-help"
-                                aria-required="true"
-                                fluid
-                            />
-                        </div>
-                    </LabelledInput>
-                </FormField>
+                        graph-slug="heritage_site"
+                        node-alias="construction_actor"
+                        placeholder="Select an Architect / Builder"
+                        group-direction="column"
+                        @update:value="
+                            updateConstructionActorValue(
+                                $event,
+                                'construction_actor',
+                            )
+                        "
+                    />
+                </LabelledInput>
+
                 <LabelledInput
                     label="Type"
                     input-name="architectOrBuilderType"
+                    class="flex-grow"
                     :error-message="
                         $form.architectOrBuilderType?.error?.message
                     "
@@ -380,13 +529,16 @@ onMounted(() => {
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliased-node-data="
+                            currentConstructionActor.aliased_data
+                                .construction_actor_type
+                        "
                         graph-slug="heritage_site"
                         node-alias="construction_actor_type"
-                        placeholder="Select an Architect / Builder Type"
+                        placeholder="Select a Type"
                         group-direction="column"
                         @update:value="
-                            updateArchitectOrBuilderTypeModelValue(
+                            updateConstructionActorValue(
                                 $event,
                                 'construction_actor_type',
                             )
@@ -394,184 +546,164 @@ onMounted(() => {
                     />
                 </LabelledInput>
             </div>
-            <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodArchitectOrBuilderNotesResolver"
-                    name="architectOrBuilderNotes"
+
+            <div>
+                <LabelledInput
+                    label="Notes (Optional)"
+                    hint="Provide any additional comments"
+                    input-name="architectOrBuilderNotes"
+                    :error-message="
+                        $form.architectOrBuilderNotes?.error?.message
+                    "
                 >
-                    <LabelledInput
-                        label="Architect / Builder Name Notes (Optional)"
-                        hint="Provide any additional comments about the architect/builder"
-                        input-name="architectOrBuilderNotes"
-                        :error-message="
-                            $form.architectOrBuilderNotes?.error?.message
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentConstructionActor.aliased_data
+                                .construction_actor_notes
                         "
-                        :required="false"
-                    >
-                        <InputText
-                            id="architectOrBuilderNotes"
-                            ref="architectOrBuilderNotesField"
-                            v-model="
-                                currentArchitectOrBuilder.architectOrBuilderNotes
-                            "
-                            placeholder="Enter relevant notes"
-                            aria-describedby="architect-or-builder-notes-help"
-                            aria-required="true"
-                            fluid
-                            class="inline-block"
-                        />
-                        <Button
-                            id="addOtherName"
-                            label="Add"
-                            class="inline-block"
-                            :disabled="addArchitectOrBuilderDisabled"
-                            @click="saveArchitectOrBuilder"
-                        ></Button>
-                    </LabelledInput>
-                </FormField>
+                        graph-slug="heritage_site"
+                        node-alias="construction_actor_notes"
+                        group-direction="column"
+                        @update:value="
+                            updateConstructionActorValue(
+                                $event,
+                                'construction_actor_notes',
+                            )
+                        "
+                    />
+                </LabelledInput>
             </div>
-            <MultiValuePlaceholder
-                v-slot="slotProps"
-                label="Architect(s) / Builder(s)"
-                :showDeleteButton="true"
-                :displayValues="architectsOrBuilders"
-                :deleteCallback="deleteArchitectBuilderCallback"
-            >
-                <div
-                    v-for="slot in slotProps"
-                    :key="slot"
-                    class="parent value"
-                >
-                    {{ slot.architectOrBuilderName }}
-                    {{ slot.architectOrBuilderType }}
-                    {{ slot.architectOrBuilderNotes }}
-                </div>
-            </MultiValuePlaceholder>
-        </Fieldset>
+        </FieldSet>
+        <div class="row">
+            <Button
+                id="addOtherName"
+                label="+ Add Architect/Builder"
+                class="button-padding"
+                :disabled="addConstructionActorDisabled"
+                @click="saveArchitectOrBuilder"
+            />
+            <ChipsList
+                label="Architects / Builders"
+                :items="constructionActors"
+                display-key="customDisplay"
+                @remove="deleteArchitectBuilderCallback"
+            />
+        </div>
     </Form>
+
     <Form
-        ref="relatedURLsForm"
+        ref="externalUrlForm"
         v-slot="$form"
-        name="relatedURLsForm"
+        name="externalUrlForm"
         :validateOnBlur="true"
+        :resolver="externalUrlResolver"
     >
-        <Fieldset
+        <FieldSet
             id="relatedURLsFieldset"
-            class="p-fieldset p-component mt-2"
+            :key="urlKey"
             legend="Related URLs"
         >
-            <div class="flex flex-row">
+            <div>
                 <LabelledInput
                     label="URL Type"
-                    hint="Acceptable URL Types"
-                    input-name="urlType"
-                    :error-message="$form.urlType?.error?.message"
+                    hint="Select the type of link"
+                    input-name="external_url_type"
+                    class="flex-grow"
+                    :error-message="$form.external_url_type?.error?.message"
                     :required="true"
                 >
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="null"
+                        :aliasedNodeData="
+                            currentExternalUrl.aliased_data.external_url_type
+                        "
                         graph-slug="heritage_site"
                         node-alias="external_url_type"
                         placeholder="Select a URL Type"
                         group-direction="column"
                         @update:value="
-                            updateURLTypeModelValue($event, 'external_url_type')
+                            updateExternalUrlModelValue(
+                                $event,
+                                'external_url_type',
+                            )
                         "
                     />
                 </LabelledInput>
-                <FormField
-                    :resolver="zodLinkTextResolver"
-                    name="linkText"
+
+                <LabelledInput
+                    label="URL"
+                    hint="e.g. https://www.example.com"
+                    input-name="external_url"
+                    class="flex-grow"
+                    :error-message="$form.external_url?.error?.message"
+                    :required="true"
                 >
-                    <LabelledInput
-                        label="Link Text"
-                        hint="Enter text that describes the link"
-                        input-name="linkText"
-                        :error-message="$form.linkText?.error?.message"
-                        :required="true"
-                    >
-                        <div class="p-inputtext-fluid">
-                            <InputText
-                                id="linkText"
-                                ref="linkTextField"
-                                v-model="currentURL.linkText"
-                                placeholder="E.g. Emily Carr House Website"
-                                aria-describedby="link-text-help"
-                                aria-required="true"
-                                fluid
-                            />
-                        </div>
-                    </LabelledInput>
-                </FormField>
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentExternalUrl.aliased_data.external_url
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="external_url"
+                        group-direction="column"
+                        @update:value="
+                            updateExternalUrlModelValue($event, 'external_url')
+                        "
+                    />
+                </LabelledInput>
             </div>
-            <div class="p-inputtext-fluid">
-                <FormField
-                    :resolver="zodURLResolver"
-                    name="url"
-                >
-                    <LabelledInput
-                        label="URL"
-                        hint="URL must be stable and publicly accessible"
-                        input-name="url"
-                        :error-message="$form.url?.error?.message"
-                        :required="true"
-                    >
-                        <div class="flex flex-row full-width">
-                            <InputText
-                                id="url"
-                                ref="urlField"
-                                v-model="currentURL.url"
-                                placeholder="Enter public URL"
-                                aria-describedby="url-help"
-                                aria-required="true"
-                                fluid
-                                class="inline-block"
-                            />
-                            <Button
-                                id="saveURL"
-                                label="Add"
-                                class="inline-block"
-                                :disabled="addURLDisabled"
-                                @click="saveURL"
-                            ></Button>
-                        </div>
-                    </LabelledInput>
-                </FormField>
-                <MultiValuePlaceholder
-                    v-slot="slotProps"
-                    label="URL(s)"
-                    :showDeleteButton="true"
-                    :displayValues="urls"
-                    :deleteCallback="deleteURLCallback"
-                >
-                    <div
-                        v-for="slot in slotProps"
-                        :key="slot"
-                        class="parent value"
-                    >
-                        {{ slot.urlType }} {{ slot.url }}
-                        {{ slot.linkText }}
-                    </div>
-                </MultiValuePlaceholder>
-            </div>
-        </Fieldset>
+        </FieldSet>
+        <div class="row">
+            <Button
+                id="saveURL"
+                label="+ Add URL"
+                class="button-padding"
+                :disabled="addExternalUrlDisabled"
+                @click="saveExternalUrl"
+            />
+            <ChipsList
+                label="Related URLs"
+                :items="externalUrls"
+                display-key="customDisplay"
+                @remove="deleteURLCallback"
+            />
+        </div>
     </Form>
+    <br /><br /><br />
 </template>
 
-<style>
-.inline-block {
-    display: inline-block;
-    width: unset;
+<style scoped>
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
 }
 
-.p-inputtext-fluid.inline-block {
-    width: calc(100% - 6.5rem);
-    margin-right: 1rem;
+.flex-row-checkbox {
+    gap: 0.25rem !important;
 }
 
-.full-width {
-    width: 100%;
+.flex-grow {
+    flex-grow: 1;
+}
+
+.align-bottom {
+    margin-bottom: 0;
+    margin-top: auto;
+}
+
+.button-padding {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
 }
 </style>

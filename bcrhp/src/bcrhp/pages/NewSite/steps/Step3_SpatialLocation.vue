@@ -1,158 +1,214 @@
 <script setup lang="ts">
-import { inject, ref, onMounted } from 'vue';
+import { computed, inject, useTemplateRef, ref } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
-
+import { Form, type FormInstance } from '@primevue/forms';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import type { HeritageSite } from '@/bcrhp/schema/HeritageSiteSchema.ts';
-import type { CivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
-import { getCivicAddress } from '@/bcrhp/schema/CivicAddressSchema.ts';
-import { requiredCivicAddressSchema } from '@/bcrhp/schema/CivicAddressSchema.ts';
-import type { ZodError } from 'zod';
+import {
+    getUniquePIDsFromHeritageSite,
+    type HeritageSiteType,
+} from '@/bcrhp/schemas/heritage_site.ts';
 
-const heritageSite: typeof HeritageSite = inject(
-    'heritageSite',
-) as typeof HeritageSite;
-// const civicAddress: { [id: string] : CivicAddress; } = heritageSite.value.civicAddress;
-let currentCivicAddress: typeof CivicAddress = getCivicAddress();
-// civicAddress[currentCivicAddress.civicAddressId] = currentCivicAddress;
+import {
+    getSiteBoundary,
+    SiteBoundaryTileSchema,
+} from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
-// This is needed to access the IPA Data in methods? The above appears to be undefined after mounting.
-const civicAddressRef: Ref<typeof CivicAddress> = ref(currentCivicAddress);
+import {
+    isValid as baseIsValid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
 
-type FormErrors = Partial<Record<keyof typeof CivicAddress, string[]>>;
-const errors: Ref<FormErrors> = ref<FormErrors>({});
+import type {
+    AliasedNodeData,
+    CardXNodeXWidgetData,
+} from '@/arches_component_lab/types.ts';
 
-// These names need to match the Zog schema
-const fields = {};
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
+import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
+
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+
+const isBoundaryBypassed = ref(false);
+
+const ensureSiteLocation = () => {
+    if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
+        heritageSite.value?.aliased_data.heritage_site_location.push(
+            getHeritageSiteLocation(),
+        );
+    }
+    if (
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data
+            .site_boundary.length === 0
+    ) {
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data.site_boundary.push(
+            getSiteBoundary(),
+        );
+    }
+};
+
+const hasSinglePID = computed(() => {
+    return getUniquePIDsFromHeritageSite(heritageSite.value).length === 1;
+});
+
+const emit = defineEmits(['update:stepIsValid']);
+
+const siteBoundaryForm: Ref<FormInstance | null> = useTemplateRef(
+    'siteBoundaryForm',
+) as Ref<FormInstance | null>;
+
+const mapOverrides = {
+    widget: {
+        widgetid: '',
+        component:
+            'bcgov_arches_common/widgets/MapDropZoneWidget/MapDropZoneWidget.vue',
+    },
+} satisfies Partial<CardXNodeXWidgetData>;
 
 const isValid = () => {
-    // We don't want to validate fields the first time we show the step
-    if (!validateFields) {
-        validateFields = true;
-        return true;
-    }
-    if (!currentCivicAddress.hasCivicAddress) {
-        return true;
-    }
-    let valid = true;
+    if (isBoundaryBypassed.value === true) return true;
 
-    for (const field of Object.values(fields) as Array<Ref>) {
-        valid = validateField(field?.value.$el as HTMLInputElement) && valid;
-    }
-    return valid;
-};
-
-const validateField = function (field: HTMLInputElement) {
-    console.log(`ID: ${field.id}`);
-    const key: keyof typeof CivicAddress =
-        field.id as keyof typeof CivicAddress;
-    const fieldValidation = requiredCivicAddressSchema.shape[key].safeParse(
-        civicAddressRef.value[key],
+    let formIsValid = baseIsValid(
+        siteBoundaryForm as Ref<FormInstance>,
+        SiteBoundaryTileSchema.shape['aliased_data'],
     );
-    if (fieldValidation.success) {
-        field.classList.remove('p-invalid');
-        errors.value[key] = [];
-    } else {
-        field.classList.add('p-invalid');
-        errors.value[key] = (
-            fieldValidation.error as typeof ZodError
-        ).flatten().formErrors;
-    }
-    return fieldValidation.success;
+    return (
+        formIsValid &&
+        (heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            .aliased_data?.site_boundary.length ?? 0) > 0 &&
+        FeatureCollectionWithNonEmptyPolygonsSchema.safeParse(
+            heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+                .aliased_data?.site_boundary?.[0].aliased_data?.site_boundary
+                ?.node_value,
+        )?.success
+    );
 };
 
-const disableAddressSection = ref(false);
+const siteBoundaryResolver = getFlattenResolver(
+    zodResolver(SiteBoundaryTileSchema.shape['aliased_data']),
+);
 
-const hasAddressChanged = function () {
-    currentCivicAddress.hasCivicAddress = !currentCivicAddress.hasCivicAddress;
-    console.log(`Has address?: ${currentCivicAddress.hasCivicAddress}`);
-    disableAddressSection.value = !currentCivicAddress.hasCivicAddress;
+const onBypassToggle = () => {
+    emit('update:stepIsValid', isValid());
 };
 
-let validateFields = false;
+const updateModelValue = async function (
+    newValue: AliasedNodeData,
+    attribute_name: string,
+) {
+    ensureSiteLocation();
+    baseUpdateModelValue(
+        newValue,
+        attribute_name,
+        heritageSite.value?.aliased_data?.heritage_site_location[0].aliased_data
+            ?.site_boundary[0].aliased_data,
+        siteBoundaryForm as Ref<FormInstance>,
+    ).then(() => {
+        emit('update:stepIsValid', isValid());
+    });
+};
 
 // This needs to be removed - added because ESLint was complaining. Need to figure out
 // configuration so API methods are not
 defineExpose({ isValid });
-
-onMounted(() => {});
 </script>
 <template>
-    <div class="flex flex-col container-width">
-        <div style="display: none">Child {{ currentCivicAddress }}</div>
-        <FieldSet
-            id="siteBoundaryFieldSet"
-            legend="Site Boundary"
-            style="width: 55%; display: inline-block"
-        >
-            <div class="flex flex-row container-width">
-                <div>
-                    <LabelledCheckboxInput
-                        label="Site Boundary incorrect"
-                        hint="Update the geometry"
-                        input-name="hasCivicAddress"
-                    >
-                        <Checkbox
-                            id="boundaryIncorrect"
-                            ref="boundaryIncorrectField"
-                            :model-value="heritageSite.siteBoundaryIncorrect"
-                            aria-describedby="has-civic-address-help"
-                            aria-required="true"
-                            fluid
-                            binary
-                            small
-                            @change="hasAddressChanged"
-                        />
-                    </LabelledCheckboxInput>
-                    <LabelledInput
-                        label="Site Boundary"
-                        hint="Drag KML, GeoJSON or Shapefile here"
-                        input-name="authorizingAgency"
-                        :error-message="errors.streetAddress?.join(',')"
-                        :required="true"
-                    >
-                        <div>
-                            Need geometry upload component for Geometry upload
-                        </div>
-                        <div>Need map display component</div>
-                        <div class="instructions">
-                            <div>
-                                If there is no geospatial data/file add a Site
-                                Map under the Supporting Documents step.
-                            </div>
-                            <div>
-                                If the geospatial file does not import
-                                successfully, add files under the Supporting
-                                Documents step.
-                            </div>
-                        </div>
-                    </LabelledInput>
-                </div>
-                <div
-                    style="
-                        width: 45%;
-                        display: inline-block;
-                        background-color: darkgoldenrod;
-                        height: 400px;
-                        margin-left: 6rem;
-                    "
-                ></div>
+    <Form
+        ref="siteBoundaryForm"
+        name="siteBoundaryForm"
+        :validateOnBlur="true"
+        :validateOnValueUpdate="true"
+        :resolver="siteBoundaryResolver"
+    >
+        <div>
+            <div class="mb-4">
+                <LabelledCheckboxInput
+                    label="Bypass Site Boundary"
+                    hint="Check this box if the geometry is incorrect or unavailable at this time."
+                    input-name="bypassBoundary"
+                >
+                    <Checkbox
+                        id="boundaryIncorrect"
+                        v-model="isBoundaryBypassed"
+                        :binary="true"
+                        @change="onBypassToggle"
+                        small
+                    />
+                </LabelledCheckboxInput>
             </div>
-        </FieldSet>
-    </div>
+            <FieldSet
+                id="siteBoundaryFieldSet"
+                legend="Site Boundary"
+                :disabled="isBoundaryBypassed"
+            >
+                <div>
+                    <div>
+                        <LabelledInput
+                            label="Site Boundary"
+                            :required="!isBoundaryBypassed"
+                        >
+                            <div class="instructions">
+                                <ol>
+                                    <li>
+                                        If there is no geospatial data/file add
+                                        a Site Map under the Supporting
+                                        Documents step.
+                                    </li>
+                                    <li>
+                                        If the geospatial file does not import
+                                        successfully, add files under the
+                                        Supporting Documents step.
+                                    </li>
+                                </ol>
+                            </div>
+                            <GenericWidget
+                                graph-slug="heritage_site"
+                                node-alias="site_boundary"
+                                :should-show-label="false"
+                                :card-x-node-x-widget-data-overrides="
+                                    mapOverrides
+                                "
+                                :mode="EDIT"
+                                :aliased-node-data="
+                                    heritageSite.value?.aliased_data
+                                        ?.heritage_site_location[0].aliased_data
+                                        ?.site_boundary[0].aliased_data
+                                        .site_boundary
+                                "
+                                @update:value="
+                                    updateModelValue($event, 'site_boundary')
+                                "
+                            ></GenericWidget>
+                        </LabelledInput>
+                    </div>
+                </div>
+            </FieldSet>
+        </div>
+    </Form>
 </template>
 
-<style>
+<style scoped>
+.instructions {
+    margin-left: 2rem;
+}
+
+.instructions > ol {
+    list-style-type: decimal;
+}
+
 .inline-block {
     display: inline-block;
     width: unset;
 }
 
 .container-width {
-    width: 1058;
+    width: 1058px;
 }
 </style>
