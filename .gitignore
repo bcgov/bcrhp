@@ -156,3 +156,8 @@ coverage/
 node_modules
 .vscode/
 CACHE
+
+settings_docker.py
+
+#test resuts
+test-results

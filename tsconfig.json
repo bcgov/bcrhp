@@ -1,99 +1,24 @@
 {
-  "extends": "./.tsconfig-paths.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    "jsxImportSource": "vue",
-    "strict": true,
-    "noEmit": true,
-    "noImplicitThis": false,
-    "verbatimModuleSyntax": true,
-    "useDefineForClassFields": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "types": [
-      "vitest/globals",
-      "vite/client",
-    ],
-    "allowImportingTsExtensions": true,
-    "noUnusedLocals": true,
-    "paths": {
-      "@s:webpack_loader/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/webpack_loader/static/webpack_loader/*"
-      ],
-      "@t:webpack_loader/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/webpack_loader/templates/webpack_loader/*"
-      ],
-      "@s:django_hosts/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/django_hosts/static/django_hosts/*"
-      ],
-      "@t:django_hosts/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/django_hosts/templates/django_hosts/*"
-      ],
-      "@s:arches/*": [
-        "./../arches/arches/static/arches/*"
-      ],
-      "@t:arches/*": [
-        "./../arches/arches/templates/arches/*"
-      ],
-      "@s:guardian/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/guardian/static/guardian/*"
-      ],
-      "@t:guardian/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/guardian/templates/guardian/*"
-      ],
-      "@s:captcha/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/captcha/static/captcha/*"
-      ],
-      "@t:captcha/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/captcha/templates/captcha/*"
-      ],
-      "@s:revproxy/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/revproxy/static/revproxy/*"
-      ],
-      "@t:revproxy/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/revproxy/templates/revproxy/*"
-      ],
-      "@s:corsheaders/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/corsheaders/static/corsheaders/*"
-      ],
-      "@t:corsheaders/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/corsheaders/templates/corsheaders/*"
-      ],
-      "@s:oauth2_provider/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/oauth2_provider/static/oauth2_provider/*"
-      ],
-      "@t:oauth2_provider/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/oauth2_provider/templates/oauth2_provider/*"
-      ],
-      "@s:django_celery_results/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/django_celery_results/static/django_celery_results/*"
-      ],
-      "@t:django_celery_results/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/django_celery_results/templates/django_celery_results/*"
-      ],
-      "@s:storages/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/storages/static/storages/*"
-      ],
-      "@t:storages/*": [
-        "./../../usr/local/lib/python3.11/dist-packages/storages/templates/storages/*"
-      ],
-      "@s:bcrhp/*": [
-        "./bcrhp/static/bcrhp/*"
-      ],
-      "@t:bcrhp/*": [
-        "./bcrhp/templates/bcrhp/*"
-      ],
-      "@s:bcgov_arches_common/*": [
-        "./node_modules/bcgov_arches_common/bcgov_arches_common/media/bcgov_arches_common/*"
-      ],
-      "@t:bcgov_arches_common/*": [
-        "./../arches_common/bcgov_arches_common/templates/bcgov_arches_common/*"
-      ]
-    }
-  }
+    "extends": "./.tsconfig-paths.json",
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+        "strict": true,
+        "noEmit": true,
+        "noImplicitThis": false,
+        "verbatimModuleSyntax": true,
+        "useDefineForClassFields": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "types": ["vitest/globals", "vite/client"],
+        "allowImportingTsExtensions": true,
+        "noUnusedLocals": true
+    },
+    "include": ["bcrhp/src/**/*.ts", "bcrhp/src/**/*.vue"],
+    "exclude": ["vite-shims", "tests/playwright"]
 }
