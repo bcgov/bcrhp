@@ -53,7 +53,7 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'City' }).click();
     await page.getByRole('textbox', { name: 'City' }).fill('city');
     await page.getByRole('textbox', { name: 'Postal Code' }).click();
-    await page.getByRole('textbox', { name: 'Postal Code' }).fill('T5T5T5');
+    await page.getByRole('textbox', { name: 'Postal Code' }).fill('T5T 5T5');
     await page.getByRole('textbox', { name: 'Locality' }).click();
     await page.getByRole('textbox', { name: 'Locality' }).fill('locality');
     await page.locator('#location_description .ql-editor').first().click();
