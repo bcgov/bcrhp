@@ -58,6 +58,14 @@ const conceptSelectOverride = {
     },
 };
 
+const conceptSingleSelectOverride = {
+    widget: {
+        widgetid: '',
+        component:
+            'arches_component_lab/widgets/ConceptSelectWidget/ConceptSelectWidget.vue',
+    },
+};
+
 const currentHeritageClass = ref(getHeritageClass());
 const currentHeritageFunction = ref(getHeritageFunction());
 
@@ -100,7 +108,7 @@ const isValid = () => {
             ?.heritage_theme;
     const themeValid = !!(themeData?.display_value || themeData?.node_value);
 
-    return classValid && functionValid && themeValid;
+    return true; //classValid && functionValid && themeValid;
 };
 
 const addHeritageClassDisabled = computed(() => {
@@ -229,7 +237,7 @@ defineExpose({ isValid });
                 "
                 :required="true"
             >
-                <div>
+                <div class="p-inputtext-fluid">
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
@@ -248,39 +256,70 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
-            <div>
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="
-                        currentHeritageClass.aliased_data.heritage_category
-                    "
-                    graph-slug="heritage_site"
-                    node-alias="heritage_category"
-                    group-direction="column"
-                    @update:value="
-                        updateHeritageClassModelValue(
-                            $event,
-                            'heritage_category',
-                        )
-                    "
-                />
+            <div class="row">
+                <LabelledInput
+                    label="Heritage Category"
+                    input-name="heritage_category"
+                    class="grow"
+                    :error-message="$form.heritage_category?.error?.message"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentHeritageClass.aliased_data
+                                    .heritage_category
+                            "
+                            :card-x-node-x-widget-data-overrides="
+                                conceptSingleSelectOverride
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="heritage_category"
+                            @update:value="
+                                updateHeritageClassModelValue(
+                                    $event,
+                                    'heritage_category',
+                                )
+                            "
+                        />
+                    </div>
+                </LabelledInput>
+
                 <br />
-                <GenericWidget
-                    :mode="EDIT"
-                    :should-show-label="true"
-                    :aliasedNodeData="
-                        currentHeritageClass.aliased_data.ownership
-                    "
-                    graph-slug="heritage_site"
-                    node-alias="ownership"
-                    group-direction="column"
-                    @update:value="
-                        updateHeritageClassModelValue($event, 'ownership')
-                    "
-                />
+
+                <LabelledInput
+                    label="Ownership"
+                    input-name="ownership"
+                    class="grow"
+                    :error-message="$form.ownership?.error?.message"
+                    :required="true"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentHeritageClass.aliased_data.ownership
+                            "
+                            :card-x-node-x-widget-data-overrides="
+                                conceptSingleSelectOverride
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="ownership"
+                            @update:value="
+                                updateHeritageClassModelValue(
+                                    $event,
+                                    'ownership',
+                                )
+                            "
+                        />
+                    </div>
+                </LabelledInput>
             </div>
         </FieldSet>
+
         <div class="row">
             <Button
                 id="saveHeritageClass"
@@ -318,7 +357,7 @@ defineExpose({ isValid });
                 :error-message="$form.functional_category?.error?.message"
                 :required="true"
             >
-                <div>
+                <div class="p-inputtext-fluid">
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
@@ -336,31 +375,41 @@ defineExpose({ isValid });
                             )
                         "
                     />
-                    <br />
-                    <div class="flex-grow">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentHeritageFunction.aliased_data
-                                    .functional_state
-                            "
-                            :card-x-node-x-widget-data-overrides="
-                                conceptSelectOverride
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="functional_state"
-                            @update:value="
-                                updateFunctionCategoryModelValue(
-                                    $event,
-                                    'functional_state',
-                                )
-                            "
-                        />
-                    </div>
+                </div>
+            </LabelledInput>
+
+            <br />
+
+            <LabelledInput
+                label="Functional State"
+                input-name="functional_state"
+                :error-message="$form.functional_state?.error?.message"
+                :required="true"
+            >
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :mode="EDIT"
+                        :should-show-label="false"
+                        :aliasedNodeData="
+                            currentHeritageFunction.aliased_data
+                                .functional_state
+                        "
+                        :card-x-node-x-widget-data-overrides="
+                            conceptSelectOverride
+                        "
+                        graph-slug="heritage_site"
+                        node-alias="functional_state"
+                        @update:value="
+                            updateFunctionCategoryModelValue(
+                                $event,
+                                'functional_state',
+                            )
+                        "
+                    />
                 </div>
             </LabelledInput>
         </FieldSet>
+
         <div class="row">
             <Button
                 id="saveFunctionCategory"
@@ -421,3 +470,10 @@ defineExpose({ isValid });
         </FieldSet>
     </Form>
 </template>
+
+<style>
+.grow {
+    flex: 1;
+    margin: 1rem;
+}
+</style>

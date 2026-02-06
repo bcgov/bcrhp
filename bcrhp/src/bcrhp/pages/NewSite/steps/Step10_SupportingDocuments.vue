@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, useTemplateRef, inject, ref } from 'vue';
 import type { Ref } from 'vue';
-
 import FieldSet from 'primevue/fieldset';
 import Editor from 'primevue/editor';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import MultiValuePlaceholder from '@/bcgov_arches_common/components/multiValuePlaceholder/MultiValuePlaceholder.vue';
+import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
@@ -80,14 +79,21 @@ const addDocumentDisabled = computed(() => {
 });
 
 const saveDocument = async function () {
-    heritageSite.value.aliased_data.site_document.push(siteDocument.value);
+    const type =
+        siteDocument.value.aliased_data.document_type?.display_value || '';
+    const name =
+        siteDocument.value.aliased_data.site_document?.node_value?.[0]?.name ||
+        '';
+
+    const eventToSave = {
+        ...siteDocument.value,
+        customDisplay: `${type} - ${name}`,
+    };
+
+    heritageSite.value.aliased_data.site_document.push(eventToSave);
 
     siteDocument.value = getSiteDocument();
-
-    // Increment the key to force the GenericWidget to re-render from scratch
     siteDocumentKey.value++;
-
-    // Optional: Reset the form validation state to remove any "touched" or error states
     supportingDocumentsForm.value?.reset();
 };
 
@@ -95,10 +101,9 @@ const deleteSiteDocument = function (index: number) {
     heritageSite.value.aliased_data.site_document.splice(index, 1);
 };
 
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
 defineExpose({ isValid });
 </script>
+
 <template>
     <Form
         ref="supportingDocumentsForm"
@@ -126,19 +131,9 @@ defineExpose({ isValid });
                         </li>
                     </ul>
                 </div>
-                <div>
-                    <Button
-                        id="addOtherName"
-                        label="+ Add"
-                        class="inline-block"
-                        :aria-disabled="addDocumentDisabled"
-                        :disabled="addDocumentDisabled"
-                        @click="saveDocument"
-                    ></Button>
-                </div>
             </div>
-            <div class="flex flex-row gap-4">
-                <div class="flex flex-col">
+            <div>
+                <div>
                     <GenericWidget
                         :key="siteDocumentKey"
                         graph-slug="heritage_site"
@@ -153,7 +148,8 @@ defineExpose({ isValid });
                         "
                     ></GenericWidget>
                 </div>
-                <div class="flex flex-col">
+                <br />
+                <div>
                     <GenericWidget
                         :key="siteDocumentKey"
                         graph-slug="heritage_site"
@@ -170,6 +166,7 @@ defineExpose({ isValid });
                             updateModelValue($event, 'document_type')
                         "
                     ></GenericWidget>
+                    <br />
                     <GenericWidget
                         :key="siteDocumentKey"
                         graph-slug="heritage_site"
@@ -184,46 +181,32 @@ defineExpose({ isValid });
                             updateModelValue($event, 'document_description')
                         "
                     ></GenericWidget>
+                    <br />
                 </div>
             </div>
-            <MultiValuePlaceholder
-                v-slot="slotProps"
-                label="Site Documents"
-                :showDeleteButton="true"
-                :displayValues="siteDocumentList"
-                :deleteCallback="deleteSiteDocument"
-            >
-                <div class="parent value">
-                    <GenericWidget
-                        graph-slug="heritage_site"
-                        :mode="VIEW"
-                        :should-show-label="false"
-                        node-alias="site_document"
-                        :aliased-node-data="
-                            slotProps.value?.aliased_data.site_document
-                        "
-                    />
-                    {{
-                        slotProps.value?.aliased_data.document_type
-                            .display_value
-                    }}
-                    -
-                    {{
-                        slotProps.value?.aliased_data.site_document
-                            ?.node_value?.[0].name
-                    }}
-                    {{
-                        slotProps.value?.aliased_data.document_description
-                            .display_value
-                    }}
-                </div>
-            </MultiValuePlaceholder>
         </FieldSet>
     </Form>
+    <br />
+    <div class="row">
+        <Button
+            id="addOtherName"
+            label="+ Add"
+            class="button-padding"
+            :aria-disabled="addDocumentDisabled"
+            :disabled="addDocumentDisabled"
+            @click="saveDocument"
+        ></Button>
+        <ChipsList
+            label="Site Documents"
+            :items="siteDocumentList"
+            display-key="customDisplay"
+            @remove="deleteSiteDocument"
+        />
+    </div>
+    <br /><br />
     <Form>
-        <Fieldset
+        <FieldSet
             id="submissionNotesFieldset"
-            class="p-fieldset p-component mt-2"
             legend="Submission Notes (Optional)"
         >
             <LabelledInput
@@ -241,7 +224,7 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
-        </Fieldset>
+        </FieldSet>
     </Form>
 </template>
 
