@@ -176,7 +176,7 @@ test('test', async ({ page }) => {
     // await page.setInputFiles('input[type="file"]', 'tests/house.jpg');
     await page.setInputFiles(
         'div[data-node-alias="site_images"] input[type="file"]',
-        path.join(__dirname, 'house.jpg'),
+        path.join(__dirname, 'east_side.jpg'),
     );
     await page.locator('#image_type').getByText('Select an option').click();
     await page
@@ -215,11 +215,19 @@ test('test', async ({ page }) => {
     // --- 8 SITE CLASSIFICATION ---
     page.locator('#contributing_resource_count').click();
     page.locator('#contributing_resource_count').fill('2');
-    // await page.getByRole('spinbutton', { name: 'Enter number' }).click();
     await page
-        .getByRole('radio', { name: 'Archaeological Site / Remains' })
-        .check();
-    await page.getByRole('radio', { name: 'Not-for-profit' }).check();
+        .locator('#heritage_category')
+        .getByText('Select an option')
+        .click();
+    await page
+        .locator('div')
+        .filter({ hasText: /^Archaeological Site \/ Remains$/ })
+        .click();
+    await page.locator('#ownership').getByText('Select an option').click();
+    await page
+        .locator('div')
+        .filter({ hasText: /^Not-for-profit$/ })
+        .click();
     await page.getByRole('button', { name: '+ Add Heritage Class' }).click();
     await page
         .locator('#functional_category')
