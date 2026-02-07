@@ -3,12 +3,14 @@ import { computed, inject, type Ref } from 'vue';
 import Message from 'primevue/message';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { SiteNamesTileType } from '@/bcrhp/schemas/heritage_site/site_names.ts';
+import { currentDateValue } from '@/bcrhp/utils.ts';
 import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+const today = currentDateValue();
 
 defineProps<{
     submissionErrors: ErrorMessage[];
@@ -40,6 +42,20 @@ const otherNames = computed(() => {
 });
 
 const isValid = function () {
+    //add the date to submission
+    const adminList = heritageSite.value?.aliased_data?.site_record_admin;
+
+    if (adminList && adminList.length === 0) {
+        adminList.push({
+            aliased_data: {
+                date_submitted_to_crhp: {
+                    ...today,
+                    display_value: today.node_value,
+                },
+            },
+        } as any);
+    }
+
     return true;
 };
 
@@ -48,6 +64,17 @@ defineExpose({ isValid });
 
 <template>
     <div class="step-title">Submission Details</div>
+
+    <div class="row">
+        <dt>Submission Date:&nbsp;</dt>
+        <dd>
+            {{
+                heritageSite.aliased_data?.site_record_admin?.[0]?.aliased_data
+                    ?.date_submitted_to_crhp?.display_value || today.node_value
+            }}
+        </dd>
+    </div>
+
     <section
         v-if="submissionErrors && submissionErrors.length"
         class="mt-4"
@@ -458,6 +485,9 @@ defineExpose({ isValid });
     border-top: thin solid #ccc;
     padding-top: 0.25rem;
     margin-top: 0.5rem;
+}
+dt {
+    margin-left: 0.75rem;
 }
 </style>
 <style>
