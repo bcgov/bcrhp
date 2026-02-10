@@ -78,9 +78,9 @@ export async function submitHeritageSite(
             const file: FileReference = image_tile.aliased_data.site_images
                 .node_value[0] as FileReference;
             if (file) {
-                file.file_id = `file-list_${file.node_id}`;
+                file.file_id = `file-list_${file.node_id}-${index}`;
                 fd.append(
-                    `file-list_${file.node_id}`,
+                    `file-list_${file.node_id}-${index}`,
                     file.file as File,
                     file.name,
                 );
