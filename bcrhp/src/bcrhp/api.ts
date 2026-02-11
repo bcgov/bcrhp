@@ -46,22 +46,37 @@ export type PidData = {
 };
 
 export async function getPidData(pid: string): Promise<Partial<PidData>> {
-    const response = await fetch(arches.urls.pmbc_parcel_data + pid, {
+    const response = await fetch(arches.urls.pmbc_parcel_data(pid), {
         method: 'GET',
     });
 
-    if (response.ok) {
-        return {
-            success: response.ok,
-            pid: pid,
-            legalDescription: response.headers.get('LegalDescription') ?? '',
-            boundary: await response.json(),
-        };
+    //bad response
+    if (!response.ok) {
+        return { success: false, errors: [response.statusText] };
     }
-    return {
-        success: false,
-        errors: [response.statusText],
+
+    const data = await response.json();
+    const features = data?.data?.features || [];
+
+    //no features
+    if (features.length === 0) {
+        return { success: false, errors: ['no features found'] };
+    }
+
+    const firstFeature = features[0];
+    const result: Partial<PidData> = {
+        success: true,
+        pid: firstFeature.properties.PID,
+        legalDescription: firstFeature.properties.LEGALDESCRIPTION,
+        boundary: firstFeature,
     };
+
+    //warning if more then 1 feature
+    if (features.length > 1) {
+        result.errors = ['warning: more than one feature found'];
+    }
+
+    return result;
 }
 
 export async function submitHeritageSite(
