@@ -41,7 +41,6 @@ const otherNames = computed(() => {
     );
 });
 
-// NEW: Helper to get site documents
 const siteDocuments = computed(() => {
     return heritageSite.value?.aliased_data?.site_document ?? [];
 });
@@ -70,7 +69,13 @@ defineExpose({ isValid });
 <template>
     <div class="step-title">Submission Details</div>
 
-    <div class="row">
+    <div
+        class="row"
+        v-if="
+            heritageSite.aliased_data?.site_record_admin?.[0]?.aliased_data
+                ?.date_submitted_to_crhp?.display_value
+        "
+    >
         <dt>Submission Date:&nbsp;</dt>
         <dd>
             {{
