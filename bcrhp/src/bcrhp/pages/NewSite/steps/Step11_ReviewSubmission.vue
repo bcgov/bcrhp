@@ -41,6 +41,11 @@ const otherNames = computed(() => {
     );
 });
 
+// NEW: Helper to get site documents
+const siteDocuments = computed(() => {
+    return heritageSite.value?.aliased_data?.site_document ?? [];
+});
+
 const isValid = function () {
     //add the date to submission
     const adminList = heritageSite.value?.aliased_data?.site_record_admin;
@@ -449,6 +454,47 @@ defineExpose({ isValid });
             </dd>
         </div>
     </Fieldset>
+
+    <Fieldset
+        legend="Supporting Documents"
+        class="review-fieldset"
+    >
+        <div v-if="siteDocuments.length === 0">No documents uploaded.</div>
+        <div
+            v-for="(doc, index) in siteDocuments"
+            :key="doc"
+            :class="{ 'border-t pt-4 mt-4': index > 0 }"
+            class="div-grid-cols mb-2"
+        >
+            <dt>Document Type</dt>
+            <dd>{{ doc.aliased_data.document_type?.display_value || '-' }}</dd>
+
+            <dt>File Name</dt>
+            <dd>
+                {{
+                    doc.aliased_data.site_document?.node_value?.[0]?.name || '-'
+                }}
+            </dd>
+
+            <dt>Description</dt>
+            <dd>
+                {{
+                    doc.aliased_data.document_description?.display_value || '-'
+                }}
+            </dd>
+        </div>
+    </Fieldset>
+
+    <Fieldset
+        v-if="
+            heritageSite.submissionNotes &&
+            heritageSite.submissionNotes !== '<p><br></p>'
+        "
+        legend="Submission Notes"
+        class="review-fieldset"
+    >
+        <div v-html="heritageSite.submissionNotes"></div>
+    </Fieldset>
 </template>
 
 <style scoped>
@@ -472,10 +518,6 @@ defineExpose({ isValid });
     grid-template-columns: 200px 1fr;
     gap: 0.75rem 1rem;
     align-items: start;
-}
-.div-grid-cols dt {
-    font-weight: bold;
-    color: #444;
 }
 .div-grid-cols dt {
     font-weight: bold;
