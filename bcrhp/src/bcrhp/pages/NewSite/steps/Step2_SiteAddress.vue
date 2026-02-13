@@ -65,6 +65,7 @@ let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
 );
 const isOverrideActive = ref(false);
 const legalWidgetRef = useTemplateRef('legalWidgetRef');
+const tempBoundaryData = ref<any>(null);
 
 // Keys to force UI resets
 const addressFormKey = ref(0);
@@ -259,6 +260,7 @@ function openLegalDialog(addressIndex: number) {
     currentPidLength.value = 0;
 
     addLegalDescriptionVisible.value = true;
+    tempBoundaryData.value = null;
 }
 
 function saveLegalDescription() {
@@ -271,15 +273,29 @@ function saveLegalDescription() {
                 [];
         }
 
+        //convert PID to Number before saving
+        const stringPid =
+            currentLegalDescription.value.aliased_data.pid.node_value;
+        if (stringPid) {
+            const numericPid = parseInt(stringPid);
+            currentLegalDescription.value.aliased_data.pid.node_value =
+                numericPid;
+        }
         legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description.push(
             currentLegalDescription.value,
         );
+        if (tempBoundaryData.value) {
+            ensureSiteLocation();
+            heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.site_boundary[0].aliased_data.site_boundary =
+                tempBoundaryData.value;
+        }
     }
 
     currentLegalDescription.value = getLegalDescription();
     isOverrideActive.value = false;
     addLegalDescriptionVisible.value = false;
     legalDescriptionTargetAddress.value = null;
+    tempBoundaryData.value = null;
     emit('update:stepIsValid', isValid());
 }
 
@@ -333,20 +349,15 @@ const validatePID = async () => {
         const data = await getPidData(pid);
 
         if (data.boundary) {
-            ensureSiteLocation();
-
             const geojsonValue = {
                 type: 'FeatureCollection',
                 features: [data.boundary],
             };
-            const boundaryData = {
+            tempBoundaryData.value = {
                 display_value: 'PID Boundary',
                 node_value: geojsonValue,
                 details: [],
             };
-
-            heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.site_boundary[0].aliased_data.site_boundary =
-                boundaryData;
         }
         if (data.legalDescription) {
             updateLegal(
@@ -595,6 +606,7 @@ defineExpose({ isValid });
         :closable="true"
         :dismissableMask="false"
         @show="pidField"
+        class="dialogFonts"
     >
         <Form
             ref="legalDescriptionForm"
@@ -726,23 +738,10 @@ defineExpose({ isValid });
 .input-grow {
     width: 100%;
 }
-
-/* Force the hint container to be visible and take up space */
-body .p-message.p-message-secondary.label-message {
-    display: flex !important;
-    height: auto !important;
-    min-height: 20px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    margin-top: 0.25rem;
-    overflow: visible !important;
+.dialogFonts {
+    font-size: 1rem;
 }
-
-/* Ensure the text inside hint box is visible and readable */
-body .p-message.p-message-secondary.label-message .p-message-text {
-    display: block !important;
-    color: #555 !important;
-    font-size: 0.85rem;
-    line-height: 1.2;
+.dialogFonts label {
+    font-size: 0.875rem;
 }
 </style>
