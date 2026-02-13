@@ -35,6 +35,7 @@ import {
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
@@ -298,6 +299,27 @@ const isValid = () => {
     return propertyAddressList.value.length > 0;
 };
 
+const ensureSiteLocation = () => {
+    // 1. Ensure location exists
+    if (!heritageSite.value.aliased_data.heritage_site_location) {
+        heritageSite.value.aliased_data.heritage_site_location = [];
+    }
+    if (heritageSite.value.aliased_data.heritage_site_location.length === 0) {
+        heritageSite.value.aliased_data.heritage_site_location.push(
+            getHeritageSiteLocation(),
+        );
+    }
+
+    // 2. Ensure site_boundary array exists inside location
+    const location = heritageSite.value.aliased_data.heritage_site_location[0];
+    if (!location.aliased_data.site_boundary) {
+        location.aliased_data.site_boundary = [];
+    }
+    if (location.aliased_data.site_boundary.length === 0) {
+        location.aliased_data.site_boundary.push(getSiteBoundary());
+    }
+};
+
 const validatePID = async () => {
     const pidVal =
         currentLegalDescription.value?.aliased_data?.pid?.display_value ||
@@ -310,6 +332,22 @@ const validatePID = async () => {
     try {
         const data = await getPidData(pid);
 
+        if (data.boundary) {
+            ensureSiteLocation();
+
+            const geojsonValue = {
+                type: 'FeatureCollection',
+                features: [data.boundary],
+            };
+            const boundaryData = {
+                display_value: 'PID Boundary',
+                node_value: geojsonValue,
+                details: [],
+            };
+
+            heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.site_boundary[0].aliased_data.site_boundary =
+                boundaryData;
+        }
         if (data.legalDescription) {
             updateLegal(
                 {
@@ -687,5 +725,24 @@ defineExpose({ isValid });
 }
 .input-grow {
     width: 100%;
+}
+
+/* Force the hint container to be visible and take up space */
+body .p-message.p-message-secondary.label-message {
+    display: flex !important;
+    height: auto !important;
+    min-height: 20px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin-top: 0.25rem;
+    overflow: visible !important;
+}
+
+/* Ensure the text inside hint box is visible and readable */
+body .p-message.p-message-secondary.label-message .p-message-text {
+    display: block !important;
+    color: #555 !important;
+    font-size: 0.85rem;
+    line-height: 1.2;
 }
 </style>
