@@ -177,10 +177,10 @@ defineExpose({ isValid });
                                 "
                                 :mode="EDIT"
                                 :aliased-node-data="
-                                    heritageSite.value?.aliased_data
-                                        ?.heritage_site_location[0].aliased_data
-                                        ?.site_boundary[0].aliased_data
-                                        .site_boundary
+                                    heritageSite?.aliased_data
+                                        ?.heritage_site_location?.[0]
+                                        ?.aliased_data?.site_boundary?.[0]
+                                        ?.aliased_data?.site_boundary
                                 "
                                 @update:value="
                                     updateModelValue($event, 'site_boundary')
