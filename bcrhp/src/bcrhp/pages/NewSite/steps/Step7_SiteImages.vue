@@ -3,7 +3,7 @@ import { ref, useTemplateRef, inject, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
-import FieldSet from 'primevue/fieldset'; // Added import
+import FieldSet from 'primevue/fieldset';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
@@ -41,7 +41,7 @@ const getBlankSiteImage = () => {
     return siteImage;
 };
 
-const currentSiteImage: SiteImagesTileType = ref(getBlankSiteImage());
+const currentSiteImage: Ref<SiteImagesTileType> = ref(getBlankSiteImage());
 const siteImageKey = ref<number>(0);
 const addingNewImage = ref<boolean>(true);
 
@@ -51,6 +51,11 @@ const siteImageList = computed(() => {
 
 const siteImagesCount = computed(() => {
     return siteImageList.value.length;
+});
+
+const hasUnsavedImage = computed(() => {
+    const nodes = currentSiteImage.value?.aliased_data?.site_images?.node_value;
+    return Array.isArray(nodes) && nodes.length > 0;
 });
 
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
@@ -91,6 +96,11 @@ const addNewImage = function () {
     siteImageKey.value = nextImageKey.value;
 };
 
+const clearPendingImage = () => {
+    currentSiteImage.value = getBlankSiteImage();
+    siteImageKey.value++;
+};
+
 const saveImage = async function () {
     heritageSite.value.aliased_data.site_images.push(currentSiteImage.value);
 
@@ -125,9 +135,9 @@ const setPrimaryImage = function (index: number) {
         ];
     }
     heritageSite.value.aliased_data.site_images.forEach(
-        (image: SiteImagesTileType, index: number) => {
+        (image: SiteImagesTileType, idx: number) => {
             image.aliased_data.primary_image =
-                index === 0 ? trueBooleanValue : falseBooleanValue;
+                idx === 0 ? trueBooleanValue : falseBooleanValue;
         },
     );
 };
@@ -147,6 +157,7 @@ const updateModelValue = function (
 
 defineExpose({ isValid });
 </script>
+
 <template>
     <Form
         ref="siteImageForm"
@@ -156,12 +167,25 @@ defineExpose({ isValid });
         :resolver="imageFormResolver"
     >
         <FieldSet legend="Site Images">
-            <div
-                class="flex flex-row"
-                style="flex-wrap: nowrap"
-            >
-                <div>
+            <div class="flex flex-row flex-nowrap">
+                <div class="uploader-container">
+                    <div
+                        v-if="
+                            siteImagesCount >= 10 &&
+                            !hasUnsavedImage &&
+                            addingNewImage
+                        "
+                        class="max-limit-message"
+                    >
+                        <i class="fa fa-ban limit-icon"></i>
+                        <div>Maximum of 10 images reached.</div>
+                        <div class="limit-subtext">
+                            Please delete an image to add more.
+                        </div>
+                    </div>
+
                     <GenericWidget
+                        v-else-if="!hasUnsavedImage && addingNewImage"
                         :key="siteImageKey"
                         graph-slug="heritage_site"
                         node-alias="site_images"
@@ -172,6 +196,29 @@ defineExpose({ isValid });
                         "
                         @update:value="updateModelValue($event, 'site_images')"
                     ></GenericWidget>
+
+                    <div
+                        v-else
+                        class="pending-image-preview"
+                    >
+                        <GenericWidget
+                            :key="`view-${siteImageKey}`"
+                            graph-slug="heritage_site"
+                            node-alias="site_images"
+                            :should-show-label="false"
+                            :mode="VIEW"
+                            :aliased-node-data="
+                                currentSiteImage?.aliased_data?.site_images
+                            "
+                        ></GenericWidget>
+
+                        <Button
+                            v-if="addingNewImage"
+                            label="Remove / Change Image"
+                            icon="fa fa-times"
+                            @click="clearPendingImage"
+                        />
+                    </div>
                 </div>
 
                 <div class="placeholders">
@@ -208,19 +255,19 @@ defineExpose({ isValid });
                             <div
                                 class="fa fa-remove image-icons image-delete-icon"
                                 tooltip="Remove Image"
-                                @click="deleteSiteImage(index)"
+                                @click.stop="deleteSiteImage(index)"
                             ></div>
                             <div
                                 v-if="index !== 0"
                                 class="fa fa-flag image-icons image-primary-icon"
                                 tooltip="Set as Primary Image"
-                                @click="setPrimaryImage(index)"
+                                @click.stop="setPrimaryImage(index)"
                             ></div>
                             <GenericWidget
                                 graph-slug="heritage_site"
                                 :mode="VIEW"
                                 :should-show-label="false"
-                                node-alias="site_document"
+                                node-alias="site_images"
                                 :aliased-node-data="
                                     image.aliased_data.site_images
                                 "
@@ -230,7 +277,7 @@ defineExpose({ isValid });
                 </div>
             </div>
             <div class="flex flex-row">
-                <div style="flex-grow: 1">
+                <div class="flex-grow">
                     <LabelledInput
                         label="Image Type"
                         hint="Select Historical or Contemporary image type"
@@ -253,7 +300,7 @@ defineExpose({ isValid });
                     </LabelledInput>
                 </div>
 
-                <div style="flex-grow: 1">
+                <div class="flex-grow">
                     <LabelledInput
                         label="Image View"
                         hint="Select the view that best describes the image"
@@ -400,7 +447,49 @@ defineExpose({ isValid });
     flex-direction: row;
     align-items: start;
 }
-.placeholders {
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+.flex-grow {
+    flex-grow: 1;
+}
+
+.uploader-container {
+    width: 300px;
+    min-height: 200px;
+}
+
+.max-limit-message {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #495057;
+    font-weight: 600;
+}
+
+.limit-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #aaa;
+}
+
+.limit-subtext {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.pending-image-preview {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
 }
 
 .image-placeholders {
@@ -413,7 +502,7 @@ defineExpose({ isValid });
     min-width: 125px;
     max-height: 125px;
     position: relative;
-    overflow: clip;
+    overflow: hidden;
 }
 
 .image-icons {
@@ -424,8 +513,9 @@ defineExpose({ isValid });
     height: 1rem;
     z-index: 1000;
     background: rgba(0, 0, 0, 0.5);
-    align-content: center;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 2px;
     border-radius: 3px;
 }
@@ -439,19 +529,9 @@ defineExpose({ isValid });
     top: 1.6rem;
     color: orange;
 }
-
-.primary-image-select {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    cursor: pointer;
-    width: 1rem;
-    height: 1rem;
-    z-index: 1000;
-}
 </style>
 <style>
 .image-placeholder[data-selected='false'] {
-    opacity: 70%;
+    opacity: 0.7;
 }
 </style>
