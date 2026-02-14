@@ -5,7 +5,7 @@ import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
 import { Form, type FormInstance } from '@primevue/forms';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
@@ -37,6 +37,7 @@ import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_comm
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
 const isBoundaryBypassed = ref(false);
+const overrideBoundary = ref(false);
 
 const ensureSiteLocation = () => {
     if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
@@ -56,6 +57,21 @@ const ensureSiteLocation = () => {
 
 const hasSinglePID = computed(() => {
     return getUniquePIDsFromHeritageSite(heritageSite.value).length === 1;
+});
+
+// Check if valid boundary data exists
+const hasBoundaryData = computed(() => {
+    const features =
+        heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            ?.aliased_data?.site_boundary?.[0]?.aliased_data?.site_boundary
+            ?.node_value?.features;
+    return Array.isArray(features) && features.length > 0;
+});
+
+const widgetMode = computed(() => {
+    if (!hasBoundaryData.value) return EDIT;
+    if (overrideBoundary.value) return EDIT;
+    return VIEW;
 });
 
 const emit = defineEmits(['update:stepIsValid']);
@@ -115,8 +131,6 @@ const updateModelValue = async function (
     });
 };
 
-// This needs to be removed - added because ESLint was complaining. Need to figure out
-// configuration so API methods are not
 defineExpose({ isValid });
 </script>
 <template>
@@ -154,7 +168,28 @@ defineExpose({ isValid });
                             label="Site Boundary"
                             :required="!isBoundaryBypassed"
                         >
-                            <div class="instructions">
+                            <div
+                                v-if="hasBoundaryData"
+                                class="mb-3"
+                            >
+                                <LabelledCheckboxInput
+                                    label="Update / Replace existing boundary data"
+                                    hint="Check this box to upload a new file"
+                                    input-name="overrideBoundary"
+                                >
+                                    <Checkbox
+                                        id="overrideBoundary"
+                                        v-model="overrideBoundary"
+                                        :binary="true"
+                                        small
+                                    />
+                                </LabelledCheckboxInput>
+                            </div>
+
+                            <div
+                                v-if="widgetMode === EDIT"
+                                class="instructions"
+                            >
                                 <ol>
                                     <li>
                                         If there is no geospatial data/file add
@@ -168,6 +203,7 @@ defineExpose({ isValid });
                                     </li>
                                 </ol>
                             </div>
+
                             <GenericWidget
                                 graph-slug="heritage_site"
                                 node-alias="site_boundary"
@@ -175,12 +211,12 @@ defineExpose({ isValid });
                                 :card-x-node-x-widget-data-overrides="
                                     mapOverrides
                                 "
-                                :mode="EDIT"
+                                :mode="widgetMode"
                                 :aliased-node-data="
-                                    heritageSite.value?.aliased_data
-                                        ?.heritage_site_location[0].aliased_data
-                                        ?.site_boundary[0].aliased_data
-                                        .site_boundary
+                                    heritageSite?.aliased_data
+                                        ?.heritage_site_location?.[0]
+                                        ?.aliased_data?.site_boundary?.[0]
+                                        ?.aliased_data?.site_boundary
                                 "
                                 @update:value="
                                     updateModelValue($event, 'site_boundary')

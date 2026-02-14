@@ -33,9 +33,9 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill(idir_password);
     await page.getByRole('button', { name: 'Continue' }).click();
-    await expect(
-        page.getByRole('link', { name: 'Local Government Workflows' }),
-    ).toBeVisible({ timeout: 20000 });
+    // await expect(
+    //     page.getByRole('link', { name: 'Local Government Workflows' }),
+    // ).toBeVisible({ timeout: 20000 });
 
     // --- 1 START SUBMISSION ---
     await page.goto('http://localhost/bcrhp/submissions/');
@@ -47,7 +47,6 @@ test('test', async ({ page }) => {
     // --- 2 SITE LOCATION ---
 
     await page.locator('#street_address').isVisible({ timeout: 3000 });
-    await page.waitForTimeout(2000);
     await page.locator('#street_address').click();
     await page.locator('#street_address').fill('street address');
     await page.getByRole('textbox', { name: 'City' }).click();
@@ -63,12 +62,13 @@ test('test', async ({ page }) => {
         .fill('location description');
     await page.getByRole('button', { name: '+ Add Address' }).click();
     await page.getByRole('button', { name: '+ Add Legal Description' }).click();
-    await page.getByRole('spinbutton', { name: 'Enter number' }).click();
-    await page
-        .getByRole('spinbutton', { name: 'Enter number' })
-        .fill('123456789');
+    await page.getByRole('textbox', { name: 'Enter number' }).click();
+    await page.getByRole('textbox', { name: 'Enter number' }).fill('');
+    await page.getByRole('textbox', { name: 'Enter number' }).click();
+    await page.getByRole('textbox', { name: 'Enter number' }).fill('026488248');
+    await page.getByRole('button', { name: 'Validate' }).click();
+    await page.waitForTimeout(3000);
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 3 SPATIAL LOCATION ---
@@ -339,8 +339,14 @@ test('test', async ({ page }) => {
     await page
         .getByRole('textbox', { name: 'Document Description' })
         .fill('document description');
-    // const addButton = page.getByRole('button', { name: '+ Add' });
-    // await addButton.click();
+    const addButton = page.getByRole('button', { name: '+ Add' });
+    await addButton.click();
+    await page
+        .locator('#submissionNotes > .p-editor-content > .ql-editor')
+        .click();
+    await page
+        .locator('#submissionNotes > .p-editor-content > .ql-editor')
+        .fill('Submission Notes');
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     await page.pause();

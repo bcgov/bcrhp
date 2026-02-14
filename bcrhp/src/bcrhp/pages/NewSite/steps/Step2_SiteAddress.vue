@@ -19,6 +19,7 @@ import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinpu
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import { getPidData } from '@/bcrhp/api.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 import {
@@ -34,11 +35,14 @@ import {
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isValidatingPid = ref(false);
+const currentPidLength = ref(0); // Dedicated ref for button reactivity
 
-//refs and state
+// Refs and state
 let hasPropertyAddress = ref(true);
 let currentPropertyAddress: Ref<BcPropertyAddressTileType> =
     ref(getPropertyAddress());
@@ -60,8 +64,10 @@ let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
     getLegalDescription(),
 );
 const isOverrideActive = ref(false);
+const legalWidgetRef = useTemplateRef('legalWidgetRef');
+const tempBoundaryData = ref<any>(null);
 
-//keys to force UI resets
+// Keys to force UI resets
 const addressFormKey = ref(0);
 const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
@@ -90,8 +96,13 @@ const propertyAddressResolver = getFlattenResolver(
     ),
 );
 
+// Override the legal resolver to accept strings/any for the PID
 const legalAddressResolver = getFlattenResolver(
-    zodResolver(BcPropertyLegalDescriptionTileSchema.shape['aliased_data']),
+    zodResolver(
+        BcPropertyLegalDescriptionTileSchema.shape['aliased_data'].extend({
+            pid: z.any(),
+        }),
+    ),
 );
 
 const currentAddressHasStreet = computed(() => {
@@ -127,14 +138,19 @@ const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
     let sanitizedValue = newValue;
 
     if (attribute_name === 'pid') {
-        const rawValue = newValue?.display_value || '';
-        const limitedValue = rawValue.toString().slice(0, 9);
+        const rawValue = String(newValue?.display_value || '');
+        const numericOnly = rawValue.replace(/\D/g, '');
+        const limitedValue = numericOnly.slice(0, 9);
 
         sanitizedValue = {
             ...newValue,
             display_value: limitedValue,
             node_value: limitedValue,
+            details: [],
         };
+
+        // Directly update our reactive length tracker
+        currentPidLength.value = limitedValue.length;
     }
 
     baseUpdateModelValue(
@@ -179,7 +195,6 @@ const saveAddress = function () {
 };
 
 const setCurrentPropertyAddress = function (index: number) {
-    console.log(`Editing address at index ${index}`);
     currentPropertyAddress.value = propertyAddressList.value[index];
     addressFormKey.value = index;
     addingNewAddress.value = false;
@@ -200,7 +215,7 @@ const hasAddressChanged = function () {
 
 const disableAddressSection = computed(() => !hasPropertyAddress.value);
 
-//helper for chip list
+// Helper for chip list
 const getAddressLabel = (addr: any) => {
     const data = addr?.aliased_data || {};
 
@@ -211,8 +226,6 @@ const getAddressLabel = (addr: any) => {
         else if (typeof node.node_value === 'string') val = node.node_value;
         else if (node.node_value?.en?.value) val = node.node_value.en.value;
         else if (typeof node === 'string') val = node;
-
-        // Strip HTML tags
         return val.replace(/<[^>]*>?/gm, '');
     };
 
@@ -235,7 +248,6 @@ const getLegalsForAddress = (addr: any) => {
 };
 
 function openLegalDialog(addressIndex: number) {
-    // Set separate target for dialog interaction
     legalDescriptionTargetAddress.value =
         propertyAddressList.value[addressIndex];
 
@@ -243,7 +255,12 @@ function openLegalDialog(addressIndex: number) {
     isOverrideActive.value = false;
     legalFormKey.value = nextLegalDescriptionKey.value;
     legalDescriptionForm.value?.reset();
+
+    // Reset length tracker for new entry
+    currentPidLength.value = 0;
+
     addLegalDescriptionVisible.value = true;
+    tempBoundaryData.value = null;
 }
 
 function saveLegalDescription() {
@@ -256,15 +273,29 @@ function saveLegalDescription() {
                 [];
         }
 
+        //convert PID to Number before saving
+        const stringPid =
+            currentLegalDescription.value.aliased_data.pid.node_value;
+        if (stringPid) {
+            const numericPid = parseInt(stringPid);
+            currentLegalDescription.value.aliased_data.pid.node_value =
+                numericPid;
+        }
         legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description.push(
             currentLegalDescription.value,
         );
+        if (tempBoundaryData.value) {
+            ensureSiteLocation();
+            heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.site_boundary[0].aliased_data.site_boundary =
+                tempBoundaryData.value;
+        }
     }
 
     currentLegalDescription.value = getLegalDescription();
     isOverrideActive.value = false;
     addLegalDescriptionVisible.value = false;
     legalDescriptionTargetAddress.value = null;
+    tempBoundaryData.value = null;
     emit('update:stepIsValid', isValid());
 }
 
@@ -282,6 +313,81 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
 const isValid = () => {
     if (!hasPropertyAddress.value) return true;
     return propertyAddressList.value.length > 0;
+};
+
+const ensureSiteLocation = () => {
+    // 1. Ensure location exists
+    if (!heritageSite.value.aliased_data.heritage_site_location) {
+        heritageSite.value.aliased_data.heritage_site_location = [];
+    }
+    if (heritageSite.value.aliased_data.heritage_site_location.length === 0) {
+        heritageSite.value.aliased_data.heritage_site_location.push(
+            getHeritageSiteLocation(),
+        );
+    }
+
+    // 2. Ensure site_boundary array exists inside location
+    const location = heritageSite.value.aliased_data.heritage_site_location[0];
+    if (!location.aliased_data.site_boundary) {
+        location.aliased_data.site_boundary = [];
+    }
+    if (location.aliased_data.site_boundary.length === 0) {
+        location.aliased_data.site_boundary.push(getSiteBoundary());
+    }
+};
+
+const validatePID = async () => {
+    const pidVal =
+        currentLegalDescription.value?.aliased_data?.pid?.display_value ||
+        currentLegalDescription.value?.aliased_data?.pid?.node_value;
+    const pid = String(pidVal || '').replace(/\D/g, '');
+
+    if (!pid || pid.length < 9) return;
+    isValidatingPid.value = true;
+
+    try {
+        const data = await getPidData(pid);
+
+        if (data.boundary) {
+            const geojsonValue = {
+                type: 'FeatureCollection',
+                features: [data.boundary],
+            };
+            tempBoundaryData.value = {
+                display_value: 'PID Boundary',
+                node_value: geojsonValue,
+                details: [],
+            };
+        }
+        if (data.legalDescription) {
+            updateLegal(
+                {
+                    display_value: data.legalDescription,
+                    node_value: data.legalDescription,
+                    details: [],
+                },
+                'legal_description',
+            );
+            //it's hacky but it works
+            const inputLd = (legalWidgetRef.value as any)?.$el?.querySelector(
+                'input, textarea',
+            );
+            if (inputLd) {
+                inputLd.value = data.legalDescription;
+                inputLd.dispatchEvent(new Event('input', { bubbles: true }));
+                inputLd.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    } finally {
+        isValidatingPid.value = false;
+    }
+};
+
+const stringWidgetOverride = {
+    widget: {
+        widgetid: '',
+        component: 'arches_component_lab/widgets/TextWidget/TextWidget.vue',
+    },
 };
 
 defineExpose({ isValid });
@@ -500,6 +606,7 @@ defineExpose({ isValid });
         :closable="true"
         :dismissableMask="false"
         @show="pidField"
+        class="dialogFonts"
     >
         <Form
             ref="legalDescriptionForm"
@@ -527,6 +634,9 @@ defineExpose({ isValid });
                                 :aliased-node-data="
                                     currentLegalDescription?.aliased_data?.pid
                                 "
+                                :card-x-node-x-widget-data-overrides="
+                                    stringWidgetOverride
+                                "
                                 graph-slug="heritage_site"
                                 node-alias="pid"
                                 @update:value="updateLegal($event, 'pid')"
@@ -535,6 +645,9 @@ defineExpose({ isValid });
                                 id="validateParcel"
                                 label="Validate"
                                 class="button-padding"
+                                :loading="isValidatingPid"
+                                :disabled="currentPidLength !== 9"
+                                @click="validatePID"
                             ></Button>
                         </div>
                     </div>
@@ -547,16 +660,15 @@ defineExpose({ isValid });
                 :error-message="$form.legalAddress?.error?.message"
                 :required="true"
             >
-                <fieldset
-                    :disabled="!isOverrideActive"
-                    style="border: none; padding: 0; margin: 0; min-width: 0"
-                >
+                <fieldset :disabled="!isOverrideActive">
                     <GenericWidget
+                        ref="legalWidgetRef"
                         :mode="EDIT"
+                        :disabled="!isOverrideActive"
                         :should-show-label="false"
                         :aliased-node-data="
-                            currentLegalDescription?.aliased_data
-                                ?.legal_description
+                            currentLegalDescription.aliased_data
+                                .legal_description
                         "
                         graph-slug="heritage_site"
                         node-alias="legal_description"
@@ -625,5 +737,11 @@ defineExpose({ isValid });
 }
 .input-grow {
     width: 100%;
+}
+.dialogFonts {
+    font-size: 1rem;
+}
+.dialogFonts label {
+    font-size: 0.875rem;
 }
 </style>
