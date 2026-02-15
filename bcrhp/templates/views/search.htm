@@ -14,21 +14,3 @@
 {% csrf_token %}
 
 {% endblock main_content %}
-
-{% block navbar %}
-{{ block.super }}
-{% if user.is_authenticated and request.user.username != 'anonymous' %}
-<ul class="list-group" aria-label="Site Submissions menu">
-    <!-- Site Submissions -->
-    <li>
-        <a href="/bcrhp/submissions" aria-labelledby="submissions-link-label" target="site_submissions">
-            <i class="fa fa-file-lines"></i>
-            <span class="menu-title">
-                                    <strong id="submissions-link-label">Site Submissions</strong>
-                                </span>
-        </a>
-    </li>
-</ul>
-{% endif %}
-{% endblock navbar %}
-
