@@ -1,5 +1,6 @@
 import logging
 import traceback
+import uuid
 from urllib.parse import urlparse, parse_qs
 
 from arches.app.utils.betterJSONSerializer import JSONSerializer
@@ -209,16 +210,38 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         for loc in site["aliased_data"]["heritage_site_location"]:
             for sb in loc["aliased_data"]["site_boundary"]:
                 print(sb["aliased_data"]["site_boundary"])
-                print(
-                    sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
+                if (
+                    "bbox"
+                    in sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
                         "geometry"
-                    ].pop("bbox")
-                )
+                    ]
+                ):
+                    print(
+                        sb["aliased_data"]["site_boundary"]["node_value"]["features"][
+                            0
+                        ]["geometry"].pop("bbox")
+                    )
+
+                # The feature ID coming from Cadastral Parcelmap is not a UUID so replace it with on
+                try:
+                    uuid.UUID(
+                        str(
+                            sb["aliased_data"]["site_boundary"]["node_value"][
+                                "features"
+                            ][0]["id"]
+                        )
+                    )
+                except ValueError:
+                    sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
+                        "id"
+                    ] = str(uuid.uuid4())
+
                 sb["aliased_data"]["site_boundary"][
                     "node_value"
                 ] = JSONSerializer().serialize(
                     sb["aliased_data"]["site_boundary"]["node_value"]
                 )
+
         site["aliased_data"].pop("borden_number")
         site["aliased_data"]["bc_right"]["aliased_data"]["registration_status"][
             "node_value"

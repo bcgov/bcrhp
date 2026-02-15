@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="heritage_site_boundary_poly" id="heritage_site_boundary_poly">
+	<SimpleField name="sitename" type="string"></SimpleField>
+	<SimpleField name="nametype" type="string"></SimpleField>
+	<SimpleField name="address" type="string"></SimpleField>
+	<SimpleField name="city" type="string"></SimpleField>
+	<SimpleField name="province" type="string"></SimpleField>
+	<SimpleField name="postalcode" type="string"></SimpleField>
+	<SimpleField name="locality" type="string"></SimpleField>
+	<SimpleField name="locdesc" type="string"></SimpleField>
+	<SimpleField name="PID" type="string"></SimpleField>
+	<SimpleField name="PIN" type="string"></SimpleField>
+	<SimpleField name="legaldesc" type="string"></SimpleField>
+	<SimpleField name="LGLADDNOTE" type="string"></SimpleField>
+	<SimpleField name="srcnts" type="string"></SimpleField>
+	<SimpleField name="accuracyrm" type="string"></SimpleField>
+	<SimpleField name="borden" type="string"></SimpleField>
+	<SimpleField name="regstatus" type="string"></SimpleField>
+	<SimpleField name="recognized" type="string"></SimpleField>
+	<SimpleField name="regtype" type="string"></SimpleField>
+	<SimpleField name="desigstart" type="string"></SimpleField>
+	<SimpleField name="desigend" type="string"></SimpleField>
+	<SimpleField name="legact" type="string"></SimpleField>
+	<SimpleField name="government" type="string"></SimpleField>
+	<SimpleField name="refnum" type="string"></SimpleField>
+	<SimpleField name="desig_note" type="string"></SimpleField>
+	<SimpleField name="class_reso" type="string"></SimpleField>
+	<SimpleField name="category" type="string"></SimpleField>
+	<SimpleField name="ownership" type="string"></SimpleField>
+	<SimpleField name="funct_cat" type="string"></SimpleField>
+	<SimpleField name="func_state" type="string"></SimpleField>
+	<SimpleField name="heritheme" type="string"></SimpleField>
+	<SimpleField name="Builder" type="string"></SimpleField>
+	<SimpleField name="buildtype" type="string"></SimpleField>
+	<SimpleField name="Buildnotes" type="string"></SimpleField>
+	<SimpleField name="event" type="string"></SimpleField>
+	<SimpleField name="startyear" type="string"></SimpleField>
+	<SimpleField name="chendyear" type="string"></SimpleField>
+	<SimpleField name="dateapprox" type="string"></SimpleField>
+	<SimpleField name="datesource" type="string"></SimpleField>
+	<SimpleField name="datenotes" type="string"></SimpleField>
+	<SimpleField name="sostype" type="string"></SimpleField>
+	<SimpleField name="sosdescrip" type="string"></SimpleField>
+	<SimpleField name="soshv" type="string"></SimpleField>
+	<SimpleField name="soscdf" type="string"></SimpleField>
+	<SimpleField name="sosdocloc" type="string"></SimpleField>
+	<SimpleField name="ST_IMGS" type="string"></SimpleField>
+	<SimpleField name="prim_image" type="string"></SimpleField>
+	<SimpleField name="crhp_image" type="string"></SimpleField>
+	<SimpleField name="imagetype" type="string"></SimpleField>
+	<SimpleField name="image_view" type="string"></SimpleField>
+	<SimpleField name="image_feat" type="string"></SimpleField>
+	<SimpleField name="image_date" type="string"></SimpleField>
+	<SimpleField name="image_desc" type="string"></SimpleField>
+	<SimpleField name="photograph" type="string"></SimpleField>
+	<SimpleField name="copyright" type="string"></SimpleField>
+	<SimpleField name="doctype" type="string"></SimpleField>
+	<SimpleField name="docdesc" type="string"></SimpleField>
+	<SimpleField name="sitedoc" type="string"></SimpleField>
+	<SimpleField name="urltype" type="string"></SimpleField>
+	<SimpleField name="url" type="string"></SimpleField>
+	<SimpleField name="childsite" type="string"></SimpleField>
+	<SimpleField name="bcrstatus" type="string"></SimpleField>
+	<SimpleField name="restricted" type="string"></SimpleField>
+	<SimpleField name="crsubstat" type="string"></SimpleField>
+	<SimpleField name="datesubmit" type="string"></SimpleField>
+	<SimpleField name="fedid" type="string"></SimpleField>
+	<SimpleField name="remarktype" type="string"></SimpleField>
+	<SimpleField name="remark" type="string"></SimpleField>
+	<SimpleField name="remarkdate" type="string"></SimpleField>
+	<SimpleField name="resourceid" type="string"></SimpleField>
+</Schema>
+<Folder><name>heritage_site_boundary_poly</name>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#heritage_site_boundary_poly">
+		<SimpleData name="sitename">test site for shape export, other names</SimpleData>
+		<SimpleData name="nametype">Common, Other</SimpleData>
+		<SimpleData name="address">st</SimpleData>
+		<SimpleData name="city">None</SimpleData>
+		<SimpleData name="postalcode">T5T 5T5</SimpleData>
+		<SimpleData name="locality">None</SimpleData>
+		<SimpleData name="locdesc">&lt;p&gt;location&amp;nbsp;description&lt;/p&gt;</SimpleData>
+		<SimpleData name="PID">26488248.0</SimpleData>
+		<SimpleData name="PIN">None</SimpleData>
+		<SimpleData name="legaldesc">LOT 47 SECTION 16 TOWNSHIP 39 NEW WESTMINSTER DISTRICT PLAN BCP20445</SimpleData>
+		<SimpleData name="LGLADDNOTE">None</SimpleData>
+		<SimpleData name="srcnts">None</SimpleData>
+		<SimpleData name="accuracyrm">None</SimpleData>
+		<SimpleData name="regstatus">Registered</SimpleData>
+		<SimpleData name="recognized">True</SimpleData>
+		<SimpleData name="regtype">Local/Regional Heritage Site</SimpleData>
+		<SimpleData name="desigstart">2026-02-27</SimpleData>
+		<SimpleData name="desigend">None</SimpleData>
+		<SimpleData name="legact">Municipal, Community Charter,  s 225, Heritage Tax Exemption</SimpleData>
+		<SimpleData name="refnum">bylaw 123</SimpleData>
+		<SimpleData name="desig_note">None</SimpleData>
+		<SimpleData name="class_reso">2.0</SimpleData>
+		<SimpleData name="category">Archaeological Site / Remains</SimpleData>
+		<SimpleData name="ownership">Not-for-profit</SimpleData>
+		<SimpleData name="funct_cat">Commerce / Commercial Services</SimpleData>
+		<SimpleData name="func_state">Current</SimpleData>
+		<SimpleData name="heritheme">Building Social and Community Life,Education and Social Well-Being</SimpleData>
+		<SimpleData name="Builder">bob</SimpleData>
+		<SimpleData name="buildtype">Builder</SimpleData>
+		<SimpleData name="Buildnotes">notes</SimpleData>
+		<SimpleData name="event">Construction</SimpleData>
+		<SimpleData name="startyear">2020</SimpleData>
+		<SimpleData name="chendyear">2029</SimpleData>
+		<SimpleData name="dateapprox">None</SimpleData>
+		<SimpleData name="datesource">None</SimpleData>
+		<SimpleData name="datenotes">None</SimpleData>
+		<SimpleData name="sosdescrip">&lt;p&gt;statement&amp;nbsp;of&amp;nbsp;significance&lt;/p&gt;</SimpleData>
+		<SimpleData name="soshv">&lt;p&gt;heritage&amp;nbsp;value&lt;/p&gt;</SimpleData>
+		<SimpleData name="soscdf">&lt;p&gt;character&amp;nbsp;defining&amp;nbsp;elements&lt;/p&gt;</SimpleData>
+		<SimpleData name="sosdocloc">Somewhere around here...</SimpleData>
+		<SimpleData name="ST_IMGS">/files/473ba2a0-a162-4e35-9fa1-e8c97d177c64, /files/60eeb30d-e8e9-4ec4-b2e6-a4c9d032432f</SimpleData>
+		<SimpleData name="prim_image">None, None</SimpleData>
+		<SimpleData name="crhp_image">None, None</SimpleData>
+		<SimpleData name="imagetype">Contemporary, Historical</SimpleData>
+		<SimpleData name="image_view">Exterior, Interior</SimpleData>
+		<SimpleData name="image_feat">image features, image features 2</SimpleData>
+		<SimpleData name="image_date">2026, 2026</SimpleData>
+		<SimpleData name="image_desc">&lt;p&gt;image&amp;nbsp;description&lt;/p&gt;, &lt;p&gt;image&amp;nbsp;description&amp;nbsp;2&lt;/p&gt;</SimpleData>
+		<SimpleData name="photograph">photographer, photographer 2</SimpleData>
+		<SimpleData name="copyright">copyright, copyright 2</SimpleData>
+		<SimpleData name="doctype">Document</SimpleData>
+		<SimpleData name="docdesc">document description</SimpleData>
+		<SimpleData name="sitedoc">/files/1a6ba77c-a8f7-46a5-97fb-cff16891a56e</SimpleData>
+		<SimpleData name="urltype">Other Website</SimpleData>
+		<SimpleData name="url">{&quot;url&quot;: &quot;https://www.google.com&quot;, &quot;url_label&quot;: &quot;url label&quot;}</SimpleData>
+		<SimpleData name="restricted">None</SimpleData>
+		<SimpleData name="datesubmit">2026-02-13</SimpleData>
+		<SimpleData name="fedid">None</SimpleData>
+		<SimpleData name="resourceid">59afc378-897c-43c9-9703-45135c111635</SimpleData>
+	</SchemaData></ExtendedData>
+      <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-122.823207,49.304014 -122.823151,49.304031 -122.823097,49.304052 -122.823046,49.304079 -122.822998,49.304111 -122.822953,49.304147 -122.823254,49.304293 -122.823362,49.304264 -122.823207,49.304014</coordinates></LinearRing></outerBoundaryIs></Polygon><Polygon><outerBoundaryIs><LinearRing><coordinates>-122.8234,49.304558 -122.823395,49.30434 -122.823147,49.304343 -122.823147,49.304567 -122.8234,49.304558</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry>
+  </Placemark>
+</Folder>
+</Document></kml>

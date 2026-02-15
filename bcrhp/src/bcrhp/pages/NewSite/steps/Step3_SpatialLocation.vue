@@ -90,21 +90,7 @@ const mapOverrides = {
 
 const isValid = () => {
     if (isBoundaryBypassed.value === true) return true;
-
-    let formIsValid = baseIsValid(
-        siteBoundaryForm as Ref<FormInstance>,
-        SiteBoundaryTileSchema.shape['aliased_data'],
-    );
-    return (
-        formIsValid &&
-        (heritageSite.value?.aliased_data?.heritage_site_location?.[0]
-            .aliased_data?.site_boundary.length ?? 0) > 0 &&
-        FeatureCollectionWithNonEmptyPolygonsSchema.safeParse(
-            heritageSite.value?.aliased_data?.heritage_site_location?.[0]
-                .aliased_data?.site_boundary?.[0].aliased_data?.site_boundary
-                ?.node_value,
-        )?.success
-    );
+    return hasBoundaryData.value;
 };
 
 const siteBoundaryResolver = getFlattenResolver(
