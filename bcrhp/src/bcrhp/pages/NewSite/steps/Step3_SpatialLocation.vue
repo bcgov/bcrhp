@@ -4,6 +4,7 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
+import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
@@ -38,6 +39,7 @@ const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
 const isBoundaryBypassed = ref(false);
 const overrideBoundary = ref(false);
+const mapWidgetKey = ref(0); // Forces map re-render
 
 const ensureSiteLocation = () => {
     if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
@@ -66,6 +68,15 @@ const hasBoundaryData = computed(() => {
             ?.aliased_data?.site_boundary?.[0]?.aliased_data?.site_boundary
             ?.node_value?.features;
     return Array.isArray(features) && features.length > 0;
+});
+
+// Retrieve the calculated area
+const siteArea = computed(() => {
+    const areaNode =
+        heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            ?.aliased_data?.site_boundary?.[0]?.aliased_data?.mapped_area;
+
+    return areaNode?.display_value || areaNode?.node_value || null;
 });
 
 const widgetMode = computed(() => {
@@ -117,6 +128,37 @@ const updateModelValue = async function (
     });
 };
 
+const clearGeometry = () => {
+    ensureSiteLocation();
+
+    const boundaryTile =
+        heritageSite.value.aliased_data.heritage_site_location[0].aliased_data
+            .site_boundary[0];
+
+    if (boundaryTile.aliased_data.site_boundary) {
+        boundaryTile.aliased_data.site_boundary = {
+            node_value: {
+                type: 'FeatureCollection',
+                features: [],
+            },
+            display_value: '',
+            details: [],
+        };
+    }
+
+    if (boundaryTile.aliased_data.mapped_area) {
+        boundaryTile.aliased_data.mapped_area = {
+            node_value: null,
+            display_value: '',
+            details: [],
+        };
+    }
+
+    overrideBoundary.value = false;
+    mapWidgetKey.value++;
+    emit('update:stepIsValid', isValid());
+};
+
 defineExpose({ isValid });
 </script>
 <template>
@@ -156,20 +198,39 @@ defineExpose({ isValid });
                         >
                             <div
                                 v-if="hasBoundaryData"
-                                class="mb-3"
+                                class="controls-container mb-3"
                             >
-                                <LabelledCheckboxInput
-                                    label="Update / Replace existing boundary data"
-                                    hint="Check this box to upload a new file"
-                                    input-name="overrideBoundary"
-                                >
-                                    <Checkbox
-                                        id="overrideBoundary"
-                                        v-model="overrideBoundary"
-                                        :binary="true"
-                                        small
+                                <div class="flex items-center gap-4">
+                                    <LabelledCheckboxInput
+                                        label="Update / Replace existing boundary data"
+                                        hint="Check this box to upload a new file"
+                                        input-name="overrideBoundary"
+                                    >
+                                        <Checkbox
+                                            id="overrideBoundary"
+                                            v-model="overrideBoundary"
+                                            :binary="true"
+                                            small
+                                        />
+                                    </LabelledCheckboxInput>
+
+                                    <Button
+                                        label="Remove Geometry"
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        size="small"
+                                        outlined
+                                        @click="clearGeometry"
                                     />
-                                </LabelledCheckboxInput>
+                                </div>
+
+                                <div
+                                    v-if="siteArea"
+                                    class="area-data ml-6 mt-2 text-sm text-gray-600"
+                                >
+                                    <i class="pi pi-info-circle mr-1"></i>
+                                    <strong>Mapped Area:</strong> {{ siteArea }}
+                                </div>
                             </div>
 
                             <div
@@ -191,6 +252,7 @@ defineExpose({ isValid });
                             </div>
 
                             <GenericWidget
+                                :key="mapWidgetKey"
                                 graph-slug="heritage_site"
                                 node-alias="site_boundary"
                                 :should-show-label="false"
@@ -232,5 +294,21 @@ defineExpose({ isValid });
 
 .container-width {
     width: 1058px;
+}
+
+.controls-container {
+    padding: 0.5rem;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+.area-data {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
 }
 </style>
