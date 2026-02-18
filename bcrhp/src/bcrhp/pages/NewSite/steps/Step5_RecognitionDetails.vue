@@ -211,7 +211,7 @@ defineExpose({ isValid });
                     />
                 </LabelledInput>
                 <!-- not sure what this checkbox is for -->
-                <div id="historicActsCheck">
+                <!-- <div id="historicActsCheck">
                     <LabelledCheckboxInput
                         label="Historic Acts"
                         hint="Show inactive acts"
@@ -224,7 +224,7 @@ defineExpose({ isValid });
                             small
                         />
                     </LabelledCheckboxInput>
-                </div>
+                </div> -->
             </div>
             <LabelledInput
                 label="Reference Number"

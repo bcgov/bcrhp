@@ -173,7 +173,7 @@ onMounted(() => {
             >
                 <LabelledInput
                     label="Common Name"
-                    hint="The common name is the most recognizable name for the site"
+                    hint="Enter the site name to be the common name (e.g. Emily Carr House), if the site does not have a commonly know name use the street address (e.g. 123 Government St.)"
                     input-name="commonName"
                     :error-message="$form.commonName?.error?.message"
                     :required="true"
@@ -233,6 +233,7 @@ onMounted(() => {
                 :items="otherNames"
                 display-key="aliased_data.name.display_value"
                 @remove="handleRemoveOtherName"
+                :emptyText="'No other names added.'"
             />
         </div>
         <br /><br /><br /><br /><br />

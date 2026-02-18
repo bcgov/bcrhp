@@ -429,7 +429,7 @@ defineExpose({ isValid });
                     </div>
                 </div>
             </div>
-
+            <br />
             <div>
                 <LabelledInput
                     label="Chronology Notes (Optional)"
@@ -634,14 +634,14 @@ defineExpose({ isValid });
                 </LabelledInput>
 
                 <LabelledInput
-                    label="URL"
                     hint="e.g. https://www.example.com"
                     input-name="external_url"
                     class="flex-grow"
                     :error-message="$form.external_url?.error?.message"
-                    :required="true"
                 >
                     <GenericWidget
+                        class="bold"
+                        :required="true"
                         :mode="EDIT"
                         :should-show-label="false"
                         :aliasedNodeData="
@@ -705,5 +705,8 @@ defineExpose({ isValid });
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+}
+.bold {
+    font-weight: bold;
 }
 </style>

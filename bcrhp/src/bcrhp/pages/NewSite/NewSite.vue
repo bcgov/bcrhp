@@ -247,7 +247,9 @@ const showDebug = ref(false);
                             <NewSiteStep1 ref="step1"></NewSiteStep1>
                         </StepPanel>
                         <StepPanel :value="2">
-                            <h3 class="heading-margin-bottom">Site Location</h3>
+                            <h3 class="heading-margin-bottom">
+                                <span class="red">*</span>Site Location
+                            </h3>
                             <SiteAddress
                                 ref="step2"
                                 @update:step-is-valid="
@@ -257,7 +259,7 @@ const showDebug = ref(false);
                         </StepPanel>
                         <StepPanel :value="3">
                             <h3 class="heading-margin-bottom">
-                                Spatial Location
+                                <span class="red">*</span>Spatial Location
                             </h3>
                             <SpatialLocation
                                 ref="step3"
@@ -267,7 +269,9 @@ const showDebug = ref(false);
                             ></SpatialLocation>
                         </StepPanel>
                         <StepPanel :value="4">
-                            <h3>Heritage Site Name(s)</h3>
+                            <h3>
+                                <span class="red">*</span>Heritage Site Name(s)
+                            </h3>
                             <SiteNames
                                 ref="step4"
                                 @update:step-is-valid="
@@ -276,7 +280,10 @@ const showDebug = ref(false);
                             ></SiteNames>
                         </StepPanel>
                         <StepPanel :value="5">
-                            <h3>Official Recognition Details</h3>
+                            <h3>
+                                <span class="red">*</span>Official Recognition
+                                Details
+                            </h3>
                             <RecognitionDetails
                                 ref="step5"
                                 @update:step-is-valid="
@@ -296,10 +303,13 @@ const showDebug = ref(false);
                         <StepPanel :value="7">
                             <h3>Images</h3>
                             <p>
-                                Upload 1-10 images for the historic site. File
-                                types must be jpg/jpeg with a max file size of
-                                2MB. Include illustrations, plans, etc. in the
-                                Supporting Documents section
+                                Upload 1-10 images for the historic site. Drag
+                                and drop 1 image at a time, filling the form out
+                                for each photo. Hit save after each completed
+                                entry. File types must be jpg/jpeg with a max
+                                file size of 2MB. Do not include illustrations,
+                                plans, etc. in this step, save them for Step 10:
+                                Supporting Documents section.
                             </p>
                             <SiteImages
                                 ref="step7"
@@ -327,7 +337,9 @@ const showDebug = ref(false);
                             ></SiteDetails>
                         </StepPanel>
                         <StepPanel :value="10">
-                            <h3>Supporting Documents</h3>
+                            <h3>
+                                <span class="red">*</span>Supporting Documents
+                            </h3>
                             <SupportingDocuments
                                 ref="step10"
                                 @update:step-is-valid="
@@ -381,6 +393,9 @@ const showDebug = ref(false);
     .sidenav {
         display: none !important;
     }
+}
+.red {
+    color: red;
 }
 </style>
 <style scoped>

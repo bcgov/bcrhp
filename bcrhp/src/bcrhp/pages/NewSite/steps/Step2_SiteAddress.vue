@@ -537,7 +537,7 @@ defineExpose({ isValid });
                         class="add-legal-button"
                         @click="openLegalDialog(index)"
                     >
-                        + Add Legal Description
+                        + Add PID
                     </Button>
 
                     <div class="flex flex-col flex-grow gap-2">

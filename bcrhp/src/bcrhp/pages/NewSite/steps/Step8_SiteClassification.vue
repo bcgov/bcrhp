@@ -381,7 +381,7 @@ defineExpose({ isValid });
             <br />
 
             <LabelledInput
-                label="Functional State"
+                label="Function Period"
                 input-name="functional_state"
                 :error-message="$form.functional_state?.error?.message"
                 :required="true"

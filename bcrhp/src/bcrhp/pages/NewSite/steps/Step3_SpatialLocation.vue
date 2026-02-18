@@ -239,6 +239,12 @@ defineExpose({ isValid });
                             >
                                 <ol>
                                     <li>
+                                        If you entered and validated a PID in
+                                        Step 2 you should see the site mapped on
+                                        this page. If so, uploading a spatial
+                                        file is not necessary.
+                                    </li>
+                                    <li>
                                         If there is no geospatial data/file add
                                         a Site Map under the Supporting
                                         Documents step.
@@ -246,7 +252,7 @@ defineExpose({ isValid });
                                     <li>
                                         If the geospatial file does not import
                                         successfully, add files under the
-                                        Supporting Documents step.
+                                        Supporting Documents step.”
                                     </li>
                                 </ol>
                             </div>
