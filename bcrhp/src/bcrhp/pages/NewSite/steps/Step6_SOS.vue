@@ -156,7 +156,7 @@ defineExpose({ isValid });
 
                 <LabelledInput
                     label="Document Location"
-                    hint="Enter the government or department name where the original document was created"
+                    hint="Enter the government or agency name where the original document was created."
                     input-name="document_location"
                     :error-message="$form.document_location?.error?.message"
                     :required="true"

@@ -120,14 +120,20 @@ defineExpose({ isValid });
                     class="instructions"
                     style="margin-bottom: 1rem"
                 >
-                    Upload supporting and required documents. Required documents
-                    include:
+                    Upload supporting and required documents. Drag and drop 1
+                    file at a time, filling out the form for each file. Hit +Add
+                    after each completed entry. Required documents include:
+
                     <ul>
-                        <li>Notification Letter</li>
+                        <li>
+                            Official Notification Letter to the Heritage
+                            Minister (as required under LGA s. 977 (3) and
+                            Vancouver Charter s.602 (1))
+                        </li>
                         <li>Bylaw, Resolution, or Council Meeting Minutes</li>
                         <li>
                             GIS files or Site Map (if no geospatial data was
-                            included in Step 4)
+                            included in Step 3)
                         </li>
                     </ul>
                 </div>

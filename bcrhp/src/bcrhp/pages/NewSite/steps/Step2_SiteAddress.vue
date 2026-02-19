@@ -40,7 +40,8 @@ import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts'
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isValidatingPid = ref(false);
-const currentPidLength = ref(0); // Dedicated ref for button reactivity
+const currentPidLength = ref(0);
+const pidSuccess = ref(false);
 
 // Refs and state
 let hasPropertyAddress = ref(true);
@@ -96,7 +97,6 @@ const propertyAddressResolver = getFlattenResolver(
     ),
 );
 
-// Override the legal resolver to accept strings/any for the PID
 const legalAddressResolver = getFlattenResolver(
     zodResolver(
         BcPropertyLegalDescriptionTileSchema.shape['aliased_data'].extend({
@@ -141,6 +141,7 @@ const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
         const rawValue = String(newValue?.display_value || '');
         const numericOnly = rawValue.replace(/\D/g, '');
         const limitedValue = numericOnly.slice(0, 9);
+        pidSuccess.value = false;
 
         sanitizedValue = {
             ...newValue,
@@ -149,7 +150,6 @@ const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
             details: [],
         };
 
-        // Directly update our reactive length tracker
         currentPidLength.value = limitedValue.length;
     }
 
@@ -215,7 +215,6 @@ const hasAddressChanged = function () {
 
 const disableAddressSection = computed(() => !hasPropertyAddress.value);
 
-// Helper for chip list
 const getAddressLabel = (addr: any) => {
     const data = addr?.aliased_data || {};
 
@@ -256,8 +255,8 @@ function openLegalDialog(addressIndex: number) {
     legalFormKey.value = nextLegalDescriptionKey.value;
     legalDescriptionForm.value?.reset();
 
-    // Reset length tracker for new entry
     currentPidLength.value = 0;
+    pidSuccess.value = false;
 
     addLegalDescriptionVisible.value = true;
     tempBoundaryData.value = null;
@@ -273,7 +272,6 @@ function saveLegalDescription() {
                 [];
         }
 
-        //convert PID to Number before saving
         const stringPid =
             currentLegalDescription.value.aliased_data.pid.node_value;
         if (stringPid) {
@@ -316,7 +314,6 @@ const isValid = () => {
 };
 
 const ensureSiteLocation = () => {
-    // 1. Ensure location exists
     if (!heritageSite.value.aliased_data.heritage_site_location) {
         heritageSite.value.aliased_data.heritage_site_location = [];
     }
@@ -326,7 +323,6 @@ const ensureSiteLocation = () => {
         );
     }
 
-    // 2. Ensure site_boundary array exists inside location
     const location = heritageSite.value.aliased_data.heritage_site_location[0];
     if (!location.aliased_data.site_boundary) {
         location.aliased_data.site_boundary = [];
@@ -344,6 +340,7 @@ const validatePID = async () => {
 
     if (!pid || pid.length < 9) return;
     isValidatingPid.value = true;
+    pidSuccess.value = false;
 
     try {
         const data = await getPidData(pid);
@@ -358,6 +355,8 @@ const validatePID = async () => {
                 node_value: geojsonValue,
                 details: [],
             };
+
+            pidSuccess.value = true;
         }
         if (data.legalDescription) {
             updateLegal(
@@ -368,7 +367,7 @@ const validatePID = async () => {
                 },
                 'legal_description',
             );
-            //it's hacky but it works
+
             const inputLd = (legalWidgetRef.value as any)?.$el?.querySelector(
                 'input, textarea',
             );
@@ -538,7 +537,7 @@ defineExpose({ isValid });
                         class="add-legal-button"
                         @click="openLegalDialog(index)"
                     >
-                        + Add Legal Description
+                        + Add PID
                     </Button>
 
                     <div class="flex flex-col flex-grow gap-2">
@@ -619,7 +618,7 @@ defineExpose({ isValid });
             <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
-                    hint="Click Validate to generate the legal description"
+                    hint="Click to retrieve the geospatial boundary associated with the PID."
                     input-name="parcelId"
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
@@ -641,9 +640,12 @@ defineExpose({ isValid });
                                 node-alias="pid"
                                 @update:value="updateLegal($event, 'pid')"
                             />
+
                             <Button
                                 id="validateParcel"
-                                label="Validate"
+                                :label="pidSuccess ? 'Success' : 'Get Boundary'"
+                                :icon="pidSuccess ? 'pi pi-check' : ''"
+                                :severity="pidSuccess ? 'success' : 'primary'"
                                 class="button-padding"
                                 :loading="isValidatingPid"
                                 :disabled="currentPidLength !== 9"
@@ -655,6 +657,7 @@ defineExpose({ isValid });
             </div>
 
             <LabelledInput
+                class="hidden"
                 label="Legal Description"
                 input-name="legalAddress"
                 :error-message="$form.legalAddress?.error?.message"
@@ -700,6 +703,7 @@ defineExpose({ isValid });
                 <Button
                     label="Save"
                     class="button-padding"
+                    :disabled="currentPidLength !== 9"
                     @click="saveLegalDescription"
                 />
                 <Button
@@ -743,5 +747,8 @@ defineExpose({ isValid });
 }
 .dialogFonts label {
     font-size: 0.875rem;
+}
+.hidden {
+    display: none;
 }
 </style>

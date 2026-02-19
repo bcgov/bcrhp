@@ -7,6 +7,7 @@ const props = defineProps({
     displayKey: { type: String, default: '' },
     displayKeys: { type: Array<string>, default: () => [] },
     disabled: { type: Boolean, default: false },
+    emptyText: { type: String, default: 'No items added.' },
 });
 
 const emit = defineEmits(['remove', 'click']);
@@ -90,6 +91,6 @@ const handleClick = (index: number) => {
             </Chip>
         </div>
 
-        <div v-else>No items added.</div>
+        <div v-else>{{ emptyText }}</div>
     </div>
 </template>
