@@ -97,14 +97,6 @@ const propertyAddressResolver = getFlattenResolver(
     ),
 );
 
-const legalAddressResolver = getFlattenResolver(
-    zodResolver(
-        BcPropertyLegalDescriptionTileSchema.shape['aliased_data'].extend({
-            pid: z.any(),
-        }),
-    ),
-);
-
 const currentAddressHasStreet = computed(() => {
     const streetVal =
         currentPropertyAddress.value?.aliased_data?.street_address
@@ -613,7 +605,6 @@ defineExpose({ isValid });
             name="legalDescriptionForm"
             :validateOnBlur="true"
             :validateOnValueUpdate="true"
-            :resolver="legalAddressResolver"
         >
             <div>
                 <LabelledInput
