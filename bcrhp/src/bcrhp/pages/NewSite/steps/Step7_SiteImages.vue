@@ -82,9 +82,19 @@ const imageViewOverrides = {
     },
 } satisfies Partial<CardXNodeXWidgetData>;
 
-const addImageDisabled = computed(
-    () => !isImageFormValid() || siteImagesCount.value >= 10,
-);
+const addImageDisabled = computed(() => {
+    if (siteImagesCount.value >= 10) return true;
+    if (!hasUnsavedImage.value) return true;
+
+    const data = currentSiteImage.value?.aliased_data;
+    const hasImageType = !!data?.image_type?.display_value;
+    const hasImageView = !!data?.image_view?.display_value;
+    const hasImageDesc = data?.image_description?.display_value?.length > 0;
+
+    return (
+        !(hasImageType && hasImageView && hasImageDesc) || !isImageFormValid()
+    );
+});
 
 const nextImageKey = computed(() => {
     return siteImageList.value.length;
