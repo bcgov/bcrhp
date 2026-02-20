@@ -35,21 +35,15 @@ const sosTile = computed(() => {
     return heritageSite.value.aliased_data.bc_statement_of_significance[0];
 });
 
-const isValid = () => {
+const isValid = () => true;
+
+const isTextValid = () => {
     const formValid = baseIsValid(
         statementOfSignificanceForm as Ref<FormInstance>,
         BcStatementOfSignificanceTileSchema.shape['aliased_data'],
     );
 
-    const data = sosTile.value?.aliased_data;
-    const hasContent = !!(
-        data?.physical_description?.display_value?.length > 0 &&
-        data?.heritage_value?.display_value?.length > 0 &&
-        data?.defining_elements?.display_value?.length > 0 &&
-        data?.document_location?.display_value?.length > 0
-    );
-
-    return formValid && hasContent;
+    return formValid;
 };
 
 const updateModelValue = function (
@@ -74,7 +68,7 @@ const updateModelValue = function (
     );
 
     setTimeout(() => {
-        emit('update:stepIsValid', isValid());
+        emit('update:stepIsValid', isTextValid());
     }, 0);
 };
 
@@ -96,7 +90,6 @@ defineExpose({ isValid });
                     hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
                     input-name="physical_description"
                     :error-message="$form.physical_description?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -117,7 +110,6 @@ defineExpose({ isValid });
                     hint="Describe why the place is valued by the community and identify which heritage values the official recognition is based on"
                     input-name="heritage_value"
                     :error-message="$form.heritage_value?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -138,7 +130,6 @@ defineExpose({ isValid });
                     hint="List the key features of the heritage site that contribute to its heritage value in bullet-point format"
                     input-name="defining_elements"
                     :error-message="$form.defining_elements?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -159,7 +150,6 @@ defineExpose({ isValid });
                     hint="Enter the government or agency name where the original document was created."
                     input-name="document_location"
                     :error-message="$form.document_location?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
