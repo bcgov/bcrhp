@@ -67,7 +67,7 @@ const print = () => {
 };
 
 const activateNextStep = async () => {
-    if (currentStep.value === steps.length - 1) {
+    if (currentStep.value === steps.length) {
         print();
     } else if (currentStep.value === 11) {
         submitNewSiteData();

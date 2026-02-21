@@ -61,22 +61,22 @@ test('test', async ({ page }) => {
         .first()
         .fill('location description');
     await page.getByRole('button', { name: '+ Add Address' }).click();
-    await page.getByRole('button', { name: '+ Add Legal Description' }).click();
-    await page.getByRole('textbox', { name: 'Enter number' }).click();
-    await page.getByRole('textbox', { name: 'Enter number' }).fill('');
+    await page.getByRole('button', { name: '+ Add PID' }).click();
+    await page.waitForTimeout(1000);
     await page.getByRole('textbox', { name: 'Enter number' }).click();
     await page.getByRole('textbox', { name: 'Enter number' }).fill('026488248');
-    await page.getByRole('button', { name: 'Validate' }).click();
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(1000);
+    await page.getByRole('button', { name: 'Get Boundary' }).click();
+    await page.waitForTimeout(4000);
     await page.getByRole('button', { name: 'Save' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 3 SPATIAL LOCATION ---
-    await page.setInputFiles(
-        'input[type="file"]',
-        path.join(__dirname, 'polygon.shp'),
-    );
-    await page.waitForTimeout(2000);
+    // await page.setInputFiles(
+    //     'input[type="file"]',
+    //     path.join(__dirname, 'polygon.shp'),
+    // );
+    // await page.waitForTimeout(2000);
     await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 4 SITE NAMES ---
@@ -279,50 +279,34 @@ test('test', async ({ page }) => {
         .filter({ hasText: /^Construction$/ })
         .click();
     await page.getByRole('combobox', { name: 'Start Year' }).click();
-    await page
-        .getByLabel('Choose Date')
-        .getByText('1', { exact: true })
-        .click();
+    await page.getByText('2020', { exact: true }).click();
     await page.getByRole('combobox', { name: 'End Year' }).click();
-    // await page
-    //     .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
-    //     .click();
-    // await page
-    //     .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
-    //     .fill('chonology notes');
+    await page.getByText('2025').click();
+    await page.getByRole('textbox', { name: 'Provide explanation of' }).click();
+    await page
+        .getByRole('textbox', { name: 'Provide explanation of' })
+        .fill('chronology notes');
     await page.getByRole('button', { name: '+ Add Chronology' }).click();
     await page.locator('#construction_actor').click();
-    await page.locator('#construction_actor').fill('bob');
-    await page
-        .locator('#construction_actor_type div.p-treeselect-label')
-        .click();
-    // await page.getByText('Select the type').click();
-    await page
-        .locator('div')
-        .filter({ hasText: /^Builder$/ })
-        .click();
+    await page.locator('#construction_actor').fill('Bob');
+    await page.getByText('Select the type', { exact: true }).click();
+    await page.getByText('Builder', { exact: true }).click();
     await page.locator('#construction_actor_notes').click();
-    await page.locator('#construction_actor_notes').fill('notes');
+    await page.locator('#construction_actor_notes').fill('Builders Notes');
     await page.getByRole('button', { name: '+ Add Architect/Builder' }).click();
     await page
         .locator(
             '#external_url_type > .p-treeselect-label-container > .p-treeselect-label',
         )
         .click();
-    await page
-        .locator('div')
-        .filter({ hasText: /^Other Website$/ })
-        .click();
+    await page.getByText('Other Website').click();
     await page.getByRole('textbox', { name: 'Enter URL Label...' }).click();
     await page
         .getByRole('textbox', { name: 'Enter URL Label...' })
-        .fill('url label');
-    await page.getByRole('textbox', { name: '*URL' }).click();
-    await page
-        .getByRole('textbox', { name: '*URL' })
-        .fill('https://www.google.com');
+        .fill('URL label');
+    await page.getByPlaceholder('Enter URL...').click();
+    await page.getByPlaceholder('Enter URL...').fill('www.google.com');
     await page.getByRole('button', { name: '+ Add URL' }).click();
-    await page.getByRole('button', { name: 'Next' }).first().click();
 
     // --- 10 SUPPORTING DOCUMENTS ---
     await page.setInputFiles(
