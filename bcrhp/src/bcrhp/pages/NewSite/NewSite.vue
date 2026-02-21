@@ -67,7 +67,7 @@ const print = () => {
 };
 
 const activateNextStep = async () => {
-    if (currentStep.value === steps.length) {
+    if (currentStep.value === steps.length - 1) {
         print();
     } else if (currentStep.value === 11) {
         submitNewSiteData();
@@ -392,6 +392,18 @@ const showDebug = ref(false);
     .stepper-nav-panel,
     .sidenav {
         display: none !important;
+    }
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .main-content-area,
+    .page-wrapper,
+    main {
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
     }
 }
 .red {
