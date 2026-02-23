@@ -15,7 +15,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "skipLibCheck": true,
-        "types": ["vitest/globals", "vite/client"],
+        "types": ["vitest/globals", "vite/client", "geojson"],
         "allowImportingTsExtensions": true,
         "noUnusedLocals": true
     },

@@ -41,7 +41,7 @@ export type PidData = {
     success: boolean;
     pid: string;
     legalDescription: string;
-    boundary: geojson.GeoJSON;
+    boundary: GeoJSON.GeoJSON;
     errors: string[];
 };
 

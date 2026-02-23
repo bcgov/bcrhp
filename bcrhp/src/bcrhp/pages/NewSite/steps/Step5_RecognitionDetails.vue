@@ -3,13 +3,11 @@ import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
-import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
@@ -38,7 +36,6 @@ const emit = defineEmits(['update:stepIsValid']);
 
 const currentProtectionEvent: Ref<ProtectionEventTileType> =
     ref(getProtectionEvent());
-const showInactiveHistoricActs = ref(false);
 const formKey = ref(0);
 
 const protectionEventResolver = getFlattenResolver(
@@ -210,21 +207,6 @@ defineExpose({ isValid });
                         "
                     />
                 </LabelledInput>
-                <!-- not sure what this checkbox is for -->
-                <!-- <div id="historicActsCheck">
-                    <LabelledCheckboxInput
-                        label="Historic Acts"
-                        hint="Show inactive acts"
-                        input-name="showInactiveHistoricActs"
-                    >
-                        <Checkbox
-                            id="showInactiveHistoricActs"
-                            v-model="showInactiveHistoricActs"
-                            binary
-                            small
-                        />
-                    </LabelledCheckboxInput>
-                </div> -->
             </div>
             <LabelledInput
                 label="Reference Number"

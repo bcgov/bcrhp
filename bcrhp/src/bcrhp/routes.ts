@@ -86,7 +86,7 @@ const routes = [
     // },
 ];
 
-type BCRHPRouteNamesType = typeof RouteNamesType & {
+type BCRHPRouteNamesType = RouteNamesType & {
     newSite: string;
     updateSite: string;
 };

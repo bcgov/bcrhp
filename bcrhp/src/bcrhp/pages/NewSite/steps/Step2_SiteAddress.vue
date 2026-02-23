@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import { z } from 'zod';
 import {
     getBCPostalCodeSchema,
     formatBCPostalCode,
@@ -29,7 +28,6 @@ import {
 } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 import {
     type BcPropertyLegalDescriptionTileType,
-    BcPropertyLegalDescriptionTileSchema,
     getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
