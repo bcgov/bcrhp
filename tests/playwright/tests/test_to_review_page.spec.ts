@@ -17,6 +17,11 @@ test('test', async ({ page }) => {
     test.setTimeout(120000);
     const idir_username = process.env.IDIR_USERNAME;
     const idir_password = process.env.IDIR_PASSWORD;
+    const env = process.env.TARGET_ENV;
+    let base = 'http://localhost/bcrhp/';
+    if (env === 'dev') base = 'http://localhost/bcrhp/';
+    else if (env === 'dlvr') base = 'https://dlvrapps.nrs.gov.bc.ca/bcrhp/';
+    else if (env === 'test') base = 'https://testapps.nrs.gov.bc.ca/bcrhp/';
 
     // Get the directory of the current file
     const __dirname = path.dirname(__filename);
@@ -25,7 +30,7 @@ test('test', async ({ page }) => {
         throw new Error('Missing TEST_USER/TEST_PASSWORD env vars');
 
     // --- LOGIN ---
-    await page.goto('http://localhost/bcrhp/');
+    await page.goto(base);
     await page.getByRole('link', { name: 'Search Sites' }).click();
     await page.getByRole('link', { name: 'Login' }).click();
     await page.getByRole('link', { name: 'IDIR' }).click();
@@ -33,12 +38,12 @@ test('test', async ({ page }) => {
     await page.getByRole('textbox', { name: 'Password' }).click();
     await page.getByRole('textbox', { name: 'Password' }).fill(idir_password);
     await page.getByRole('button', { name: 'Continue' }).click();
-    // await expect(
-    //     page.getByRole('link', { name: 'Local Government Workflows' }),
-    // ).toBeVisible({ timeout: 20000 });
+    await expect(
+        page.getByRole('link', { name: 'Local Government Workflows' }),
+    ).toBeVisible({ timeout: 20000 });
 
     // --- 1 START SUBMISSION ---
-    await page.goto('http://localhost/bcrhp/submissions/');
+    await page.goto(`${base}submissions/`);
     await page
         .getByRole('link', { name: 'Submit a new Heritage Property' })
         .click();
@@ -61,12 +66,17 @@ test('test', async ({ page }) => {
         .first()
         .fill('location description');
     await page.getByRole('button', { name: '+ Add Address' }).click();
-    await page.getByRole('button', { name: '+ Add Legal Description' }).click();
-    await page.getByRole('textbox', { name: 'Enter number' }).click();
-    await page.getByRole('textbox', { name: 'Enter number' }).fill('');
-    await page.getByRole('textbox', { name: 'Enter number' }).click();
+    await page.getByRole('button', { name: '+ Add PID' }).click();
+    await page.waitForTimeout(1000);
+    await page
+        .getByRole('textbox', { name: 'Enter number' })
+        .filter({ visible: true })
+        .click();
+    // await page.getByRole('textbox', { name: 'Enter number' }).fill('');
+    // await page.getByRole('textbox', { name: 'Enter number' }).click();
+    await page.waitForTimeout(1000);
     await page.getByRole('textbox', { name: 'Enter number' }).fill('026488248');
-    await page.getByRole('button', { name: 'Validate' }).click();
+    await page.getByRole('button', { name: 'Get Boundary' }).click();
     await page.waitForTimeout(3000);
     await page.getByRole('button', { name: 'Save' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
@@ -279,11 +289,20 @@ test('test', async ({ page }) => {
         .filter({ hasText: /^Construction$/ })
         .click();
     await page.getByRole('combobox', { name: 'Start Year' }).click();
+    // await page
+    //     .getByLabel('Choose Date')
+    //     .getByText('2020', { exact: true })
+    //     .click();
     await page
-        .getByLabel('Choose Date')
-        .getByText('1', { exact: true })
+        .locator('span.p-datepicker-year')
+        .filter({ hasText: /2020/ })
         .click();
+    await page.waitForTimeout(500);
     await page.getByRole('combobox', { name: 'End Year' }).click();
+    await page
+        .locator('span.p-datepicker-year', { hasText: /2029/ })
+        .filter({ visible: true })
+        .click();
     // await page
     //     .getByRole('textbox', { name: 'Chronology Notes (Optional)' })
     //     .click();
@@ -317,10 +336,12 @@ test('test', async ({ page }) => {
     await page
         .getByRole('textbox', { name: 'Enter URL Label...' })
         .fill('url label');
-    await page.getByRole('textbox', { name: '*URL' }).click();
-    await page
-        .getByRole('textbox', { name: '*URL' })
-        .fill('https://www.google.com');
+    await page.locator('#external_url').click();
+    await page.locator('#external_url').fill('https://www.google.com');
+    // await page.getByRole('textbox', { name: 'Enter URL...' }).click();
+    // await page
+    //     .getByRole('textbox', { name: 'Enter URL...' })
+    //     .fill('https://www.google.com');
     await page.getByRole('button', { name: '+ Add URL' }).click();
     await page.getByRole('button', { name: 'Next' }).first().click();
 
