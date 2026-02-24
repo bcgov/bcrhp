@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import * as uuid from 'uuid';
 import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
@@ -28,7 +28,7 @@ export function getSiteDocument(): SiteDocumentTileType {
 
 export class SiteDocument implements SiteDocumentTileType {
     constructor() {
-        this.tileid = uuidv4();
+        this.tileid = uuid.generate();
         this.aliased_data = {
             site_document: blankFileListValue(),
             document_description: blankStringValue(),

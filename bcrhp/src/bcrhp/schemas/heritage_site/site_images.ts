@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import * as uuid from 'uuid';
 import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
@@ -49,7 +49,7 @@ export function getSiteImages(): SiteImagesTileType {
 // @todo - Figure out object state - New/Updated/Deleted
 export class SiteImages implements SiteImagesTileType {
     constructor() {
-        this.tileid = uuidv4();
+        this.tileid = uuid.generate();
         this.aliased_data = {
             image_type: blankConceptValue(),
             site_images: blankFileListValue(),
