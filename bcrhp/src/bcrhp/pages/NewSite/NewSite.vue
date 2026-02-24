@@ -393,6 +393,18 @@ const showDebug = ref(false);
     .sidenav {
         display: none !important;
     }
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .main-content-area,
+    .page-wrapper,
+    main {
+        position: static !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
 }
 .red {
     color: red;

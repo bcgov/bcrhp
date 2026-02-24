@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import { z } from 'zod';
 import {
     getBCPostalCodeSchema,
     formatBCPostalCode,
@@ -29,7 +28,6 @@ import {
 } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 import {
     type BcPropertyLegalDescriptionTileType,
-    BcPropertyLegalDescriptionTileSchema,
     getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
@@ -93,14 +91,6 @@ const propertyAddressResolver = getFlattenResolver(
     zodResolver(
         BcPropertyAddressTileSchema.shape['aliased_data'].extend({
             postal_code: getBCPostalCodeSchema(),
-        }),
-    ),
-);
-
-const legalAddressResolver = getFlattenResolver(
-    zodResolver(
-        BcPropertyLegalDescriptionTileSchema.shape['aliased_data'].extend({
-            pid: z.any(),
         }),
     ),
 );
@@ -613,7 +603,6 @@ defineExpose({ isValid });
             name="legalDescriptionForm"
             :validateOnBlur="true"
             :validateOnValueUpdate="true"
-            :resolver="legalAddressResolver"
         >
             <div>
                 <LabelledInput

@@ -96,17 +96,12 @@ const isValidHeritageFunction = () =>
     );
 
 const isValid = () => {
-    // 1. Must have at least one Heritage Class saved in the list
-    const classValid = heritageClasses.value.length > 0;
-
-    // 2. Must have at least one Heritage Function saved in the list
-    const functionValid = heritageFunctions.value.length > 0;
-
-    // 3. Heritage Theme must have a value selected
-    const themeData =
-        heritageSite.value?.aliased_data?.heritage_theme?.aliased_data
-            ?.heritage_theme;
-    const themeValid = !!(themeData?.display_value || themeData?.node_value);
+    // const classValid = heritageClasses.value.length > 0;
+    // const functionValid = heritageFunctions.value.length > 0;
+    // const themeData =
+    //     heritageSite.value?.aliased_data?.heritage_theme?.aliased_data
+    //         ?.heritage_theme;
+    // const themeValid = !!(themeData?.display_value || themeData?.node_value);
 
     return true; //classValid && functionValid && themeValid;
 };
@@ -114,12 +109,16 @@ const isValid = () => {
 const addHeritageClassDisabled = computed(() => {
     const data = currentHeritageClass.value.aliased_data;
     const hasResourceCount = !!(
-        data.contributing_resource_count?.display_value ||
-        data.contributing_resource_count?.node_value
+        data.heritage_category?.display_value ||
+        data.heritage_category?.node_value
+    );
+    const hasOwnership = !!(
+        data.ownership?.display_value || data.ownership?.node_value
     );
 
     return (
         !hasResourceCount ||
+        !hasOwnership ||
         !isValidHeritageClass() ||
         heritageClasses.value.length >= 5
     );

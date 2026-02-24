@@ -16,7 +16,7 @@ import type {
     AliasedNodeData,
     CardXNodeXWidgetData,
 } from '@/arches_component_lab/types.ts';
-import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import {
     getSiteDocument,

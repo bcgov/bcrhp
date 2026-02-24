@@ -11,7 +11,7 @@ import GenericWidget from '@/arches_component_lab/generics/GenericWidget/Generic
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import {
-    getUniquePIDsFromHeritageSite,
+    // getUniquePIDsFromHeritageSite,
     type HeritageSiteType,
 } from '@/bcrhp/schemas/heritage_site.ts';
 
@@ -20,10 +20,7 @@ import {
     SiteBoundaryTileSchema,
 } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
-import {
-    isValid as baseIsValid,
-    updateModelValue as baseUpdateModelValue,
-} from '@/bcrhp/utils.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 
 import type {
     AliasedNodeData,
@@ -33,7 +30,7 @@ import type {
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
-import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
+//import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 
@@ -57,9 +54,9 @@ const ensureSiteLocation = () => {
     }
 };
 
-const hasSinglePID = computed(() => {
-    return getUniquePIDsFromHeritageSite(heritageSite.value).length === 1;
-});
+// const hasSinglePID = computed(() => {
+//     return getUniquePIDsFromHeritageSite(heritageSite.value).length === 1;
+// });
 
 // Check if valid boundary data exists
 const hasBoundaryData = computed(() => {
