@@ -389,7 +389,7 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
             <a class="arches_link" target="archesproject" href="https://archesproject.org" >
                 <div class="arches_version">Arches Core Version: {{ app_settings.VERSION }}</div>
                 <img class="arches_logo"
-                     src="{% webpack_static 'img/logo/arches/Arches_badge_white_powered_by_2.png' %}" alt="Powered by Arches logo">
+                     src="{% webpack_static 'node_modules/bcgov_arches_common/bcgov_arches_common/media/img/logo/arches/Arches_badge_white_powered_by_2.png' %}" alt="Powered by Arches logo">
             </a>
         </div>
         <div style="display: flex; flex-direction: column;">
@@ -426,10 +426,7 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
 
         <!-- Custom Scripts -->
         {% render_bundle 'bindings/chosen' %} {% render_bundle 'bindings/key-events-click' %}
-        {%
-            render_bundle
-            'views/components/language-switcher'
-        %}
+        {% render_bundle 'views/components/language-switcher' %}
 
 <script>
     var contentSections = null,
