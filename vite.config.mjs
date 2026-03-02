@@ -107,25 +107,25 @@ export default defineConfig({
                 ),
             },
             // This is to override the arches core AMD module with an ESM version
-            {
-                find: 'arches',
-                replacement: path.resolve(
-                    path.join(appRoot, 'bcrhp', 'media', 'js', 'arches_esm'),
-                ),
-            },
-            {
-                find: 'utils/set-csrf-token_esm',
-                replacement: path.resolve(
-                    path.join(
-                        appRoot,
-                        'bcrhp',
-                        'media',
-                        'js',
-                        'utils',
-                        'set-csrf-token_esm',
-                    ),
-                ),
-            },
+            // {
+            //     find: 'arches',
+            //     replacement: path.resolve(
+            //         path.join(appRoot, 'bcrhp', 'media', 'js', 'arches_esm'),
+            //     ),
+            // },
+            // {
+            //     find: 'utils/set-csrf-token_esm',
+            //     replacement: path.resolve(
+            //         path.join(
+            //             appRoot,
+            //             'bcrhp',
+            //             'media',
+            //             'js',
+            //             'utils',
+            //             'set-csrf-token_esm',
+            //         ),
+            //     ),
+            // },
             // {
             //     find: 'arches2',
             //     replacement: path.resolve(

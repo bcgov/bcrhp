@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     sql_dir = os.path.join(os.path.dirname(__file__), "sql", "2024")
 
-    dependencies = [("models", "12008_alter_file_path")]
+    dependencies = [("models", "11499_add_editlog_resourceinstance_idx")]
 
     operations = [
         migrations.CreateModel(

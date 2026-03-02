@@ -1,1 +1,1 @@
-graft *
+exclude bcrhp/settings_local.py

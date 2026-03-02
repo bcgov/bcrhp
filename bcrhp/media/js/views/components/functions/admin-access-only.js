@@ -1,13 +1,15 @@
-define(['jquery',
-        'knockout',
-        'viewmodels/function',
-        'bindings/chosen',
-        'templates/views/components/functions/admin-access-only.htm'],
-    function ($, ko, FunctionViewModel, chosen, defaultSampleFunctionTemplate) {
-        return ko.components.register('views/components/functions/admin-access-only', {
-            viewModel: function (params) {
-                FunctionViewModel.apply(this, arguments);
-            },
-            template: defaultSampleFunctionTemplate
-        });
-    });
+import $ from 'jquery';
+import ko from 'knockout';
+import FunctionViewModel from 'viewmodels/function-view-model';
+import chosen from 'bindings/chosen';
+import defaultSampleFunctionTemplate from 'templates/views/components/functions/admin-access-only.htm';
+
+export default ko.components.register(
+    'views/components/functions/admin-access-only',
+    {
+        viewModel: function (params) {
+            FunctionViewModel.apply(this, arguments);
+        },
+        template: defaultSampleFunctionTemplate,
+    },
+);

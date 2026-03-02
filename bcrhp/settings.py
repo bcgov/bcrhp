@@ -171,6 +171,9 @@ DATABASES = {
         # These are typically only used for migrations
         "DATABC_USERNAME": get_env_variable("DATABC_USERNAME", True),
         "DATABC_PASSWORD": get_env_variable("DATABC_PASSWORD", True),
+        "OPTIONS": {
+            "options": "-c cursor_tuple_fraction=1",
+        },
     }
 }
 
@@ -187,7 +190,6 @@ SEARCH_THUMBNAILS = False
 
 INSTALLED_APPS = (
     "webpack_loader",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -199,8 +201,10 @@ INSTALLED_APPS = (
     "arches.app.models",
     "arches.management",
     "guardian",
-    "captcha",
+    "django_recaptcha",
+    "pgtrigger",
     "revproxy",
+    "django_migrate_sql",
     "corsheaders",
     "oauth2_provider",
     "django_celery_results",
@@ -212,7 +216,10 @@ INSTALLED_APPS = (
     "arches_querysets",
     "bcgov_arches_common",
 )
-INSTALLED_APPS += ("arches.app",)
+INSTALLED_APPS += (
+    "arches.app",
+    "django.contrib.admin"
+)
 
 USE_VITE = False
 
@@ -322,8 +329,6 @@ else:
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(APP_ROOT, "staticfiles")
 
-OVERRIDE_RESOURCE_MODEL_LOCK = False
-
 RESOURCE_IMPORT_LOG = os.path.join(APP_ROOT, "logs", "resource_import.log")
 DEFAULT_RESOURCE_IMPORT_USER = {"username": "admin", "userid": 1}
 
@@ -349,11 +354,16 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {
+        "arches": {
             "handlers": ["file", "console"],
-            "level": "INFO",
+            "level": "WARNING",
+            "propagate": True,
         },
-        "arches": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
+        "django.request": {
+            "handlers": ["file", "console"],
+            "level": "WARNING",  # or consider ERROR if this is too noisy
+            "propagate": True,
+        },
         "bcrhp": {"handlers": ["file", "console"], "level": "INFO", "propagate": True},
     },
 }
@@ -407,6 +417,17 @@ SILENCED_SYSTEM_CHECKS = ["arches.E002"]
 
 OAUTH_CLIENT_ID = ""  #'9JCibwrWQ4hwuGn5fu2u1oRZSs9V6gK8Vu8hpRC4'
 
+# Allow cookies on cross-site OAuth callback
+# This is required to allow OAUTH framework to work w/ Django 5.2.x
+SESSION_COOKIE_SAMESITE = None  # allows cookie to be sent on third‑party POSTs
+SESSION_COOKIE_SECURE = True  # required for SameSite=None
+CSRF_COOKIE_SAMESITE = None  # if using CSRF in session-backed mode
+CSRF_COOKIE_SECURE = True
+if MODE == "DEV":
+    # trust proxy headers for host/port/proto
+    USE_X_FORWARDED_HOST = True
+    CSRF_TRUSTED_ORIGINS = ["http://localhost"]
+    PUBLIC_ORIGIN = "http://localhost"
 
 AUTHLIB_OAUTH_CLIENTS = {
     "default": {
@@ -442,7 +463,7 @@ NOCAPTCHA = True
 # RECAPTCHA_PROXY = 'http://127.0.0.1:8000'
 
 # We're not using this
-SILENCED_SYSTEM_CHECKS.append("captcha.recaptcha_test_key_error")
+SILENCED_SYSTEM_CHECKS.append("django_recaptcha.recaptcha_test_key_error")
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  #<-- Only need to uncomment this for testing without an actual email server
 # EMAIL_USE_TLS = True
@@ -626,9 +647,22 @@ AWS_S3_PROXIES = {"https": get_env_variable("S3_PROXIES")}
 # This is the default if source isn't set as a parameter in the request
 TILESERVER_URL = "https://openmaps.gov.bc.ca/"
 BC_TILESERVER_URLS = {
-    "maps": "https://maps.gov.bc.ca/",
-    "openmaps": TILESERVER_URL,
-    "local": "http://localhost:7800/",
+    "maps": {
+        "url": "https://maps.gov.bc.ca/",
+        "use_outbound_proxy": True  # Use outbound proxy for this source
+    },
+    "openmaps": {
+        "url": TILESERVER_URL,
+        "use_outbound_proxy": True  # Don't use outbound proxy for this source
+    },
+    "local": {
+        "url": get_env_variable("TILESERVER_LOCAL_URL"),
+        "use_outbound_proxy": False  # Local doesn't need outbound proxy
+    },
+    # "local-feature": {
+    #     "url": get_env_variable("FEATURESERVER_LOCAL_URL"),
+    #     "use_outbound_proxy": False  # Local doesn't need outbound proxy
+    # },
 }
 
 AUTH_BYPASS_HOSTS = get_env_variable("AUTH_BYPASS_HOSTS")
