@@ -13,7 +13,7 @@ export default ko.components.register('civic-address-widget', {
 
         this.getWidgetWithLabel = function (card, widgetName) {
             let namedWidget = _.find(card.widgets(), function (widget) {
-                return widget.node.attributes.source['alias'] === widgetName;
+                return ko.unwrap(widget.node?.alias) === widgetName;
             });
             return namedWidget;
         };

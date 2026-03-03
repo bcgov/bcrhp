@@ -1,6 +1,6 @@
 import ko from 'knockout';
 import _ from 'underscore';
-import archees from 'arches';
+import arches from 'arches';
 import WidgetViewModel from 'viewmodels/widget';
 import defaultCivicAddressWidgetTemplate from 'templates/views/components/widgets/significant-event-widget.htm';
 
@@ -19,7 +19,7 @@ export default ko.components.register('significant-event-widget', {
 
         this.getWidgetWithLabel = function (card, widgetName) {
             let namedWidget = _.find(card.widgets(), function (widget) {
-                return widget.node.attributes.source['alias'] === widgetName;
+                return ko.unwrap(widget.node?.alias) === widgetName;
             });
             return namedWidget;
         };
