@@ -140,12 +140,12 @@ defineExpose({ isValid });
                 </dd>
 
                 <dt>Detailed Location</dt>
-                <dd>
-                    {{
+                <dd
+                    v-html="
                         property_address.aliased_data.location_description
                             .display_value || '-'
-                    }}
-                </dd>
+                    "
+                ></dd>
 
                 <dt>Legal Description(s)</dt>
                 <dd>
