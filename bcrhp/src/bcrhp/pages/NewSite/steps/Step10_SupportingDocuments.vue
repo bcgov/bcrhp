@@ -45,7 +45,7 @@ const supportingDocumentsResolver = getFlattenResolver(
 );
 
 const isValid = () => {
-    return true;
+    return siteDocumentList.value.length > 0;
 };
 
 const documentTypeOverrides = {
@@ -95,10 +95,14 @@ const saveDocument = async function () {
     siteDocument.value = getSiteDocument();
     siteDocumentKey.value++;
     supportingDocumentsForm.value?.reset();
+
+    emit('update:stepIsValid', isValid());
 };
 
 const deleteSiteDocument = function (index: number) {
     heritageSite.value.aliased_data.site_document.splice(index, 1);
+
+    emit('update:stepIsValid', isValid());
 };
 
 defineExpose({ isValid });
