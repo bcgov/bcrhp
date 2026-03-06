@@ -129,9 +129,26 @@ const addHeritageClassDisabled = computed(() => {
     );
 });
 
-const addHeritageFunctionDisabled = computed(
-    () => !isValidHeritageFunction() || heritageFunctions.value.length >= 5,
-);
+const addHeritageFunctionDisabled = computed(() => {
+    const data = currentHeritageFunction.value.aliased_data;
+
+    const hasFunctionCategory = !!(
+        data.functional_category?.display_value ||
+        data.functional_category?.node_value
+    );
+
+    const hasFunctionPeriod = !!(
+        data.functional_state?.display_value ||
+        data.functional_state?.node_value
+    );
+
+    return (
+        !hasFunctionCategory ||
+        !hasFunctionPeriod ||
+        !isValidHeritageFunction() ||
+        heritageFunctions.value.length >= 5
+    );
+});
 
 const getText = (node: any) => {
     if (!node) return '';
