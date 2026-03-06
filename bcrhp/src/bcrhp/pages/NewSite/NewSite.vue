@@ -234,6 +234,13 @@ const showDebug = ref(false);
                         districts to submit a notice of new heritage property to
                         the BC Register of Historic Places
                     </p>
+                    <p v-if="currentStep >= 6 && currentStep <= 9">
+                        Although this Step is not required to complete a
+                        submission, if you complete any portion of this Step,
+                        you must fully complete all required fields for this
+                        Step. Refer to the manual for detailed instructions and
+                        field definitions.
+                    </p>
                     <StepPanels>
                         <StepperNavigation
                             :step-number="currentStep"
