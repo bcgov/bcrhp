@@ -108,9 +108,13 @@ const isValid = () => {
 
 const addHeritageClassDisabled = computed(() => {
     const data = currentHeritageClass.value.aliased_data;
-    const hasResourceCount = !!(
+    const hasCategory = !!(
         data.heritage_category?.display_value ||
         data.heritage_category?.node_value
+    );
+    const hasResourceCount = !!(
+        data.contributing_resource_count?.display_value ||
+        data.contributing_resource_count?.node_value
     );
     const hasOwnership = !!(
         data.ownership?.display_value || data.ownership?.node_value
@@ -118,6 +122,7 @@ const addHeritageClassDisabled = computed(() => {
 
     return (
         !hasResourceCount ||
+        !hasCategory ||
         !hasOwnership ||
         !isValidHeritageClass() ||
         heritageClasses.value.length >= 5
