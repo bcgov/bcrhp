@@ -130,7 +130,7 @@ const saveOtherName = function () {
 };
 
 const addOtherNameDisabled = computed(
-    () => !isOtherNameValid() || otherNames.value.length >= 4,
+    () => !isOtherNameValid() || otherNames.value.length >= 5,
 );
 
 const deleteOtherNameCallback = function (nameToDelete: any) {
