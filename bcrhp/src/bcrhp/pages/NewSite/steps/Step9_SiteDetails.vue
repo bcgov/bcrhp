@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-// [ADDED] Import z from zod to define local schema
 import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
@@ -152,10 +151,7 @@ const isValidConstructionActors = () =>
 const addConstructionActorDisabled = computed(() => {
     const data = currentConstructionActor.value.aliased_data;
 
-    const hasName = !!(
-        data.construction_actor?.display_value ||
-        data.construction_actor?.node_value
-    );
+    const hasName = getText(data.construction_actor).trim().length > 0;
 
     const hasType = !!(
         data.construction_actor_type?.display_value ||
