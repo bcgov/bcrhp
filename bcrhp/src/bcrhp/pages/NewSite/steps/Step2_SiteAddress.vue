@@ -64,10 +64,16 @@ let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
 );
 const isOverrideActive = ref(false);
 const legalWidgetRef = useTemplateRef('legalWidgetRef');
+const streetWidgetRef = useTemplateRef('streetWidgetRef');
+const cityWidgetRef = useTemplateRef('cityWidgetRef');
+const postalWidgetRef = useTemplateRef('postalWidgetRef');
+const localityWidgetRef = useTemplateRef('localityWidgetRef');
+
 const tempBoundaryData = ref<any>(null);
 
 // Keys to force UI resets
 const addressFormKey = ref(0);
+const descriptionKey = ref(0);
 const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
 const addLegalDescriptionVisible = ref(false);
@@ -75,7 +81,6 @@ const pidField = ref<any>();
 const legalDescriptionTargetAddress: Ref<BcPropertyAddressTileType | null> =
     ref(null);
 
-const nextAddressKey = computed(() => propertyAddressList?.value?.length ?? 0);
 const nextLegalDescriptionKey = computed(
     () => `${addressFormKey.value}_${legalDescriptionList.value.length}`,
 );
@@ -102,20 +107,21 @@ const currentAddressHasStreet = computed(() => {
     return streetVal.trim().length > 0;
 });
 
+const getString = (node: any) => {
+    if (!node) return '';
+    let val = '';
+    if (node.display_value) val = node.display_value;
+    else if (typeof node.node_value === 'string') val = node.node_value;
+    else if (node.node_value?.en?.value) val = node.node_value.en.value;
+    else if (typeof node === 'string') val = node;
+
+    // Strip any HTML tags (important for rich text fields and labels)
+    return val.replace(/<[^>]*>?/gm, '');
+};
+
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
-    let sanitizedValue = newValue;
-
-    if (attribute_name === 'postal_code') {
-        const formatted = formatBCPostalCode(newValue?.display_value || '');
-        sanitizedValue = {
-            ...newValue,
-            display_value: formatted,
-            node_value: formatted,
-        };
-    }
-
     baseUpdateModelValue(
-        sanitizedValue,
+        newValue,
         attribute_name,
         currentPropertyAddress.value.aliased_data,
         propertyAddressForm as Ref<FormInstance>,
@@ -125,26 +131,17 @@ const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
 };
 
 const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
-    let sanitizedValue = newValue;
-
     if (attribute_name === 'pid') {
-        const rawValue = String(newValue?.display_value || '');
+        const rawValue = String(
+            newValue?.display_value || newValue?.node_value || '',
+        );
         const numericOnly = rawValue.replace(/\D/g, '');
-        const limitedValue = numericOnly.slice(0, 9);
+        currentPidLength.value = numericOnly.slice(0, 9).length;
         pidSuccess.value = false;
-
-        sanitizedValue = {
-            ...newValue,
-            display_value: limitedValue,
-            node_value: limitedValue,
-            details: [],
-        };
-
-        currentPidLength.value = limitedValue.length;
     }
 
     baseUpdateModelValue(
-        sanitizedValue,
+        newValue,
         attribute_name,
         currentLegalDescription.value.aliased_data,
         legalDescriptionForm as Ref<FormInstance>,
@@ -170,6 +167,18 @@ const saveAddress = function () {
             [];
     }
 
+    const pcNode = currentPropertyAddress.value.aliased_data.postal_code;
+    if (pcNode) {
+        const rawVal =
+            pcNode.display_value ||
+            (typeof pcNode.node_value === 'string' ? pcNode.node_value : '');
+        if (rawVal) {
+            const formatted = formatBCPostalCode(rawVal);
+            pcNode.display_value = formatted;
+            pcNode.node_value = formatted;
+        }
+    }
+
     if (addingNewAddress.value) {
         heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.bc_property_address.push(
             currentPropertyAddress.value,
@@ -178,16 +187,38 @@ const saveAddress = function () {
 
     currentPropertyAddress.value = getPropertyAddress();
     addingNewAddress.value = true;
-    addressFormKey.value = nextAddressKey.value;
-
+    addressFormKey.value += 1;
+    descriptionKey.value += 1;
     propertyAddressForm.value?.reset();
+
     emit('update:stepIsValid', isValid());
 };
 
-const setCurrentPropertyAddress = function (index: number) {
-    currentPropertyAddress.value = propertyAddressList.value[index];
-    addressFormKey.value = index;
+const setCurrentPropertyAddress = async function (index: number) {
+    const savedAddress = propertyAddressList.value[index];
+    currentPropertyAddress.value = savedAddress;
     addingNewAddress.value = false;
+    descriptionKey.value += 1;
+    propertyAddressForm.value?.reset();
+    const data = savedAddress.aliased_data || {};
+
+    const forceFill = (widgetRef: any, value: string) => {
+        if (!widgetRef || !value) return;
+
+        const inputElement = widgetRef.$el?.querySelector('input, textarea');
+        if (inputElement) {
+            inputElement.value = value;
+            inputElement.dispatchEvent(new Event('input', { bubbles: true }));
+            inputElement.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    };
+
+    setTimeout(() => {
+        forceFill(streetWidgetRef.value, getString(data.street_address));
+        forceFill(cityWidgetRef.value, getString(data.city));
+        forceFill(postalWidgetRef.value, getString(data.postal_code));
+        forceFill(localityWidgetRef.value, getString(data.locality));
+    }, 50);
 };
 
 function deleteAddress(index: number) {
@@ -207,17 +238,6 @@ const disableAddressSection = computed(() => !hasPropertyAddress.value);
 
 const getAddressLabel = (addr: any) => {
     const data = addr?.aliased_data || {};
-
-    const getString = (node: any) => {
-        if (!node) return '';
-        let val = '';
-        if (node.display_value) val = node.display_value;
-        else if (typeof node.node_value === 'string') val = node.node_value;
-        else if (node.node_value?.en?.value) val = node.node_value.en.value;
-        else if (typeof node === 'string') val = node;
-        return val.replace(/<[^>]*>?/gm, '');
-    };
-
     const street = getString(data.street_address);
     const city = getString(data.city);
     const locality = getString(data.locality);
@@ -428,6 +448,7 @@ defineExpose({ isValid });
                         :required="true"
                     >
                         <GenericWidget
+                            ref="streetWidgetRef"
                             class="input-grow"
                             :mode="EDIT"
                             :should-show-label="false"
@@ -446,6 +467,7 @@ defineExpose({ isValid });
 
                 <div style="flex: 1; margin-left: 1.5rem">
                     <GenericWidget
+                        ref="cityWidgetRef"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -470,6 +492,7 @@ defineExpose({ isValid });
                     "
                 >
                     <GenericWidget
+                        ref="postalWidgetRef"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -483,6 +506,7 @@ defineExpose({ isValid });
                 </div>
                 <div style="flex: 1; margin-left: 1.5rem">
                     <GenericWidget
+                        ref="localityWidgetRef"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -495,6 +519,7 @@ defineExpose({ isValid });
                 </div>
             </div>
             <GenericWidget
+                :key="descriptionKey"
                 style="margin-bottom: 1rem"
                 :mode="EDIT"
                 :aliased-node-data="
@@ -513,7 +538,7 @@ defineExpose({ isValid });
                 :disabled="!currentAddressHasStreet"
                 @click="saveAddress"
             >
-                + Add Address
+                {{ addingNewAddress ? '+ Add Address' : 'Save Changes' }}
             </Button>
             <br />
 
