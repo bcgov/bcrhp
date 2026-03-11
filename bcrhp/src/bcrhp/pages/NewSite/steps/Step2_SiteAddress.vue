@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import {
-    getBCPostalCodeSchema,
-    formatBCPostalCode,
-} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -93,11 +89,7 @@ const legalDescriptionForm: Ref<FormInstance | null> = useTemplateRef(
 ) as Ref<FormInstance | null>;
 
 const propertyAddressResolver = getFlattenResolver(
-    zodResolver(
-        BcPropertyAddressTileSchema.shape['aliased_data'].extend({
-            postal_code: getBCPostalCodeSchema(),
-        }),
-    ),
+    zodResolver(BcPropertyAddressTileSchema.shape['aliased_data']),
 );
 
 const currentAddressHasStreet = computed(() => {
@@ -167,18 +159,6 @@ const saveAddress = function () {
             [];
     }
 
-    const pcNode = currentPropertyAddress.value.aliased_data.postal_code;
-    if (pcNode) {
-        const rawVal =
-            pcNode.display_value ||
-            (typeof pcNode.node_value === 'string' ? pcNode.node_value : '');
-        if (rawVal) {
-            const formatted = formatBCPostalCode(rawVal);
-            pcNode.display_value = formatted;
-            pcNode.node_value = formatted;
-        }
-    }
-
     if (addingNewAddress.value) {
         heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.bc_property_address.push(
             currentPropertyAddress.value,
@@ -194,31 +174,11 @@ const saveAddress = function () {
     emit('update:stepIsValid', isValid());
 };
 
-const setCurrentPropertyAddress = async function (index: number) {
-    const savedAddress = propertyAddressList.value[index];
-    currentPropertyAddress.value = savedAddress;
+const setCurrentPropertyAddress = function (index: number) {
+    currentPropertyAddress.value = propertyAddressList.value[index];
+    addressFormKey.value = index;
     addingNewAddress.value = false;
-    descriptionKey.value += 1;
-    propertyAddressForm.value?.reset();
-    const data = savedAddress.aliased_data || {};
-
-    const forceFill = (widgetRef: any, value: string) => {
-        if (!widgetRef || !value) return;
-
-        const inputElement = widgetRef.$el?.querySelector('input, textarea');
-        if (inputElement) {
-            inputElement.value = value;
-            inputElement.dispatchEvent(new Event('input', { bubbles: true }));
-            inputElement.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    };
-
-    setTimeout(() => {
-        forceFill(streetWidgetRef.value, getString(data.street_address));
-        forceFill(cityWidgetRef.value, getString(data.city));
-        forceFill(postalWidgetRef.value, getString(data.postal_code));
-        forceFill(localityWidgetRef.value, getString(data.locality));
-    }, 50);
+    // propertyAddressForm.value?.reset();
 };
 
 function deleteAddress(index: number) {
@@ -493,6 +453,7 @@ defineExpose({ isValid });
                 >
                     <GenericWidget
                         ref="postalWidgetRef"
+                        :key="addressFormKey"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
