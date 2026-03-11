@@ -5,6 +5,10 @@ import {
     getRichTextValueRequiredSchema,
     getStringValueSchema,
     getStringValueRequiredSchema,
+    StringNodeValueRequiredSchema,
+    StringValueRequiredSchema,
+    LanguageValueSchema,
+    getBCPostalCodeSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
@@ -18,7 +22,7 @@ import { blankStringValue } from '@/bcrhp/utils.ts';
 export const BcPropertyAddressTileSchema = TileSchema.extend({
     aliased_data: z.object({
         street_address: getStringValueRequiredSchema(80),
-        postal_code: getStringValueRequiredSchema(7),
+        postal_code: getBCPostalCodeSchema(),
         location_description: getRichTextValueRequiredSchema(4000),
         city: getStringValueRequiredSchema(80),
         province: ConceptValueRequiredSchema,
