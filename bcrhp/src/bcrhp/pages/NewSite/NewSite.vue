@@ -359,6 +359,7 @@ const showDebug = ref(false);
                             <ReviewSubmission
                                 ref="step11"
                                 :submission-errors="submissionErrors"
+                                :submissionComplete="false"
                                 @update:step-is-valid="
                                     setCurrentStepValid($event, 11)
                                 "
@@ -369,6 +370,7 @@ const showDebug = ref(false);
                             <ReviewSubmission
                                 ref="step12"
                                 :submission-errors="submissionErrors"
+                                :submissionComplete="true"
                                 @update:step-is-valid="
                                     setCurrentStepValid($event, 12)
                                 "
@@ -397,20 +399,51 @@ const showDebug = ref(false);
     aside,
     .bcgov-vertical-steps,
     .stepper-nav-panel,
-    .sidenav {
+    .sidenav,
+    .debug-toggle {
         display: none !important;
     }
+
     html,
     body {
         height: auto !important;
         overflow: visible !important;
     }
+
     .main-content-area,
     .page-wrapper,
     main {
         position: static !important;
         overflow: visible !important;
         height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .bcgov-stepper,
+    .bcgov-vertical-step-panels {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: none !important;
+    }
+
+    .p-panel,
+    .p-panel-content,
+    .p-panel-header {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        border: none !important;
+    }
+
+    .bcgov-vertical-step-panels h1 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }
 }
 .red {

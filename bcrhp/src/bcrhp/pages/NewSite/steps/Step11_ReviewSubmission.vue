@@ -14,6 +14,7 @@ const today = currentDateValue();
 
 defineProps<{
     submissionErrors: ErrorMessage[];
+    submissionComplete?: boolean;
 }>();
 
 // Helper to safely get the addresses
@@ -112,7 +113,7 @@ defineExpose({ isValid });
             </Message>
         </div>
     </section>
-    <p>
+    <p v-if="!submissionComplete">
         Please review the entered information prior to submitting the
         application:
     </p>
