@@ -8,6 +8,7 @@ import {
     StringNodeValueRequiredSchema,
     StringValueRequiredSchema,
     LanguageValueSchema,
+    getBCPostalCodeSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
@@ -18,29 +19,10 @@ import {
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
 
-const postalCodeNodeSchema = StringNodeValueRequiredSchema.extend({
-    en: LanguageValueSchema.safeExtend({
-        value: z
-            .string()
-            .trim()
-            .min(1, { message: 'Value is required.' })
-            .max(7, {
-                message: `Maximum length is 7 characters`,
-            })
-            .regex(/^[A-Z]\d[A-Z] \d[A-Z]\d$/, {
-                message: 'Invalid format. Please use A9A 9A9.',
-            }),
-    }),
-});
-
-const PostalCodeValueSchema = StringValueRequiredSchema.extend({
-    node_value: postalCodeNodeSchema,
-});
-
 export const BcPropertyAddressTileSchema = TileSchema.extend({
     aliased_data: z.object({
         street_address: getStringValueRequiredSchema(80),
-        postal_code: PostalCodeValueSchema,
+        postal_code: getBCPostalCodeSchema(),
         location_description: getRichTextValueRequiredSchema(4000),
         city: getStringValueRequiredSchema(80),
         province: ConceptValueRequiredSchema,

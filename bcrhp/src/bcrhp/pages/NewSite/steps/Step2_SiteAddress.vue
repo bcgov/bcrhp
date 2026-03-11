@@ -60,11 +60,6 @@ let currentLegalDescription: Ref<BcPropertyLegalDescriptionTileType> = ref(
 );
 const isOverrideActive = ref(false);
 const legalWidgetRef = useTemplateRef('legalWidgetRef');
-const streetWidgetRef = useTemplateRef('streetWidgetRef');
-const cityWidgetRef = useTemplateRef('cityWidgetRef');
-const postalWidgetRef = useTemplateRef('postalWidgetRef');
-const localityWidgetRef = useTemplateRef('localityWidgetRef');
-
 const tempBoundaryData = ref<any>(null);
 
 // Keys to force UI resets
