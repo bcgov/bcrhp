@@ -94,18 +94,6 @@ const currentAddressHasStreet = computed(() => {
     return streetVal.trim().length > 0;
 });
 
-// const getString = (node: any) => {
-//     if (!node) return '';
-//     let val = '';
-//     if (node.display_value) val = node.display_value;
-//     else if (typeof node.node_value === 'string') val = node.node_value;
-//     else if (node.node_value?.en?.value) val = node.node_value.en.value;
-//     else if (typeof node === 'string') val = node;
-
-//     // Strip any HTML tags (important for rich text fields and labels)
-//     return val.replace(/<[^>]*>?/gm, '');
-// };
-
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
     baseUpdateModelValue(
         newValue,
