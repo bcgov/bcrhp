@@ -90,6 +90,7 @@ defineExpose({ isValid });
                     hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
                     input-name="physical_description"
                     :error-message="$form.physical_description?.error?.message"
+                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -110,6 +111,7 @@ defineExpose({ isValid });
                     hint="Describe why the place is valued by the community and identify which heritage values the official recognition is based on"
                     input-name="heritage_value"
                     :error-message="$form.heritage_value?.error?.message"
+                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -130,6 +132,7 @@ defineExpose({ isValid });
                     hint="List the key features of the heritage site that contribute to its heritage value in bullet-point format"
                     input-name="defining_elements"
                     :error-message="$form.defining_elements?.error?.message"
+                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -150,6 +153,7 @@ defineExpose({ isValid });
                     hint="Enter the government or agency name where the original document was created."
                     input-name="document_location"
                     :error-message="$form.document_location?.error?.message"
+                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget

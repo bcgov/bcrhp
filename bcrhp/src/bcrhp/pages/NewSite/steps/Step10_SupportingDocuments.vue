@@ -45,7 +45,7 @@ const supportingDocumentsResolver = getFlattenResolver(
 );
 
 const isValid = () => {
-    return true;
+    return siteDocumentList.value.length > 0;
 };
 
 const documentTypeOverrides = {
@@ -95,10 +95,14 @@ const saveDocument = async function () {
     siteDocument.value = getSiteDocument();
     siteDocumentKey.value++;
     supportingDocumentsForm.value?.reset();
+
+    emit('update:stepIsValid', isValid());
 };
 
 const deleteSiteDocument = function (index: number) {
     heritageSite.value.aliased_data.site_document.splice(index, 1);
+
+    emit('update:stepIsValid', isValid());
 };
 
 defineExpose({ isValid });
@@ -107,6 +111,7 @@ defineExpose({ isValid });
 <template>
     <Form
         ref="supportingDocumentsForm"
+        v-slot="$form"
         name="supportingDocumentsForm"
         :validateOnBlur="true"
         :resolver="supportingDocumentsResolver"
@@ -138,58 +143,68 @@ defineExpose({ isValid });
                     </ul>
                 </div>
             </div>
-            <div>
-                <div>
-                    <GenericWidget
-                        :key="siteDocumentKey"
-                        graph-slug="heritage_site"
-                        node-alias="site_document"
-                        :should-show-label="true"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            siteDocument.value?.aliased_data?.site_document
-                        "
-                        @update:value="
-                            updateModelValue($event, 'site_document')
-                        "
-                    ></GenericWidget>
-                </div>
-                <br />
-                <div>
-                    <GenericWidget
-                        :key="siteDocumentKey"
-                        graph-slug="heritage_site"
-                        node-alias="document_type"
-                        :should-show-label="true"
-                        :mode="EDIT"
-                        :card-x-node-x-widget-data-overrides="
-                            documentTypeOverrides
-                        "
-                        :aliased-node-data="
-                            siteDocument.value?.aliased_data?.document_type
-                        "
-                        @update:value="
-                            updateModelValue($event, 'document_type')
-                        "
-                    ></GenericWidget>
-                    <br />
-                    <GenericWidget
-                        :key="siteDocumentKey"
-                        graph-slug="heritage_site"
-                        node-alias="document_description"
-                        :should-show-label="true"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            siteDocument.value?.aliased_data
-                                ?.document_description
-                        "
-                        @update:value="
-                            updateModelValue($event, 'document_description')
-                        "
-                    ></GenericWidget>
-                    <br />
-                </div>
-            </div>
+            <LabelledInput
+                label="Document"
+                input-name="document"
+                :error-message="$form.site_document?.error?.message"
+                :required="true"
+            >
+                <GenericWidget
+                    :required="true"
+                    :key="siteDocumentKey"
+                    graph-slug="heritage_site"
+                    node-alias="site_document"
+                    :should-show-label="false"
+                    :mode="EDIT"
+                    :aliased-node-data="
+                        siteDocument.value?.aliased_data?.site_document
+                    "
+                    @update:value="updateModelValue($event, 'site_document')"
+                ></GenericWidget>
+            </LabelledInput>
+            <LabelledInput
+                label="Document Type"
+                input-name="document"
+                :error-message="$form.document_type?.error?.message"
+                :required="true"
+            >
+                <GenericWidget
+                    :required="true"
+                    :key="siteDocumentKey"
+                    graph-slug="heritage_site"
+                    node-alias="document_type"
+                    :should-show-label="false"
+                    :mode="EDIT"
+                    :card-x-node-x-widget-data-overrides="documentTypeOverrides"
+                    :aliased-node-data="
+                        siteDocument.value?.aliased_data?.document_type
+                    "
+                    @update:value="updateModelValue($event, 'document_type')"
+                ></GenericWidget>
+            </LabelledInput>
+            <LabelledInput
+                label="Document Description"
+                input-name="document"
+                :error-message="$form.document_description?.error?.message"
+                :required="true"
+                hint="Provide a short description of the document content"
+            >
+                <GenericWidget
+                    :required="true"
+                    :key="siteDocumentKey"
+                    graph-slug="heritage_site"
+                    node-alias="document_description"
+                    :should-show-label="false"
+                    :mode="EDIT"
+                    :aliased-node-data="
+                        siteDocument.value?.aliased_data?.document_description
+                    "
+                    @update:value="
+                        updateModelValue($event, 'document_description')
+                    "
+                ></GenericWidget>
+            </LabelledInput>
+            <br />
         </FieldSet>
     </Form>
     <br />

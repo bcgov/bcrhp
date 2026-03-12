@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-// [ADDED] Import z from zod to define local schema
 import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
@@ -152,10 +151,7 @@ const isValidConstructionActors = () =>
 const addConstructionActorDisabled = computed(() => {
     const data = currentConstructionActor.value.aliased_data;
 
-    const hasName = !!(
-        data.construction_actor?.display_value ||
-        data.construction_actor?.node_value
-    );
+    const hasName = getText(data.construction_actor).trim().length > 0;
 
     const hasType = !!(
         data.construction_actor_type?.display_value ||
@@ -372,38 +368,53 @@ defineExpose({ isValid });
                     </div>
                 </div>
                 <div class="flex flex-row flex-grow">
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="true"
-                        :aliasedNodeData="
-                            currentChronology.aliased_data.start_year
+                    <LabelledInput
+                        label="Start Year"
+                        hint="Year the event started"
+                        input-name="ChronologyStartYear"
+                        :error-message="
+                            $form.chronologyStartYear?.error?.message
                         "
-                        graph-slug="heritage_site"
-                        node-alias="start_year"
-                        placeholder="Select a Start Year"
-                        group-direction="column"
-                        class="flex-grow"
-                        @update:value="
-                            updateChronologyModelValue($event, 'start_year')
-                        "
-                    />
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="true"
-                        :aliasedNodeData="
-                            currentChronology.aliased_data.end_year
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="end_year"
-                        placeholder="Select an End Year"
-                        group-direction="column"
-                        class="flex-grow"
-                        @update:value="
-                            updateChronologyModelValue($event, 'end_year')
-                        "
-                    />
-
-                    <div class="align-bottom">
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentChronology.aliased_data.start_year
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="start_year"
+                            placeholder="Select a Start Year"
+                            group-direction="column"
+                            class="flex-grow"
+                            @update:value="
+                                updateChronologyModelValue($event, 'start_year')
+                            "
+                        />
+                    </LabelledInput>
+                    <LabelledInput
+                        label="End Year"
+                        hint="Year the event ended if applicable"
+                        input-name="ChronologyEndYear"
+                        :error-message="$form.chronologyEndYear?.error?.message"
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentChronology.aliased_data.end_year
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="end_year"
+                            placeholder="Select an End Year"
+                            group-direction="column"
+                            class="flex-grow"
+                            @update:value="
+                                updateChronologyModelValue($event, 'end_year')
+                            "
+                        />
+                    </LabelledInput>
+                    <div class="align-checkbox">
                         <div class="flex flex-row flex-row-checkbox">
                             <GenericWidget
                                 :mode="EDIT"
@@ -632,28 +643,37 @@ defineExpose({ isValid });
                         "
                     />
                 </LabelledInput>
-
                 <LabelledInput
-                    hint="e.g. https://www.example.com"
+                    hint="Enter text that describes the link, URL must be stable and publicly accessible "
                     input-name="external_url"
                     class="flex-grow"
                     :error-message="$form.external_url?.error?.message"
                 >
-                    <GenericWidget
-                        class="bold"
-                        :required="true"
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentExternalUrl.aliased_data.external_url
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="external_url"
-                        group-direction="column"
-                        @update:value="
-                            updateExternalUrlModelValue($event, 'external_url')
-                        "
-                    />
+                    <FieldSet>
+                        <template #legend>
+                            <span class="bold fieldset-subheader">
+                                <span class="red">* </span>URL information
+                            </span>
+                        </template>
+                        <GenericWidget
+                            class="bold"
+                            :required="true"
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentExternalUrl.aliased_data.external_url
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="external_url"
+                            group-direction="column"
+                            @update:value="
+                                updateExternalUrlModelValue(
+                                    $event,
+                                    'external_url',
+                                )
+                            "
+                        />
+                    </FieldSet>
                 </LabelledInput>
             </div>
         </FieldSet>
@@ -691,9 +711,8 @@ defineExpose({ isValid });
     flex-grow: 1;
 }
 
-.align-bottom {
-    margin-bottom: 0;
-    margin-top: auto;
+.align-checkbox {
+    align-self: center;
 }
 
 .button-padding {
@@ -708,5 +727,8 @@ defineExpose({ isValid });
 }
 .bold {
     font-weight: bold;
+}
+.fieldset-subheader {
+    font-size: 1rem;
 }
 </style>
