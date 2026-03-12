@@ -139,6 +139,10 @@ test('test', async ({ page }) => {
         'div[data-node-alias="site_images"] input[type="file"]',
         path.join(__dirname, 'house.jpg'),
     );
+    const removeImageBtn = page.getByRole('button', {
+        name: 'Remove / Change Image',
+    });
+    await expect(removeImageBtn).toBeVisible({ timeout: 15000 });
     await page.locator('#image_type').getByText('Select an option').click();
     await page
         .locator('div')

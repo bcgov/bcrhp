@@ -141,11 +141,44 @@ defineExpose({ isValid });
                 </dd>
 
                 <dt>Detailed Location</dt>
-                <dd>
-                    {{
+                <dd
+                    v-html="
                         property_address.aliased_data.location_description
                             .display_value || '-'
-                    }}
+                    "
+                ></dd>
+
+                <dt>Legal Description(s)</dt>
+                <dd>
+                    <div
+                        v-for="legalDescription in property_address.aliased_data
+                            .bc_property_legal_description || []"
+                        :key="legalDescription"
+                    >
+                        <div>
+                            <span>PID:</span>
+                            {{
+                                legalDescription.aliased_data.pid
+                                    ?.display_value || 'N/A'
+                            }}
+                        </div>
+                        <div>
+                            <span>Description:</span>
+                            {{
+                                legalDescription.aliased_data.legal_description
+                                    ?.display_value || 'N/A'
+                            }}
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="
+                            !property_address.aliased_data
+                                .bc_property_legal_description?.length
+                        "
+                    >
+                        No legal descriptions recorded.
+                    </div>
                 </dd>
             </div>
         </div>

@@ -173,7 +173,7 @@ onMounted(() => {
             >
                 <LabelledInput
                     label="Common Name"
-                    hint="Enter the site name to be the common name (e.g. Emily Carr House), if the site does not have a commonly know name use the street address (e.g. 123 Government St.)"
+                    hint="Enter the site name to be the common name (e.g. Emily Carr House), if the site does not have a commonly known name use the street address (e.g. 123 Government St.)"
                     input-name="commonName"
                     :error-message="$form.commonName?.error?.message"
                     :required="true"

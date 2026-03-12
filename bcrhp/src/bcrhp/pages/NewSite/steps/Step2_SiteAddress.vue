@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import {
-    getBCPostalCodeSchema,
-    formatBCPostalCode,
-} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -68,6 +64,7 @@ const tempBoundaryData = ref<any>(null);
 
 // Keys to force UI resets
 const addressFormKey = ref(0);
+const descriptionKey = ref(0);
 const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
 const addLegalDescriptionVisible = ref(false);
@@ -75,7 +72,6 @@ const pidField = ref<any>();
 const legalDescriptionTargetAddress: Ref<BcPropertyAddressTileType | null> =
     ref(null);
 
-const nextAddressKey = computed(() => propertyAddressList?.value?.length ?? 0);
 const nextLegalDescriptionKey = computed(
     () => `${addressFormKey.value}_${legalDescriptionList.value.length}`,
 );
@@ -88,11 +84,7 @@ const legalDescriptionForm: Ref<FormInstance | null> = useTemplateRef(
 ) as Ref<FormInstance | null>;
 
 const propertyAddressResolver = getFlattenResolver(
-    zodResolver(
-        BcPropertyAddressTileSchema.shape['aliased_data'].extend({
-            postal_code: getBCPostalCodeSchema(),
-        }),
-    ),
+    zodResolver(BcPropertyAddressTileSchema.shape['aliased_data']),
 );
 
 const currentAddressHasStreet = computed(() => {
@@ -103,19 +95,8 @@ const currentAddressHasStreet = computed(() => {
 });
 
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
-    let sanitizedValue = newValue;
-
-    if (attribute_name === 'postal_code') {
-        const formatted = formatBCPostalCode(newValue?.display_value || '');
-        sanitizedValue = {
-            ...newValue,
-            display_value: formatted,
-            node_value: formatted,
-        };
-    }
-
     baseUpdateModelValue(
-        sanitizedValue,
+        newValue,
         attribute_name,
         currentPropertyAddress.value.aliased_data,
         propertyAddressForm as Ref<FormInstance>,
@@ -125,26 +106,17 @@ const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
 };
 
 const updateLegal = (newValue: AliasedNodeData, attribute_name: string) => {
-    let sanitizedValue = newValue;
-
     if (attribute_name === 'pid') {
-        const rawValue = String(newValue?.display_value || '');
+        const rawValue = String(
+            newValue?.display_value || newValue?.node_value || '',
+        );
         const numericOnly = rawValue.replace(/\D/g, '');
-        const limitedValue = numericOnly.slice(0, 9);
+        currentPidLength.value = numericOnly.slice(0, 9).length;
         pidSuccess.value = false;
-
-        sanitizedValue = {
-            ...newValue,
-            display_value: limitedValue,
-            node_value: limitedValue,
-            details: [],
-        };
-
-        currentPidLength.value = limitedValue.length;
     }
 
     baseUpdateModelValue(
-        sanitizedValue,
+        newValue,
         attribute_name,
         currentLegalDescription.value.aliased_data,
         legalDescriptionForm as Ref<FormInstance>,
@@ -178,9 +150,10 @@ const saveAddress = function () {
 
     currentPropertyAddress.value = getPropertyAddress();
     addingNewAddress.value = true;
-    addressFormKey.value = nextAddressKey.value;
-
+    addressFormKey.value += 1;
+    descriptionKey.value += 1;
     propertyAddressForm.value?.reset();
+
     emit('update:stepIsValid', isValid());
 };
 
@@ -188,6 +161,7 @@ const setCurrentPropertyAddress = function (index: number) {
     currentPropertyAddress.value = propertyAddressList.value[index];
     addressFormKey.value = index;
     addingNewAddress.value = false;
+    // propertyAddressForm.value?.reset();
 };
 
 function deleteAddress(index: number) {
@@ -207,21 +181,10 @@ const disableAddressSection = computed(() => !hasPropertyAddress.value);
 
 const getAddressLabel = (addr: any) => {
     const data = addr?.aliased_data || {};
-
-    const getString = (node: any) => {
-        if (!node) return '';
-        let val = '';
-        if (node.display_value) val = node.display_value;
-        else if (typeof node.node_value === 'string') val = node.node_value;
-        else if (node.node_value?.en?.value) val = node.node_value.en.value;
-        else if (typeof node === 'string') val = node;
-        return val.replace(/<[^>]*>?/gm, '');
-    };
-
-    const street = getString(data.street_address);
-    const city = getString(data.city);
-    const locality = getString(data.locality);
-    const postal = getString(data.postal_code);
+    const street = data.street_address.display_value;
+    const city = data.city.display_value;
+    const locality = data.locality.display_value;
+    const postal = data.postal_code.display_value;
 
     return (
         [street, city, locality, postal]
@@ -428,6 +391,7 @@ defineExpose({ isValid });
                         :required="true"
                     >
                         <GenericWidget
+                            ref="streetWidgetRef"
                             class="input-grow"
                             :mode="EDIT"
                             :should-show-label="false"
@@ -446,6 +410,7 @@ defineExpose({ isValid });
 
                 <div style="flex: 1; margin-left: 1.5rem">
                     <GenericWidget
+                        ref="cityWidgetRef"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -470,6 +435,8 @@ defineExpose({ isValid });
                     "
                 >
                     <GenericWidget
+                        ref="postalWidgetRef"
+                        :key="addressFormKey"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -483,6 +450,7 @@ defineExpose({ isValid });
                 </div>
                 <div style="flex: 1; margin-left: 1.5rem">
                     <GenericWidget
+                        ref="localityWidgetRef"
                         class="input-grow"
                         :mode="EDIT"
                         :aliased-node-data="
@@ -495,6 +463,7 @@ defineExpose({ isValid });
                 </div>
             </div>
             <GenericWidget
+                :key="descriptionKey"
                 style="margin-bottom: 1rem"
                 :mode="EDIT"
                 :aliased-node-data="
@@ -513,7 +482,7 @@ defineExpose({ isValid });
                 :disabled="!currentAddressHasStreet"
                 @click="saveAddress"
             >
-                + Add Address
+                {{ addingNewAddress ? '+ Add Address' : 'Save Changes' }}
             </Button>
             <br />
 
