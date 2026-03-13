@@ -1,5 +1,4 @@
 import arches from 'arches';
-import type * as GeoJSON from 'geojson';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { fetchConceptsTree } from '@/arches_component_lab/datatypes/concept/api.ts';
 import { getToken } from '@/bcgov_arches_common/api.ts';
