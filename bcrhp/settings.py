@@ -35,6 +35,7 @@ except ImportError:
 load_dotenv(
     os.path.join(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0], ".env")
 )
+
 APP_NAME = "bcrhp"
 APP_VERSION = semantic_version.Version(major=1, minor=4, patch=0)
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
