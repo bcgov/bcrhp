@@ -20,29 +20,6 @@
             "geojson"
         ],
         "allowImportingTsExtensions": true,
-        "paths": {
-            "@/arches/*": [
-                "./node_modules/arches/arches/app/src/arches/*"
-            ],
-            "@/bcrhp/*": [
-                "./bcrhp/src/bcrhp/*"
-            ],
-            "@/arches_component_lab/*": [
-                "../arches-component-lab/arches_component_lab/src/arches_component_lab/*",
-                "./node_modules/arches-component-lab/arches_component_lab/src/arches_component_lab/*"
-            ],
-            "@/arches_querysets/*": [
-                "../arches-querysets/arches_querysets/src/arches_querysets/*",
-                "./node_modules/arches-querysets/arches_querysets/src/arches_querysets/*"
-            ],
-            "@/bcgov_arches_common/*": [
-                "../bcgov-arches-common/bcgov_arches_common/src/bcgov_arches_common/*",
-                "./node_modules/bcgov_arches_common/bcgov_arches_common/src/bcgov_arches_common/*"
-            ],
-            "*": [
-                "./node_modules/*"
-            ]
-        }
     },
     "exclude": [
         "**/*.test.ts",
