@@ -1,0 +1,58 @@
+name: Release package to GitHub Packages
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - 'main'
+      - 'dev/*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.title, 'on merge: pypi release')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          check-latest: true
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to GitHub Packages
+        run: |
+          twine upload \
+            --repository-url https://upload.pkg.github.com/ \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            dist/*
+
+      - name: Extract version from pyproject.toml
+        run: |
+          VERSION=$(python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); f.close(); print(d['project']['version'])")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Create and push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "Tag v${{ env.VERSION }} already exists, skipping."
+          else
+            git tag "v${{ env.VERSION }}"
+            git push origin "v${{ env.VERSION }}"
+          fi
