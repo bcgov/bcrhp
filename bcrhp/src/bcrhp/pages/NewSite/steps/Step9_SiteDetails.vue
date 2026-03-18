@@ -30,6 +30,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 
 import {
+    ExternalUrlTileSchema,
     getExternalUrl,
     type ExternalUrlTileType,
 } from '@/bcrhp/schemas/heritage_site/external_url.ts';
@@ -80,28 +81,8 @@ const constructionActorResolver = getFlattenResolver(
     zodResolver(ConstructionActorsTileSchema.shape['aliased_data']),
 );
 
-const LocalExternalUrlSchema = z.object({
-    external_url_type: z.any().refine((val: any) => val && val !== '', {
-        message: 'URL Type is required',
-    }),
-
-    // URL validation
-    external_url: z
-        .object({
-            url: z
-                .union([z.string(), z.null(), z.undefined()])
-                .refine(
-                    (val: any) => typeof val === 'string' && val.length > 0,
-                    {
-                        message: 'URL is required',
-                    },
-                ),
-        })
-        .passthrough(), // Allow props like 'url_label' to pass through without error
-});
-
 const externalUrlResolver = getFlattenResolver(
-    zodResolver(LocalExternalUrlSchema),
+    zodResolver(ExternalUrlTileSchema.shape['aliased_data']),
 );
 
 const getText = (node: any) => {
@@ -167,42 +148,13 @@ const addConstructionActorDisabled = computed(() => {
 });
 
 const isValidExternalUrl = () =>
-    baseIsValid(externalUrlForm as Ref<FormInstance>, LocalExternalUrlSchema);
+    baseIsValid(
+        externalUrlForm as Ref<FormInstance>,
+        ExternalUrlTileSchema.shape['aliased_data'],
+    );
 
 const addExternalUrlDisabled = computed(() => {
-    const data = currentExternalUrl.value.aliased_data;
-
-    //URL Type
-    const hasUrlType = !!(
-        data.external_url_type?.display_value ||
-        data.external_url_type?.node_value
-    );
-
-    //extract data from node_value
-    const urlData = data.external_url?.node_value;
-
-    let urlString = '';
-    let labelString = '';
-
-    if (urlData) {
-        if (typeof urlData === 'string') {
-            urlString = urlData;
-        } else {
-            urlString = urlData.url || '';
-            labelString = urlData.url_label || '';
-        }
-    }
-
-    const hasUrl = urlString.trim().length > 0;
-    const hasUrlLabel = labelString.trim().length > 0;
-
-    return (
-        !hasUrlType ||
-        !hasUrl ||
-        !hasUrlLabel ||
-        !isValidExternalUrl() ||
-        (externalUrls.value.length || 0) > 4
-    );
+    return !isValidExternalUrl() || (externalUrls.value.length || 0) > 4;
 });
 
 const saveChronology = function () {

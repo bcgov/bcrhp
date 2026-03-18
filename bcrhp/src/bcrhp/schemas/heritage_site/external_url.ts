@@ -10,10 +10,57 @@ import { blankURLValue } from '@/bcrhp/utils.ts';
 
 export const ExternalUrlTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        external_url_type: ConceptValueSchema,
-        external_url: z.object,
+        external_url_type: ConceptValueSchema.refine(
+            (val: any) => !!(val?.display_value || val?.node_value),
+            { message: 'URL Type is required' },
+        ),
+
+        external_url: z
+            .any()
+            .refine(
+                (val: any) => {
+                    const data = val?.node_value;
+                    const url =
+                        typeof data === 'string' ? data : data?.url || '';
+                    return url.trim().length > 0;
+                },
+                { message: 'URL is required' },
+            )
+
+            .refine(
+                (val: any) => {
+                    const data = val?.node_value;
+                    const url =
+                        typeof data === 'string' ? data : data?.url || '';
+                    if (url.trim().length === 0) return true;
+                    return !url.includes(' ');
+                },
+                { message: 'URLs cannot contain spaces' },
+            )
+
+            .refine(
+                (val: any) => {
+                    const data = val?.node_value;
+                    const url =
+                        typeof data === 'string' ? data : data?.url || '';
+                    if (url.trim().length === 0) return true;
+                    return url.includes('.');
+                },
+                { message: 'Please enter a valid domain (e.g., website.ca)' },
+            )
+
+            .refine(
+                (val: any) => {
+                    const data = val?.node_value;
+                    if (typeof data === 'string') return true;
+                    const label = data?.url_label || '';
+                    return label.trim().length > 0;
+                },
+                { message: 'URL Label is required' },
+            ),
     }),
 });
+
 // @ts-ignore
 export type ExternalUrlTileType = z.infer<typeof ExternalUrlTileSchema>;
 
