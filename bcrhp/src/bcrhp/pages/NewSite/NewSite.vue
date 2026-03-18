@@ -25,20 +25,24 @@ import SiteClassification from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassifica
 import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
 import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
-
-import { submitHeritageSite } from '@/bcrhp/api.ts';
-
 import {
     type HeritageSiteType,
     getHeritageSite,
 } from '@/bcrhp/schemas/heritage_site.ts';
-import { getBlankHeritageSite } from '@/bcrhp/api.ts';
+import {
+    submitHeritageSite,
+    getBlankHeritageSite,
+    getHeritageSiteById,
+} from '@/bcrhp/api.ts';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
+import { useRoute } from 'vue-router';
 
 const submissionErrors = ref([] as ErrorMessage[]);
 const submitted = ref(false);
 const submitting = ref(false);
 const devMode = ref(true);
+const route = useRoute();
+const isDataLoaded = ref(false);
 
 //placeholder function for final submission
 const submitNewSiteData = async () => {
@@ -194,9 +198,32 @@ onMounted(() => {
         step11,
         step12,
     );
-    getBlankHeritageSite().then((response) => {
-        heritageSite.value = response as unknown as HeritageSiteType;
-    });
+
+    // grab ID from the URL (if it exists)
+    const siteId = route.params.id as string;
+
+    if (siteId) {
+        getBlankHeritageSite().then((blankTemplate) => {
+            getHeritageSiteById(siteId).then((existingData) => {
+                heritageSite.value = {
+                    ...blankTemplate,
+                    ...existingData,
+                    aliased_data: {
+                        ...(blankTemplate as any).aliased_data,
+                        ...(existingData as any).aliased_data,
+                    },
+                } as unknown as HeritageSiteType;
+
+                isDataLoaded.value = true;
+            });
+        });
+    } else {
+        // no ID. Load the blank template
+        getBlankHeritageSite().then((response) => {
+            heritageSite.value = response as unknown as HeritageSiteType;
+            isDataLoaded.value = true;
+        });
+    }
 });
 
 const nextLabel = computed(() => {
@@ -230,8 +257,15 @@ const showDebug = ref(false);
         @click="showDebug = !showDebug"
     ></i>
     <Panel class="full-height">
-        <div style="display: none">Step: {{ currentStep }}</div>
+        <div
+            v-if="!isDataLoaded"
+            style="display: flex; justify-content: center; padding: 3rem"
+        >
+            <ProgressSpinner />
+        </div>
+
         <Stepper
+            v-if="isDataLoaded"
             ref="myStepper"
             :state="stepperState"
             :props="stepperProps"
