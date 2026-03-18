@@ -28,6 +28,15 @@ const routes = [
             requiresAuthentication: !dev_mode,
         },
     },
+    {
+        path: '/bcrhp/submissions/edit-site/:id',
+        name: 'editSite',
+        component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
+        meta: {
+            shouldShowNavigation: true,
+            requiresAuthentication: !dev_mode,
+        },
+    },
     // {
     //     path: "/bcrhp/ipa_submit/",
     //     name: "ipaSubmit",
@@ -89,6 +98,7 @@ const routes = [
 type BCRHPRouteNamesType = RouteNamesType & {
     newSite: string;
     updateSite: string;
+    editSite: string;
 };
 
 const routeNames: BCRHPRouteNamesType = {
@@ -96,6 +106,7 @@ const routeNames: BCRHPRouteNamesType = {
     login: 'login',
     newSite: 'newSite',
     updateSite: 'updateSite',
+    editSite: 'editSite',
     // search: "search",
     // advancedSearch: "advanced-search",
     // schemes: "schemes",
