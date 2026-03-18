@@ -137,3 +137,25 @@ export async function submitHeritageSite(
         return response.json();
     }
 }
+
+export const getHeritageSiteById = async (
+    siteId: string,
+): Promise<HeritageSiteType> => {
+    const url = `/bcrhp/api/resource/heritage_site/${siteId}?format=json&fill_blanks=true`;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to fetch site with ID ${siteId}: ${response.statusText}`,
+            );
+        }
+
+        const data = await response.json();
+        return data as HeritageSiteType;
+    } catch (error) {
+        console.error('Error fetching existing heritage site:', error);
+        throw error;
+    }
+};
