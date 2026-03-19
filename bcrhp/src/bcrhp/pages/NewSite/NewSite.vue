@@ -36,6 +36,8 @@ import {
 } from '@/bcrhp/api.ts';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
 import { useRoute } from 'vue-router';
+import { getSiteName } from '@/bcrhp/schemas/heritage_site/site_names.ts';
+import { getStatementOfSignificance } from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 
 const submissionErrors = ref([] as ErrorMessage[]);
 const submitted = ref(false);
@@ -153,6 +155,22 @@ const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSite());
 
 provide('heritageSite', heritageSite);
 
+const deepMerge = (target: any, source: any) => {
+    for (const k of Object.keys(source)) {
+        if (
+            source[k] !== null &&
+            typeof source[k] === 'object' &&
+            !Array.isArray(source[k]) &&
+            target[k]
+        ) {
+            deepMerge(target[k], source[k]);
+        } else {
+            target[k] = source[k];
+        }
+    }
+    return target;
+};
+
 onMounted(() => {
     steps.push(
         step1,
@@ -169,26 +187,43 @@ onMounted(() => {
         step12,
     );
 
-    // grab ID from the URL (if it exists)
     const siteId = route.params.id as string;
 
     if (siteId) {
-        getBlankHeritageSite().then((blankTemplate) => {
-            getHeritageSiteById(siteId).then((existingData) => {
-                heritageSite.value = {
-                    ...blankTemplate,
-                    ...existingData,
-                    aliased_data: {
-                        ...(blankTemplate as any).aliased_data,
-                        ...(existingData as any).aliased_data,
-                    },
-                } as unknown as HeritageSiteType;
+        // Fetch the blank template AND the existing data
+        Promise.all([getBlankHeritageSite(), getHeritageSiteById(siteId)]).then(
+            ([blankTemplate, existingData]) => {
+                const existing = existingData as any;
+
+                // 1. Update the blank template BEFORE it touches the Vue ref
+                blankTemplate.resourceinstanceid = existing.resourceinstanceid;
+                blankTemplate.graph = existing.graph;
+
+                if (existing.aliased_data) {
+                    for (const key of Object.keys(existing.aliased_data)) {
+                        const dbValue = existing.aliased_data[key];
+
+                        if (Array.isArray(dbValue)) {
+                            // Simply replace the template's array with the populated database array
+                            (blankTemplate as any).aliased_data[key] = dbValue;
+                        } else if (dbValue && typeof dbValue === 'object') {
+                            // Merge direct objects (like bc_right, borden_number)
+                            Object.assign(
+                                (blankTemplate as any).aliased_data[key],
+                                dbValue,
+                            );
+                        }
+                    }
+                }
+
+                heritageSite.value =
+                    blankTemplate as unknown as HeritageSiteType;
 
                 isDataLoaded.value = true;
-            });
-        });
+                console.log('existing data object', heritageSite.value);
+            },
+        );
     } else {
-        // no ID. Load the blank template
         getBlankHeritageSite().then((response) => {
             heritageSite.value = response as unknown as HeritageSiteType;
             isDataLoaded.value = true;
