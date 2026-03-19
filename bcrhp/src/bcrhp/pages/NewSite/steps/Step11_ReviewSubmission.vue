@@ -162,13 +162,6 @@ defineExpose({ isValid });
                                     ?.display_value || 'N/A'
                             }}
                         </div>
-                        <div>
-                            <span>Description:</span>
-                            {{
-                                legalDescription.aliased_data.legal_description
-                                    ?.display_value || 'N/A'
-                            }}
-                        </div>
                     </div>
 
                     <div
