@@ -5,6 +5,7 @@ import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/vali
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import { blankURLValue } from '@/bcrhp/utils.ts';
+import { getURLValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 // Auto-generated tile schema for alias: external_url
 
@@ -15,49 +16,7 @@ export const ExternalUrlTileSchema = TileSchema.extend({
             { message: 'URL Type is required' },
         ),
 
-        external_url: z
-            .any()
-            .refine(
-                (val: any) => {
-                    const data = val?.node_value;
-                    const url =
-                        typeof data === 'string' ? data : data?.url || '';
-                    return url.trim().length > 0;
-                },
-                { message: 'URL is required' },
-            )
-
-            .refine(
-                (val: any) => {
-                    const data = val?.node_value;
-                    const url =
-                        typeof data === 'string' ? data : data?.url || '';
-                    if (url.trim().length === 0) return true;
-                    return !url.includes(' ');
-                },
-                { message: 'URLs cannot contain spaces' },
-            )
-
-            .refine(
-                (val: any) => {
-                    const data = val?.node_value;
-                    const url =
-                        typeof data === 'string' ? data : data?.url || '';
-                    if (url.trim().length === 0) return true;
-                    return url.includes('.');
-                },
-                { message: 'Please enter a valid domain (e.g., website.ca)' },
-            )
-
-            .refine(
-                (val: any) => {
-                    const data = val?.node_value;
-                    if (typeof data === 'string') return true;
-                    const label = data?.url_label || '';
-                    return label.trim().length > 0;
-                },
-                { message: 'URL Label is required' },
-            ),
+        external_url: getURLValueRequiredSchema(),
     }),
 });
 
