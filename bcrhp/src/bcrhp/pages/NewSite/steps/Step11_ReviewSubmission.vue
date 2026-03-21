@@ -88,26 +88,29 @@ defineExpose({ isValid });
 
     <section
         v-if="submissionErrors && submissionErrors.length"
-        class="mt-4"
+        class="mt-4 mb-6"
     >
-        <h3 class="text-lg font-semibold mb-2 text-red-600">
-            Submission Errors
+        <h3 class="text-lg font-semibold text-red-600 mb-2">
+            Submission Blocked: {{ submissionErrors.length }} Issue{{
+                submissionErrors.length > 1 ? 's' : ''
+            }}
+            Found
         </h3>
 
-        <div class="flex flex-col gap-2">
+        <p class="mb-4 text-red-600">Submission Error</p>
+
+        <div class="flex flex-col gap-3">
             <Message
                 v-for="(error, index) in submissionErrors"
                 :key="index"
                 severity="error"
                 :closable="false"
             >
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1">
-                    <span class="font-medium">{{ error.error }}</span>
-                    <span class="text-sm text-gray-600"
-                        >({{ error.type }})</span
-                    >
+                <div class="font-bold mb-1">
+                    {{ error.type }}
                 </div>
                 <div class="text-sm">
+                    <span class="font-semibold">{{ error.error }}:</span>
                     {{ error.message }}
                 </div>
             </Message>
@@ -148,7 +151,7 @@ defineExpose({ isValid });
                     "
                 ></dd>
 
-                <dt>Legal Description(s)</dt>
+                <dt>PID(s)</dt>
                 <dd>
                     <div
                         v-for="legalDescription in property_address.aliased_data
@@ -156,7 +159,6 @@ defineExpose({ isValid });
                         :key="legalDescription"
                     >
                         <div>
-                            <span>PID:</span>
                             {{
                                 legalDescription.aliased_data.pid
                                     ?.display_value || 'N/A'
@@ -170,7 +172,7 @@ defineExpose({ isValid });
                                 .bc_property_legal_description?.length
                         "
                     >
-                        No legal descriptions recorded.
+                        No PID(s) recorded.
                     </div>
                 </dd>
             </div>
