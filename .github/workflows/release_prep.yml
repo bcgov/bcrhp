@@ -15,6 +15,6 @@ permissions:
 
 jobs:
   increment_version_and_pr:
-    uses: archesproject/reusable-github-workflows/.github/workflows/release_prep.yml@main
+    uses: bcgov/bcrhp/.github/workflows/release_prep_common.yml@release/1.4.0_auto_deploy
     secrets:
       token: ${{ secrets.PROJECT_PAT }}
