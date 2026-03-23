@@ -9,7 +9,7 @@ def get_latest_published_version(repo: str) -> Version:
     """Return the version of the latest GitHub Release for *repo* (owner/repo)."""
     url = f"https://api.github.com/repos/{repo}/releases/latest"
     headers = {"Accept": "application/vnd.github+json"}
-    token = os.getenv("GITHUB_TOKEN")
+    token = os.getenv("GH_API_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
     resp = requests.get(url, headers=headers, timeout=5)
