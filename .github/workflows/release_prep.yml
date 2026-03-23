@@ -16,5 +16,7 @@ permissions:
 jobs:
   increment_version_and_pr:
     uses: bcgov/bcrhp/.github/workflows/release_prep_common.yml@release/1.4.0_auto_deploy
+    with:
+      github-repo: bcgov/bcrhp
     secrets:
       token: ${{ secrets.PROJECT_PAT }}
