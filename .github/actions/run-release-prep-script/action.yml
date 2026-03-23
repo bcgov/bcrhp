@@ -19,6 +19,5 @@ runs:
       shell: bash
       env:
         GITHUB_REPO: ${{ inputs.github-repo }}
-        GH_API_TOKEN: ${{ inputs.github-token }}
       run: |
         python "${{ github.action_path }}/release_prep.py"

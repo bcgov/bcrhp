@@ -40,9 +40,9 @@ jobs:
           id: increment_version
           env:
             BRANCH_NAME: ${{ github.ref_name }}
+            GH_API_TOKEN: ${{ secrets.token }}
           with:
             github-repo: ${{ inputs.github-repo }}
-            github-token: ${{ secrets.token }}
           uses: bcgov/bcrhp/.github/actions/run-release-prep-script@release/1.4.0_auto_deploy
 
         - name: Configure git
