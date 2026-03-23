@@ -5,15 +5,21 @@ import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/vali
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import { blankURLValue } from '@/bcrhp/utils.ts';
+import { getURLValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
 // Auto-generated tile schema for alias: external_url
 
 export const ExternalUrlTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        external_url_type: ConceptValueSchema,
-        external_url: z.object,
+        external_url_type: ConceptValueSchema.refine(
+            (val: any) => !!(val?.display_value || val?.node_value),
+            { message: 'URL Type is required' },
+        ),
+
+        external_url: getURLValueRequiredSchema(),
     }),
 });
+
 // @ts-ignore
 export type ExternalUrlTileType = z.infer<typeof ExternalUrlTileSchema>;
 
