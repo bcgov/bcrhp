@@ -17,4 +17,4 @@ jobs:
     if: >
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.title, 'on merge: github release of version')
-    uses: bcgov/bcrhp/.github/workflows/release_deploy_common.yml@release/1.4.0_auto_deploy
+    uses: bcgov/bcgov-arches-common/.github/workflows/release_deploy_common.yml@main
