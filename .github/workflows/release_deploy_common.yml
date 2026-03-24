@@ -53,4 +53,5 @@ jobs:
           TAG="v${{ steps.get_version.outputs.version }}"
           gh release create "$TAG" dist/* \
             --title "$TAG" \
+            --target ${{ github.base_ref }} \
             --generate-notes
