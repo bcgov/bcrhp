@@ -5,6 +5,7 @@ source =
 omit =
     */python?.?/*
     */migrations/*
+    */tests/*
     */settings*.py
     */urls.py
     */wsgi.py
