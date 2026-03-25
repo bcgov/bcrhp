@@ -42,7 +42,9 @@ class TestGenerateFilename(TestCase):
 
         result = generate_filename(self._make_instance(), "photo.jpg")
 
-        self.assertEqual(result, os.path.join("heritage_site", "GcRs", "1", "photo.jpg"))
+        self.assertEqual(
+            result, os.path.join("heritage_site", "GcRs", "1", "photo.jpg")
+        )
 
     @patch("bcrhp.util.storage_filename_generator.datatypes.datatypes.DataTypeFactory")
     @patch("bcrhp.util.storage_filename_generator.models.Node.objects")
@@ -104,9 +106,7 @@ class TestGenerateFilename(TestCase):
         self._setup_mocks(mock_node_objects, mock_factory_cls, "GcRs-1")
         mock_tile_objects.filter.return_value.first.return_value = Mock()
 
-        result = generate_filename(
-            self._make_instance(graph_slug=None), "image.png"
-        )
+        result = generate_filename(self._make_instance(graph_slug=None), "image.png")
 
         self.assertEqual(
             result, os.path.join("system_settings", "GcRs", "1", "image.png")
