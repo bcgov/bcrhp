@@ -8,7 +8,10 @@ from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
 from bcrhp.views.root import BcrhpRootView
 from bcgov_arches_common.views.map import BCTileserverProxyView
-from bcrhp.views.workflows.heritage_site_submissions import SubmitHeritageSite, PatchedArchesResourceBlankView
+from bcrhp.views.workflows.heritage_site_submissions import (
+    SubmitHeritageSite,
+    PatchedArchesResourceBlankView,
+)
 import re
 
 uuid_regex = settings.UUID_REGEX

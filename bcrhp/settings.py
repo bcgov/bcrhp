@@ -38,7 +38,7 @@ load_dotenv(
 APP_NAME = "bcrhp"
 APP_VERSION = semantic_version.Version(major=1, minor=4, patch=0)
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-DEPLOYMENT_TIMESTAMP=get_env_variable("DEPLOYMENT_TIMESTAMP")
+DEPLOYMENT_TIMESTAMP = get_env_variable("DEPLOYMENT_TIMESTAMP")
 
 # PROXY prefix used - NB - cannot have leading "/", and must have trailing "/"
 BCGOV_PROXY_PREFIX = get_env_variable("BCGOV_PROXY_PREFIX")
@@ -217,10 +217,7 @@ INSTALLED_APPS = (
     "arches_querysets",
     "bcgov_arches_common",
 )
-INSTALLED_APPS += (
-    "arches.app",
-    "django.contrib.admin"
-)
+INSTALLED_APPS += ("arches.app", "django.contrib.admin")
 
 USE_VITE = False
 
@@ -244,7 +241,6 @@ if USE_VITE:
         "http://localhost:5173",
     ]
     # END django_vite SETTINGS
-
 
     # Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
     # when run command python manage.py collectstatic
@@ -297,8 +293,8 @@ TEMPLATES = build_templates_config(
     debug=DEBUG,
     app_root=APP_ROOT,
 )
-TEMPLATES[0]['OPTIONS']['context_processors'] += (
-    'bcrhp.util.context_processors.deployment_settings',
+TEMPLATES[0]["OPTIONS"]["context_processors"] += (
+    "bcrhp.util.context_processors.deployment_settings",
 )
 
 ALLOWED_HOSTS = get_env_variable("ALLOWED_HOSTS").split()
@@ -653,15 +649,15 @@ TILESERVER_URL = "https://openmaps.gov.bc.ca/"
 BC_TILESERVER_URLS = {
     "maps": {
         "url": "https://maps.gov.bc.ca/",
-        "use_outbound_proxy": True  # Use outbound proxy for this source
+        "use_outbound_proxy": True,  # Use outbound proxy for this source
     },
     "openmaps": {
         "url": TILESERVER_URL,
-        "use_outbound_proxy": True  # Don't use outbound proxy for this source
+        "use_outbound_proxy": True,  # Don't use outbound proxy for this source
     },
     "local": {
         "url": get_env_variable("TILESERVER_LOCAL_URL"),
-        "use_outbound_proxy": False  # Local doesn't need outbound proxy
+        "use_outbound_proxy": False,  # Local doesn't need outbound proxy
     },
     # "local-feature": {
     #     "url": get_env_variable("FEATURESERVER_LOCAL_URL"),
