@@ -1,14 +1,9 @@
-import { test, expect } from '@playwright/test';
 import path from 'path';
-// import { fileURLToPath } from 'url';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+import { test, expect } from '@playwright/test';
 
 test.use({
-    // viewport: null,
-
-    // launchOptions: {
-    //     args: ['--start-maximized'],
-    // },
-
     ignoreHTTPSErrors: true,
     headless: false,
 });
