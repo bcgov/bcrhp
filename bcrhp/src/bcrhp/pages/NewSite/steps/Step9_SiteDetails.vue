@@ -596,7 +596,7 @@ defineExpose({ isValid });
                     />
                 </LabelledInput>
                 <LabelledInput
-                    hint="Enter text that describes the link, URL must be stable and publicly accessible "
+                    hint='Enter a description of the link in "URL Label", then provide the full, publicly accessible URL below'
                     input-name="external_url"
                     class="flex-grow"
                     :error-message="$form.external_url?.error?.message"
