@@ -21,7 +21,6 @@ import {
     falseBooleanValue,
     blankDateValue,
 } from '@/bcrhp/utils.ts';
-import { currentDateValue } from '@/bcrhp/utils.ts';
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
 
 // Auto-generated tile schema for alias: site_images
