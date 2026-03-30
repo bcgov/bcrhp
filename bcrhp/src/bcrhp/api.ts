@@ -131,10 +131,17 @@ export async function submitHeritageSite(
     });
 
     if (response.status !== 201) {
-        console.log('error', response.statusText);
-        throw Error(`Unable to save submission: ${response.statusText}`);
-    } else {
-        console.log(response);
-        return response.json();
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            throw Error(`Unable to save submission: ${response.statusText}`);
+        }
+        throw errorData;
     }
+
+    const responseData = await response.json();
+    console.log('✅ RETURNED FROM BACKEND:', responseData);
+
+    return responseData;
 }
