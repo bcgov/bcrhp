@@ -19,8 +19,8 @@ import {
     blankFileListValue,
     blankBooleanValue,
     falseBooleanValue,
+    blankDateValue,
 } from '@/bcrhp/utils.ts';
-import { currentDateValue } from '@/bcrhp/utils.ts';
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
 
 // Auto-generated tile schema for alias: site_images
@@ -53,7 +53,7 @@ export class SiteImages implements SiteImagesTileType {
         this.aliased_data = {
             image_type: blankConceptValue(),
             site_images: blankFileListValue(),
-            image_date: currentDateValue(),
+            image_date: blankDateValue(),
             image_features: blankStringValue(),
             image_description: blankStringValue(),
             primary_image: falseBooleanValue(),
