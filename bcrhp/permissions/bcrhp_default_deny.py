@@ -31,8 +31,6 @@ class BcrhpDefaultDenyPermissionFramework(ArchesDefaultDenyPermissionFramework):
         ) == "cef9c510-e3e6-4057-ac08-89ad926180b4" and not HeritageSiteDataProxy().is_site_public(
             resource
         ):
-            # print(f"Before {permissions}")
             permissions["groups_read"] = [self._get_heritage_branch_group().id]
             permissions["groups_edit"] = [self._get_heritage_branch_group().id]
-            # print(f"After {permissions}")
         return permissions
