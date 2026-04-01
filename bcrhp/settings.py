@@ -32,6 +32,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from bcrhp.permission_settings import *
+except ImportError:
+    pass
+
 load_dotenv(
     os.path.join(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0], ".env")
 )
