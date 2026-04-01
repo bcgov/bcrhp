@@ -17,6 +17,7 @@ import json
 from arches_querysets.rest_framework.multipart_json_parser import MultiPartJSONParser
 from arches_querysets.rest_framework.pagination import ArchesLimitOffsetPagination
 from arches_querysets.rest_framework.permissions import ReadOnly, ResourceEditor
+from bcrhp.rest_framework.permissions import LocalGovernment
 from arches_querysets.rest_framework.serializers import (
     ArchesResourceSerializer,
 )
@@ -147,7 +148,7 @@ class PatchedArchesResourceBlankView(ArchesResourceBlankView):
 
 
 class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):
-    permission_classes = [ResourceEditor | ReadOnly]
+    permission_classes = [ResourceEditor | LocalGovernment]
     serializer_class = HeritageSiteSerializer
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination

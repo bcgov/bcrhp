@@ -453,6 +453,7 @@ AUTHLIB_OAUTH_CLIENTS = {
             "unauthorized_template": "unauthorized.htm",
             "auth_exempt_pages": [],
         },
+        "allowed_self_register_domains": ["IDIR", "BCSC", "BCEID"],
     }
 }
 
