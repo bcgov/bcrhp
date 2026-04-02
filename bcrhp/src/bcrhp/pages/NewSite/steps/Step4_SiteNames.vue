@@ -27,16 +27,29 @@ import {
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentCommonName: Ref<SiteNamesTileType | null> = ref(null);
-const currentOtherName: Ref<SiteNamesTileType> = ref(null);
-const otherNameKey = ref(0);
-
 const otherNames = computed(() => {
     return heritageSite.value.aliased_data.site_names.filter(
         (name: SiteNamesTileType) =>
             name?.aliased_data.name_type.display_value === 'Other',
     );
 });
+
+const commonNames = computed(() => {
+    return heritageSite.value.aliased_data.site_names.filter(
+        (name: SiteNamesTileType) =>
+            name?.aliased_data.name_type.display_value === 'Common',
+    );
+});
+
+const currentCommonNameTile: Ref<SiteNamesTileType | null> = ref(null);
+// const currentCommonName: Ref<SiteNamesTileType | null> = ref(null);
+const currentCommonName: Ref<AliasedNodeData | null> = computed(
+    () => currentCommonNameTile?.value?.aliased_data?.name || null,
+);
+
+const currentOtherName: Ref<SiteNamesTileType> = ref(null);
+const otherNameKey = ref(0);
+const commonNameKey = ref('');
 
 const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
     'commonNameForm',
@@ -75,7 +88,7 @@ const updateCommonName = function (
 ) {
     if (!currentCommonName.value) {
         getBlankCommonName().then((blankCommonName) => {
-            currentCommonName.value = blankCommonName;
+            currentCommonNameTile.value = blankCommonName;
             heritageSite.value.aliased_data.site_names = [
                 currentCommonName.value,
                 ...heritageSite.value.aliased_data.site_names,
@@ -83,7 +96,7 @@ const updateCommonName = function (
             baseUpdateModelValue(
                 newValue,
                 attribute_name,
-                currentCommonName.value.aliased_data,
+                currentCommonNameTile.value.aliased_data,
                 commonNameForm as Ref<FormInstance>,
             );
             emit('update:stepIsValid', isValid());
@@ -92,7 +105,7 @@ const updateCommonName = function (
         baseUpdateModelValue(
             newValue,
             attribute_name,
-            currentCommonName.value.aliased_data,
+            currentCommonNameTile.value.aliased_data,
             commonNameForm as Ref<FormInstance>,
         );
         emit('update:stepIsValid', isValid());
@@ -152,6 +165,11 @@ const handleRemoveOtherName = (index: number) => {
 defineExpose({ isValid });
 
 onMounted(() => {
+    if (commonNames.value.length > 0) {
+        currentCommonNameTile.value = commonNames.value[0];
+        // currentCommonName.value = commonNames.value[0].aliased_data.name;
+        commonNameKey.value = commonNames.value[0].tileid;
+    }
     getBlankOtherName().then((blankOtherName) => {
         currentOtherName.value = blankOtherName;
     });
@@ -164,6 +182,10 @@ onMounted(() => {
             id="siteNamesFieldSet"
             legend="Site Names"
         >
+            <div>
+                {{ JSON.stringify(commonNames ?? []) }}
+                {{ JSON.stringify(currentCommonName) }}
+            </div>
             <Form
                 ref="commonNameForm"
                 v-slot="$form"
@@ -180,6 +202,7 @@ onMounted(() => {
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
+                            :key="commonNameKey"
                             :mode="EDIT"
                             :should-show-label="false"
                             :aliasedNodeData="currentCommonName"

@@ -30,7 +30,7 @@ const routes = [
         },
     },
     {
-        path: '/bcrhp/submissions/edit-site/:id',
+        path: arches.urls.plugin('workflow-list/submissions/edit-site/:id'),
         name: 'editSite',
         component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
         meta: {
