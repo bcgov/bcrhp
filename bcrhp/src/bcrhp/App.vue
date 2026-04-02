@@ -2,6 +2,7 @@
 import { provide, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useGettext } from 'vue3-gettext';
+import Submissions from '@/bcrhp/pages/Submissions.vue';
 
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
@@ -18,8 +19,6 @@ import {
 
 import { routeNames } from '@/bcrhp/routes.ts';
 import { fetchUser } from '@/bcgov_arches_common/api.ts';
-import PageHeader from '@/bcgov_arches_common/components/header/PageHeader.vue';
-import SideNav from '@/bcgov_arches_common/components/sidenav/SideNav.vue';
 
 import type { Ref } from 'vue';
 import type { Language, User } from '@/bcgov_arches_common/types.ts';
@@ -53,7 +52,7 @@ router.beforeEach(async (to, _from, next) => {
             window.location.replace(window.location.origin + '/bcrhp');
         }
 
-        setUser(userData);
+        // setUser(userData);
 
         const requiresAuthentication = to.matched.some(
             (record) => record.meta.requiresAuthentication,
@@ -81,23 +80,7 @@ router.beforeEach(async (to, _from, next) => {
 
 <template>
     <main>
-        <PageHeader
-            v-if="route.meta.shouldShowNavigation"
-            :route-names="routeNames"
-            system-name="BC Register of Historic Places"
-        />
-        <div
-            style="
-                display: flex;
-                flex: auto;
-                margin-top: 50px;
-                flex-direction: row;
-            "
-        >
-            <SideNav
-                v-if="route.meta.shouldShowNavigation"
-                :route-names="routeNames"
-            />
+        <div style="display: flex; flex: auto; flex-direction: row">
             <div
                 class="bcgov-main-content"
                 style="flex: auto; background-color: #e9e9e9"
@@ -126,7 +109,7 @@ main {
 
 <style>
 #bcrhp-mounting-point {
-    font-size: 0.8rem;
+    //font-size: 0.8rem;
 }
 
 .bcgov-vertical-steps > .p-steplist {
@@ -151,6 +134,6 @@ main {
 .p-tooltip-text,
 .p-button-label,
 .p-inputtext {
-    font-size: 0.8rem !important;
+    //font-size: 0.8rem !important;
 }
 </style>

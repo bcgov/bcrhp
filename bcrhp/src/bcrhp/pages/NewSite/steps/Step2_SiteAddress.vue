@@ -707,10 +707,10 @@ defineExpose({ isValid });
     width: 100%;
 }
 .dialogFonts {
-    font-size: 1rem;
+    //font-size: 1rem;
 }
 .dialogFonts label {
-    font-size: 0.875rem;
+    //font-size: 0.875rem;
 }
 .hidden {
     display: none;

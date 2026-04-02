@@ -37,7 +37,7 @@ defineExpose({ isValid });
 
         <h3 class="mb-2 font-bold mt-4">Submission Requirements</h3>
 
-        <ul class="ml-4">
+        <ul class="bullet-list ml-4">
             <li>
                 Steps 2-5 and 10 are mandatory to complete the basic data
                 requirements for a notification.

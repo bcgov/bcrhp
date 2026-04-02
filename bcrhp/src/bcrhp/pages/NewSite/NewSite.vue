@@ -226,7 +226,6 @@ const showDebug = ref(false);
         {{ JSON.stringify(heritageSite) }}
     </div>
     <i
-        style="margin-top: 30px"
         class="fa fa-eye-slash debug-toggle"
         @click="showDebug = !showDebug"
     ></i>
