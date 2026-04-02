@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
 import { definePreset } from '@primeuix/themes';
-import { ArchesPreset } from '@/arches/themes/default.ts';
+import Aura from '@primeuix/themes/aura';
 
 import ko from 'knockout';
 import defaultInitWorkflowTemplate from 'templates/views/components/plugins/workflow-list.htm';
@@ -13,12 +13,7 @@ const router = createRouter({
     routes,
 });
 
-const BCGovPreset = definePreset(ArchesPreset, {
-    options: {
-        prefix: 'p',
-        darkModeSelector: 'system',
-        // cssLayer: false,
-    },
+const BCGovPreset = definePreset(Aura, {
     semantic: {
         primary: {
             50: '{blue.50}',
@@ -46,6 +41,11 @@ const BCGovPreset = definePreset(ArchesPreset, {
                 },
             },
         },
+        list: {
+            option: {
+                padding: '0.2rem 0.75rem',
+            },
+        },
     },
     components: {
         button: {
@@ -54,6 +54,20 @@ const BCGovPreset = definePreset(ArchesPreset, {
         },
         card: {
             titleFontSize: '1.0rem',
+        },
+        checkbox: {
+            root: {
+                width: '1.75rem',
+                height: '1.75rem',
+            },
+        },
+        radiobutton: {
+            root: {
+                sm: {
+                    width: '1.75rem',
+                    height: '1.75rem',
+                },
+            },
         },
         fieldset: {
             colorScheme: {
@@ -66,14 +80,25 @@ const BCGovPreset = definePreset(ArchesPreset, {
                     legendBackground: '{grey.900}',
                 },
             },
+            legendFontSize: '2.0rem',
         },
         inputtext: {
             paddingX: '0.2rem',
             paddingY: '0.2rem',
         },
         select: {
-            paddingX: '0.2rem',
-            paddingY: '0.2rem',
+            root: {
+                paddingX: '1.0rem',
+                paddingY: '0.5rem',
+            },
+            option: {
+                fontSize: '1.4rem',
+                paddingY: '0.2rem',
+                padding: '0.2rem 0.2rem',
+                list: {
+                    padding: '0.2rem 0.2rem',
+                },
+            },
         },
         panel: {
             contentPadding: '1.0rem',
@@ -87,8 +112,10 @@ const BCGovPreset = definePreset(ArchesPreset, {
             },
         },
         stepper: {
-            stepNumberSize: '2.8rem',
-            stepNumberFontSize: '1.8rem',
+            stepNumber: {
+                size: '2.8rem',
+                fontSize: '1.8rem',
+            },
             steppanel: {
                 background: '{grey.50}',
             },

@@ -84,7 +84,7 @@ defineExpose({ isValid });
         :resolver="sosResolver"
     >
         <FieldSet legend="Statement of Significance">
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-column gap-4">
                 <LabelledInput
                     label="Description"
                     hint="Briefly describe the site as it exists today, where it is located (including province) and its physical extent and contributing resources"
@@ -177,5 +177,8 @@ defineExpose({ isValid });
 <style scoped>
 .ql-editor {
     min-height: 200px;
+}
+.flex-column {
+    flex-direction: column;
 }
 </style>

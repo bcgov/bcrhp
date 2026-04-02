@@ -303,7 +303,7 @@ defineExpose({ isValid });
         >
             <div class="flex flex-row flex-wrap">
                 <div class="flex-grow">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col flex-grow">
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="true"
