@@ -182,10 +182,6 @@ onMounted(() => {
             id="siteNamesFieldSet"
             legend="Site Names"
         >
-            <div>
-                {{ JSON.stringify(commonNames ?? []) }}
-                {{ JSON.stringify(currentCommonName) }}
-            </div>
             <Form
                 ref="commonNameForm"
                 v-slot="$form"
