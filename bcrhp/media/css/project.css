@@ -71,7 +71,6 @@
     align-items: flex-start;
     margin-top: .25rem;
     justify-content: space-between;
-    width: calc(100% - 2rem);
 }
 
 .p-fileupload-advanced {
