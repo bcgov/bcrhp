@@ -16,7 +16,7 @@ def add_plugin_config(apps, schema_editor):
     plugin.sortorder = 0
     plugin.save()
 
-    group = Group.objects.get(name="Local Government")
+    group = Group.objects.get_or_create(name="Local Government")[0]
     assign_perm("view_plugin", group, plugin)
 
 
