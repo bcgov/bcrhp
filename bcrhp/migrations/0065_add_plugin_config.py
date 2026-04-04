@@ -1,4 +1,6 @@
 from arches.app.models.models import Plugin
+from django.contrib.auth.models import Group
+from guardian.shortcuts import assign_perm
 
 from django.db import migrations
 
@@ -13,6 +15,9 @@ def add_plugin_config(apps, schema_editor):
     plugin.config = {"show": True, "workflows": []}
     plugin.sortorder = 0
     plugin.save()
+
+    group = Group.objects.get(name="Local Government")
+    assign_perm("view_plugin", group, plugin)
 
 
 def remote_plugin_config(apps, schema_editor):
