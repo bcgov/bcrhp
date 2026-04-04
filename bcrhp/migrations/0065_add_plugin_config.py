@@ -28,7 +28,14 @@ def remote_plugin_config(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("bcrhp", "0003_post_package_load"),
+        (
+            "bcrhp",
+            "0003_post_package_load",
+        ),
+        (
+            "guardian",
+            "0002_generic_permissions_index",
+        ),
     ]
 
     operations = [migrations.RunPython(add_plugin_config, remote_plugin_config)]
