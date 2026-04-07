@@ -104,6 +104,6 @@ runs:
     - name: Upload Python coverage report as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.branch-type }}-branch-python-coverage-report
+        name: ${{ inputs.branch-type }}-branch-python-coverage-report-py${{ matrix.python-version }}
         path: ${{ inputs.branch-type }}_branch_python_coverage.json
         overwrite: true
