@@ -3,7 +3,10 @@ from arches.app.models.models import Widget
 
 
 def delete_widget(apps, schema_editor):
-    Widget.objects.get(name="sample-widget").delete()
+    try:
+        Widget.objects.get(name="sample-widget").delete()
+    except:
+        pass
 
 
 def add_widget(apps, schema_editor):

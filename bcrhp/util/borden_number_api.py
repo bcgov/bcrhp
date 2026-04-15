@@ -41,6 +41,10 @@ class BordenNumberApi:
             resourceinstance_id=resourceinstanceid,
             nodegroup_id=self.geom_node.nodegroup_id,
         ).first()
+        if not tile:
+            raise Exception(
+                "No geometry has been set for resource: %s" % resourceinstanceid
+            )
         # print("Got tile: %s" % tile)
         datatype = self._datatype_factory.get_instance(self.geom_node.datatype)
         # geometry = datatype.get_display_value(tile, self.node)

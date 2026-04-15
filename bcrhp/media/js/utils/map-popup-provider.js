@@ -3,6 +3,7 @@ import _ from 'underscore';
 import mapFilterUtils from 'utils/map-filter-utils';
 import default_template from 'templates/views/components/map_popup/toggle-map-popup.htm';
 import edit_popup from 'templates/views/components/map_popup/edit-map-popup.htm';
+import arches from 'arches';
 
 const popupDataProvider = {
     layerConfigs: {
@@ -136,7 +137,11 @@ const popupDataProvider = {
             : default_template;
         const templateRequest = new XMLHttpRequest();
 
-        templateRequest.open('GET', popupTemplate, false);
+        templateRequest.open(
+            'GET',
+            `${arches.urls.root}${popupTemplate}`,
+            false,
+        );
         templateRequest.send();
         return templateRequest.responseText;
     },

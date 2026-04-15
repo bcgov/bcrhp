@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import Panel from 'primevue/panel';
 import Fluid from 'primevue/fluid';
 import { useGettext } from 'vue3-gettext';
-import Card from '@/bcgov_arches_common/components/card/card.vue';
+import Card from '@/bcgov_arches_common/components/card/CenterCard.vue';
 
 import { routeNames } from '@/bcrhp/routes.ts';
 
@@ -12,21 +12,21 @@ const workflowItems = ref([
     {
         label: $gettext('Submit Heritage Property'),
         description: $gettext('Submit a new Heritage Property'),
-        icon: 'fa fa-file',
+        icon: 'fa fa-square-plus',
         class: 'dashboard-card ipa',
         routeName: routeNames.newSite,
     },
     {
         label: $gettext('Update Heritage Property'),
         description: $gettext('Update an existing heritage property'),
-        icon: 'fa fa-file',
+        icon: 'fa fa-pencil',
         class: 'dashboard-card ipa',
         routeName: routeNames.updateSite,
     },
     {
         label: $gettext('Legacy Heritage Property'),
         description: $gettext('Deregister a Site'),
-        icon: 'fa fa-file',
+        icon: 'fa fa-rectangle-xmark',
         class: 'dashboard-card ipa',
         routeName: routeNames.updateSite,
     },

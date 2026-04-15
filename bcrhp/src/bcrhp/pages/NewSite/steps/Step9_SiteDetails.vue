@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
@@ -30,6 +29,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/construction_actors.ts';
 
 import {
+    ExternalUrlTileSchema,
     getExternalUrl,
     type ExternalUrlTileType,
 } from '@/bcrhp/schemas/heritage_site/external_url.ts';
@@ -80,28 +80,8 @@ const constructionActorResolver = getFlattenResolver(
     zodResolver(ConstructionActorsTileSchema.shape['aliased_data']),
 );
 
-const LocalExternalUrlSchema = z.object({
-    external_url_type: z.any().refine((val: any) => val && val !== '', {
-        message: 'URL Type is required',
-    }),
-
-    // URL validation
-    external_url: z
-        .object({
-            url: z
-                .union([z.string(), z.null(), z.undefined()])
-                .refine(
-                    (val: any) => typeof val === 'string' && val.length > 0,
-                    {
-                        message: 'URL is required',
-                    },
-                ),
-        })
-        .passthrough(), // Allow props like 'url_label' to pass through without error
-});
-
 const externalUrlResolver = getFlattenResolver(
-    zodResolver(LocalExternalUrlSchema),
+    zodResolver(ExternalUrlTileSchema.shape['aliased_data']),
 );
 
 const getText = (node: any) => {
@@ -167,39 +147,23 @@ const addConstructionActorDisabled = computed(() => {
 });
 
 const isValidExternalUrl = () =>
-    baseIsValid(externalUrlForm as Ref<FormInstance>, LocalExternalUrlSchema);
+    baseIsValid(
+        externalUrlForm as Ref<FormInstance>,
+        ExternalUrlTileSchema.shape['aliased_data'],
+    );
 
 const addExternalUrlDisabled = computed(() => {
     const data = currentExternalUrl.value.aliased_data;
 
-    //URL Type
-    const hasUrlType = !!(
+    const hasType = !!(
         data.external_url_type?.display_value ||
         data.external_url_type?.node_value
     );
-
-    //extract data from node_value
-    const urlData = data.external_url?.node_value;
-
-    let urlString = '';
-    let labelString = '';
-
-    if (urlData) {
-        if (typeof urlData === 'string') {
-            urlString = urlData;
-        } else {
-            urlString = urlData.url || '';
-            labelString = urlData.url_label || '';
-        }
-    }
-
-    const hasUrl = urlString.trim().length > 0;
-    const hasUrlLabel = labelString.trim().length > 0;
+    const hasUrl = getText(data.external_url).trim().length > 0;
 
     return (
-        !hasUrlType ||
+        !hasType ||
         !hasUrl ||
-        !hasUrlLabel ||
         !isValidExternalUrl() ||
         (externalUrls.value.length || 0) > 4
     );
@@ -351,7 +315,7 @@ defineExpose({ isValid });
         >
             <div class="flex flex-row flex-wrap">
                 <div class="flex-grow">
-                    <div class="flex flex-col">
+                    <div class="flex flex-col flex-grow nobold_label">
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="true"
@@ -609,6 +573,7 @@ defineExpose({ isValid });
         v-slot="$form"
         name="externalUrlForm"
         :validateOnBlur="true"
+        :validateOnValueUpdate="true"
         :resolver="externalUrlResolver"
     >
         <FieldSet
@@ -644,19 +609,18 @@ defineExpose({ isValid });
                     />
                 </LabelledInput>
                 <LabelledInput
-                    hint="Enter text that describes the link, URL must be stable and publicly accessible "
+                    hint='Enter a description of the link in "URL Label", then provide the full, publicly accessible URL below'
                     input-name="external_url"
                     class="flex-grow"
                     :error-message="$form.external_url?.error?.message"
                 >
                     <FieldSet>
                         <template #legend>
-                            <span class="bold fieldset-subheader">
+                            <span class="bold_url fieldset-subheader">
                                 <span class="red">* </span>URL information
                             </span>
                         </template>
                         <GenericWidget
-                            class="bold"
                             :required="true"
                             :mode="EDIT"
                             :should-show-label="false"
@@ -707,7 +671,8 @@ defineExpose({ isValid });
     gap: 0.25rem !important;
 }
 
-.flex-grow {
+.flex-grow,
+.flex-grow .widget {
     flex-grow: 1;
 }
 
@@ -725,10 +690,16 @@ defineExpose({ isValid });
     flex-direction: row;
     align-items: flex-start;
 }
-.bold {
+div.bold_url,
+span.bold_url {
     font-weight: bold;
 }
+
+.nobold_label label span {
+    font-weight: normal;
+}
+
 .fieldset-subheader {
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 </style>

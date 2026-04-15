@@ -1,4 +1,5 @@
 import arches from 'arches';
+import geojson from 'geojson';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { fetchConceptsTree } from '@/arches_component_lab/datatypes/concept/api.ts';
 import { getToken } from '@/bcgov_arches_common/api.ts';
@@ -41,7 +42,7 @@ export type PidData = {
     success: boolean;
     pid: string;
     legalDescription: string;
-    boundary: GeoJSON.GeoJSON;
+    boundary: geojson.GeoJSON;
     errors: string[];
 };
 
@@ -130,12 +131,19 @@ export async function submitHeritageSite(
     });
 
     if (response.status !== 201) {
-        console.log('error', response.statusText);
-        throw Error(`Unable to save submission: ${response.statusText}`);
-    } else {
-        console.log(response);
-        return response.json();
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            throw Error(`Unable to save submission: ${response.statusText}`);
+        }
+        throw errorData;
     }
+
+    const responseData = await response.json();
+    console.log('✅ RETURNED FROM BACKEND:', responseData);
+
+    return responseData;
 }
 
 export const getHeritageSiteById = async (

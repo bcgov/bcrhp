@@ -4,7 +4,7 @@ import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
 import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
+import { YearValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { FileListValue } from '@/arches_component_lab/datatypes/file-list/types.ts';
@@ -19,8 +19,8 @@ import {
     blankFileListValue,
     blankBooleanValue,
     falseBooleanValue,
+    blankDateValue,
 } from '@/bcrhp/utils.ts';
-import { currentDateValue } from '@/bcrhp/utils.ts';
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
 
 // Auto-generated tile schema for alias: site_images
@@ -29,7 +29,7 @@ export const SiteImagesTileSchema = TileSchema.extend({
     aliased_data: z.object({
         image_type: ConceptValueSchema,
         site_images: FileListValueSchema,
-        image_date: DateValueSchema,
+        image_date: YearValueSchema,
         image_features: getStringValueSchema(),
         image_description: getRichTextValueSchema(),
         primary_image: BooleanValueSchema,
@@ -53,7 +53,7 @@ export class SiteImages implements SiteImagesTileType {
         this.aliased_data = {
             image_type: blankConceptValue(),
             site_images: blankFileListValue(),
-            image_date: currentDateValue(),
+            image_date: blankDateValue(),
             image_features: blankStringValue(),
             image_description: blankStringValue(),
             primary_image: falseBooleanValue(),

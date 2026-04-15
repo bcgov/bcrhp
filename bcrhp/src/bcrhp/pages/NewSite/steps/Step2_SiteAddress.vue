@@ -225,16 +225,22 @@ function saveLegalDescription() {
                 [];
         }
 
-        const stringPid =
+        const rawPid =
             currentLegalDescription.value.aliased_data.pid.node_value;
+        const stringPid = rawPid?.en?.value ?? rawPid;
+
         if (stringPid) {
-            const numericPid = parseInt(stringPid);
+            currentLegalDescription.value.aliased_data.pid.display_value =
+                stringPid;
+            const cleanPidString = String(stringPid).replace(/\D/g, '');
             currentLegalDescription.value.aliased_data.pid.node_value =
-                numericPid;
+                parseInt(cleanPidString, 10);
         }
+
         legalDescriptionTargetAddress.value.aliased_data.bc_property_legal_description.push(
             currentLegalDescription.value,
         );
+
         if (tempBoundaryData.value) {
             ensureSiteLocation();
             heritageSite.value.aliased_data.heritage_site_location[0].aliased_data.site_boundary[0].aliased_data.site_boundary =
@@ -701,10 +707,10 @@ defineExpose({ isValid });
     width: 100%;
 }
 .dialogFonts {
-    font-size: 1rem;
+    //font-size: 1rem;
 }
 .dialogFonts label {
-    font-size: 0.875rem;
+    //font-size: 0.875rem;
 }
 .hidden {
     display: none;

@@ -1,4 +1,8 @@
 @import url(node_modules/bcgov_arches_common/bcgov_arches_common/media/css/project.css);
+:root {
+    --p-standard-font-size: 1.4rem;
+}
+
 .header-link {
     color: white;
     font-size: 0.8rem;
@@ -26,8 +30,27 @@
     padding-bottom: 0.5rem;
 }
 
+.p-datepicker-panel {
+    min-width: unset !important;
+    width: 300px !important;
+}
+
+.p-select-empty-message,
+.p-select-options,
+.p-select-option,
+.p-select-label,
+.p-select-overlay {
+    font-size: var(--p-standard-font-size) !important;
+}
+
+.p-select-option, .p-select-option-label{
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
+    height: unset !important;
+}
+
 .p-fieldset-legend {
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: 300;
     margin-top: -.6rem;
     margin-left: 1rem;
@@ -71,7 +94,6 @@
     align-items: flex-start;
     margin-top: .25rem;
     justify-content: space-between;
-    width: calc(100% - 2rem);
 }
 
 .p-fileupload-advanced {
@@ -176,4 +198,19 @@ span.separator {
 
 .slick-slide.slick-current .photo-info {
     opacity: 100% !important;
+}
+
+@media only print {
+
+    /* For displaying long-form text blocks as full width of the page,
+     * some elements are within components and not easy to modify but do have
+     * an id that can be queried.
+     */
+    dd[data-bind*="physical_description"],
+    dd[data-bind*="heritage_value"],
+    dd[data-bind*="defining_elements"] {
+        width: auto !important;
+        display: block !important;
+    }
+
 }

@@ -1,8 +1,9 @@
+import arches from 'arches';
 import type { RouteNamesType } from '@/bcgov_arches_common/routes.ts';
 const dev_mode = true;
 const routes = [
     {
-        path: '/bcrhp/submissions/',
+        path: arches.urls.plugin('workflow-list'),
         name: 'root',
         component: () => import('@/bcrhp/pages/Submissions.vue'),
         meta: {
@@ -11,7 +12,7 @@ const routes = [
         },
     },
     {
-        path: '/bcrhp/submissions/new-site/',
+        path: arches.urls.plugin('workflow-list/submissions/new-site/'),
         name: 'newSite',
         component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
         meta: {
@@ -20,7 +21,7 @@ const routes = [
         },
     },
     {
-        path: '/bcrhp/submissions/update-site/',
+        path: arches.urls.plugin('workflow-list/submissions/update-site/'),
         name: 'updateSite',
         component: () => import('@/bcrhp/pages/UpdateSite.vue'),
         meta: {

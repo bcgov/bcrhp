@@ -9,6 +9,8 @@ const props = defineProps({
     disabled: { type: Boolean, default: false },
     emptyText: { type: String, default: 'No items added.' },
 });
+const fallbackKeys = new WeakMap<object, string>();
+let keyCounter = 0;
 
 const emit = defineEmits(['remove', 'click']);
 
@@ -47,15 +49,28 @@ const resolveLabel = (item: any) => {
     return item;
 };
 
-const handleRemove = (index: number) => {
+const handleRemove = (event: Event, index: number) => {
     if (!props.disabled) {
         emit('remove', index);
     }
 };
+
 const handleClick = (index: number) => {
     if (!props.disabled) {
         emit('click', index);
     }
+};
+
+const getUniqueKey = (item: any) => {
+    if (typeof item !== 'object' || item === null) {
+        return String(item);
+    }
+
+    if (!fallbackKeys.has(item)) {
+        fallbackKeys.set(item, `new-chip-${keyCounter++}`);
+    }
+
+    return fallbackKeys.get(item);
 };
 </script>
 
@@ -72,10 +87,10 @@ const handleClick = (index: number) => {
         <div v-if="items && items.length > 0">
             <Chip
                 v-for="(item, index) in items"
-                :key="index"
+                :key="getUniqueKey(item)"
                 :label="String(resolveLabel(item) || 'Untitled')"
                 :removable="!disabled"
-                @remove="handleRemove(index)"
+                @remove="handleRemove($event, index)"
                 @click="handleClick(index)"
             >
                 <template

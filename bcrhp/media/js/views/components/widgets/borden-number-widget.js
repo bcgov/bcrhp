@@ -2,6 +2,7 @@ import $ from 'jquery';
 import ko from 'knockout';
 import koMapping from 'knockout-mapping';
 import _ from 'underscore';
+import AlertViewModel from 'viewmodels/alert';
 import WidgetViewModel from 'viewmodels/widget';
 import arches from 'arches';
 import bordenNumberWidgetTemplate from 'templates/views/components/widgets/borden-number-widget.htm';
@@ -253,7 +254,20 @@ const viewModel = function (params) {
     });
 
     self.getBordenNumber = function () {
-        let url = `${self.urls.root}borden_number/${self.tile.resourceinstance_id}`;
+        const resourceId = ko.unwrap(self.tile?.parent?.params?.resourceId);
+        if (!resourceId) {
+            self.form.alert(
+                new AlertViewModel(
+                    'ep-alert-red',
+                    'Error',
+                    'Please create a site boundary before generating a Borden Number.',
+                    null,
+                    function () {},
+                ),
+            );
+            return;
+        }
+        let url = `${self.urls.root}borden_number/${resourceId}`;
         console.log(`Get borden number from ${url}...`);
         self.form.loading(true);
         $.ajax({
@@ -264,6 +278,16 @@ const viewModel = function (params) {
             console.log(data);
             if (data.status === 'success') {
                 self.currentText(data.borden_number);
+            } else {
+                self.form.alert(
+                    new AlertViewModel(
+                        'ep-alert-red',
+                        'Error',
+                        data.message,
+                        null,
+                        function () {},
+                    ),
+                );
             }
             self.form.loading(false);
         });

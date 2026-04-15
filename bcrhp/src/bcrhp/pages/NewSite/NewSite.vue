@@ -62,10 +62,40 @@ const submitNewSiteData = async () => {
             submitting.value = false;
         })
         .catch((error) => {
-            console.log('error', error);
-            submissionErrors.value.push(error);
+            console.log('raw error', error);
+            submissionErrors.value = parseBackendError(error);
             submitting.value = false;
         });
+};
+
+const parseBackendError = (backendError: any): ErrorMessage[] => {
+    const payload = backendError?.response?.data || backendError;
+    const type = payload?.type || 'Validation Error';
+    const messageStr = payload?.message || '';
+    const errorMatches = [
+        ...messageStr.matchAll(
+            /'([^']+)'\s*:\s*\[ErrorDetail\(string=".*?\s*-\s*(.*?)",/g,
+        ),
+    ];
+
+    if (errorMatches.length > 0) {
+        return errorMatches.map((match) => ({
+            type: type,
+            error: match[1].replace('_', ' ').toUpperCase(),
+            message: match[2],
+        }));
+    }
+
+    return [
+        {
+            type: type,
+            error: payload?.error || 'Submission Failed',
+            message:
+                typeof messageStr === 'string'
+                    ? messageStr
+                    : 'Please review your inputs.',
+        },
+    ];
 };
 
 const print = () => {
@@ -258,7 +288,6 @@ const showDebug = ref(false);
         {{ JSON.stringify(heritageSite) }}
     </div>
     <i
-        style="margin-top: 30px"
         class="fa fa-eye-slash debug-toggle"
         @click="showDebug = !showDebug"
     ></i>
