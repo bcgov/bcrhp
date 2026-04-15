@@ -2,6 +2,7 @@ import $ from 'jquery';
 import ko from 'knockout';
 import koMapping from 'knockout-mapping';
 import _ from 'underscore';
+import AlertViewModel from 'viewmodels/alert';
 import WidgetViewModel from 'viewmodels/widget';
 import arches from 'arches';
 import bordenNumberWidgetTemplate from 'templates/views/components/widgets/borden-number-widget.htm';
@@ -264,6 +265,16 @@ const viewModel = function (params) {
             console.log(data);
             if (data.status === 'success') {
                 self.currentText(data.borden_number);
+            } else {
+                self.form.alert(
+                    new AlertViewModel(
+                        'ep-alert-red',
+                        'Error',
+                        data.message,
+                        null,
+                        function () {},
+                    ),
+                );
             }
             self.form.loading(false);
         });

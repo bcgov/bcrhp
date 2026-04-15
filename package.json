@@ -60,7 +60,7 @@
         "@primeuix/themes": "^1.1.1",
         "@primevue/forms": "^4.3.5",
         "@vitejs/plugin-vue": "^5.2.1",
-        "arches": "github:bcgov/arches#stable/8.0.10_bcgov_12578_12377_12616",
+        "arches": "github:bcgov/arches#stable/8.0.10_bcgov_12578_12377_12616_12502_12697_12610",
         "arches-component-lab": "github:archesproject/arches-component-lab#main",
         "arches-querysets": "github:archesproject/arches-querysets#dev/1.1.x",
         "bcgov_arches_common": "github:bcgov/bcgov-arches-common#release/2.0.x",

@@ -53,9 +53,14 @@ class BordenNumber(APIBase):
 
     # Generate a new borden number in HRIA and return it
     def get(self, request, resourceinstanceid):
-        new_borden_number = self.api.get_next_borden_number(resourceinstanceid)
-        # print("Got borden grid: %s" % borden_grid)
-        return_data = '{"status": "success", "borden_number": "%s"}' % new_borden_number
+        try:
+            new_borden_number = self.api.get_next_borden_number(resourceinstanceid)
+            return_data = (
+                '{"status": "success", "borden_number": "%s"}' % new_borden_number
+            )
+        except Exception as e:
+            return_data = '{"status": "fail", "borden_number": "", "message": "Please confirm that the resource has been assigned a site boundary"}'
+
         return_bytes = return_data.encode("utf-8")
         return HttpResponse(return_bytes, content_type="application/json")
 
