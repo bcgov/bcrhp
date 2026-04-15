@@ -254,7 +254,8 @@ const viewModel = function (params) {
     });
 
     self.getBordenNumber = function () {
-        if (!self.tile.resourceinstance_id) {
+        const resourceId = ko.unwrap(self.tile?.parent?.params?.resourceId);
+        if (!resourceId) {
             self.form.alert(
                 new AlertViewModel(
                     'ep-alert-red',
@@ -266,7 +267,7 @@ const viewModel = function (params) {
             );
             return;
         }
-        let url = `${self.urls.root}borden_number/${self.tile.resourceinstance_id}`;
+        let url = `${self.urls.root}borden_number/${resourceId}`;
         console.log(`Get borden number from ${url}...`);
         self.form.loading(true);
         $.ajax({
