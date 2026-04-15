@@ -199,3 +199,18 @@ span.separator {
 .slick-slide.slick-current .photo-info {
     opacity: 100% !important;
 }
+
+@media only print {
+
+    /* For displaying long-form text blocks as full width of the page,
+     * some elements are within components and not easy to modify but do have
+     * an id that can be queried.
+     */
+    dd[data-bind*="physical_description"],
+    dd[data-bind*="heritage_value"],
+    dd[data-bind*="defining_elements"] {
+        width: auto !important;
+        display: block !important;
+    }
+
+}
