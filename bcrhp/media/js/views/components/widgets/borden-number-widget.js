@@ -254,6 +254,18 @@ const viewModel = function (params) {
     });
 
     self.getBordenNumber = function () {
+        if (!self.tile.resourceinstance_id) {
+            self.form.alert(
+                new AlertViewModel(
+                    'ep-alert-red',
+                    'Error',
+                    'Please create a site boundary before generating a Borden Number.',
+                    null,
+                    function () {},
+                ),
+            );
+            return;
+        }
         let url = `${self.urls.root}borden_number/${self.tile.resourceinstance_id}`;
         console.log(`Get borden number from ${url}...`);
         self.form.loading(true);
