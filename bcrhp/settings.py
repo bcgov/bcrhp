@@ -173,13 +173,14 @@ DATABASES = {
     }
 }
 
-HRIA_DATABASE = {
-    "USER": get_env_variable("HRIADB_USER"),
-    "PASSWORD": get_env_variable("HRIADB_PASSWORD"),
-    "HOST": get_env_variable("HRIADB_HOST"),
-    "PORT": get_env_variable("HRIADB_PORT"),
-    "SERVICE_NAME": get_env_variable("HRIADB_SERVICE_NAME"),
-    "APPLICATION_USER": get_env_variable("HRIADB_APPLICATION_USER"),
+BCAP_API = {
+    "API_HOST": get_env_variable("BCAP_API_HOST"),
+    "BORDEN_NUMBER_ENDPOINT": "/bcap/api/borden-number/",
+    "OAUTH_TOKEN_ENDPOINT": "/bcap/o/token/",
+    "BCAP_CREDENTIALS": {
+        "OAUTH_CLIENT_ID": get_env_variable("BCAP_OAUTH_CLIENT_ID"),
+        "OAUTH_CLIENT_SECRET": get_env_variable("BCAP_OAUTH_CLIENT_SECRET"),
+    }
 }
 
 SEARCH_THUMBNAILS = False

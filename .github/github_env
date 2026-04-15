@@ -84,6 +84,13 @@ S3_BUCKET=
 S3_ACCESS_KEY_ID=
 S3_SECRET_ACCESS_KEY=
 S3_PROXIES=
+
+BCAP_API_HOST=http://localhost:80
+BCAP_API_BORDEN_NUMBER_ENDPOINT=/bcap/api/borden-number/
+BCAP_API_TOKEN_ENDPOINT=/bcap/o/token/
+BCAP_OAUTH_CLIENT_ID=bcap_oauth_api_client_id
+BCAP_OAUTH_CLIENT_SECRET=bcap_oauth_api_client_secret
+
 # OAUTH/OIDC configuration
 OAUTH_AUTH_ENDPOINT=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/auth
 OAUTH_TOKEN_ENDPOINT=https://dev.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/token
