@@ -63,6 +63,11 @@ const isValid = () => {
 const addProtectionEventDisabled = computed(() => {
     const data = currentProtectionEvent.value.aliased_data;
 
+    const hasStartDate = !!(
+        data.designation_or_protection_start_date?.node_value ||
+        data.designation_or_protection_start_date?.display_value
+    );
+
     const hasLegislativeAct = !!(
         data.legislative_act?.node_value || data.legislative_act?.display_value
     );
@@ -71,6 +76,7 @@ const addProtectionEventDisabled = computed(() => {
     const hasReferenceNumber = refNumValue.trim().length > 0;
 
     return (
+        !hasStartDate ||
         !hasLegislativeAct ||
         !hasReferenceNumber ||
         !isProtectionEventFormValid() ||
