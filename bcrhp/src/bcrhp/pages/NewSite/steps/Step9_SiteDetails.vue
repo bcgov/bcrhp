@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
-import { z } from 'zod';
 
 import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
@@ -154,7 +153,20 @@ const isValidExternalUrl = () =>
     );
 
 const addExternalUrlDisabled = computed(() => {
-    return !isValidExternalUrl() || (externalUrls.value.length || 0) > 4;
+    const data = currentExternalUrl.value.aliased_data;
+
+    const hasType = !!(
+        data.external_url_type?.display_value ||
+        data.external_url_type?.node_value
+    );
+    const hasUrl = getText(data.external_url).trim().length > 0;
+
+    return (
+        !hasType ||
+        !hasUrl ||
+        !isValidExternalUrl() ||
+        (externalUrls.value.length || 0) > 4
+    );
 });
 
 const saveChronology = function () {
@@ -303,7 +315,7 @@ defineExpose({ isValid });
         >
             <div class="flex flex-row flex-wrap">
                 <div class="flex-grow">
-                    <div class="flex flex-col flex-grow">
+                    <div class="flex flex-col flex-grow nobold_label">
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="true"
@@ -561,6 +573,7 @@ defineExpose({ isValid });
         v-slot="$form"
         name="externalUrlForm"
         :validateOnBlur="true"
+        :validateOnValueUpdate="true"
         :resolver="externalUrlResolver"
     >
         <FieldSet
@@ -603,12 +616,11 @@ defineExpose({ isValid });
                 >
                     <FieldSet>
                         <template #legend>
-                            <span class="bold fieldset-subheader">
+                            <span class="bold_url fieldset-subheader">
                                 <span class="red">* </span>URL information
                             </span>
                         </template>
                         <GenericWidget
-                            class="bold"
                             :required="true"
                             :mode="EDIT"
                             :should-show-label="false"
@@ -659,7 +671,8 @@ defineExpose({ isValid });
     gap: 0.25rem !important;
 }
 
-.flex-grow {
+.flex-grow,
+.flex-grow .widget {
     flex-grow: 1;
 }
 
@@ -677,10 +690,16 @@ defineExpose({ isValid });
     flex-direction: row;
     align-items: flex-start;
 }
-.bold {
+div.bold_url,
+span.bold_url {
     font-weight: bold;
 }
+
+.nobold_label label span {
+    font-weight: normal;
+}
+
 .fieldset-subheader {
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 </style>
