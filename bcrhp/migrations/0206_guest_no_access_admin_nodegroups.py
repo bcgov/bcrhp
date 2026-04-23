@@ -82,6 +82,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("bcrhp", "0186_remove_permission_functions"),
         ("guardian", "0002_generic_permissions_index"),
+        ("models", "12343_generate_geom_feature_id"),
     ]
 
     operations = [
