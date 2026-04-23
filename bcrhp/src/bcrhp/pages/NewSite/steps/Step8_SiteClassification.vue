@@ -96,14 +96,10 @@ const isValidHeritageFunction = () =>
     );
 
 const isValid = () => {
-    // const classValid = heritageClasses.value.length > 0;
-    // const functionValid = heritageFunctions.value.length > 0;
-    // const themeData =
-    //     heritageSite.value?.aliased_data?.heritage_theme?.aliased_data
-    //         ?.heritage_theme;
-    // const themeValid = !!(themeData?.display_value || themeData?.node_value);
-
-    return true; //classValid && functionValid && themeValid;
+    return baseIsValid(
+        heritageThemeForm as Ref<FormInstance>,
+        HeritageThemeTileSchema.shape['aliased_data'],
+    );
 };
 
 const addHeritageClassDisabled = computed(() => {
