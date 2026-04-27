@@ -5,6 +5,10 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import type { FormInstance } from '@primevue/forms';
 import type { GenericZodObjectType } from '@/bcgov_arches_common/validation-utils.ts';
 
+export const formatPid = function (pid: number) {
+    return pid?.toString()?.padStart(9, '0')?.match(/.{3}/g)?.join('-') || null;
+};
+
 export const blankStringValue = function () {
     return {
         display_value: '',
