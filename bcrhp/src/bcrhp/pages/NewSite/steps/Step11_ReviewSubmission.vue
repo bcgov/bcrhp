@@ -8,6 +8,7 @@ import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
+import { formatPid } from '@/bcrhp/utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const today = currentDateValue();
@@ -160,8 +161,10 @@ defineExpose({ isValid });
                     >
                         <div>
                             {{
-                                legalDescription.aliased_data.pid
-                                    ?.display_value || 'N/A'
+                                formatPid(
+                                    legalDescription.aliased_data?.pid
+                                        ?.node_value,
+                                ) || 'N/A'
                             }}
                         </div>
                     </div>
