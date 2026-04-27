@@ -7,7 +7,6 @@ from bcrhp.migrations.util.migration_util import format_files_into_sql
 from bcrhp.settings import DATABASES
 from django.db import migrations
 
-
 # Functions from the following migrations need manual copying.
 # Move them and any dependencies into this file, then update the
 # RunPython operations to refer to the local versions:
