@@ -1,7 +1,7 @@
-name: bcrhp7-6
+name: bcrhp
 services:
   bcrhp:
-    container_name:  bcrhp7-6
+    container_name:  bcrhp
     image: bcgov/bcrhp7-6
     build:
       context: ..
@@ -24,7 +24,7 @@ services:
     tty: true
 
   bcrhp-proxy:
-    container_name: bcrhp-proxy7-6
+    container_name: bcrhp-proxy
     image: nginx:1.25-alpine
     depends_on:
       - bcrhp
@@ -63,5 +63,5 @@ networks:
 
 
 volumes:
-  arches-log-bcrhp7-6:
-  arches-static-bcrhp7-6:
+  arches-log-bcrhp:
+  arches-static-bcrhp:
