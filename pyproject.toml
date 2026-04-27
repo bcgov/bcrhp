@@ -50,3 +50,14 @@ dev = [
     "black==24.4.2",
     "django-vite",
 ]
+jupyter = [
+    {include-group = "dev"},   # pulls in dev deps too, if desired
+    "ipykernel",
+    "jupyterlab",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "tabulate",
+    "openpyxl",
+    "nbstripout",
+]
