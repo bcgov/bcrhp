@@ -3,14 +3,18 @@ from arches.app.models import models
 
 
 def add_config_entry(apps, schema_editor):
-    widgets = models.Widget.objects.filter(datatype__contains="concept")
+    widgets = models.Widget.objects.filter(
+        name__in=["concept-select-widget", "concept-multiselect-widget"]
+    )
     for widget in widgets:
         widget.defaultconfig["rerender"] = True
         widget.save()
 
 
 def remove_config_key(apps, schema_editor):
-    widgets = models.Widget.objects.filter(datatype__contains="concept")
+    widgets = models.Widget.objects.filter(
+        name__in=["concept-select-widget", "concept-multiselect-widget"]
+    )
     for widget in widgets:
         if "rerender" in widget.defaultconfig:
             del widget.defaultconfig["rerender"]
