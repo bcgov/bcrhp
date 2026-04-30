@@ -114,6 +114,17 @@ const viewModel = function (params) {
             selectedTool: ko.observable(),
             dropErrors: ko.observableArray(),
         };
+        self.tile.data[id].subscribe(function () {
+            if (
+                (ko.unwrap(self.featureLookup[id].features).length ?? 0 > 0) &&
+                (self.draw?.getMode() ?? '') === 'simple_select'
+            ) {
+                self.fitFeatures(
+                    ko.unwrap(self.featureLookup[id].features),
+                    true,
+                );
+            }
+        });
         self.featureLookup[id].selectedTool.subscribe(function (tool) {
             if (self.draw) {
                 if (tool === '') {
@@ -335,14 +346,18 @@ const viewModel = function (params) {
         }
     };
 
-    this.fitFeatures = function (features) {
+    this.fitFeatures = function (features, flyTo = false) {
         var map = self.map();
         var bounds = geojsonExtent({
             type: 'FeatureCollection',
             features: features,
         });
-        var camera = map.cameraForBounds(bounds, { padding: padding });
-        map.jumpTo(camera);
+        if (flyTo) {
+            map.fitBounds(bounds, { padding: padding });
+        } else {
+            var camera = map.cameraForBounds(bounds, { padding: padding });
+            map.jumpTo(camera);
+        }
     };
 
     this.editGeoJSON = function (features, nodeId) {
