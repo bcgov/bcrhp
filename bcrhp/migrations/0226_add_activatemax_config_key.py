@@ -22,8 +22,9 @@ def remove_config_key(apps, schema_editor):
     )
 
     for cnw in cnws:
-        cnw.node.pop("activateMax")
-        cnw.node.save()
+        if "activateMax" in cnw.node.config:
+            cnw.node.config.pop("activateMax")
+            cnw.node.save()
 
 
 class Migration(migrations.Migration):
@@ -32,4 +33,4 @@ class Migration(migrations.Migration):
         ("bcrhp", "0206_guest_no_access_admin_nodegroups"),
     ]
 
-    operations = []
+    operations = [migrations.RunPython(add_config_entry, remove_config_key)]
