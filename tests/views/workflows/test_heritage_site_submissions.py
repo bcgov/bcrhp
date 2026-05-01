@@ -15,7 +15,6 @@ from bcrhp.views.workflows.heritage_site_submissions import (
     SubmitHeritageSite,
 )
 
-
 # ---------------------------------------------------------------------------
 # format_deep_errors
 # ---------------------------------------------------------------------------
