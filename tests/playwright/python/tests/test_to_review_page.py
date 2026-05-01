@@ -9,9 +9,12 @@ import pytest
 import re
 
 from playwright.sync_api import expect, Page
+from datetime import datetime
 
 BASE_URL = "http://localhost/bcrhp"
 TESTS_DIR = os.path.dirname(__file__)
+
+RUN_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 
 def test_to_review_page(page: Page):
@@ -34,11 +37,20 @@ def test_to_review_page(page: Page):
     page.get_by_role("link", name="Login").click()
     page.wait_for_timeout(1000)
 
-    page.get_by_role("link", name="IDIR").click()
-    page.locator("#user").fill(auth_username)
-    page.get_by_role("textbox", name="Password").click()
-    page.get_by_role("textbox", name="Password").fill(auth_password)
-    page.get_by_role("button", name="Continue").click()
+    if user_type == "IDIR":
+        page.get_by_role("link", name="IDIR").click()
+        page.locator("#user").fill(auth_username)
+        page.get_by_role("textbox", name="Password").click()
+        page.get_by_role("textbox", name="Password").fill(auth_password)
+        page.get_by_role("button", name="Continue").click()
+
+    if user_type == "BCEID":
+        page.get_by_role("link", name="BCeID").click()
+        page.locator("#user").click()
+        page.locator("#user").fill(auth_username)
+        page.get_by_role("textbox", name="Password").click()
+        page.get_by_role("textbox", name="Password").fill(auth_password)
+        page.get_by_role("button", name="Continue").click()
 
     # --- 1 START SUBMISSION ---
     page.wait_for_timeout(5000)
@@ -47,6 +59,7 @@ def test_to_review_page(page: Page):
     page.get_by_role("button", name="Next").first.click()
 
     # --- 2 SITE LOCATION ---
+    page.wait_for_timeout(1000)
     page.locator("#street_address").is_visible(timeout=3000)
     page.locator("#street_address").click()
     page.locator("#street_address").fill("street address")
@@ -74,7 +87,9 @@ def test_to_review_page(page: Page):
 
     # --- 4 SITE NAMES ---
     page.locator('form[name="commonNameForm"] #name').click()
-    page.locator('form[name="commonNameForm"] #name').fill("common name")
+    page.locator('form[name="commonNameForm"] #name').fill(
+        f"Ferginzey Residence {RUN_TIME}"
+    )
     page.locator('form[name="otherNameForm"] #name').click()
     page.locator('form[name="otherNameForm"] #name').fill("other names")
     page.get_by_role("button", name="+ Add").click()
@@ -252,8 +267,10 @@ def test_to_review_page(page: Page):
 
     page.get_by_text("Construction", exact=True).click()
     page.locator("#start_year").click()
+    page.wait_for_timeout(250)
     page.get_by_text("2020", exact=True).click()
     page.locator("#end_year").click()
+    page.wait_for_timeout(250)
     page.get_by_text("2023").click()
     checkbox = page.get_by_role("checkbox")
     try:
@@ -267,18 +284,23 @@ def test_to_review_page(page: Page):
     page.get_by_role("textbox", name="Provide explanation of").fill(
         "Super deluxe build"
     )
+    page.wait_for_timeout(1000)
     page.get_by_role("button", name="+ Add Chronology").click()
     page.locator(
         ".flex > .widget > .p-treeselect > .p-treeselect-label-container > .p-treeselect-label"
     ).click()
     page.locator("div").filter(has_text=re.compile(r"^Significant$")).click()
     page.locator("#start_year").click()
+    page.wait_for_timeout(250)
     page.get_by_text("2025").click()
     page.locator("#end_year").click()
+    page.wait_for_timeout(250)
     page.get_by_text("2025").click()
     page.get_by_role("textbox", name="Provide explanation of").click()
     page.get_by_role("textbox", name="Provide explanation of").fill("Final renovations")
+    page.wait_for_timeout(1000)
     page.get_by_role("button", name="+ Add Chronology").click()
+    page.pause()
     page.locator("#construction_actor").click()
     page.locator("#construction_actor").fill("Ferguson, Brett")
     page.get_by_text("Select the type", exact=True).click()
