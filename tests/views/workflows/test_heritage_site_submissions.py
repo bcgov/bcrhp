@@ -380,9 +380,7 @@ class SubmitHeritageSiteCreateTest(TestCase):
         mock_serializer = MagicMock()
         mock_serializer.is_valid.return_value = True
         view.get_serializer = MagicMock(return_value=mock_serializer)
-        view.perform_create = MagicMock(
-            side_effect=ValueError("Something went wrong")
-        )
+        view.perform_create = MagicMock(side_effect=ValueError("Something went wrong"))
 
         request = _make_mock_request()
         view.request = request
