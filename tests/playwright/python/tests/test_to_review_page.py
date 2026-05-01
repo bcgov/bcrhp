@@ -300,7 +300,6 @@ def test_to_review_page(page: Page):
     page.get_by_role("textbox", name="Provide explanation of").fill("Final renovations")
     page.wait_for_timeout(1000)
     page.get_by_role("button", name="+ Add Chronology").click()
-    page.pause()
     page.locator("#construction_actor").click()
     page.locator("#construction_actor").fill("Ferguson, Brett")
     page.get_by_text("Select the type", exact=True).click()

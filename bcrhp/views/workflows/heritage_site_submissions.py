@@ -87,26 +87,26 @@ class HeritageSiteSerializer(ArchesResourceSerializer):
 def inspect_nested_data(data, prefix="", max_depth=10, current_depth=0):
     """Recursively inspect and print a nested data structure"""
     if current_depth > max_depth:
-        print(f"{prefix}[MAX DEPTH REACHED]")
+        logger.debug(f"{prefix}[MAX DEPTH REACHED]")
         return
 
     if isinstance(data, dict):
-        print(f"{prefix}Dict with {len(data)} keys:")
+        logger.debug(f"{prefix}Dict with {len(data)} keys:")
         for key, value in data.items():
-            print(f"{prefix}  Key '{key}':")
+            logger.debug(f"{prefix}  Key '{key}':")
             inspect_nested_data(value, prefix + "    ", max_depth, current_depth + 1)
     elif isinstance(data, list):
-        print(f"{prefix}List with {len(data)} items:")
+        logger.debug(f"{prefix}List with {len(data)} items:")
         if len(data) > 0:
-            print(f"{prefix}  First item:")
+            logger.debug(f"{prefix}  First item:")
             inspect_nested_data(data[0], prefix + "    ", max_depth, current_depth + 1)
             if len(data) > 1:
-                print(f"{prefix}  Last item:")
+                logger.debug(f"{prefix}  Last item:")
                 inspect_nested_data(
                     data[-1], prefix + "    ", max_depth, current_depth + 1
                 )
     else:
-        print(f"{prefix}Value: {data} (Type: {type(data).__name__})")
+        logger.debug(f"{prefix}Value: {data} (Type: {type(data).__name__})")
 
 
 def format_deep_errors(errors, path=""):
@@ -183,16 +183,16 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
 
     def get_concept_uuid(self, graph_slug, node_alias, pref_label):
         config = self.get_card_x_node_x_widget(graph_slug, node_alias)
-        print(JSONSerializer().serialize(config))
+        logger.debug(JSONSerializer().serialize(config))
 
         if "url" in config.config:
             url = config.config["url"]
             concept_id = parse_qs(urlparse(url).query).get("conceptid", [None])[0]
         else:
             node = Node.objects.filter(alias=node_alias).first()
-            print(f"Got node config: {node.config}")
+            logger.debug(f"Got node config: {node.config}")
             concept_id = node.config["rdmCollection"]
-            print(f"Got concept id: {concept_id}")
+            logger.debug(f"Got concept id: {concept_id}")
 
         parent_concept = Concept().get(concept_id)
         child_concepts = parent_concept.get_child_collections(
@@ -200,9 +200,8 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         )
 
         filtered = [t for t in child_concepts if t[1] == pref_label]
-        print(f"Filtered: {JSONSerializer().serialize(filtered)}")
+        logger.debug(f"Filtered: {JSONSerializer().serialize(filtered)}")
 
-        # print(f"Returning {filtered[0][2]}")
         return filtered[0][2] if filtered else None
 
     def patch_data(self, site):
@@ -210,14 +209,14 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         # not already serialized?
         for loc in site["aliased_data"]["heritage_site_location"]:
             for sb in loc["aliased_data"]["site_boundary"]:
-                print(sb["aliased_data"]["site_boundary"])
+                logger.debug(sb["aliased_data"]["site_boundary"])
                 if (
                     "bbox"
                     in sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
                         "geometry"
                     ]
                 ):
-                    print(
+                    logger.debug(
                         sb["aliased_data"]["site_boundary"]["node_value"]["features"][
                             0
                         ]["geometry"].pop("bbox")
@@ -261,32 +260,28 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
     def create(self, request, *args, **kwargs):
         raw = request.data
         cleaned_object = raw
-        logger.info("FILES keys=%s", list(request.FILES.keys()))
+        logger.debug("FILES keys=%s", list(request.FILES.keys()))
 
         for field_name, f in request.FILES.items():  # one file per field
-            logger.info(
+            logger.debug(
                 "file field=%s name=%s size=%s content_type=%s",
                 field_name,
                 f.name,
                 f.size,
                 getattr(f, "content_type", None),
             )
-        logger.info(f"Before clean")
+        logger.debug(f"Before clean")
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
         patched = cleaned_object
         serializer = self.get_serializer(data=patched)
-        logger.info(f"After get_serializer")
 
         logger.info(f"Checking valid")
-        # serializer.debug_validation()
-        # inspect_nested_data(raw)
-
         if not serializer.is_valid():
             # print the errors you’re currently not seeing
-            print("serializer.errors:", serializer.errors)
+            logger.warning("serializer.errors:", serializer.errors)
             for error in format_deep_errors(serializer.errors):
-                print(f" - {error}")
+                logger.warning(f" - {error}")
 
             return JSONResponse(serializer.errors, status=400)
         serializer.is_valid(raise_exception=True)
@@ -296,7 +291,7 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
             self.perform_create(serializer)
             logger.info("Created")
         except Exception as e:
-            print(f"Unable to create: {e}")
+            logger.error(f"Unable to create: {e}")
             traceback.print_exc()
             return JSONResponse(
                 {
@@ -306,9 +301,9 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        logger.info("Created successfully... getting headers")
+        logger.debug("Created successfully... getting headers")
         headers = self.get_success_headers(serializer.data)
-        logger.info("Got headers, returning JSON response")
+        logger.debug("Got headers, returning JSON response")
         return JSONResponse(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
