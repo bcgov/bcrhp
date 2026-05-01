@@ -253,19 +253,13 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
 
     def prune_data(self, site):
         allowed_sections = self.required_sections + self.optional_sections
-        for key in site.keys():
+        keys = list(site["aliased_data"].keys())
+        for key in keys:
             if key not in allowed_sections:
-                site.pop(key)
+                site["aliased_data"].pop(key)
 
     def create(self, request, *args, **kwargs):
         raw = request.data
-        print(f"Raw: {raw}")
-        # cleaned_object = {
-        #     "aliased_data": {
-        #         "project_details": raw.get("aliased_data")["project_details"],
-        #         "assessment_details": raw.get("aliased_data")["assessment_details"],
-        #     },
-        # }
         cleaned_object = raw
         logger.info("FILES keys=%s", list(request.FILES.keys()))
 
@@ -279,22 +273,8 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
             )
         logger.info(f"Before clean")
         self.patch_data(cleaned_object)
+        self.prune_data(cleaned_object)
         patched = cleaned_object
-        # logger.info(f"After clean")
-        # print(f"\n\n\nCleaned: {patched}\n\n\n")
-        # for loc in raw["aliased_data"]["heritage_site_location"]:
-        #     for sb in loc["aliased_data"]["site_boundary"]:
-        #         print(sb["aliased_data"]["site_boundary"])
-        #         print(
-        #             sb["aliased_data"]["site_boundary"]["node_value"]["features"][0][
-        #                 "geometry"
-        #             ].pop("bbox")
-        #         )
-        #         sb["aliased_data"]["site_boundary"][
-        #             "node_value"
-        #         ] = JSONSerializer().serialize(
-        #             sb["aliased_data"]["site_boundary"]["node_value"]
-        #         )
         serializer = self.get_serializer(data=patched)
         logger.info(f"After get_serializer")
 
