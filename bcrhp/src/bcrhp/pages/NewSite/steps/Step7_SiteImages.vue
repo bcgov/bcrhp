@@ -519,8 +519,8 @@ defineExpose({ isValid });
     position: absolute;
     right: 0.5rem;
     cursor: pointer;
-    width: 1rem;
-    height: 1rem;
+    width: 1.25rem;
+    height: 1.25rem;
     z-index: 1000;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
@@ -536,8 +536,8 @@ defineExpose({ isValid });
 }
 
 .image-primary-icon {
-    top: 1.6rem;
-    color: orange;
+    top: 2rem;
+    color: darkorange;
 }
 </style>
 <style>

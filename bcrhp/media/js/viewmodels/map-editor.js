@@ -114,17 +114,20 @@ const viewModel = function (params) {
             selectedTool: ko.observable(),
             dropErrors: ko.observableArray(),
         };
-        self.tile.data[id].subscribe(function () {
-            if (
-                (ko.unwrap(self.featureLookup[id].features).length ?? 0 > 0) &&
-                (self.draw?.getMode() ?? '') === 'simple_select'
-            ) {
-                self.fitFeatures(
-                    ko.unwrap(self.featureLookup[id].features),
-                    true,
-                );
-            }
-        });
+        if (self.tile.data[id].subscribe) {
+            self.tile.data[id].subscribe(function () {
+                if (
+                    (ko.unwrap(self.featureLookup[id].features).length ??
+                        0 > 0) &&
+                    (self.draw?.getMode() ?? '') === 'simple_select'
+                ) {
+                    self.fitFeatures(
+                        ko.unwrap(self.featureLookup[id].features),
+                        true,
+                    );
+                }
+            });
+        }
         self.featureLookup[id].selectedTool.subscribe(function (tool) {
             if (self.draw) {
                 if (tool === '') {
