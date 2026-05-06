@@ -2,16 +2,16 @@ name: bcrhp
 services:
   bcrhp:
     container_name:  bcrhp
+    # Set this to the appropriate platform in the .env if required
+    # eg linux/arm64, linux/amd64
     platform: ${DOCKER_HOST_PLATFORM:-linux}
     image: bcgov/bcrhp
     build:
       context: ..
       dockerfile: bcrhp/Dockerfile
       args:
-        # Set this to true in the .env if debugging with PyCharm
-        INSTALL_PYCHARM_DEBUG: ${INSTALL_PYCHARM_DEBUG:-false}
-    environment:
-      PYCHARM_DEBUG: ${PYCHARM_DEBUG:-false}
+        # Set this to true in the .env or in the host env if debugging with PyCharm
+        INSTALL_PYCHARM_DEBUG: ${INSTALL_PYCHARM_DEBUG:-blue}
     command: run_arches
     volumes:
       - ../arches/:/web_root/arches
