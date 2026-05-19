@@ -2,10 +2,16 @@ name: bcrhp
 services:
   bcrhp:
     container_name:  bcrhp
-    image: bcgov/bcrhp7-6
+    # Set this to the appropriate platform in the .env if required
+    # eg linux/arm64, linux/amd64
+    platform: ${DOCKER_HOST_PLATFORM:-linux}
+    image: bcgov/bcrhp
     build:
       context: ..
       dockerfile: bcrhp/Dockerfile
+      args:
+        # Set this to true in the .env or in the host env if debugging with PyCharm
+        INSTALL_PYCHARM_DEBUG: ${INSTALL_PYCHARM_DEBUG:-blue}
     command: run_arches
     volumes:
       - ../arches/:/web_root/arches
@@ -14,10 +20,11 @@ services:
       - ../arches-component-lab/:/web_root/arches-component-lab
       - ../arches-querysets/:/web_root/arches-querysets
     env_file:
-      - ./docker/env_file.env
+      - ./.env
+      - ./docker/docker.dev.env
     ports:
       - 8025:8000
-      - 5688:5678
+#      - 5678:5678
       - 443:443
       - 5173:5173
     stdin_open: true
@@ -48,7 +55,8 @@ services:
       - ../arches-component-lab/:/web_root/arches-component-lab
       - ../arches-querysets/:/web_root/arches-querysets
     env_file:
-      - ./docker/env_file.env
+      - ./.env
+      - ./docker/docker.dev.env
     ports:
       - 8888:8888
     depends_on:
