@@ -122,7 +122,10 @@ defineExpose({ isValid });
         application:
     </p>
 
-    <Fieldset legend="Address Information">
+    <Fieldset
+        legend="Address Information"
+        class="review-fieldset"
+    >
         <div v-if="propertyAddresses.length === 0">No address provided.</div>
 
         <div
@@ -488,16 +491,20 @@ defineExpose({ isValid });
             </dd>
         </div>
     </Fieldset>
-
     <Fieldset
         v-if="
-            heritageSite.submissionNotes &&
-            heritageSite.submissionNotes !== '<p><br></p>'
+            heritageSite?.aliased_data?.internal_remark?.[0]?.aliased_data
+                ?.internal_remark?.display_value?.length ?? 0 > 0
         "
         legend="Submission Notes"
         class="review-fieldset"
     >
-        <div v-html="heritageSite.submissionNotes"></div>
+        <div
+            v-html="
+                heritageSite?.aliased_data.internal_remark?.[0]?.aliased_data
+                    .internal_remark.display_value
+            "
+        ></div>
     </Fieldset>
 </template>
 
@@ -539,11 +546,14 @@ dt {
 <style>
 fieldset.review-fieldset > legend {
     margin-bottom: 0.5rem;
-    font-size: 1rem;
+    font-size: 1.6rem;
     font-weight: 700;
 }
 fieldset.review-fieldset div[data-node-alias='site_images'] {
     max-height: 150px;
     max-width: 150px;
+}
+fieldset.review-fieldset {
+    max-width: calc(100vw - 325px);
 }
 </style>

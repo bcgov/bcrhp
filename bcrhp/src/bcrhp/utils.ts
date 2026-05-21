@@ -118,7 +118,8 @@ export const isValid = (
     if (!form.value) return false;
 
     const formStates = form?.value?.states;
-    const fields = Object.keys(form.value.states);
+    if (!formStates) return false;
+    const fields = Object.keys(formStates);
 
     const allValid = fields.every((field) =>
         schema.shape?.[field]

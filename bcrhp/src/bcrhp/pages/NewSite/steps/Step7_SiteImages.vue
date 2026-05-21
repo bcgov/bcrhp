@@ -26,6 +26,8 @@ import type {
     CardXNodeXWidgetData,
 } from '@/arches_component_lab/types.ts';
 import Button from 'primevue/button';
+import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
@@ -156,6 +158,9 @@ const updateModelValue = function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
+    if (attribute_name === 'image_description') {
+        newValue = convertNbspToSpaces(newValue as StringValue);
+    }
     baseUpdateModelValue(
         newValue,
         attribute_name,

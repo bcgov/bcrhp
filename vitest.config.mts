@@ -34,21 +34,27 @@ function generateConfig(): Promise<UserConfig> {
         );
         const parsedData = JSON.parse(rawData);
 
-        const alias: { [key: string]: string } = {
-            '@/arches': path.join(
-                parsedData['ROOT_DIR'],
-                'app',
-                'src',
-                'arches',
-            ),
-            arches: path.join(
-                parsedData['ROOT_DIR'],
-                'app',
-                'media',
-                'js',
-                'arches.js',
-            ),
-        };
+        const alias: { find: string | RegExp; replacement: string }[] = [
+            {
+                find: '@/arches',
+                replacement: path.join(
+                    parsedData['ROOT_DIR'],
+                    'app',
+                    'src',
+                    'arches',
+                ),
+            },
+            {
+                find: 'arches',
+                replacement: path.join(
+                    parsedData['ROOT_DIR'],
+                    'app',
+                    'media',
+                    'js',
+                    'arches.js',
+                ),
+            },
+        ];
 
         for (const [
             archesApplicationName,
@@ -58,12 +64,31 @@ function generateConfig(): Promise<UserConfig> {
                 [key: string]: string;
             },
         )) {
-            alias[`@/${archesApplicationName}`] = path.join(
-                archesApplicationPath,
-                'src',
-                archesApplicationName,
-            );
+            alias.push({
+                find: `@/${archesApplicationName}`,
+                replacement: path.join(
+                    archesApplicationPath,
+                    'src',
+                    archesApplicationName,
+                ),
+            });
         }
+
+        // Catch-all: any bare package import (not starting with . or /) is
+        // resolved against the project's own node_modules. This mirrors the
+        // TypeScript paths entry `"*": ["../node_modules/*"]` and ensures
+        // that files from outside the project root (e.g. Python-installed
+        // packages in CI) can still find their npm dependencies.
+        //
+        // The pattern deliberately excludes:
+        //   \0  – Rollup/Vite virtual module null-byte prefix
+        //   :   – Vite virtual module convention (e.g. plugin-vue:export-helper)
+        // Real npm package names (including scoped @scope/pkg and subpaths
+        // like primevue/message) never contain these characters.
+        alias.push({
+            find: /^([^./\0][^:]*)$/,
+            replacement: path.join(filePath, 'node_modules') + '/$1',
+        });
 
         resolve({
             plugins: [vue() as any],

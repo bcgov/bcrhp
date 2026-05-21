@@ -7,12 +7,14 @@ import { Form, type FormInstance } from '@primevue/forms';
 import FieldSet from 'primevue/fieldset'; // Added import
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     BcStatementOfSignificanceTileSchema,
     getStatementOfSignificance,
 } from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
@@ -58,9 +60,8 @@ const updateModelValue = function (
             getStatementOfSignificance(),
         );
     }
-
     baseUpdateModelValue(
-        newValue,
+        convertNbspToSpaces(newValue as StringValue),
         attribute_name,
         heritageSite.value.aliased_data.bc_statement_of_significance[0]
             .aliased_data,

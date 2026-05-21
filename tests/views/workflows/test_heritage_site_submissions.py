@@ -247,6 +247,17 @@ def _make_site(feature_id=None, include_bbox=True):
                     "registry_types": {"node_value": None},
                 }
             },
+            "internal_remark": [
+                {
+                    "aliased_data": {
+                        "remark_type": {
+                            "node_value": None,
+                            "display_value": "",
+                            "details": None,
+                        }
+                    }
+                }
+            ],
         }
     }
 
@@ -256,11 +267,15 @@ class PatchDataTest(TestCase):
         self.view = SubmitHeritageSite()
         self.reg_uuid = str(uuid.uuid4())
         self.reg_type_uuid = str(uuid.uuid4())
+        self.remark_type_uuid = str(uuid.uuid4())
         self.view.get_default_registration_status_uuid = MagicMock(
             return_value=self.reg_uuid
         )
         self.view.get_default_registry_type_uuid = MagicMock(
             return_value=self.reg_type_uuid
+        )
+        self.view.get_default_remark_type_uuid = MagicMock(
+            return_value=self.remark_type_uuid
         )
 
     def _get_feature(self, site):
@@ -332,6 +347,20 @@ class PatchDataTest(TestCase):
             "node_value"
         ]
         self.assertEqual(types, [self.reg_type_uuid])
+
+    def test_remark_type_set_when_one_internal_remark(self):
+        site = _make_site()
+        self.view.patch_data(site)
+        node_value = site["aliased_data"]["internal_remark"][0]["aliased_data"][
+            "remark_type"
+        ]["node_value"]
+        self.assertEqual(node_value, self.remark_type_uuid)
+
+    def test_remark_type_not_set_when_no_internal_remarks(self):
+        site = _make_site()
+        site["aliased_data"]["internal_remark"] = []
+        self.view.patch_data(site)
+        self.assertEqual(site["aliased_data"]["internal_remark"], [])
 
 
 # ---------------------------------------------------------------------------

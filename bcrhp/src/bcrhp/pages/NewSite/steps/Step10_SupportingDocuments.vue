@@ -2,10 +2,11 @@
 import { computed, useTemplateRef, inject, ref } from 'vue';
 import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
-import Editor from 'primevue/editor';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import {
@@ -22,6 +23,7 @@ import {
     getSiteDocument,
     SiteDocumentTileSchema,
 } from '@/bcrhp/schemas/heritage_site/site_document.ts';
+import { getInternalRemark } from '@/bcrhp/schemas/heritage_site/internal_remark.ts';
 
 const siteDocument = ref(getSiteDocument());
 const siteDocumentKey = ref(0);
@@ -35,6 +37,9 @@ import Button from 'primevue/button';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const internalRemark = computed(() => {
+    return heritageSite.value.aliased_data.internal_remark[0];
+});
 
 const supportingDocumentsForm: Ref<FormInstance | null> = useTemplateRef(
     'supportingDocumentsForm',
@@ -60,12 +65,26 @@ const updateModelValue = async function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    await baseUpdateModelValue(
-        newValue,
-        attribute_name,
-        siteDocument.value?.aliased_data,
-        supportingDocumentsForm as Ref<FormInstance>,
-    );
+    if (attribute_name === 'internal_remark') {
+        if (heritageSite?.value.aliased_data.internal_remark.length === 0) {
+            heritageSite.value.aliased_data.internal_remark.push(
+                getInternalRemark(),
+            );
+        }
+        await baseUpdateModelValue(
+            convertNbspToSpaces(newValue as StringValue),
+            attribute_name,
+            internalRemark?.value?.aliased_data,
+            supportingDocumentsForm as Ref<FormInstance>,
+        );
+    } else {
+        await baseUpdateModelValue(
+            newValue,
+            attribute_name,
+            siteDocument.value?.aliased_data,
+            supportingDocumentsForm as Ref<FormInstance>,
+        );
+    }
     emit('update:stepIsValid', isValid());
 };
 
@@ -235,14 +254,20 @@ defineExpose({ isValid });
                 hint="Enter any additional remarks about the site submission"
             >
                 <div class="p-inputtext-fluid">
-                    <Editor
-                        id="submissionNotes"
-                        ref="submissionNotesField"
-                        v-model="heritageSite.submissionNotes"
-                        theme="snow"
-                        aria-describedby="submission-notes-help"
-                        fluid
-                    />
+                    <GenericWidget
+                        :required="true"
+                        :key="siteDocumentKey"
+                        graph-slug="heritage_site"
+                        node-alias="internal_remark"
+                        :should-show-label="false"
+                        :mode="EDIT"
+                        :aliased-node-data="
+                            internalRemark?.value?.aliased_data?.internal_remark
+                        "
+                        @update:value="
+                            updateModelValue($event, 'internal_remark')
+                        "
+                    ></GenericWidget>
                 </div>
             </LabelledInput>
         </FieldSet>
