@@ -10,9 +10,11 @@ import Chip from 'primevue/chip';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
+import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
 import { getPidData } from '@/bcrhp/api.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
@@ -95,6 +97,9 @@ const currentAddressHasStreet = computed(() => {
 });
 
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
+    if (attribute_name === 'location_description') {
+        newValue = convertNbspToSpaces(newValue as StringValue);
+    }
     baseUpdateModelValue(
         newValue,
         attribute_name,

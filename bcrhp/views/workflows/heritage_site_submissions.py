@@ -169,6 +169,7 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         "bc_statement_of_significance",
         "heritage_function",
         "construction_actors",
+        "internal_remark",
     ]
 
     def get_default_registration_status_uuid(self):
@@ -180,6 +181,9 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         return self.get_concept_uuid(
             "heritage_site", "registry_types", "Local/Regional Heritage Site"
         )
+
+    def get_default_remark_type_uuid(self):
+        return self.get_concept_uuid("heritage_site", "remark_type", "General")
 
     def get_concept_uuid(self, graph_slug, node_alias, pref_label):
         config = self.get_card_x_node_x_widget(graph_slug, node_alias)
@@ -249,6 +253,9 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
+        site["aliased_data"]["internal_remark"][0]["aliased_data"]["remark_type"][
+            "node_value"
+        ] = self.get_default_remark_type_uuid()
 
     def prune_data(self, site):
         allowed_sections = self.required_sections + self.optional_sections
