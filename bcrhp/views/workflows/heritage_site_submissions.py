@@ -1,5 +1,4 @@
 import logging
-import traceback
 import uuid
 from urllib.parse import urlparse, parse_qs
 
@@ -253,9 +252,13 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
-        site["aliased_data"]["internal_remark"][0]["aliased_data"]["remark_type"][
-            "node_value"
-        ] = self.get_default_remark_type_uuid()
+        if (
+            "internal_remark" in site["aliased_data"]
+            and len(site["aliased_data"]["internal_remark"]) == 1
+        ):
+            site["aliased_data"]["internal_remark"][0]["aliased_data"]["remark_type"][
+                "node_value"
+            ] = self.get_default_remark_type_uuid()
 
     def prune_data(self, site):
         allowed_sections = self.required_sections + self.optional_sections
@@ -298,8 +301,7 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
             self.perform_create(serializer)
             logger.info("Created")
         except Exception as e:
-            logger.error(f"Unable to create: {e}")
-            traceback.print_exc()
+            logger.error(f"Unable to create: {e}", exc_info=True)
             return JSONResponse(
                 {
                     "error": "Unable to create resource",
