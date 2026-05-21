@@ -13,11 +13,18 @@ const stubs = {
     FieldSet: { template: '<fieldset><slot /></fieldset>' },
     LabelledInput: { template: '<div><slot /></div>' },
     GenericWidget: { template: '<div />' },
-    Button: { template: '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>', emits: ['click'] },
+    Button: {
+        template:
+            '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+        emits: ['click'],
+    },
     ChipsList: { template: '<div />' },
 };
 
-function makeHeritageSite(site_document: any[] = [], internal_remark: any[] = []) {
+function makeHeritageSite(
+    site_document: any[] = [],
+    internal_remark: any[] = [],
+) {
     return ref({
         aliased_data: {
             site_document,
@@ -29,9 +36,21 @@ function makeHeritageSite(site_document: any[] = [], internal_remark: any[] = []
 function makeDocument(type = 'Bylaw', filename = 'doc.pdf') {
     return {
         aliased_data: {
-            site_document: { display_value: '', node_value: [{ name: filename }], details: [] },
-            document_type: { display_value: type, node_value: null, details: [] },
-            document_description: { display_value: 'A required document', node_value: null, details: [] },
+            site_document: {
+                display_value: '',
+                node_value: [{ name: filename }],
+                details: [],
+            },
+            document_type: {
+                display_value: type,
+                node_value: null,
+                details: [],
+            },
+            document_description: {
+                display_value: 'A required document',
+                node_value: null,
+                details: [],
+            },
         },
         customDisplay: `${type} - ${filename}`,
     };
@@ -42,7 +61,9 @@ describe('Step10_SupportingDocuments', () => {
         const wrapper = mount(Step10SupportingDocuments, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([], [{ aliased_data: {} }]) },
+                provide: {
+                    heritageSite: makeHeritageSite([], [{ aliased_data: {} }]),
+                },
             },
         });
         expect(wrapper.exists()).toBe(true);
@@ -52,7 +73,9 @@ describe('Step10_SupportingDocuments', () => {
         const wrapper = mount(Step10SupportingDocuments, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([], [{ aliased_data: {} }]) },
+                provide: {
+                    heritageSite: makeHeritageSite([], [{ aliased_data: {} }]),
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(false);
@@ -74,7 +97,10 @@ describe('Step10_SupportingDocuments', () => {
     });
 
     it('isValid returns false after all documents are deleted', async () => {
-        const heritageSite = makeHeritageSite([makeDocument()], [{ aliased_data: {} }]);
+        const heritageSite = makeHeritageSite(
+            [makeDocument()],
+            [{ aliased_data: {} }],
+        );
         const wrapper = mount(Step10SupportingDocuments, {
             global: {
                 stubs,
@@ -93,7 +119,9 @@ describe('Step10_SupportingDocuments', () => {
         const wrapper = mount(Step10SupportingDocuments, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([], [{ aliased_data: {} }]) },
+                provide: {
+                    heritageSite: makeHeritageSite([], [{ aliased_data: {} }]),
+                },
             },
         });
         // isValid is not emitted on mount; confirm via direct call

@@ -17,7 +17,8 @@ const stubs = {
         emits: ['change'],
     },
     Button: {
-        template: '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+        template:
+            '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
         emits: ['click'],
     },
     Chip: { template: '<span><slot /></span>' },
@@ -29,11 +30,27 @@ const stubs = {
 function makeAddress(street = '123 Main St') {
     return {
         aliased_data: {
-            street_address: { display_value: street, node_value: null, details: [] },
+            street_address: {
+                display_value: street,
+                node_value: null,
+                details: [],
+            },
             city: { display_value: 'Victoria', node_value: null, details: [] },
-            locality: { display_value: 'Capital', node_value: null, details: [] },
-            postal_code: { display_value: 'V8W 1A1', node_value: null, details: [] },
-            location_description: { display_value: '', node_value: null, details: [] },
+            locality: {
+                display_value: 'Capital',
+                node_value: null,
+                details: [],
+            },
+            postal_code: {
+                display_value: 'V8W 1A1',
+                node_value: null,
+                details: [],
+            },
+            location_description: {
+                display_value: '',
+                node_value: null,
+                details: [],
+            },
             province: { display_value: 'BC', node_value: null, details: [] },
             bc_property_legal_description: [],
         },
@@ -132,11 +149,23 @@ describe('Step2_SiteAddress', () => {
     it('shows "Untitled Address" label when all address display fields are empty', () => {
         const emptyAddress = {
             aliased_data: {
-                street_address: { display_value: '', node_value: null, details: [] },
+                street_address: {
+                    display_value: '',
+                    node_value: null,
+                    details: [],
+                },
                 city: { display_value: '', node_value: null, details: [] },
                 locality: { display_value: '', node_value: null, details: [] },
-                postal_code: { display_value: '', node_value: null, details: [] },
-                location_description: { display_value: '', node_value: null, details: [] },
+                postal_code: {
+                    display_value: '',
+                    node_value: null,
+                    details: [],
+                },
+                location_description: {
+                    display_value: '',
+                    node_value: null,
+                    details: [],
+                },
                 province: { display_value: '', node_value: null, details: [] },
                 bc_property_legal_description: [],
             },

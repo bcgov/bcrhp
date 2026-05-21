@@ -13,7 +13,11 @@ const stubs = {
     FieldSet: { template: '<fieldset><slot /></fieldset>' },
     LabelledInput: { template: '<div><slot /></div>' },
     GenericWidget: { template: '<div />' },
-    Button: { template: '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>', emits: ['click'] },
+    Button: {
+        template:
+            '<button :disabled="$attrs.disabled" @click="$emit(\'click\')"><slot /></button>',
+        emits: ['click'],
+    },
 };
 
 function makeHeritageSite(site_images: any[] = []) {
@@ -27,15 +31,43 @@ function makeHeritageSite(site_images: any[] = []) {
 function makeImage(index: number) {
     return {
         aliased_data: {
-            site_images: { display_value: '', node_value: [{ name: `image${index}.jpg` }], details: [] },
-            image_type: { display_value: 'Historical', node_value: null, details: [] },
-            image_view: { display_value: 'Front', node_value: null, details: [] },
-            image_description: { display_value: 'A description', node_value: null, details: [] },
+            site_images: {
+                display_value: '',
+                node_value: [{ name: `image${index}.jpg` }],
+                details: [],
+            },
+            image_type: {
+                display_value: 'Historical',
+                node_value: null,
+                details: [],
+            },
+            image_view: {
+                display_value: 'Front',
+                node_value: null,
+                details: [],
+            },
+            image_description: {
+                display_value: 'A description',
+                node_value: null,
+                details: [],
+            },
             image_date: { display_value: '', node_value: null, details: [] },
-            image_features: { display_value: '', node_value: null, details: [] },
-            primary_image: { display_value: 'false', node_value: false, details: [] },
+            image_features: {
+                display_value: '',
+                node_value: null,
+                details: [],
+            },
+            primary_image: {
+                display_value: 'false',
+                node_value: false,
+                details: [],
+            },
             photographer: { display_value: '', node_value: null, details: [] },
-            submit_to_crhp: { display_value: '', node_value: null, details: [] },
+            submit_to_crhp: {
+                display_value: '',
+                node_value: null,
+                details: [],
+            },
             copyright: { display_value: '', node_value: null, details: [] },
         },
     };
@@ -66,7 +98,12 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([makeImage(0), makeImage(1)]) },
+                provide: {
+                    heritageSite: makeHeritageSite([
+                        makeImage(0),
+                        makeImage(1),
+                    ]),
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(true);
