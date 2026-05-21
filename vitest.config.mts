@@ -48,6 +48,12 @@ function generateConfig(): Promise<UserConfig> {
                 'js',
                 'arches.js',
             ),
+            // Bare package names must be pinned to the project's own
+            // node_modules so that files imported from outside the project
+            // root (e.g. arches_component_lab installed as a Python package
+            // in CI) resolve correctly instead of walking up an unrelated
+            // filesystem path.
+            primevue: path.join(filePath, 'node_modules', 'primevue'),
         };
 
         for (const [
