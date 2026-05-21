@@ -72,11 +72,18 @@ function makeHeritageSite(bc_property_address: any[] = []) {
     });
 }
 
+const globalConfig = {
+    stubs,
+    directives: {
+        tooltip: {},
+    },
+};
+
 describe('Step2_SiteAddress', () => {
     it('mounts without error', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([]) },
             },
         });
@@ -86,7 +93,7 @@ describe('Step2_SiteAddress', () => {
     it('isValid returns false when property address is required but none has been added', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([]) },
             },
         });
@@ -96,7 +103,7 @@ describe('Step2_SiteAddress', () => {
     it('isValid returns true when at least one property address has been added', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([makeAddress()]) },
             },
         });
@@ -106,7 +113,7 @@ describe('Step2_SiteAddress', () => {
     it('isValid returns true after "no street address" checkbox is toggled, regardless of address list', async () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([]) },
             },
         });
@@ -120,7 +127,7 @@ describe('Step2_SiteAddress', () => {
     it('emits update:stepIsValid with true after "no street address" is checked', async () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([]) },
             },
         });
@@ -137,7 +144,7 @@ describe('Step2_SiteAddress', () => {
         const address = makeAddress('456 Elm Ave');
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([address]) },
             },
         });
@@ -172,7 +179,7 @@ describe('Step2_SiteAddress', () => {
         };
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs,
+                ...globalConfig,
                 provide: { heritageSite: makeHeritageSite([emptyAddress]) },
             },
         });
