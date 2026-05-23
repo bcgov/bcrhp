@@ -65,6 +65,12 @@ const isValid = function () {
     return true;
 };
 
+const formSubmitted = computed(
+    () =>
+        !!heritageSite.value.aliased_data.bc_right.aliased_data
+            ?.registration_status?.node_value,
+);
+
 defineExpose({ isValid });
 </script>
 
@@ -72,11 +78,25 @@ defineExpose({ isValid });
     <div class="step-title">Submission Details</div>
 
     <div
+        v-if="!formSubmitted"
+        class="submission-notice"
+    >
+        By clicking “Submit,” you are providing notice to the Heritage Minister
+        as required under section 595 of the Local Government Act and section
+        602(1) of the Vancouver Charter.
+    </div>
+    <div
+        v-else
+        class="submission-notice"
+    >
+        You have successfully provided notice to the Heritage Minister as
+        required under section 595 of the Local Government Act and section
+        602(1) of the Vancouver Charter. Please hit “Print” if you would like to
+        save a copy of your submission.
+    </div>
+    <div
+        v-if="formSubmitted"
         class="row"
-        v-if="
-            heritageSite.aliased_data?.site_record_admin?.[0]?.aliased_data
-                ?.date_submitted_to_crhp?.display_value
-        "
     >
         <dt>Submission Date:&nbsp;</dt>
         <dd>
@@ -542,6 +562,14 @@ defineExpose({ isValid });
 dt {
     margin-left: 0.75rem;
 }
+.submission-notice {
+    font-weight: bold;
+    padding: 1rem 4rem 1rem 4rem;
+    font-size: 1.6rem;
+    border: solid thick darkgray;
+    margin: 0 6rem 1rem 6rem;
+    border-radius: 1rem;
+}
 </style>
 <style>
 fieldset.review-fieldset > legend {
@@ -553,7 +581,9 @@ fieldset.review-fieldset div[data-node-alias='site_images'] {
     max-height: 150px;
     max-width: 150px;
 }
-fieldset.review-fieldset {
-    max-width: calc(100vw - 325px);
+@media screen {
+    fieldset.review-fieldset {
+        max-width: calc(100vw - 325px);
+    }
 }
 </style>

@@ -89,25 +89,23 @@ export async function submitHeritageSite(
     // Push image files onto form data
     console.log(`Number of images: ${site.aliased_data.site_images.length}`);
     console.log(`Number of documents: ${site.aliased_data.site_document}`);
-    site.aliased_data.site_images.forEach(
-        (image_tile: SiteImagesTileType, index: number) => {
-            const file: FileReference = image_tile.aliased_data.site_images
-                .node_value[0] as FileReference;
-            if (file) {
-                file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
-                fd.append(
-                    `file-list_${image_tile.tileid}-${file.node_id}`,
-                    file.file as File,
-                    file.name,
-                );
-            } else {
-                console.log('no file found for image tile', image_tile);
-            }
-        },
-    );
+    site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
+        const file: FileReference = image_tile.aliased_data.site_images
+            .node_value[0] as FileReference;
+        if (file) {
+            file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
+            fd.append(
+                `file-list_${image_tile.tileid}-${file.node_id}`,
+                file.file as File,
+                file.name,
+            );
+        } else {
+            console.log('no file found for image tile', image_tile);
+        }
+    });
     // Push documents onto form data
     site.aliased_data.site_document.forEach(
-        (document_tile: SiteDocumentTileType, index: number) => {
+        (document_tile: SiteDocumentTileType) => {
             const file = document_tile.aliased_data.site_document.node_value[0];
             file.file_id = `file-list_${document_tile.tileid}-${file.node_id}`;
             fd.append(
@@ -135,7 +133,10 @@ export async function submitHeritageSite(
         try {
             errorData = await response.json();
         } catch (e) {
-            throw Error(`Unable to save submission: ${response.statusText}`);
+            throw new Error(
+                `Unable to save submission: ${response.statusText}`,
+                { cause: e },
+            );
         }
         throw errorData;
     }

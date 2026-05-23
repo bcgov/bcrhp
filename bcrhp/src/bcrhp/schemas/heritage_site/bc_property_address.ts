@@ -5,9 +5,6 @@ import {
     getRichTextValueRequiredSchema,
     getStringValueSchema,
     getStringValueRequiredSchema,
-    StringNodeValueRequiredSchema,
-    StringValueRequiredSchema,
-    LanguageValueSchema,
     getBCPostalCodeSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';

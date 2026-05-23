@@ -13,7 +13,7 @@ defineExpose({ isValid });
                 Confirm the site does not already exist on the BC Register of
                 Historic Places by conducting the searches outlined below on the
                 <a href="https://apps.nrs.gov.bc.ca/bcrhp/index.htm"
-                    >Search Page.</a
+                    >Search Page on BCRHP.</a
                 >
                 Consult the
                 <a
@@ -25,9 +25,12 @@ defineExpose({ isValid });
         </div>
 
         <ul class="bullet-list ml-4">
-            <li>Enter the site’s name in the Find a resource search bar</li>
             <li>
-                Enter the site’s address in the map Find an address search bar
+                Enter the site’s name in the <i>Find a resource</i> search bar
+            </li>
+            <li>
+                Enter the site’s address in the map
+                <i>Find an address</i> search bar
             </li>
             <li>
                 Zoom into map location of proposed site and verify there is no
@@ -77,11 +80,6 @@ defineExpose({ isValid });
                     <li>
                         Required documents for Step 10:
                         <ul class="bullet-list-nested ml-4 mt-1">
-                            <li>
-                                Official Notification Letter to the Heritage
-                                Minister (as required under LGA s. 977 (3) and
-                                Vancouver Charter s.602 (1))
-                            </li>
                             <li>
                                 Copy of Bylaw, Resolution, or Meeting Minutes
                             </li>

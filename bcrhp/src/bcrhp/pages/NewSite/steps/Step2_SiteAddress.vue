@@ -574,8 +574,8 @@ defineExpose({ isValid });
         :breakpoints="{ '960px': '90vw' }"
         :closable="true"
         :dismissableMask="false"
-        @show="pidField"
         class="dialogFonts"
+        @show="pidField"
     >
         <Form
             ref="legalDescriptionForm"

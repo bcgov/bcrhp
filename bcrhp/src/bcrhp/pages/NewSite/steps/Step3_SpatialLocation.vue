@@ -177,8 +177,8 @@ defineExpose({ isValid });
                         id="boundaryIncorrect"
                         v-model="isBoundaryBypassed"
                         :binary="true"
-                        @change="onBypassToggle"
                         small
+                        @change="onBypassToggle"
                     />
                 </LabelledCheckboxInput>
             </div>
