@@ -95,8 +95,8 @@ defineExpose({ isValid });
         save a copy of your submission.
     </div>
     <div
-        class="row"
         v-if="formSubmitted"
+        class="row"
     >
         <dt>Submission Date:&nbsp;</dt>
         <dd>

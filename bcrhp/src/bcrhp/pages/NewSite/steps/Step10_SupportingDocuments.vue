@@ -164,8 +164,8 @@ defineExpose({ isValid });
                 :required="true"
             >
                 <GenericWidget
-                    :required="true"
                     :key="siteDocumentKey"
+                    :required="true"
                     graph-slug="heritage_site"
                     node-alias="site_document"
                     :should-show-label="false"
@@ -183,8 +183,8 @@ defineExpose({ isValid });
                 :required="true"
             >
                 <GenericWidget
-                    :required="true"
                     :key="siteDocumentKey"
+                    :required="true"
                     graph-slug="heritage_site"
                     node-alias="document_type"
                     :should-show-label="false"
@@ -204,8 +204,8 @@ defineExpose({ isValid });
                 hint="Provide a short description of the document content"
             >
                 <GenericWidget
-                    :required="true"
                     :key="siteDocumentKey"
+                    :required="true"
                     graph-slug="heritage_site"
                     node-alias="document_description"
                     :should-show-label="false"
@@ -250,8 +250,8 @@ defineExpose({ isValid });
             >
                 <div class="p-inputtext-fluid">
                     <GenericWidget
-                        :required="true"
                         :key="siteDocumentKey"
+                        :required="true"
                         graph-slug="heritage_site"
                         node-alias="internal_remark"
                         :should-show-label="false"

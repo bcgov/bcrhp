@@ -232,8 +232,8 @@ onMounted(() => {
             <ChipsList
                 :items="otherNames"
                 display-key="aliased_data.name.display_value"
-                @remove="handleRemoveOtherName"
                 :emptyText="'No other names added.'"
+                @remove="handleRemoveOtherName"
             />
         </div>
         <br /><br /><br /><br /><br />
