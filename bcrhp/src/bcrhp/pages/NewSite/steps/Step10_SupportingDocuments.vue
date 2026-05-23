@@ -149,11 +149,6 @@ defineExpose({ isValid });
                     after each completed entry. Required documents include:
 
                     <ul>
-                        <li>
-                            Official Notification Letter to the Heritage
-                            Minister (as required under LGA s. 977 (3) and
-                            Vancouver Charter s.602 (1))
-                        </li>
                         <li>Bylaw, Resolution, or Council Meeting Minutes</li>
                         <li>
                             GIS files or Site Map (if no geospatial data was
