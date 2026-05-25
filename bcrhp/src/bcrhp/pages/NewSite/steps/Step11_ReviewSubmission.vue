@@ -563,10 +563,10 @@ dt {
     margin-left: 0.75rem;
 }
 .submission-notice {
-    font-weight: bold;
+    background-color: white;
     padding: 1rem 4rem 1rem 4rem;
-    font-size: 1.6rem;
-    border: solid thick darkgray;
+    font-size: 1.4rem;
+    border: solid medium darkgray;
     margin: 0 6rem 1rem 6rem;
     border-radius: 1rem;
 }
