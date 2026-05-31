@@ -27,13 +27,13 @@ runs:
     - name: Install Python packages
       run: |
         python -m pip install --upgrade pip
-        pip install '.[dev]'
+        pip install . --group dev
         echo Python packages installed
       shell: bash
     
     - name: Ensure frontend configuration files exist
       run: |
-          python manage.py check
+          python manage.py check --settings="tests.test_settings"
       shell: bash
 
     - name: Install Arches applications

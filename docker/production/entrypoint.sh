@@ -72,7 +72,7 @@ init_arches() {
 
 		cd ${WEB_ROOT}
 
-		arches-project create ${ARCHES_PROJECT}
+		arches-admin startproject ${ARCHES_PROJECT}
 		run_setup_db
 
 		exit_code=$?

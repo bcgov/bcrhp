@@ -1,4 +1,5 @@
 import os
+import sys
 from django.db import migrations, connection
 from django.core.management import call_command
 
@@ -72,6 +73,8 @@ class Migration(migrations.Migration):
 
     @staticmethod
     def load_package(app, someethingelse):
+        if "test" in sys.argv:
+            return
         call_command(
             "packages",
             operation="load_package",

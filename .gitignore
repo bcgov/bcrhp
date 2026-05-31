@@ -149,10 +149,17 @@ webpack/webpack-stats.json
 
 *.egg-info
 .DS_STORE
-.tsconfig-paths.json
-.frontend-configuration-settings.json
 coverage/
+
+# Packaging
+build/
+dist/
 
 node_modules
 .vscode/
 CACHE
+
+settings_docker.py
+
+#test resuts
+test-results

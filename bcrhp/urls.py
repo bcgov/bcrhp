@@ -2,12 +2,16 @@ from django.urls import include, path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
-from django.urls.resolvers import RegexPattern
 from bcrhp.views.api import BordenNumber, MVT, LegislativeAct, UserProfile
 from bcrhp.views.crhp import CRHPXmlExport
 from bcrhp.views.search import export_results as bcrhp_export_results
 from bcrhp.views.resource import ResourceReportView
+from bcrhp.views.root import BcrhpRootView
 from bcgov_arches_common.views.map import BCTileserverProxyView
+from bcrhp.views.workflows.heritage_site_submissions import (
+    SubmitHeritageSite,
+    PatchedArchesResourceBlankView,
+)
 import re
 
 uuid_regex = settings.UUID_REGEX
@@ -26,6 +30,14 @@ def bc_path_prefix(path=""):
 
 
 urlpatterns = [
+    re_path(
+        bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"
+    ),
+    re_path(
+        bc_path_prefix(r"^api/submit_new_site/"),
+        SubmitHeritageSite.as_view(),
+        name="submit-new-site",
+    ),
     re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),
         BCTileserverProxyView.as_view(),
@@ -71,12 +83,24 @@ urlpatterns = [
         bcrhp_export_results,
         name="export_results",
     ),
+    path(
+        f"{bc_path_prefix()}bcrhp/api/resource/<slug:graph>/blank",
+        PatchedArchesResourceBlankView.as_view(),
+        name="api-resource-blank",
+    ),
     path(bc_path_prefix(), include("bcgov_arches_common.urls")),
+    path(bc_path_prefix(), include("arches_querysets.urls")),
+    path(bc_path_prefix(), include("arches_component_lab.urls")),
     path(bc_path_prefix(), include("arches.urls")),
 ]
 
 # Adds URL pattern to serve media files during development
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler400 = "arches.app.views.main.custom_400"
+handler403 = "arches.app.views.main.custom_403"
+handler404 = "arches.app.views.main.custom_404"
+handler500 = "arches.app.views.main.custom_500"
 
 # Only handle i18n routing in active project. This will still handle the routes provided by Arches core and Arches applications,
 # but handling i18n routes in multiple places causes application errors.
