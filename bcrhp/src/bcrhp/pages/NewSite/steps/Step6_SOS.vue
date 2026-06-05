@@ -37,6 +37,24 @@ const sosTile = computed(() => {
     return heritageSite.value.aliased_data.bc_statement_of_significance[0];
 });
 
+const physicalDescription = computed(() => {
+    return sosTile?.value?.aliased_data?.physical_description;
+});
+const heritageValue = computed(() => {
+    return sosTile?.value?.aliased_data?.heritage_value;
+});
+const definingElements = computed(() => {
+    return sosTile?.value?.aliased_data?.defining_elements;
+});
+
+const documentLocation = computed(() => {
+    return sosTile?.value?.aliased_data?.document_location;
+});
+
+const currentSosKey = computed(() => {
+    return sosTile.value?.tileid ?? '';
+});
+
 const isValid = () => true;
 
 const isTextValid = () => {
@@ -95,9 +113,10 @@ defineExpose({ isValid });
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
+                            :key="currentSosKey"
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="physicalDescription"
                             graph-slug="heritage_site"
                             node-alias="physical_description"
                             @update:value="
@@ -116,9 +135,10 @@ defineExpose({ isValid });
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
+                            :key="currentSosKey"
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="heritageValue"
                             graph-slug="heritage_site"
                             node-alias="heritage_value"
                             @update:value="
@@ -137,9 +157,10 @@ defineExpose({ isValid });
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
+                            :key="currentSosKey"
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="definingElements"
                             graph-slug="heritage_site"
                             node-alias="defining_elements"
                             @update:value="
@@ -158,9 +179,10 @@ defineExpose({ isValid });
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
+                            :key="currentSosKey"
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="documentLocation"
                             graph-slug="heritage_site"
                             node-alias="document_location"
                             @update:value="
