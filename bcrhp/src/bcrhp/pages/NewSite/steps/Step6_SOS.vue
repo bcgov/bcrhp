@@ -100,7 +100,7 @@ defineExpose({ isValid });
                             :aliasedNodeData="sosTile"
                             graph-slug="heritage_site"
                             node-alias="physical_description"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateModelValue($event, 'physical_description')
                             "
                         />
@@ -121,7 +121,7 @@ defineExpose({ isValid });
                             :aliasedNodeData="sosTile"
                             graph-slug="heritage_site"
                             node-alias="heritage_value"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateModelValue($event, 'heritage_value')
                             "
                         />
@@ -142,7 +142,7 @@ defineExpose({ isValid });
                             :aliasedNodeData="sosTile"
                             graph-slug="heritage_site"
                             node-alias="defining_elements"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateModelValue($event, 'defining_elements')
                             "
                         />
@@ -163,7 +163,7 @@ defineExpose({ isValid });
                             :aliasedNodeData="sosTile"
                             graph-slug="heritage_site"
                             node-alias="document_location"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateModelValue($event, 'document_location')
                             "
                         />

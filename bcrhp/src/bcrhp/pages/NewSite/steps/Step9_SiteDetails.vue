@@ -325,7 +325,7 @@ defineExpose({ isValid });
                             graph-slug="heritage_site"
                             node-alias="chronology"
                             group-direction="column"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateChronologyModelValue($event, 'chronology')
                             "
                         />
@@ -351,7 +351,7 @@ defineExpose({ isValid });
                             placeholder="Select a Start Year"
                             group-direction="column"
                             class="flex-grow"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateChronologyModelValue($event, 'start_year')
                             "
                         />
@@ -373,7 +373,7 @@ defineExpose({ isValid });
                             placeholder="Select an End Year"
                             group-direction="column"
                             class="flex-grow"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateChronologyModelValue($event, 'end_year')
                             "
                         />
@@ -392,7 +392,7 @@ defineExpose({ isValid });
                                 :card-x-node-x-widget-data-overrides="
                                     checkboxOverrides
                                 "
-                                @update:value="
+                                @update:aliasedNodeData="
                                     updateChronologyModelValue(
                                         $event,
                                         'dates_approximate',
@@ -420,7 +420,7 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="chronology_notes"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateChronologyModelValue(
                                 $event,
                                 'chronology_notes',
@@ -483,7 +483,7 @@ defineExpose({ isValid });
                         node-alias="construction_actor"
                         placeholder="Select an Architect / Builder"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateConstructionActorValue(
                                 $event,
                                 'construction_actor',
@@ -512,7 +512,7 @@ defineExpose({ isValid });
                         node-alias="construction_actor_type"
                         placeholder="Select a Type"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateConstructionActorValue(
                                 $event,
                                 'construction_actor_type',
@@ -541,7 +541,7 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="construction_actor_notes"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateConstructionActorValue(
                                 $event,
                                 'construction_actor_notes',
@@ -600,7 +600,7 @@ defineExpose({ isValid });
                         node-alias="external_url_type"
                         placeholder="Select a URL Type"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateExternalUrlModelValue(
                                 $event,
                                 'external_url_type',
@@ -630,7 +630,7 @@ defineExpose({ isValid });
                             graph-slug="heritage_site"
                             node-alias="external_url"
                             group-direction="column"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateExternalUrlModelValue(
                                     $event,
                                     'external_url',

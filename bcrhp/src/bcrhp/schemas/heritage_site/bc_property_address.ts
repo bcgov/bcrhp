@@ -7,13 +7,13 @@ import {
     getStringValueRequiredSchema,
     getBCPostalCodeSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
 import {
     BcPropertyLegalDescriptionTileSchema,
     type BcPropertyLegalDescriptionTileType,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
 
 export const BcPropertyAddressTileSchema = TileSchema.extend({
@@ -45,18 +45,18 @@ export class PropertyAddress implements BcPropertyAddressTileType {
             postal_code: blankStringValue(),
             location_description: blankStringValue(),
             city: blankStringValue(),
-            province: blankConceptValue(),
+            province: buildConceptAliasedNodeData(null, []),
             locality: blankStringValue(),
             bc_property_legal_description: [],
         };
     }
     aliased_data: {
-        street_address: StringValue;
-        postal_code: StringValue;
-        location_description: StringValue;
-        city: StringValue;
-        province: ConceptValue;
-        locality: StringValue;
+        street_address: StringAliasedNodeData;
+        postal_code: StringAliasedNodeData;
+        location_description: StringAliasedNodeData;
+        city: StringAliasedNodeData;
+        province: ConceptAliasedNodeData;
+        locality: StringAliasedNodeData;
         bc_property_legal_description: BcPropertyLegalDescriptionTileType[];
     };
 }

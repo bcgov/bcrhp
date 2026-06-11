@@ -5,15 +5,15 @@ import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/vali
 import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { YearValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import type { FileListValue } from '@/arches_component_lab/datatypes/file-list/types.ts';
-import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { FileListAliasedNodeData } from '@/arches_component_lab/datatypes/file-list/types.ts';
+import type { DateAliasedNodeData } from '@/arches_component_lab/datatypes/date/types.ts';
 import {
     getStringValueSchema,
     getRichTextValueSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import {
     blankStringValue,
     blankFileListValue,
@@ -21,7 +21,7 @@ import {
     falseBooleanValue,
     blankDateValue,
 } from '@/bcrhp/utils.ts';
-import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
+import type { BooleanAliasedNodeData } from '@/arches_component_lab/datatypes/boolean/types.ts';
 
 // Auto-generated tile schema for alias: site_images
 
@@ -51,13 +51,13 @@ export class SiteImages implements SiteImagesTileType {
     constructor() {
         this.tileid = uuid.generate();
         this.aliased_data = {
-            image_type: blankConceptValue(),
+            image_type: buildConceptAliasedNodeData(null, []),
             site_images: blankFileListValue(),
             image_date: blankDateValue(),
             image_features: blankStringValue(),
             image_description: blankStringValue(),
             primary_image: falseBooleanValue(),
-            image_view: blankConceptValue(),
+            image_view: buildConceptAliasedNodeData(null, []),
             photographer: blankStringValue(),
             submit_to_crhp: blankBooleanValue(),
             copyright: blankStringValue(),
@@ -65,15 +65,15 @@ export class SiteImages implements SiteImagesTileType {
     }
     tileid: string;
     aliased_data: {
-        image_type: ConceptValue;
-        site_images: FileListValue;
-        image_date: DateValue;
-        image_features: StringValue;
-        image_description: StringValue;
-        primary_image: BooleanValue;
-        image_view: ConceptValue;
-        photographer: StringValue;
-        submit_to_crhp: BooleanValue;
-        copyright: StringValue;
+        image_type: ConceptAliasedNodeData;
+        site_images: FileListAliasedNodeData;
+        image_date: DateAliasedNodeData;
+        image_features: StringAliasedNodeData;
+        image_description: StringAliasedNodeData;
+        primary_image: BooleanAliasedNodeData;
+        image_view: ConceptAliasedNodeData;
+        photographer: StringAliasedNodeData;
+        submit_to_crhp: BooleanAliasedNodeData;
+        copyright: StringAliasedNodeData;
     };
 }

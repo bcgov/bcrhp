@@ -180,7 +180,7 @@ defineExpose({ isValid });
                         node-alias="designation_or_protection_start_date"
                         placeholder="Select a Designation Date"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateModelValue(
                                 $event,
                                 'designation_or_protection_start_date',
@@ -208,7 +208,7 @@ defineExpose({ isValid });
                         node-alias="legislative_act"
                         placeholder="Select a Legislative Act"
                         group-direction="column"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateModelValue($event, 'legislative_act')
                         "
                     />
@@ -229,7 +229,9 @@ defineExpose({ isValid });
                     "
                     graph-slug="heritage_site"
                     node-alias="reference_number"
-                    @update:value="updateModelValue($event, 'reference_number')"
+                    @update:aliasedNodeData="
+                        updateModelValue($event, 'reference_number')
+                    "
                 />
             </LabelledInput>
         </FieldSet>

@@ -6,7 +6,7 @@ import {
     getStringValueSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { NumberValue } from '@/arches_component_lab/datatypes/number/types.ts';
 import { blankNumberValue, blankStringValue } from '@/bcrhp/utils.ts';
 
@@ -39,9 +39,9 @@ export class LegalDescription implements BcPropertyLegalDescriptionTileType {
         };
     }
     aliased_data: {
-        legal_address_internal_notes: StringValue;
+        legal_address_internal_notes: StringAliasedNodeData;
         pin: NumberValue;
         pid: NumberValue;
-        legal_description: StringValue;
+        legal_description: StringAliasedNodeData;
     };
 }

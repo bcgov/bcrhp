@@ -7,6 +7,7 @@ import arches from 'arches';
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 import { createApp } from 'vue';
+import { createPinia } from 'pinia';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import DialogService from 'primevue/dialogservice';
@@ -142,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                 },
             });
+            vueApp.use(createPinia());
             vueApp.use(gettext);
             vueApp.use(ConfirmationService);
             vueApp.use(DialogService);

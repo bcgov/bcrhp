@@ -5,12 +5,12 @@ import {
     ProtectionEventTileSchema,
     type ProtectionEventTileType,
 } from '@/bcrhp/schemas/heritage_site/protection_event.ts';
-import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
+import type { BooleanAliasedNodeData } from '@/arches_component_lab/datatypes/boolean/types.ts';
 import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
-import type { ConceptListValue } from '@/arches_component_lab/datatypes/concept-list/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
-import { blankConceptListValue } from '@/arches_component_lab/datatypes/concept-list/utils.ts';
+import type { ConceptListAliasedNodeData } from '@/arches_component_lab/datatypes/concept-list/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptListAliasedNodeData } from '@/arches_component_lab/datatypes/concept-list/utils.ts';
 import { blankBooleanValue } from '@/bcrhp/utils.ts';
 
 // Auto-generated tile schema for alias: bc_right
@@ -39,16 +39,16 @@ export function getBcRight(): BcRightTileType {
 export class BcRight implements BcRightTileType {
     constructor() {
         this.aliased_data = {
-            registry_types: blankConceptListValue(),
+            registry_types: buildConceptListAliasedNodeData(null, []),
             officially_recognized_site: blankBooleanValue(),
-            registration_status: blankConceptValue(),
+            registration_status: buildConceptAliasedNodeData(null, []),
             protection_event: [],
         };
     }
     aliased_data: {
-        registry_types: ConceptListValue;
-        officially_recognized_site: BooleanValue;
-        registration_status: ConceptValue;
+        registry_types: ConceptListAliasedNodeData;
+        officially_recognized_site: BooleanAliasedNodeData;
+        registration_status: ConceptAliasedNodeData;
         protection_event: ProtectionEventTileType[];
     };
 }

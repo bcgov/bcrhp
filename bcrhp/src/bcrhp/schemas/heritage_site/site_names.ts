@@ -3,9 +3,9 @@ import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { ConceptValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
 import { getNameType } from '@/bcrhp/api.ts';
 
 export const SiteNamesTileSchema = TileSchema.extend({
@@ -37,11 +37,11 @@ export class SiteName implements SiteNamesTileType {
     constructor() {
         this.aliased_data = {
             name: blankStringValue(),
-            name_type: blankConceptValue(),
+            name_type: buildConceptAliasedNodeData(),
         };
     }
     aliased_data: {
-        name: StringValue;
-        name_type: ConceptValue;
+        name: StringAliasedNodeData;
+        name_type: ConceptAliasedNodeData;
     };
 }

@@ -269,7 +269,7 @@ defineExpose({ isValid });
                                         ?.aliased_data?.site_boundary?.[0]
                                         ?.aliased_data?.site_boundary
                                 "
-                                @update:value="
+                                @update:aliasedNodeData="
                                     updateModelValue($event, 'site_boundary')
                                 "
                             ></GenericWidget>

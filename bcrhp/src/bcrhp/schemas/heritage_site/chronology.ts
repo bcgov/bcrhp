@@ -3,12 +3,12 @@ import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { ConceptValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
 import { YearValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
-import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
+import type { DateAliasedNodeData } from '@/arches_component_lab/datatypes/date/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { BooleanAliasedNodeData } from '@/arches_component_lab/datatypes/boolean/types.ts';
 import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import {
     blankStringValue,
     blankDateValue,
@@ -40,17 +40,17 @@ export class Chronology implements ChronologyTileType {
             start_year: blankDateValue(),
             dates_approximate: blankBooleanValue(),
             information_source: blankStringValue(),
-            chronology: blankConceptValue(),
+            chronology: buildConceptAliasedNodeData(null, []),
             chronology_notes: blankStringValue(),
             end_year: blankDateValue(),
         };
     }
     aliased_data: {
-        start_year: DateValue;
-        dates_approximate: BooleanValue;
-        information_source: StringValue;
-        chronology: ConceptValue;
-        chronology_notes: StringValue;
-        end_year: DateValue;
+        start_year: DateAliasedNodeData;
+        dates_approximate: BooleanAliasedNodeData;
+        information_source: StringAliasedNodeData;
+        chronology: ConceptAliasedNodeData;
+        chronology_notes: StringAliasedNodeData;
+        end_year: DateAliasedNodeData;
     };
 }

@@ -4,10 +4,10 @@ import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import type { FileListValue } from '@/arches_component_lab/datatypes/file-list/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import type { FileListAliasedNodeData } from '@/arches_component_lab/datatypes/file-list/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankStringValue, blankFileListValue } from '@/bcrhp/utils.ts';
 
 // Auto-generated tile schema for alias: site_document
@@ -32,13 +32,13 @@ export class SiteDocument implements SiteDocumentTileType {
         this.aliased_data = {
             site_document: blankFileListValue(),
             document_description: blankStringValue(),
-            document_type: blankConceptValue(),
+            document_type: buildConceptAliasedNodeData(),
         };
     }
     tileid: string;
     aliased_data: {
-        site_document: FileListValue;
-        document_description: StringValue;
-        document_type: ConceptValue;
+        site_document: FileListAliasedNodeData;
+        document_description: StringAliasedNodeData;
+        document_type: ConceptAliasedNodeData;
     };
 }

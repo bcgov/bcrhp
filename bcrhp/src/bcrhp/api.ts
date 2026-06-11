@@ -1,18 +1,18 @@
 import arches from 'arches';
 import geojson from 'geojson';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { fetchConceptsTree } from '@/arches_component_lab/datatypes/concept/api.ts';
+import { fetchConceptsTree } from '@/arches_component_lab/datatypes/concept-list/api.ts';
 import { getToken } from '@/bcgov_arches_common/api.ts';
 import type { FileReference } from '@/bcgov_arches_common/datatypes/file-list/types.ts';
 import type {
     CollectionItem,
-    ConceptValue,
+    ConceptAliasedNodeData,
 } from '@/arches_component_lab/datatypes/concept/types.ts';
-import { convertConceptOptionToFormValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { SiteImagesTileType } from '@/bcrhp/schemas/heritage_site/site_images.ts';
 import type { SiteDocumentTileType } from '@/bcrhp/schemas/heritage_site/site_document.ts';
 
-const siteNameTypes: Record<string, ConceptValue> = {};
+const siteNameTypes: Record<string, ConceptAliasedNodeData> = {};
 
 export async function getBlankHeritageSite(): Promise<HeritageSiteType> {
     const response = await fetch(
@@ -21,7 +21,9 @@ export async function getBlankHeritageSite(): Promise<HeritageSiteType> {
     );
     return await response.json();
 }
-export async function getNameType(name_type: string): Promise<ConceptValue> {
+export async function getNameType(
+    name_type: string,
+): Promise<ConceptAliasedNodeData> {
     if (Object.keys(siteNameTypes).length === 0) {
         const siteNameList = await fetchConceptsTree(
             'heritage_site',
@@ -29,7 +31,7 @@ export async function getNameType(name_type: string): Promise<ConceptValue> {
         );
         siteNameList.results.forEach((result: CollectionItem) => {
             const label = result.label;
-            siteNameTypes[label] = convertConceptOptionToFormValue(
+            siteNameTypes[label] = buildConceptAliasedNodeData(
                 result.key,
                 siteNameList.results,
             );

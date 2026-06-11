@@ -209,7 +209,9 @@ defineExpose({ isValid });
                         :aliased-node-data="
                             currentSiteImage?.aliased_data?.site_images
                         "
-                        @update:value="updateModelValue($event, 'site_images')"
+                        @update:aliasedNodeData="
+                            updateModelValue($event, 'site_images')
+                        "
                     ></GenericWidget>
 
                     <div
@@ -308,7 +310,7 @@ defineExpose({ isValid });
                             :aliased-node-data="
                                 currentSiteImage?.aliased_data?.image_type
                             "
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateModelValue($event, 'image_type')
                             "
                         ></GenericWidget>
@@ -336,7 +338,7 @@ defineExpose({ isValid });
                                 "
                                 :should-show-label="false"
                                 placeholder="Select an Image View"
-                                @update:value="
+                                @update:aliasedNodeData="
                                     updateModelValue($event, 'image_view')
                                 "
                             />
@@ -362,7 +364,7 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="image_description"
                         placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateModelValue($event, 'image_description')
                         "
                     />
@@ -385,7 +387,7 @@ defineExpose({ isValid });
                         "
                         :should-show-label="false"
                         placeholder="E.g. Stained Glass Window"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateModelValue($event, 'image_features')
                         "
                     />
@@ -400,7 +402,7 @@ defineExpose({ isValid });
                 node-alias="image_date"
                 placeholder="Date the image was created"
                 group-direction="column"
-                @update:value="updateModelValue($event, 'image_date')"
+                @update:aliasedNodeData="updateModelValue($event, 'image_date')"
             />
 
             <LabelledInput
@@ -420,7 +422,9 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="photographer"
                         placeholder="First Name Last Name"
-                        @update:value="updateModelValue($event, 'photographer')"
+                        @update:aliasedNodeData="
+                            updateModelValue($event, 'photographer')
+                        "
                     />
                 </div>
             </LabelledInput>
@@ -441,7 +445,9 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="copyright"
                         placeholder="E.g. City of Nelson"
-                        @update:value="updateModelValue($event, 'copyright')"
+                        @update:aliasedNodeData="
+                            updateModelValue($event, 'copyright')
+                        "
                     />
                 </div>
             </LabelledInput>
