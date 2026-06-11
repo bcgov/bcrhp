@@ -6,10 +6,10 @@ import {
     getRichTextValueSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
 
 // Auto-generated tile schema for alias: bc_statement_of_significance
 
@@ -38,15 +38,15 @@ export class StatementOfSignificance implements BcStatementOfSignificanceTileTyp
             heritage_value: blankStringValue(),
             defining_elements: blankStringValue(),
             physical_description: blankStringValue(),
-            significance_type: blankConceptValue(),
+            significance_type: buildConceptAliasedNodeData(),
             document_location: blankStringValue(),
         };
     }
     aliased_data: {
-        heritage_value: StringValue;
-        defining_elements: StringValue;
-        physical_description: StringValue;
-        significance_type: ConceptValue;
-        document_location: StringValue;
+        heritage_value: StringAliasedNodeData;
+        defining_elements: StringAliasedNodeData;
+        physical_description: StringAliasedNodeData;
+        significance_type: ConceptAliasedNodeData;
+        document_location: StringAliasedNodeData;
     };
 }

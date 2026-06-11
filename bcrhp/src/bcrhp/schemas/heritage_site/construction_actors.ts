@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
 import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
 
 // Auto-generated tile schema for alias: construction_actors
@@ -30,12 +30,12 @@ export class ConstructionActor implements ConstructionActorsTileType {
         this.aliased_data = {
             construction_actor_notes: blankStringValue(),
             construction_actor: blankStringValue(),
-            construction_actor_type: blankConceptValue(),
+            construction_actor_type: buildConceptAliasedNodeData(),
         };
     }
     aliased_data: {
-        construction_actor_notes: StringValue;
-        construction_actor: StringValue;
-        construction_actor_type: ConceptValue;
+        construction_actor_notes: StringAliasedNodeData;
+        construction_actor: StringAliasedNodeData;
+        construction_actor_type: ConceptAliasedNodeData;
     };
 }

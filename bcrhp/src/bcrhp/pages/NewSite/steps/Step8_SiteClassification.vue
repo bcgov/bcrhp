@@ -264,7 +264,7 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="contributing_resource_count"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateHeritageClassModelValue(
                                 $event,
                                 'contributing_resource_count',
@@ -294,7 +294,7 @@ defineExpose({ isValid });
                             "
                             graph-slug="heritage_site"
                             node-alias="heritage_category"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateHeritageClassModelValue(
                                     $event,
                                     'heritage_category',
@@ -325,7 +325,7 @@ defineExpose({ isValid });
                             "
                             graph-slug="heritage_site"
                             node-alias="ownership"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateHeritageClassModelValue(
                                     $event,
                                     'ownership',
@@ -385,7 +385,7 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="functional_category"
                         placeholder="Select a Function Category"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateFunctionCategoryModelValue(
                                 $event,
                                 'functional_category',
@@ -416,7 +416,7 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="functional_state"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateFunctionCategoryModelValue(
                                 $event,
                                 'functional_state',
@@ -475,7 +475,7 @@ defineExpose({ isValid });
                         graph-slug="heritage_site"
                         node-alias="heritage_theme"
                         placeholder="Select a Heritage Theme"
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateHeritageThemeModelValue(
                                 $event,
                                 'heritage_theme',

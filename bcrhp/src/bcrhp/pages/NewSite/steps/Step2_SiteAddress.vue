@@ -412,7 +412,7 @@ defineExpose({ isValid });
                             "
                             graph-slug="heritage_site"
                             node-alias="street_address"
-                            @update:value="
+                            @update:aliasedNodeData="
                                 updateAddress($event, 'street_address')
                             "
                         />
@@ -429,7 +429,7 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="city"
-                        @update:value="updateAddress($event, 'city')"
+                        @update:aliasedNodeData="updateAddress($event, 'city')"
                     />
                 </div>
             </div>
@@ -456,7 +456,9 @@ defineExpose({ isValid });
                         :error-message="$form.postal_code?.error?.message"
                         graph-slug="heritage_site"
                         node-alias="postal_code"
-                        @update:value="updateAddress($event, 'postal_code')"
+                        @update:aliasedNodeData="
+                            updateAddress($event, 'postal_code')
+                        "
                     />
                 </div>
                 <div style="flex: 1; margin-left: 1.5rem">
@@ -469,7 +471,9 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="locality"
-                        @update:value="updateAddress($event, 'locality')"
+                        @update:aliasedNodeData="
+                            updateAddress($event, 'locality')
+                        "
                     />
                 </div>
             </div>
@@ -482,7 +486,9 @@ defineExpose({ isValid });
                 "
                 graph-slug="heritage_site"
                 node-alias="location_description"
-                @update:value="updateAddress($event, 'location_description')"
+                @update:aliasedNodeData="
+                    updateAddress($event, 'location_description')
+                "
             />
         </FieldSet>
         <br />
@@ -607,7 +613,9 @@ defineExpose({ isValid });
                                 "
                                 graph-slug="heritage_site"
                                 node-alias="pid"
-                                @update:value="updateLegal($event, 'pid')"
+                                @update:aliasedNodeData="
+                                    updateLegal($event, 'pid')
+                                "
                             />
 
                             <Button
@@ -644,7 +652,9 @@ defineExpose({ isValid });
                         "
                         graph-slug="heritage_site"
                         node-alias="legal_description"
-                        @update:value="updateLegal($event, 'legal_description')"
+                        @update:aliasedNodeData="
+                            updateLegal($event, 'legal_description')
+                        "
                     />
                 </fieldset>
                 <div

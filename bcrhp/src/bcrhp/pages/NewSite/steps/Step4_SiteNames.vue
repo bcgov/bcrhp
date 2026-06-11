@@ -185,7 +185,9 @@ onMounted(() => {
                             :aliasedNodeData="currentCommonName"
                             graph-slug="heritage_site"
                             node-alias="name"
-                            @update:value="updateCommonName($event, 'name')"
+                            @update:aliasedNodeData="
+                                updateCommonName($event, 'name')
+                            "
                         />
                     </div>
                 </LabelledInput>
@@ -212,7 +214,9 @@ onMounted(() => {
                             :aliasedNodeData="currentOtherName"
                             graph-slug="heritage_site"
                             node-alias="name"
-                            @update:value="updateOtherName($event, 'name')"
+                            @update:aliasedNodeData="
+                                updateOtherName($event, 'name')
+                            "
                         />
                     </div>
                 </LabelledInput>

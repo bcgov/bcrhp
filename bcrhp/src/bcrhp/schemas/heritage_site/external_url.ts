@@ -2,8 +2,8 @@ import { z } from 'zod';
 import type { URLValue } from '@/arches_component_lab/datatypes/url/types.ts';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
-import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
+import { buildConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/utils.ts';
+import type { ConceptAliasedNodeData } from '@/arches_component_lab/datatypes/concept/types.ts';
 import { blankURLValue } from '@/bcrhp/utils.ts';
 import { HttpUrlValueLabelRequiredSchema } from '@/bcgov_arches_common/datatypes/url/validation/zod.ts';
 
@@ -30,12 +30,12 @@ export function getExternalUrl(): ExternalUrlTileType {
 export class ExternalUrl implements ExternalUrlTileType {
     constructor() {
         this.aliased_data = {
-            external_url_type: blankConceptValue(),
+            external_url_type: buildConceptAliasedNodeData(),
             external_url: blankURLValue(),
         };
     }
     aliased_data: {
-        external_url_type: ConceptValue;
+        external_url_type: ConceptAliasedNodeData;
         external_url: URLValue;
     };
 }

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
 import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
 
 // Auto-generated tile schema for alias: borden_number
@@ -25,6 +25,6 @@ export class BordenNumber implements BordenNumberTileType {
         };
     }
     aliased_data: {
-        borden_number: StringValue;
+        borden_number: StringAliasedNodeData;
     };
 }

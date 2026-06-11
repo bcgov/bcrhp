@@ -173,7 +173,9 @@ defineExpose({ isValid });
                     :aliased-node-data="
                         siteDocument.value?.aliased_data?.site_document
                     "
-                    @update:value="updateModelValue($event, 'site_document')"
+                    @update:aliasedNodeData="
+                        updateModelValue($event, 'site_document')
+                    "
                 ></GenericWidget>
             </LabelledInput>
             <LabelledInput
@@ -193,7 +195,9 @@ defineExpose({ isValid });
                     :aliased-node-data="
                         siteDocument.value?.aliased_data?.document_type
                     "
-                    @update:value="updateModelValue($event, 'document_type')"
+                    @update:aliasedNodeData="
+                        updateModelValue($event, 'document_type')
+                    "
                 ></GenericWidget>
             </LabelledInput>
             <LabelledInput
@@ -213,7 +217,7 @@ defineExpose({ isValid });
                     :aliased-node-data="
                         siteDocument.value?.aliased_data?.document_description
                     "
-                    @update:value="
+                    @update:aliasedNodeData="
                         updateModelValue($event, 'document_description')
                     "
                 ></GenericWidget>
@@ -259,7 +263,7 @@ defineExpose({ isValid });
                         :aliased-node-data="
                             internalRemark?.value?.aliased_data?.internal_remark
                         "
-                        @update:value="
+                        @update:aliasedNodeData="
                             updateModelValue($event, 'internal_remark')
                         "
                     ></GenericWidget>

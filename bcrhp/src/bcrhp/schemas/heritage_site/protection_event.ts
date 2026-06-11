@@ -6,9 +6,9 @@ import {
     getStringValueSchema,
     getRichTextValueSchema,
 } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
-import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
+import type { DateAliasedNodeData } from '@/arches_component_lab/datatypes/date/types.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import type { StringAliasedNodeData } from '@/arches_component_lab/datatypes/string/types.ts';
 import {
     blankStringValue,
     blankResourceInstanceValue,
@@ -44,11 +44,11 @@ export class ProtectionEvent implements ProtectionEventTileType {
         };
     }
     aliased_data: {
-        protection_notes: StringValue;
-        designation_or_protection_start_date: DateValue;
-        designation_or_protection_end_date: DateValue;
+        protection_notes: StringAliasedNodeData;
+        designation_or_protection_start_date: DateAliasedNodeData;
+        designation_or_protection_end_date: DateAliasedNodeData;
         responsible_government: ResourceInstanceValue;
         legislative_act: ResourceInstanceValue;
-        reference_number: StringValue;
+        reference_number: StringAliasedNodeData;
     };
 }
