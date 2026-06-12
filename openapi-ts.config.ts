@@ -3,6 +3,9 @@ import { defineConfig } from '@hey-api/openapi-ts';
 // Generate Zod schemas (single source of truth) from the OpenAPI spec.
 // Types are derived via z.infer, so no separate type plugin.
 // output.header adds a regenerated guide for mapping a schema name to its route.
+//
+// This file was scaffolded by the ``generate_graph_views`` management command.
+// It is only written when missing -- edits here are safe and will be kept.
 export default defineConfig({
     input: 'schema.yml',
     output: {

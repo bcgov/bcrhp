@@ -1,11 +1,16 @@
-# This is used so we don't try to get the OpenAPI Spec of Arches serializers.
-# The introspection will fail unless we override by hand-declaring their schema with @extend_schema(responses=...)
-# So our views only consider bcap only for now.
-# python3 manage.py spectacular --urlconf bcap.urls_api_documented --file schema.yml
-# npm run openapi:types (see README.md, "BCAP API contract")
-from django.urls import include, path, re_path
-from bcrhp.urls import bc_path_prefix
+"""Urlconf documented by drf_spectacular -- the public OpenAPI surface.
+
+Scaffolded once by the ``bootstrap_api`` management command and never
+overwritten: this file is yours to edit. Add any hand-written endpoints
+that belong in the published spec here, alongside the generated include.
+
+The codegen pipeline generates the spec from this urlconf:
+
+    python manage.py spectacular --urlconf bcrhp.urls_api_documented --file schema.yml
+"""
+
+from django.urls import include, path
 
 urlpatterns = [
-    path(bc_path_prefix(), include("bcrhp.urls_api_generated")),
+    path("", include("bcrhp.urls_api_generated")),
 ]
