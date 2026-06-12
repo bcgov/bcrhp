@@ -28,6 +28,8 @@ dependencies = [
     "arches-querysets[drf] @ git+https://github.com/bcgov/arches-querysets@v1.1.1-bcgov",
     "bcgov-arches-common @ git+https://github.com/bcgov/bcgov-arches-common@v2.0.0",
     "django-storages==1.13",
+    "djangorestframework-dataclasses==1.4.0",
+    "drf-spectacular==0.29.0",
     "html2text",
     "oracledb",
     "python-dotenv",

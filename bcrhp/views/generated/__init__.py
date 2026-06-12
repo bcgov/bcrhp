@@ -88,7 +88,6 @@ from .site_submission import (
     SiteSubmissionView,
 )
 
-
 __all__ = [
     "BcHeritageFunctionListView",
     "BcHeritageFunctionSerializer",

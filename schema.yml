@@ -1,0 +1,5029 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /bcrhp/api/external/bc_heritage_function/:
+    get:
+      operationId: bc_heritage_function_list
+      description: |-
+        GET the requesting user's BC Heritage Function resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: bc_heritage_function'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBcHeritageFunctionList'
+          description: ''
+  /bcrhp/api/external/bc_heritage_function/{id}/:
+    get:
+      operationId: bc_heritage_function_retrieve
+      description: |-
+        GET a BC Heritage Function resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: bc_heritage_function'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcHeritageFunction'
+          description: ''
+  /bcrhp/api/external/bc_heritage_resource_place/:
+    get:
+      operationId: bc_heritage_resource_place_list
+      description: |-
+        GET the requesting user's BC Heritage Resource Place resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: bc_heritage_resource_place'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBcHeritageResourcePlaceList'
+          description: ''
+  /bcrhp/api/external/bc_heritage_resource_place/{id}/:
+    get:
+      operationId: bc_heritage_resource_place_retrieve
+      description: |-
+        GET a BC Heritage Resource Place resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: bc_heritage_resource_place'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcHeritageResourcePlace'
+          description: ''
+  /bcrhp/api/external/bc_property_address/:
+    get:
+      operationId: bc_property_address_list
+      description: |-
+        GET the requesting user's BC Property Address resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: bc_property_address'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBcPropertyAddressList'
+          description: ''
+  /bcrhp/api/external/bc_property_address/{id}/:
+    get:
+      operationId: bc_property_address_retrieve
+      description: |-
+        GET a BC Property Address resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: bc_property_address'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcPropertyAddress'
+          description: ''
+  /bcrhp/api/external/bc_property_legal_description/:
+    get:
+      operationId: bc_property_legal_description_list
+      description: |-
+        GET the requesting user's BC Property Legal Description resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: bc_property_legal_description'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBcPropertyLegalDescriptionList'
+          description: ''
+  /bcrhp/api/external/bc_property_legal_description/{id}/:
+    get:
+      operationId: bc_property_legal_description_retrieve
+      description: |-
+        GET a BC Property Legal Description resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: bc_property_legal_description'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcPropertyLegalDescription'
+          description: ''
+  /bcrhp/api/external/bc_right/:
+    get:
+      operationId: bc_right_list
+      description: |-
+        GET the requesting user's BC Right resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: bc_right'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBcRightList'
+          description: ''
+  /bcrhp/api/external/bc_right/{id}/:
+    get:
+      operationId: bc_right_retrieve
+      description: |-
+        GET a BC Right resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: bc_right'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BcRight'
+          description: ''
+  /bcrhp/api/external/heritage_site/:
+    get:
+      operationId: heritage_site_list
+      description: |-
+        GET the requesting user's Heritage Site resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: heritage_site'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHeritageSiteList'
+          description: ''
+  /bcrhp/api/external/heritage_site/{id}/:
+    get:
+      operationId: heritage_site_retrieve
+      description: |-
+        GET a Heritage Site resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: heritage_site'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeritageSite'
+          description: ''
+  /bcrhp/api/external/heritage_site_historical_data/:
+    get:
+      operationId: heritage_site_historical_data_list
+      description: |-
+        GET the requesting user's Heritage Site Historical Data resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: heritage_site_historical_data'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHeritageSiteHistoricalDataList'
+          description: ''
+  /bcrhp/api/external/heritage_site_historical_data/{id}/:
+    get:
+      operationId: heritage_site_historical_data_retrieve
+      description: |-
+        GET a Heritage Site Historical Data resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: heritage_site_historical_data'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeritageSiteHistoricalData'
+          description: ''
+  /bcrhp/api/external/legislative_act/:
+    get:
+      operationId: legislative_act_list
+      description: |-
+        GET the requesting user's Legislative Act resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: legislative_act'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLegislativeActList'
+          description: ''
+  /bcrhp/api/external/legislative_act/{id}/:
+    get:
+      operationId: legislative_act_retrieve
+      description: |-
+        GET a Legislative Act resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: legislative_act'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegislativeAct'
+          description: ''
+  /bcrhp/api/external/lg_person/:
+    get:
+      operationId: lg_person_list
+      description: |-
+        GET the requesting user's Government Person resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: lg_person'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLgPersonList'
+          description: ''
+  /bcrhp/api/external/lg_person/{id}/:
+    get:
+      operationId: lg_person_retrieve
+      description: |-
+        GET a Government Person resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: lg_person'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LgPerson'
+          description: ''
+  /bcrhp/api/external/local_government/:
+    get:
+      operationId: local_government_list
+      description: |-
+        GET the requesting user's Government resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: local_government'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLocalGovernmentList'
+          description: ''
+  /bcrhp/api/external/local_government/{id}/:
+    get:
+      operationId: local_government_retrieve
+      description: |-
+        GET a Government resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: local_government'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalGovernment'
+          description: ''
+  /bcrhp/api/external/project_sandbox/:
+    get:
+      operationId: project_sandbox_list
+      description: |-
+        GET the requesting user's Sandcastle resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: project_sandbox'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectSandboxList'
+          description: ''
+  /bcrhp/api/external/project_sandbox/{id}/:
+    get:
+      operationId: project_sandbox_retrieve
+      description: |-
+        GET a Sandcastle resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: project_sandbox'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSandbox'
+          description: ''
+  /bcrhp/api/external/site_submission/:
+    get:
+      operationId: site_submission_list
+      description: |-
+        GET the requesting user's Heritage Site Submission resources.
+
+        Read-only and owner-scoped: returns only the resources the user created.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - 'External: site_submission'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSiteSubmissionList'
+          description: ''
+  /bcrhp/api/external/site_submission/{id}/:
+    get:
+      operationId: site_submission_retrieve
+      description: |-
+        GET a Heritage Site Submission resource and its nested tiles.
+
+        Read-only, and scoped to the requesting user's own resources: requesting
+        one created by another user returns 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - 'External: site_submission'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSubmission'
+          description: ''
+components:
+  schemas:
+    BcHeritageFunction:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Function_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    BcHeritageResourcePlace:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    BcPropertyAddress:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Property_Address_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    BcPropertyLegalDescription:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Property_Legal_Description_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    BcRight:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Right_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Bc_Heritage_Function_Bc_Heritage_Function_Aliased_Data:
+      type: object
+      properties:
+        functional_category:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Bc_Heritage_Function_Bc_Heritage_Function_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Function_Bc_Heritage_Function_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Function_Resource_Aliased_Data:
+      type: object
+      properties:
+        bc_heritage_function:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Heritage_Function_Bc_Heritage_Function_Tile'
+          nullable: true
+    Bc_Heritage_Resource_Place_Administration_Subdivision_Aliased_Data:
+      type: object
+      properties:
+        administrative_subdivision_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+        administrative_subdivision_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+    Bc_Heritage_Resource_Place_Administration_Subdivision_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Administration_Subdivision_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Bc_Heritage_Resource_Place_Aliased_Data:
+      type: object
+      properties:
+        bc_property_address:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Property_Address_Tile'
+          nullable: true
+        spatial_coordinates_geometry:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Spatial_Coordinates_Geometry_Tile'
+          nullable: true
+        administration_subdivision:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Administration_Subdivision_Tile'
+          nullable: true
+        setting_type:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Setting_Type_Tile'
+          nullable: true
+        place_description_assignment:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Place_Description_Assignment_Tile'
+          nullable: true
+        cadastral_reference:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Cadastral_Reference_Tile'
+          nullable: true
+    Bc_Heritage_Resource_Place_Bc_Heritage_Resource_Place_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Heritage_Resource_Place_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Bc_Property_Address_Aliased_Data:
+      type: object
+      properties:
+        postal_code:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        street_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        street_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        address_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        city:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        province:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        bc_property_legal_description:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Property_Legal_Description_Tile'
+          nullable: true
+    Bc_Heritage_Resource_Place_Bc_Property_Address_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Property_Address_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Bc_Property_Legal_Description_Aliased_Data:
+      type: object
+      properties:
+        legal_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        legal_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        legal_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+    Bc_Heritage_Resource_Place_Bc_Property_Legal_Description_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Property_Legal_Description_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Cadastral_Reference_Aliased_Data:
+      type: object
+      properties:
+        cadastral_reference:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+    Bc_Heritage_Resource_Place_Cadastral_Reference_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Cadastral_Reference_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Place_Description_Assignment_Aliased_Data:
+      type: object
+      properties:
+        place_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+    Bc_Heritage_Resource_Place_Place_Description_Assignment_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Place_Description_Assignment_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Resource_Aliased_Data:
+      type: object
+      properties:
+        bc_heritage_resource_place:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Bc_Heritage_Resource_Place_Tile'
+          nullable: true
+    Bc_Heritage_Resource_Place_Setting_Type_Aliased_Data:
+      type: object
+      properties:
+        setting_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+    Bc_Heritage_Resource_Place_Setting_Type_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Setting_Type_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Heritage_Resource_Place_Spatial_Coordinates_Geometry_Aliased_Data:
+      type: object
+      properties:
+        spatial_coordinates_geometry:
+          allOf:
+          - $ref: '#/components/schemas/GeojsonFeatureCollectionAliasedNodeData'
+          nullable: true
+        geometry_qualifier:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Bc_Heritage_Resource_Place_Spatial_Coordinates_Geometry_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Heritage_Resource_Place_Spatial_Coordinates_Geometry_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Property_Address_Bc_Property_Address_Aliased_Data:
+      type: object
+      properties:
+        postal_code:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        street_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        street_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        address_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        city:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        province:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        bc_property_legal_description:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Property_Address_Bc_Property_Legal_Description_Tile'
+          nullable: true
+    Bc_Property_Address_Bc_Property_Address_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Property_Address_Bc_Property_Address_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Property_Address_Bc_Property_Legal_Description_Aliased_Data:
+      type: object
+      properties:
+        legal_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        legal_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        legal_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+    Bc_Property_Address_Bc_Property_Legal_Description_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Property_Address_Bc_Property_Legal_Description_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Property_Address_Resource_Aliased_Data:
+      type: object
+      properties:
+        bc_property_address:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Property_Address_Bc_Property_Address_Tile'
+          nullable: true
+    Bc_Property_Legal_Description_Bc_Property_Legal_Description_Aliased_Data:
+      type: object
+      properties:
+        legal_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        legal_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        legal_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+    Bc_Property_Legal_Description_Bc_Property_Legal_Description_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Property_Legal_Description_Bc_Property_Legal_Description_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Property_Legal_Description_Resource_Aliased_Data:
+      type: object
+      properties:
+        bc_property_legal_description:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Property_Legal_Description_Bc_Property_Legal_Description_Tile'
+          nullable: true
+    Bc_Right_Bc_Right_Aliased_Data:
+      type: object
+      properties:
+        protection_event:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bc_Right_Protection_Event_Tile'
+          nullable: true
+    Bc_Right_Bc_Right_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Right_Bc_Right_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Right_Protection_Event_Aliased_Data:
+      type: object
+      properties:
+        authority:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        legal_instrument:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        act_section:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        protection_type:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        reference_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        protection_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Description
+          description: Enter text
+        designation_or_protection_to_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        designation_or_protection_from_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+    Bc_Right_Protection_Event_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Bc_Right_Protection_Event_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Bc_Right_Resource_Aliased_Data:
+      type: object
+      properties:
+        bc_right:
+          allOf:
+          - $ref: '#/components/schemas/Bc_Right_Bc_Right_Tile'
+          nullable: true
+    BooleanAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: boolean
+          nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    BordenNumberDatatypeAliasedNodeDataMax9:
+      type: object
+      properties:
+        node_value:
+          type: string
+          nullable: true
+          maxLength: 9
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    ConceptAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: string
+          format: uuid
+          nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptValueDetail'
+          readOnly: true
+      required:
+      - node_value
+    ConceptListAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: uuid
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptValueDetail'
+          readOnly: true
+      required:
+      - node_value
+    ConceptListAliasedNodeDataRequired:
+      type: object
+      properties:
+        node_value:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: uuid
+          minItems: 1
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptValueDetail'
+          readOnly: true
+      required:
+      - node_value
+    ConceptValueDetail:
+      type: object
+      description: |-
+        One controlled-list value as serialized into a concept node's `details`
+        (arches betterJSONSerializer keys foreign keys by their `_id` attname).
+      properties:
+        valueid:
+          type: string
+          format: uuid
+        value:
+          type: string
+        concept_id:
+          type: string
+          format: uuid
+        valuetype_id:
+          type: string
+        language_id:
+          type: string
+          nullable: true
+      required:
+      - concept_id
+      - language_id
+      - value
+      - valueid
+      - valuetype_id
+    DateAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: string
+          format: date-time
+          nullable: true
+          description: Enter date
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    FileListAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              size:
+                type: number
+              type:
+                type: string
+              url:
+                type: string
+                nullable: true
+              file:
+                type: object
+                properties:
+                  objectURL:
+                    type: string
+                    nullable: true
+              node_id:
+                type: string
+                format: uuid
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    GeojsonFeatureCollectionAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+            features:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  geometry:
+                    type: object
+                    additionalProperties: true
+                  properties:
+                    type: object
+                    additionalProperties: true
+                    nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    HeritageSite:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    HeritageSiteHistoricalData:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Historical_Data_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Heritage_Site_Bc_Property_Address_Aliased_Data:
+      type: object
+      properties:
+        street_address:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+        postal_code:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax7'
+          nullable: true
+          description: E.g. V8V 1X4
+        location_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Describe the location of sites with no civic address.
+        city:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+        province:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select a Province
+        locality:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax50'
+          nullable: true
+        bc_property_legal_description:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Bc_Property_Legal_Description_Tile'
+          nullable: true
+    Heritage_Site_Bc_Property_Address_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Bc_Property_Address_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Bc_Property_Legal_Description_Aliased_Data:
+      type: object
+      properties:
+        legal_address_internal_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Legal Description Internal Notes
+        pin:
+          allOf:
+          - $ref: '#/components/schemas/NumberAliasedNodeData'
+          nullable: true
+          description: Enter number
+        pid:
+          allOf:
+          - $ref: '#/components/schemas/NumberAliasedNodeData'
+          nullable: true
+          description: Enter number
+        legal_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+    Heritage_Site_Bc_Property_Legal_Description_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Bc_Property_Legal_Description_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Bc_Right_Aliased_Data:
+      type: object
+      properties:
+        registry_types:
+          allOf:
+          - $ref: '#/components/schemas/ConceptListAliasedNodeDataRequired'
+          nullable: true
+          description: Select all applicable options
+        officially_recognized_site:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+          title: Officially Recognized
+        registration_status:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        protection_event:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Protection_Event_Tile'
+          nullable: true
+      required:
+      - officially_recognized_site
+      - registration_status
+      - registry_types
+    Heritage_Site_Bc_Right_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Bc_Right_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Bc_Statement_Of_Significance_Aliased_Data:
+      type: object
+      properties:
+        heritage_value:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+        defining_elements:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Character-Defining Elements
+        physical_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Description
+        significance_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        document_location:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax350'
+          nullable: true
+          description: Enter text
+    Heritage_Site_Bc_Statement_Of_Significance_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Bc_Statement_Of_Significance_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Borden_Number_Aliased_Data:
+      type: object
+      properties:
+        borden_number:
+          allOf:
+          - $ref: '#/components/schemas/BordenNumberDatatypeAliasedNodeDataMax9'
+          nullable: true
+          description: XxYy-9999
+      required:
+      - borden_number
+    Heritage_Site_Borden_Number_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Borden_Number_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Child_Sites_Aliased_Data:
+      type: object
+      properties:
+        child_sites:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceListAliasedNodeData'
+          nullable: true
+    Heritage_Site_Child_Sites_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Child_Sites_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Chronology_Aliased_Data:
+      type: object
+      properties:
+        start_year:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        dates_approximate:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+        information_source:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+          title: Source of Dates
+          description: E.g. City of Surrey
+        chronology:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          title: Event
+          description: Select an option
+        chronology_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+          description: Provide explanation of significant date types.
+        end_year:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+    Heritage_Site_Chronology_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Chronology_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Construction_Actors_Aliased_Data:
+      type: object
+      properties:
+        construction_actor_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+          title: Architects/Builders Notes
+        construction_actor:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+          title: Name
+        construction_actor_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          title: Type
+          description: Select the type
+    Heritage_Site_Construction_Actors_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Construction_Actors_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_External_Url_Aliased_Data:
+      type: object
+      properties:
+        external_url_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        external_url:
+          allOf:
+          - $ref: '#/components/schemas/UrlAliasedNodeData'
+          nullable: true
+    Heritage_Site_External_Url_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_External_Url_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Heritage_Class_Aliased_Data:
+      type: object
+      properties:
+        contributing_resource_count:
+          allOf:
+          - $ref: '#/components/schemas/NumberAliasedNodeDataMin0Max1000'
+          nullable: true
+          title: Number of Contributing Resources
+          description: Enter number
+        ownership:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        heritage_category:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Heritage_Site_Heritage_Class_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Heritage_Class_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Heritage_Function_Aliased_Data:
+      type: object
+      properties:
+        functional_state:
+          allOf:
+          - $ref: '#/components/schemas/ConceptListAliasedNodeData'
+          nullable: true
+          title: Function Period
+          description: Select an option
+        functional_category:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          title: Function Category
+          description: Select an option
+    Heritage_Site_Heritage_Function_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Heritage_Function_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Heritage_Site_Location_Aliased_Data:
+      type: object
+      properties:
+        bc_property_address:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Bc_Property_Address_Tile'
+          nullable: true
+        site_boundary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Site_Boundary_Tile'
+          nullable: true
+    Heritage_Site_Heritage_Site_Location_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Heritage_Site_Location_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Heritage_Theme_Aliased_Data:
+      type: object
+      properties:
+        heritage_theme:
+          allOf:
+          - $ref: '#/components/schemas/ConceptListAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Heritage_Site_Heritage_Theme_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Heritage_Theme_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Historical_Data_Decision_History_N1_Aliased_Data:
+      type: object
+      properties:
+        decision_made_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Decision
+          description: Enter text
+        decision_criteria_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Decision Criteria
+          description: Enter text
+        decided_by_last_name_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Decided By Last Name
+          description: Enter text
+        decision_description_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Decision Description
+          description: Enter text
+        decision_date_n1:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          title: Decision Date
+          description: Enter date
+        recommended_date_n1:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          title: Recommended Date
+          description: Enter date
+        recommended_by_last_name_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Recommended By Last Name
+          description: Enter text
+        decided_by_first_name_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Decided By First Name
+          description: Enter text
+        recommended_by_first_name_n1:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Recommended By First Name
+          description: Enter text
+    Heritage_Site_Historical_Data_Decision_History_N1_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Historical_Data_Decision_History_N1_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Historical_Data_Resource_Aliased_Data:
+      type: object
+      properties:
+        decision_history_n1:
+          allOf:
+          - $ref: '#/components/schemas/Heritage_Site_Historical_Data_Decision_History_N1_Tile'
+          nullable: true
+    Heritage_Site_Internal_Remark_Aliased_Data:
+      type: object
+      properties:
+        remark_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        remark_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        internal_remark:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+    Heritage_Site_Internal_Remark_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Internal_Remark_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Protection_Event_Aliased_Data:
+      type: object
+      properties:
+        protection_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Official Recognition Internal Notes
+        designation_or_protection_start_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        designation_or_protection_end_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        responsible_government:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+          title: Government Name
+        legislative_act:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+        reference_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+          description: E.g. Bylaw 123
+    Heritage_Site_Protection_Event_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Protection_Event_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Resource_Aliased_Data:
+      type: object
+      properties:
+        site_document:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Site_Document_Tile'
+          nullable: true
+        borden_number:
+          allOf:
+          - $ref: '#/components/schemas/Heritage_Site_Borden_Number_Tile'
+          nullable: true
+        child_sites:
+          allOf:
+          - $ref: '#/components/schemas/Heritage_Site_Child_Sites_Tile'
+          nullable: true
+        heritage_theme:
+          allOf:
+          - $ref: '#/components/schemas/Heritage_Site_Heritage_Theme_Tile'
+          nullable: true
+        external_url:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_External_Url_Tile'
+          nullable: true
+        site_record_admin:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Site_Record_Admin_Tile'
+          nullable: true
+        internal_remark:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Internal_Remark_Tile'
+          nullable: true
+        site_images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Site_Images_Tile'
+          nullable: true
+        heritage_site_location:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Heritage_Site_Location_Tile'
+          nullable: true
+        site_names:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Site_Names_Tile'
+          nullable: true
+        chronology:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Chronology_Tile'
+          nullable: true
+        bc_right:
+          allOf:
+          - $ref: '#/components/schemas/Heritage_Site_Bc_Right_Tile'
+          nullable: true
+        heritage_class:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Heritage_Class_Tile'
+          nullable: true
+        bc_statement_of_significance:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Bc_Statement_Of_Significance_Tile'
+          nullable: true
+        heritage_function:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Heritage_Function_Tile'
+          nullable: true
+        construction_actors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Heritage_Site_Construction_Actors_Tile'
+          nullable: true
+    Heritage_Site_Site_Boundary_Aliased_Data:
+      type: object
+      properties:
+        accuracy_remarks:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax500'
+          nullable: true
+          description: E.g. Site digitized using...
+        source_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        site_boundary:
+          allOf:
+          - $ref: '#/components/schemas/GeojsonFeatureCollectionAliasedNodeData'
+          nullable: true
+      required:
+      - site_boundary
+    Heritage_Site_Site_Boundary_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Site_Boundary_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Site_Document_Aliased_Data:
+      type: object
+      properties:
+        document_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+        document_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        site_document:
+          allOf:
+          - $ref: '#/components/schemas/FileListAliasedNodeData'
+          nullable: true
+          title: Document
+    Heritage_Site_Site_Document_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Site_Document_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Site_Images_Aliased_Data:
+      type: object
+      properties:
+        image_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        image_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        image_features:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+          title: Image Feature(s)
+          description: E.g. Entrance
+        image_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+        primary_image:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+        image_view:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        photographer:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+        submit_to_crhp:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+        copyright:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+          description: E.g. City of Nelson
+        site_images:
+          allOf:
+          - $ref: '#/components/schemas/FileListAliasedNodeData'
+          nullable: true
+          title: Site Image
+    Heritage_Site_Site_Images_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Site_Images_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Site_Names_Aliased_Data:
+      type: object
+      properties:
+        name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax250'
+          nullable: true
+        name_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+      required:
+      - name
+    Heritage_Site_Site_Names_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Site_Names_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Heritage_Site_Site_Record_Admin_Aliased_Data:
+      type: object
+      properties:
+        bcrhp_submission_status:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        federal_id_number:
+          allOf:
+          - $ref: '#/components/schemas/NumberAliasedNodeDataMin0Max999999'
+          nullable: true
+          title: CRHP ID Number
+          description: Enter the CRHP identifier
+        date_submitted_to_crhp:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        restricted:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+        crhp_submission_status:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Heritage_Site_Site_Record_Admin_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Heritage_Site_Site_Record_Admin_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    LegislativeAct:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Legislative_Act_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Legislative_Act_Act_Status_Aliased_Data:
+      type: object
+      properties:
+        start_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        end_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        active:
+          allOf:
+          - $ref: '#/components/schemas/BooleanAliasedNodeData'
+          nullable: true
+        replaced_by:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+          description: Select Legislative Act this Act was replaced by
+    Legislative_Act_Act_Status_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Legislative_Act_Act_Status_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Legislative_Act_Authority_Aliased_Data:
+      type: object
+      properties:
+        legal_instrument:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select the legal instrument
+        authority:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select the level of the responsible government
+        act_section:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter the section of the act
+        recognition_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select the recognition type
+    Legislative_Act_Authority_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Legislative_Act_Authority_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Legislative_Act_Document_Aliased_Data:
+      type: object
+      properties:
+        citation:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax80'
+          nullable: true
+          description: Enter text
+        document:
+          allOf:
+          - $ref: '#/components/schemas/FileListAliasedNodeData'
+          nullable: true
+    Legislative_Act_Document_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Legislative_Act_Document_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Legislative_Act_Resource_Aliased_Data:
+      type: object
+      properties:
+        document:
+          allOf:
+          - $ref: '#/components/schemas/Legislative_Act_Document_Tile'
+          nullable: true
+        act_status:
+          allOf:
+          - $ref: '#/components/schemas/Legislative_Act_Act_Status_Tile'
+          nullable: true
+        authority:
+          allOf:
+          - $ref: '#/components/schemas/Legislative_Act_Authority_Tile'
+          nullable: true
+    LgPerson:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Lg_Person_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Lg_Person_Contact_Information_Aliased_Data:
+      type: object
+      properties:
+        email_address:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax50'
+          nullable: true
+          description: user@domain.com
+        phone_number:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax12'
+          nullable: true
+          description: 999-999-9999
+    Lg_Person_Contact_Information_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Lg_Person_Contact_Information_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Lg_Person_Government_Association_Aliased_Data:
+      type: object
+      properties:
+        government_association:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+        government_position:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+    Lg_Person_Government_Association_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Lg_Person_Government_Association_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Lg_Person_Government_Person_Name_Aliased_Data:
+      type: object
+      properties:
+        last_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax40'
+          nullable: true
+          description: Last Name
+        first_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax40'
+          nullable: true
+          description: First Name
+    Lg_Person_Government_Person_Name_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Lg_Person_Government_Person_Name_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Lg_Person_Resource_Aliased_Data:
+      type: object
+      properties:
+        contact_information:
+          allOf:
+          - $ref: '#/components/schemas/Lg_Person_Contact_Information_Tile'
+          nullable: true
+        username:
+          allOf:
+          - $ref: '#/components/schemas/Lg_Person_Username_Tile'
+          nullable: true
+        government_person_name:
+          allOf:
+          - $ref: '#/components/schemas/Lg_Person_Government_Person_Name_Tile'
+          nullable: true
+        government_association:
+          allOf:
+          - $ref: '#/components/schemas/Lg_Person_Government_Association_Tile'
+          nullable: true
+    Lg_Person_Username_Aliased_Data:
+      type: object
+      properties:
+        username:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeDataMax12'
+          nullable: true
+          description: Username within BCRHP application
+    Lg_Person_Username_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Lg_Person_Username_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    LocalGovernment:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Local_Government_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Local_Government_Government_Boundary_Aliased_Data:
+      type: object
+      properties:
+        government_boundary:
+          allOf:
+          - $ref: '#/components/schemas/GeojsonFeatureCollectionAliasedNodeData'
+          nullable: true
+          title: Boundary Geometry
+    Local_Government_Government_Boundary_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Local_Government_Government_Boundary_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Local_Government_Government_Location_Aliased_Data:
+      type: object
+      properties:
+        government_boundary:
+          allOf:
+          - $ref: '#/components/schemas/Local_Government_Government_Boundary_Tile'
+          nullable: true
+        office_address:
+          allOf:
+          - $ref: '#/components/schemas/Local_Government_Office_Address_Tile'
+          nullable: true
+    Local_Government_Government_Location_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Local_Government_Government_Location_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Local_Government_Government_Name_Aliased_Data:
+      type: object
+      properties:
+        government_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        government_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+      required:
+      - government_name
+    Local_Government_Government_Name_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Local_Government_Government_Name_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Local_Government_Office_Address_Aliased_Data:
+      type: object
+      properties:
+        postal_code:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        street_address:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Street Name
+          description: Enter text
+        city:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        province:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+    Local_Government_Office_Address_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Local_Government_Office_Address_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Local_Government_Resource_Aliased_Data:
+      type: object
+      properties:
+        government_location:
+          allOf:
+          - $ref: '#/components/schemas/Local_Government_Government_Location_Tile'
+          nullable: true
+        government_name:
+          allOf:
+          - $ref: '#/components/schemas/Local_Government_Government_Name_Tile'
+          nullable: true
+    NumberAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: number
+          format: double
+          nullable: true
+          description: Enter number
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    NumberAliasedNodeDataMin0:
+      type: object
+      properties:
+        node_value:
+          type: number
+          format: double
+          nullable: true
+          description: Enter number
+          minimum: 0
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    NumberAliasedNodeDataMin0Max1000:
+      type: object
+      properties:
+        node_value:
+          type: number
+          format: double
+          nullable: true
+          title: Number of Contributing Resources
+          description: Enter number
+          minimum: 0
+          maximum: 1000
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    NumberAliasedNodeDataMin0Max999999:
+      type: object
+      properties:
+        node_value:
+          type: number
+          format: double
+          nullable: true
+          title: CRHP ID Number
+          description: Enter the CRHP identifier
+          minimum: 0
+          maximum: 999999
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    PaginatedBcHeritageFunctionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BcHeritageFunction'
+    PaginatedBcHeritageResourcePlaceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BcHeritageResourcePlace'
+    PaginatedBcPropertyAddressList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BcPropertyAddress'
+    PaginatedBcPropertyLegalDescriptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BcPropertyLegalDescription'
+    PaginatedBcRightList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BcRight'
+    PaginatedHeritageSiteHistoricalDataList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeritageSiteHistoricalData'
+    PaginatedHeritageSiteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeritageSite'
+    PaginatedLegislativeActList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegislativeAct'
+    PaginatedLgPersonList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LgPerson'
+    PaginatedLocalGovernmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocalGovernment'
+    PaginatedProjectSandboxList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectSandbox'
+    PaginatedSiteSubmissionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteSubmission'
+    ProjectSandbox:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Project_Sandbox_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Project_Sandbox_Project_Boundary_Aliased_Data:
+      type: object
+      properties:
+        project_boundary:
+          allOf:
+          - $ref: '#/components/schemas/GeojsonFeatureCollectionAliasedNodeData'
+          nullable: true
+        geometry_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+    Project_Sandbox_Project_Boundary_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Project_Sandbox_Project_Boundary_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Project_Sandbox_Resource_Aliased_Data:
+      type: object
+      properties:
+        sandcastle_project:
+          allOf:
+          - $ref: '#/components/schemas/Project_Sandbox_Sandcastle_Project_Tile'
+          nullable: true
+    Project_Sandbox_Sandcastle_Project_Aliased_Data:
+      type: object
+      properties:
+        start_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        project_description:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        project_name:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Enter text
+        end_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        project_boundary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project_Sandbox_Project_Boundary_Tile'
+          nullable: true
+    Project_Sandbox_Sandcastle_Project_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Project_Sandbox_Sandcastle_Project_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    ResourceInstanceAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: object
+          properties:
+            resourceId:
+              type: string
+              format: uuid
+            ontologyProperty:
+              type: string
+              nullable: true
+            resourceXresourceId:
+              type: string
+              nullable: true
+            inverseOntologyProperty:
+              type: string
+              nullable: true
+          nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceInstanceDetail'
+          readOnly: true
+      required:
+      - node_value
+    ResourceInstanceDetail:
+      type: object
+      description: One related resource summarized into a resource-instance node's
+        `details`.
+      properties:
+        resource_id:
+          type: string
+          format: uuid
+          nullable: true
+        display_value:
+          type: string
+      required:
+      - display_value
+      - resource_id
+    ResourceInstanceListAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              resourceId:
+                type: string
+                format: uuid
+              ontologyProperty:
+                type: string
+                nullable: true
+              resourceXresourceId:
+                type: string
+                nullable: true
+              inverseOntologyProperty:
+                type: string
+                nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceInstanceDetail'
+          readOnly: true
+      required:
+      - node_value
+    SiteSubmission:
+      type: object
+      properties:
+        resourceinstanceid:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Resource_Aliased_Data'
+        graph_has_different_publication:
+          type: boolean
+          readOnly: true
+        name:
+          readOnly: true
+          nullable: true
+        descriptors:
+          readOnly: true
+          nullable: true
+        legacyid:
+          type: string
+          readOnly: true
+          nullable: true
+        createdtime:
+          type: string
+          format: date-time
+          readOnly: true
+        graph:
+          type: string
+          format: uuid
+          nullable: true
+        graph_publication:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        resource_instance_lifecycle_state:
+          type: string
+          format: uuid
+          readOnly: true
+        principaluser:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - createdtime
+      - descriptors
+      - graph_has_different_publication
+      - graph_publication
+      - legacyid
+      - name
+      - principaluser
+      - resource_instance_lifecycle_state
+    Site_Submission_Comments_To_Lg_Aliased_Data:
+      type: object
+      properties:
+        comments_to_lg:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Comments to Submitting Government
+          description: Enter text
+        delivery_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          title: Date
+          description: Enter date
+        recipients:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceListAliasedNodeData'
+          nullable: true
+          description: Select recipients of this comment
+    Site_Submission_Comments_To_Lg_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Comments_To_Lg_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Site_Submission_Heritage_Site_Aliased_Data:
+      type: object
+      properties:
+        requested_operation:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        operation_details:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          description: Details about the requested opertion (Eg Update SOS)
+        submission_type:
+          allOf:
+          - $ref: '#/components/schemas/ConceptListAliasedNodeData'
+          nullable: true
+          description: Select an option
+        alternate_bcrhp_asignee:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+          description: Select BCRHP Assignee if different from Submission Assignee
+        information_provided:
+          allOf:
+          - $ref: '#/components/schemas/ConceptAliasedNodeData'
+          nullable: true
+          description: Select an option
+        heritage_site:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+          description: Select or create the site
+        site_submission_internal_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Site Internal Notes
+          description: Enter text
+        comments_to_lg:
+          type: array
+          items:
+            $ref: '#/components/schemas/Site_Submission_Comments_To_Lg_Tile'
+          nullable: true
+      required:
+      - requested_operation
+    Site_Submission_Heritage_Site_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Heritage_Site_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Site_Submission_Resource_Aliased_Data:
+      type: object
+      properties:
+        submission_internal_notes:
+          allOf:
+          - $ref: '#/components/schemas/Site_Submission_Submission_Internal_Notes_Tile'
+          nullable: true
+        submitted_sites:
+          allOf:
+          - $ref: '#/components/schemas/Site_Submission_Submitted_Sites_Tile'
+          nullable: true
+        submission_details:
+          allOf:
+          - $ref: '#/components/schemas/Site_Submission_Submission_Details_Tile'
+          nullable: true
+    Site_Submission_Submission_Details_Aliased_Data:
+      type: object
+      properties:
+        submission_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        assigned_to:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+        completion_date:
+          allOf:
+          - $ref: '#/components/schemas/DateAliasedNodeData'
+          nullable: true
+          description: Enter date
+        submitting_government:
+          allOf:
+          - $ref: '#/components/schemas/ResourceInstanceAliasedNodeData'
+          nullable: true
+          description: Select government responsible for the submitted site(s)
+        submission_documents:
+          allOf:
+          - $ref: '#/components/schemas/Site_Submission_Submission_Documents_Tile'
+          nullable: true
+      required:
+      - submission_date
+      - submitting_government
+    Site_Submission_Submission_Details_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Submission_Details_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Site_Submission_Submission_Documents_Aliased_Data:
+      type: object
+      properties:
+        submission_documents:
+          allOf:
+          - $ref: '#/components/schemas/FileListAliasedNodeData'
+          nullable: true
+    Site_Submission_Submission_Documents_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Submission_Documents_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Site_Submission_Submission_Internal_Notes_Aliased_Data:
+      type: object
+      properties:
+        submission_internal_notes:
+          allOf:
+          - $ref: '#/components/schemas/StringAliasedNodeData'
+          nullable: true
+          title: Internal Notes
+          description: Heritage Branch internal notes relating to the submission as
+            a whole.
+    Site_Submission_Submission_Internal_Notes_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Submission_Internal_Notes_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    Site_Submission_Submitted_Sites_Aliased_Data:
+      type: object
+      properties:
+        total_number_submitted:
+          allOf:
+          - $ref: '#/components/schemas/NumberAliasedNodeDataMin0'
+          nullable: true
+          description: Enter number
+        heritage_site:
+          type: array
+          items:
+            $ref: '#/components/schemas/Site_Submission_Heritage_Site_Tile'
+          nullable: true
+      required:
+      - total_number_submitted
+    Site_Submission_Submitted_Sites_Tile:
+      type: object
+      properties:
+        tileid:
+          type: string
+          format: uuid
+          nullable: true
+        resourceinstance:
+          type: string
+          format: uuid
+          nullable: true
+        nodegroup:
+          type: string
+          format: uuid
+          nullable: true
+        parenttile:
+          type: string
+          format: uuid
+          nullable: true
+        aliased_data:
+          $ref: '#/components/schemas/Site_Submission_Submitted_Sites_Aliased_Data'
+        sortorder:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        provisionaledits:
+          nullable: true
+    StringAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax12:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 12
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax250:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 250
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax350:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 350
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax40:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 40
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax50:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 50
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax500:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 500
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax7:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 7
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    StringAliasedNodeDataMax80:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            en:
+              type: object
+              properties:
+                value:
+                  type: string
+                  nullable: true
+                  maxLength: 80
+                direction:
+                  type: string
+                  enum:
+                  - ltr
+                  - rtl
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+    UrlAliasedNodeData:
+      type: object
+      properties:
+        node_value:
+          type: object
+          nullable: true
+          properties:
+            url:
+              type: string
+            url_label:
+              type: string
+              nullable: true
+        display_value:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - node_value
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: bcrhp_dev
