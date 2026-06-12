@@ -6,13 +6,13 @@ import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import { convertNbspToSpaces } from '@/arches_zod_validation/datatypes/string/validation/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 import type {
     AliasedNodeData,
     CardXNodeXWidgetData,
@@ -32,7 +32,7 @@ const siteDocumentList = computed(() => {
     return heritageSite.value?.aliased_data?.site_document ?? [];
 });
 
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import Button from 'primevue/button';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;

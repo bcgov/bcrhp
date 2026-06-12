@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import type { URLValue } from '@/arches_component_lab/datatypes/url/types.ts';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
-import { blankURLValue } from '@/bcrhp/utils.ts';
-import { HttpUrlValueLabelRequiredSchema } from '@/bcgov_arches_common/datatypes/url/validation/zod.ts';
+import { blankURLValue } from '@/arches_zod_validation/utils.ts';
+import { HttpUrlValueLabelRequiredSchema } from '@/arches_zod_validation/datatypes/url/validation/zod.ts';
 
 // Auto-generated tile schema for alias: external_url
 

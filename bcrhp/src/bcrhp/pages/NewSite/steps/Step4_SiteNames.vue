@@ -6,7 +6,7 @@ import { Form, type FormInstance } from '@primevue/forms';
 import FieldSet from 'primevue/fieldset';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     getBlankCommonName,
@@ -22,7 +22,7 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);

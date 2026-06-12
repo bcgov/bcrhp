@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { NumberValueSchema } from '@/bcgov_arches_common/datatypes/numeric/validation/zod.ts';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { NumberValueSchema } from '@/arches_zod_validation/datatypes/numeric/validation/zod.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { NumberValue } from '@/arches_component_lab/datatypes/number/types.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
-import { blankNumberValue } from '@/bcrhp/utils.ts';
+import { blankNumberValue } from '@/arches_zod_validation/utils.ts';
 
 // Auto-generated tile schema for alias: heritage_class
 

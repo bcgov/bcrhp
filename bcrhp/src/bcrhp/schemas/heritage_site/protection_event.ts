@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
-import { ResourceInstanceValueSchema } from '@/bcgov_arches_common/datatypes/resource-instance/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { DateValueSchema } from '@/arches_zod_validation/datatypes/date/validation/zod.ts';
+import { ResourceInstanceValueSchema } from '@/arches_zod_validation/datatypes/resource-instance/validation/zod.ts';
 import {
     getStringValueSchema,
     getRichTextValueSchema,
-} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+} from '@/arches_zod_validation/datatypes/string/validation/zod.ts';
 import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
@@ -13,7 +13,7 @@ import {
     blankStringValue,
     blankResourceInstanceValue,
     blankDateValue,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 
 export const ProtectionEventTileSchema = TileSchema.extend({
     aliased_data: z.object({

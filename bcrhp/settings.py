@@ -221,6 +221,8 @@ INSTALLED_APPS = (
     "arches_component_lab",
     "arches_querysets",
     "bcgov_arches_common",
+    "arches_zod_validation",
+    "arches_workflow_stepper",
 )
 INSTALLED_APPS += ("arches.app", "django.contrib.admin")
 

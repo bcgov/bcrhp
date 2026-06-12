@@ -6,8 +6,8 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import { Form, type FormInstance } from '@primevue/forms';
 import FieldSet from 'primevue/fieldset'; // Added import
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
+import { convertNbspToSpaces } from '@/arches_zod_validation/datatypes/string/validation/utils.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     BcStatementOfSignificanceTileSchema,
@@ -18,7 +18,7 @@ import type { StringValue } from '@/arches_component_lab/datatypes/string/types.
 import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 

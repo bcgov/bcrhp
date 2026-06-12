@@ -12,6 +12,10 @@ ENV ARCHES_COMMON_ROOT=${WEB_ROOT}/bcgov-arches-common
 ENV ARCHES_COMPONENT_LAB_ROOT=${WEB_ROOT}/arches-component-lab
 # Arches Querysets root (required by arches-component-lab)
 ENV ARCHES_QUERYSETS_ROOT=${WEB_ROOT}/arches-querysets
+# Arches Workflow Stepper root (required by arches-component-lab)
+ENV ARCHES_WORKFLOW_STEPPER_ROOT=${WEB_ROOT}/arches-workflow-stepper
+# Arches Zod Validation root (required by arches-component-lab)
+ENV ARCHES_ZOD_VALIDATION_ROOT=${WEB_ROOT}/arches-zod-validation
 
 ENV WHEELS=/wheels
 ENV PYTHONUNBUFFERED=1
@@ -57,6 +61,9 @@ COPY ./arches ${ARCHES_ROOT}
 COPY ./bcgov-arches-common ${ARCHES_COMMON_ROOT}
 COPY ./arches-component-lab ${ARCHES_COMPONENT_LAB_ROOT}
 COPY ./arches-querysets ${ARCHES_QUERYSETS_ROOT}
+COPY ./arches-workflow-stepper ${ARCHES_WORKFLOW_STEPPER_ROOT}
+COPY ./arches-zod-validation ${ARCHES_ZOD_VALIDATION_ROOT}
+
 # From here, run commands from ARCHES_ROOT
 WORKDIR ${ARCHES_ROOT}
 RUN pip install -e .[dev] && \
@@ -77,6 +84,14 @@ RUN pip install -e .
 
 # Install Arches Component Lab
 WORKDIR ${ARCHES_COMPONENT_LAB_ROOT}
+RUN pip install -e .
+
+# Install Zod Validation
+WORKDIR ${ARCHES_ZOD_VALIDATION_ROOT}
+RUN pip install -e .
+
+# Install Workflow Stepper Lab
+WORKDIR ${ARCHES_WORKFLOW_STEPPER_ROOT}
 RUN pip install -e .
 
 COPY ./bcrhp/docker/entrypoint.sh ${WEB_ROOT}/entrypoint.sh

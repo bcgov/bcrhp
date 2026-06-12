@@ -1,18 +1,18 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
-import { NumberValueSchema } from '@/bcgov_arches_common/datatypes/numeric/validation/zod.ts';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { DateValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
-import { blankNumberValue } from '@/bcrhp/utils.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { BooleanValueSchema } from '@/arches_zod_validation/datatypes/boolean/validation/zod.ts';
+import { NumberValueSchema } from '@/arches_zod_validation/datatypes/numeric/validation/zod.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
+import { DateValueSchema } from '@/arches_zod_validation/datatypes/date/validation/zod.ts';
+import { blankNumberValue } from '@/arches_zod_validation/utils.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import type { NumberValue } from '@/arches_component_lab/datatypes/number/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
-import { blankBooleanValue } from '@/bcrhp/utils.ts';
+import { blankBooleanValue } from '@/arches_zod_validation/utils.ts';
 import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
-import { blankDateValue } from '@/bcrhp/utils.ts';
+import { blankDateValue } from '@/arches_zod_validation/utils.ts';
 
 // Auto-generated tile schema for alias: site_record_admin
 

@@ -3,7 +3,7 @@ import { computed, inject, type Ref } from 'vue';
 import Message from 'primevue/message';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { SiteNamesTileType } from '@/bcrhp/schemas/heritage_site/site_names.ts';
-import { currentDateValue } from '@/bcrhp/utils.ts';
+import { currentDateValue } from '@/arches_zod_validation/utils.ts';
 import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';

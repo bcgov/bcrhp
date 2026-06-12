@@ -16,7 +16,7 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 
 import {
     ProtectionEventTileSchema,
@@ -25,7 +25,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',

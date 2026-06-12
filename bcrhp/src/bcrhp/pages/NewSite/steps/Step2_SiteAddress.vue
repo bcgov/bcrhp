@@ -10,12 +10,12 @@ import Chip from 'primevue/chip';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import { convertNbspToSpaces } from '@/arches_zod_validation/datatypes/string/validation/utils.ts';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import { updateModelValue as baseUpdateModelValue } from '@/arches_zod_validation/utils.ts';
 import { getPidData } from '@/bcrhp/api.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
@@ -28,7 +28,7 @@ import {
     type BcPropertyLegalDescriptionTileType,
     getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';

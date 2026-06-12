@@ -19,6 +19,8 @@ services:
       - ../bcgov-arches-common/:/web_root/bcgov-arches-common
       - ../arches-component-lab/:/web_root/arches-component-lab
       - ../arches-querysets/:/web_root/arches-querysets
+      - ../arches-zod-validation/:/web_root/arches-zod-validation
+      - ../arches-webflow-stepper/:/web_root/arches-webflow-stepper
     env_file:
       - ./.env
       - ./docker/docker.dev.env

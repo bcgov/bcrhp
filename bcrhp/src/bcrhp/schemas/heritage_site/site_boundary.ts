@@ -1,10 +1,13 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { getStringValueSchema } from '@/arches_zod_validation/datatypes/string/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { blankGeoJSONValue, blankStringValue } from '@/bcrhp/utils.ts';
+import {
+    blankGeoJSONValue,
+    blankStringValue,
+} from '@/arches_zod_validation/utils.ts';
 import type { GeoJSONFeatureCollectionValue } from '@/arches_component_lab/datatypes/geojson-feature-collection/types.ts';
-import { GeoJSONFeatureCollectionValueSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
+import { GeoJSONFeatureCollectionValueSchema } from '@/arches_zod_validation/datatypes/geojson-feature-collection/validation/zod.ts';
 
 // Auto-generated tile schema for alias: site_boundary
 

@@ -1,10 +1,10 @@
 import * as uuid from 'uuid';
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
-import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { YearValueSchema } from '@/bcgov_arches_common/datatypes/date/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { BooleanValueSchema } from '@/arches_zod_validation/datatypes/boolean/validation/zod.ts';
+import { FileListValueSchema } from '@/arches_zod_validation/datatypes/file-list/validation/zod.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
+import { YearValueSchema } from '@/arches_zod_validation/datatypes/date/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { FileListValue } from '@/arches_component_lab/datatypes/file-list/types.ts';
@@ -12,7 +12,7 @@ import type { DateValue } from '@/arches_component_lab/datatypes/date/types.ts';
 import {
     getStringValueSchema,
     getRichTextValueSchema,
-} from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+} from '@/arches_zod_validation/datatypes/string/validation/zod.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import {
     blankStringValue,
@@ -20,7 +20,7 @@ import {
     blankBooleanValue,
     falseBooleanValue,
     blankDateValue,
-} from '@/bcrhp/utils.ts';
+} from '@/arches_zod_validation/utils.ts';
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
 
 // Auto-generated tile schema for alias: site_images
