@@ -220,11 +220,17 @@ INSTALLED_APPS = (
     "bcrhp",
     "arches_component_lab",
     "arches_querysets",
-    "bcgov_arches_common",
+    "rest_framework",
+    "drf_spectacular",
     "arches_zod_validation",
     "arches_workflow_stepper",
+    "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app", "django.contrib.admin")
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
 
 USE_VITE = False
 

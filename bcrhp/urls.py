@@ -89,6 +89,7 @@ urlpatterns = [
         name="api-resource-blank",
     ),
     path(bc_path_prefix(), include("bcgov_arches_common.urls")),
+    path(bc_path_prefix(), include("bcrhp.urls_api_generated")),
     path(bc_path_prefix(), include("arches_querysets.urls")),
     path(bc_path_prefix(), include("arches_component_lab.urls")),
     path(bc_path_prefix(), include("arches.urls")),
