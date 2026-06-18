@@ -391,39 +391,49 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
-            <GenericWidget
-                :key="siteImageKey"
-                :mode="EDIT"
-                :should-show-label="true"
-                :aliasedNodeData="currentSiteImage?.aliased_data?.image_date"
-                graph-slug="heritage_site"
-                node-alias="image_date"
-                placeholder="Date the image was created"
-                group-direction="column"
-                @update:value="updateModelValue($event, 'image_date')"
-            />
-
-            <LabelledInput
-                label="Photographer"
-                hint="Enter the name of the photographer"
-                input-name="photographer"
-                :error-message="$form.photographer?.error?.message"
-            >
-                <div>
+            <div class="flex flex-row formfield-margin-bottom">
+                <div class="flex-grow">
                     <GenericWidget
                         :key="siteImageKey"
                         :mode="EDIT"
-                        :should-show-label="false"
+                        :should-show-label="true"
                         :aliasedNodeData="
-                            currentSiteImage?.aliased_data?.photographer
+                            currentSiteImage?.aliased_data?.image_date
                         "
                         graph-slug="heritage_site"
-                        node-alias="photographer"
-                        placeholder="First Name Last Name"
-                        @update:value="updateModelValue($event, 'photographer')"
+                        node-alias="image_date"
+                        placeholder="Date the image was created"
+                        group-direction="column"
+                        @update:value="updateModelValue($event, 'image_date')"
                     />
                 </div>
-            </LabelledInput>
+
+                <div class="flex-grow">
+                    <LabelledInput
+                        label="Photographer"
+                        hint="Enter the name of the photographer"
+                        input-name="photographer"
+                        :error-message="$form.photographer?.error?.message"
+                    >
+                        <div>
+                            <GenericWidget
+                                :key="siteImageKey"
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentSiteImage?.aliased_data?.photographer
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="photographer"
+                                placeholder="First Name Last Name"
+                                @update:value="
+                                    updateModelValue($event, 'photographer')
+                                "
+                            />
+                        </div>
+                    </LabelledInput>
+                </div>
+            </div>
             <LabelledInput
                 label="Copyright"
                 hint="Enter the name of the copyright holder for the image"
@@ -548,5 +558,8 @@ defineExpose({ isValid });
 <style>
 .image-placeholder[data-selected='false'] {
     opacity: 0.7;
+}
+label.widget-label[for='image_date'] {
+    font-weight: normal;
 }
 </style>
