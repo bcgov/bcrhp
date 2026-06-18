@@ -37,7 +37,7 @@
         "arches": "github:bcgov/arches#v8.0.10-bcgov",
         "arches-component-lab": "github:bcgov/arches-component-lab#v0.0.1a13-bcgov",
         "arches-querysets": "github:bcgov/arches-querysets#v1.1.1-bcgov",
-        "bcgov_arches_common": "github:bcgov/bcgov-arches-common#v2.0.0",
+        "bcgov_arches_common": "github:bcgov/bcgov-arches-common#release/2.0.1",
         "ckeditor5": "44.2.0",
         "dayjs": "^1.11.13",
         "dompurify": "^3.3.0",
