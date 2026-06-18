@@ -253,7 +253,9 @@ defineExpose({ isValid });
                             class="inline-block"
                             :aria-disabled="addImageDisabled"
                             :disabled="addImageDisabled"
-                            tooltip="Save the new image before adding another"
+                            v-tooltip="
+                                'Save the new image before adding another'
+                            "
                             @click="saveImage"
                             ><i class="fa fa-save mr-2"></i>
                             Save
@@ -269,13 +271,13 @@ defineExpose({ isValid });
                         >
                             <div
                                 class="fa fa-remove image-icons image-delete-icon"
-                                tooltip="Remove Image"
+                                v-tooltip="'Remove Image'"
                                 @click.stop="deleteSiteImage(index)"
                             ></div>
                             <div
                                 v-if="index !== 0"
                                 class="fa fa-flag image-icons image-primary-icon"
-                                tooltip="Set as Primary Image"
+                                v-tooltip="'Set as Primary Image'"
                                 @click.stop="setPrimaryImage(index)"
                             ></div>
                             <GenericWidget
