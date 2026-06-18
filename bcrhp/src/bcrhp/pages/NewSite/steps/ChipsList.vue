@@ -4,7 +4,7 @@ import Chip from 'primevue/chip';
 const props = defineProps({
     label: { type: String, default: '' },
     items: { type: Array<any>, default: () => [] },
-    displayKey: { type: String, default: '' },
+    displayFunction: { type: Function, default: null },
     displayKeys: { type: Array<string>, default: () => [] },
     disabled: { type: Boolean, default: false },
     emptyText: { type: String, default: 'No items added.' },
@@ -35,15 +35,15 @@ const getValueFromPath = (item: any, path: string) => {
 };
 
 const resolveLabel = (item: any) => {
+    if (props.displayFunction) {
+        return props.displayFunction(item);
+    }
+
     if (props.displayKeys && props.displayKeys.length > 0) {
         return props.displayKeys
             .map((key) => getValueFromPath(item, String(key)))
             .filter((val) => val !== null && val !== '' && val !== undefined)
             .join(' - ');
-    }
-
-    if (props.displayKey) {
-        return getValueFromPath(item, props.displayKey);
     }
 
     return item;

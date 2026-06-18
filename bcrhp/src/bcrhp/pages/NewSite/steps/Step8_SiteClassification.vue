@@ -21,6 +21,7 @@ import {
 import {
     HeritageClassTileSchema,
     getHeritageClass,
+    type HeritageClassTileType,
 } from '@/bcrhp/schemas/heritage_site/heritage_class.ts';
 import {
     updateModelValue as baseUpdateModelValue,
@@ -155,6 +156,10 @@ const getText = (node: any) => {
     );
 };
 
+const heritageClassDisplayFunction = (heritageClass: HeritageClassTileType) => {
+    return `${getText(heritageClass.aliased_data.heritage_category)} ${getText(heritageClass.aliased_data.ownership)} (${getText(heritageClass.aliased_data.contributing_resource_count)})`;
+};
+
 const saveHeritageClass = function () {
     const data = currentHeritageClass.value.aliased_data;
     const label = `${getText(data.heritage_category)} ${getText(data.ownership)} (${getText(data.contributing_resource_count)})`;
@@ -166,6 +171,12 @@ const saveHeritageClass = function () {
     classKey.value++;
     heritageClassForm.value?.reset();
     emit('update:stepIsValid', isValid());
+};
+
+const heritageFunctionDisplayFunction = (
+    heritageFunction: HeritageClassTileType,
+) => {
+    return `${getText(heritageFunction.aliased_data.functional_category)} - ${getText(heritageFunction.aliased_data.functional_state)}`;
 };
 
 const saveHeritageFunction = function () {
@@ -348,7 +359,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Heritage Classes"
                 :items="heritageClasses"
-                display-key="customDisplay"
+                :display-function="heritageClassDisplayFunction"
                 @remove="deleteHeritageClassCallback"
             />
         </div>
@@ -438,7 +449,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Functions"
                 :items="heritageFunctions"
-                display-key="customDisplay"
+                :display-function="heritageFunctionDisplayFunction"
                 @remove="deleteHeritageFunctionCallback"
             />
         </div>

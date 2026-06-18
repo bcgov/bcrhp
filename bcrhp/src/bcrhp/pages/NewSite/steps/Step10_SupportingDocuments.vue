@@ -234,7 +234,7 @@ defineExpose({ isValid });
         <ChipsList
             label="Site Documents"
             :items="siteDocumentList"
-            display-key="customDisplay"
+            :display-keys="['customDisplay']"
             @remove="deleteSiteDocument"
         />
     </div>

@@ -27,17 +27,15 @@ import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDo
 import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
 import {
     type HeritageSiteType,
-    getHeritageSite,
+    getHeritageSite as getHeritageSiteStatic,
 } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     submitHeritageSite,
     getBlankHeritageSite,
-    getHeritageSiteById,
+    getHeritageSite,
 } from '@/bcrhp/api.ts';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
 import { useRoute } from 'vue-router';
-import { getSiteName } from '@/bcrhp/schemas/heritage_site/site_names.ts';
-import { getStatementOfSignificance } from '@/bcrhp/schemas/heritage_site/bc_statement_of_significance.ts';
 
 const submissionErrors = ref([] as ErrorMessage[]);
 const submitted = ref(false);
@@ -181,25 +179,9 @@ let lastStep = 1;
 const currentStep = computed(() => {
     return myStepper.value?.d_value;
 });
-const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSite());
+const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSiteStatic());
 
 provide('heritageSite', heritageSite);
-
-const deepMerge = (target: any, source: any) => {
-    for (const k of Object.keys(source)) {
-        if (
-            source[k] !== null &&
-            typeof source[k] === 'object' &&
-            !Array.isArray(source[k]) &&
-            target[k]
-        ) {
-            deepMerge(target[k], source[k]);
-        } else {
-            target[k] = source[k];
-        }
-    }
-    return target;
-};
 
 onMounted(() => {
     steps.push(
@@ -217,42 +199,12 @@ onMounted(() => {
         step12,
     );
 
-    const siteId = route.params.id as string;
-
-    if (siteId) {
-        // Fetch the blank template AND the existing data
-        Promise.all([getBlankHeritageSite(), getHeritageSiteById(siteId)]).then(
-            ([blankTemplate, existingData]) => {
-                const existing = existingData as any;
-
-                // 1. Update the blank template BEFORE it touches the Vue ref
-                blankTemplate.resourceinstanceid = existing.resourceinstanceid;
-                blankTemplate.graph = existing.graph;
-
-                if (existing.aliased_data) {
-                    for (const key of Object.keys(existing.aliased_data)) {
-                        const dbValue = existing.aliased_data[key];
-
-                        if (Array.isArray(dbValue)) {
-                            // Simply replace the template's array with the populated database array
-                            (blankTemplate as any).aliased_data[key] = dbValue;
-                        } else if (dbValue && typeof dbValue === 'object') {
-                            // Merge direct objects (like bc_right, borden_number)
-                            Object.assign(
-                                (blankTemplate as any).aliased_data[key],
-                                dbValue,
-                            );
-                        }
-                    }
-                }
-
-                heritageSite.value =
-                    blankTemplate as unknown as HeritageSiteType;
-
-                isDataLoaded.value = true;
-                console.log('existing data object', heritageSite.value);
-            },
-        );
+    const siteUUID = route.params.id as string;
+    if (siteUUID) {
+        getHeritageSite(siteUUID).then((response) => {
+            heritageSite.value = response as unknown as HeritageSiteType;
+            isDataLoaded.value = true;
+        });
     } else {
         getBlankHeritageSite().then((response) => {
             heritageSite.value = response as unknown as HeritageSiteType;
