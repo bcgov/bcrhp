@@ -1,6 +1,6 @@
 {
     "name": "bcrhp",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "license": "AGPL-3.0-only",
     "scripts": {
         "build_development": "npm run eslint:check && cross-env webpack --config ./webpack/webpack.config.dev.js",
