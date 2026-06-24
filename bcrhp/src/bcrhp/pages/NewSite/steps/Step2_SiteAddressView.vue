@@ -1,58 +1,13 @@
 <script setup lang="ts">
-import { inject, ref, computed } from 'vue';
+import { inject, computed } from 'vue';
 import type { Ref } from 'vue';
 
-import Checkbox from 'primevue/checkbox';
-import { Form, type FormInstance } from '@primevue/forms';
-import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
-import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
-import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
-import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import {
-    formatPid,
-    updateModelValue as baseUpdateModelValue,
-} from '@/bcrhp/utils.ts';
-import { getPidData } from '@/bcrhp/api.ts';
+import { formatPid } from '@/bcrhp/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
-import {
-    BcPropertyAddressTileSchema,
-    type BcPropertyAddressTileType,
-    getPropertyAddress,
-} from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
-import {
-    type BcPropertyLegalDescriptionTileType,
-    getLegalDescription,
-} from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
-import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
-import FieldSet from 'primevue/fieldset';
 import Fieldset from 'primevue/fieldset';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
-const isValidatingPid = ref(false);
-const currentPidLength = ref(0);
-const pidSuccess = ref(false);
-
-// Refs and state
-let hasPropertyAddress = ref(true);
-let currentPropertyAddress: Ref<BcPropertyAddressTileType> =
-    ref(getPropertyAddress());
-
-const propertyAddressList = computed(() => {
-    return (
-        heritageSite.value?.aliased_data?.heritage_site_location?.[0]
-            ?.aliased_data?.bc_property_address ?? []
-    );
-});
-const legalDescriptionList = computed(() => {
-    return (
-        currentPropertyAddress.value?.aliased_data
-            ?.bc_property_legal_description ?? []
-    );
-});
 
 const propertyAddresses = computed(() => {
     return (

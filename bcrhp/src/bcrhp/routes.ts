@@ -12,8 +12,9 @@ const routes = [
         },
     },
     {
-        path: arches.urls.plugin('workflow-list/submissions/new-site/'),
+        path: arches.urls.plugin('workflow-list/submissions/new-site/new'),
         name: 'newSite',
+        params: { editMode: 'create' },
         component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
         meta: {
             shouldShowNavigation: true,
@@ -21,18 +22,10 @@ const routes = [
         },
     },
     {
-        path: arches.urls.plugin('workflow-list/submissions/update-site/'),
+        path: arches.urls.plugin('workflow-list/submissions/edit-site/'),
         name: 'updateSite',
-        component: () => import('@/bcrhp/pages/UpdateSite.vue'),
-        meta: {
-            shouldShowNavigation: true,
-            requiresAuthentication: !dev_mode,
-        },
-    },
-    {
-        path: arches.urls.plugin('workflow-list/submissions/edit-site/:id'),
-        name: 'editSite',
         component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
+        params: { editMode: 'update' },
         meta: {
             shouldShowNavigation: true,
             requiresAuthentication: !dev_mode,
@@ -43,7 +36,6 @@ const routes = [
 type BCRHPRouteNamesType = RouteNamesType & {
     newSite: string;
     updateSite: string;
-    editSite: string;
 };
 
 const routeNames: BCRHPRouteNamesType = {
@@ -51,12 +43,6 @@ const routeNames: BCRHPRouteNamesType = {
     login: 'login',
     newSite: 'newSite',
     updateSite: 'updateSite',
-    editSite: 'editSite',
-    // search: "search",
-    // advancedSearch: "advanced-search",
-    // schemes: "schemes",
-    // concept: "concept",
-    // scheme: "scheme",
 };
 export { routes, routeNames };
 export type { BCRHPRouteNamesType };

@@ -30,10 +30,12 @@ import {
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isValidatingPid = ref(false);
@@ -359,7 +361,7 @@ defineExpose({ isValid });
 </script>
 
 <template>
-    <div>
+    <div v-if="editMode === EditMode.Edit">
         <Checkbox
             id="editAddressCheckbox"
             v-model="isEditing"
@@ -370,7 +372,7 @@ defineExpose({ isValid });
         <hr />
     </div>
     <Form
-        v-if="isEditing"
+        v-if="isEditing || editMode === EditMode.Add"
         ref="propertyAddressForm"
         v-slot="$form"
         name="propertyAddressForm"

@@ -38,7 +38,7 @@ import Button from 'primevue/button';
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const internalRemark = computed(() => {
-    return heritageSite.value.aliased_data.internal_remark[0];
+    return heritageSite.value?.aliased_data.internal_remark[0];
 });
 
 const supportingDocumentsForm: Ref<FormInstance | null> = useTemplateRef(

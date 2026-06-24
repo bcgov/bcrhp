@@ -1,13 +1,96 @@
 <script setup lang="ts">
 import FieldSet from 'primevue/fieldset';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { type Ref, inject } from 'vue';
+import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 const isValid = () => {
     return true;
+};
+import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
+
+import type { Card, Node } from '@/arches_component_lab/types.ts';
+import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
+import { getHeritageSite } from '@/bcrhp/api.ts';
+import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
+
+const { editMode, working } = useWorkflowStep();
+const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+export interface CardXNodeXWidgetData {
+    card: Card;
+    config: {
+        defaultValue: unknown | null;
+        placeholder?: string;
+    };
+    id: string;
+    label: string;
+    node: Node;
+    sortorder: number;
+    visible: boolean;
+    widget: {
+        widgetid: string;
+        component: string;
+    };
+}
+const node_data: ResourceInstanceCardXNodeXWidgetData = {
+    card: {
+        name: '',
+        sortorder: 0,
+        cardid: '',
+        nodegroup_id: '',
+        nodes: [],
+    },
+    id: '',
+    label: 'Site',
+    sortorder: 0,
+    visible: true,
+    node: {
+        alias: 'municipal_sites',
+        config: {},
+    } as Node,
+    config: {
+        placeholder: 'Select site to updated',
+        defaultValue: '',
+    },
+    widget: {
+        widgetid: '',
+        component: '',
+    },
+};
+
+const setResourceId = async (site: ResourceInstanceValue) => {
+    if (site?.node_value && heritageSite?.value) {
+        working.value = true;
+        try {
+            const siteUUID = site.node_value.resourceId;
+
+            const response = await getHeritageSite(siteUUID);
+            heritageSite.value = response as unknown as HeritageSiteType;
+            working.value = false;
+        } catch (e) {
+            console.log(`Unable to get site: ${e}`);
+        } finally {
+            working.value = false;
+        }
+    }
 };
 
 defineExpose({ isValid });
 </script>
 <template>
     <FieldSet legend="Before you begin">
+        <div v-if="EditMode.Edit === editMode">
+            <ResourceWidget
+                :mode="EDIT"
+                :aliased-node-data="null"
+                graph-slug="heritage_site"
+                node-alias="municipal_sites"
+                :card-x-node-x-widget-data="node_data"
+                @update:value="setResourceId($event)"
+            />
+        </div>
+        <div v-else>Adding</div>
         <div class="mb-2">
             <p>
                 Confirm the site does not already exist on the BC Register of
