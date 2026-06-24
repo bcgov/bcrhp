@@ -34,7 +34,9 @@ const sosResolver = getFlattenResolver(
 );
 
 const sosTile = computed(() => {
-    return heritageSite.value.aliased_data.bc_statement_of_significance[0];
+    return (
+        heritageSite.value?.aliased_data.bc_statement_of_significance[0] ?? null
+    );
 });
 
 const isValid = () => true;

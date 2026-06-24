@@ -33,6 +33,9 @@ const currentOtherName: Ref<SiteNamesTileType> = ref(null);
 const otherNameKey = ref(0);
 
 const filterNamesByType = function (name_type: string) {
+    if (!heritageSite.value) {
+        return [];
+    }
     return heritageSite.value.aliased_data.site_names.filter(
         (name: SiteNamesTileType) =>
             name?.aliased_data.name_type.display_value === name_type,

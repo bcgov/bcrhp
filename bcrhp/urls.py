@@ -12,6 +12,7 @@ from bcrhp.views.workflows.heritage_site_submissions import (
     SubmitHeritageSite,
     PatchedArchesResourceBlankView,
 )
+from bcrhp.views.relatable_resources import BcrhpRelatableResourcesView
 import re
 
 uuid_regex = settings.UUID_REGEX
@@ -87,6 +88,12 @@ urlpatterns = [
         f"{bc_path_prefix()}bcrhp/api/resource/<slug:graph>/blank",
         PatchedArchesResourceBlankView.as_view(),
         name="api-resource-blank",
+    ),
+    # Shadow arches_component_lab's relatable-resources URL to allow special node aliases
+    path(
+        f"{bc_path_prefix()}api/relatable-resources/<slug:graph>/<slug:node_alias>",
+        BcrhpRelatableResourcesView.as_view(),
+        name="bcrhp-api-relatable-resources",
     ),
     path(bc_path_prefix(), include("bcgov_arches_common.urls")),
     path(bc_path_prefix(), include("arches_querysets.urls")),

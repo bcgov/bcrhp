@@ -75,12 +75,12 @@ const funcKey = ref(0);
 const themeKey = ref(0);
 
 const heritageClasses = computed(() =>
-    Array.isArray(heritageSite.value.aliased_data.heritage_class)
+    Array.isArray(heritageSite.value?.aliased_data.heritage_class)
         ? heritageSite.value.aliased_data.heritage_class
         : [],
 );
 const heritageFunctions = computed(() =>
-    Array.isArray(heritageSite.value.aliased_data.heritage_function)
+    Array.isArray(heritageSite.value?.aliased_data.heritage_function)
         ? heritageSite.value.aliased_data.heritage_function
         : [],
 );

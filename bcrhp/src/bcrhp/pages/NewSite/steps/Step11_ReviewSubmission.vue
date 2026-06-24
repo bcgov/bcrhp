@@ -7,16 +7,12 @@ import { currentDateValue } from '@/bcrhp/utils.ts';
 import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';
-import type { ErrorMessage } from '@/bcrhp/types.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
+import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const today = currentDateValue();
-
-defineProps<{
-    submissionErrors: ErrorMessage[];
-    submissionComplete?: boolean;
-}>();
+const { submissionErrors, submissionComplete } = useWorkflowStep();
 
 // Helper to safely get the addresses
 const propertyAddresses = computed(() => {
@@ -67,7 +63,7 @@ const isValid = function () {
 
 const formSubmitted = computed(
     () =>
-        !!heritageSite.value.aliased_data.bc_right.aliased_data
+        !!heritageSite.value?.aliased_data.bc_right.aliased_data
             ?.registration_status?.node_value,
 );
 
