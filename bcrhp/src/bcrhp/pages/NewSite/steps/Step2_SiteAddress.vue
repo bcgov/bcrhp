@@ -32,6 +32,7 @@ import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
+import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
@@ -353,11 +354,23 @@ const stringWidgetOverride = {
     },
 };
 
+const isEditing = ref(false);
 defineExpose({ isValid });
 </script>
 
 <template>
+    <div>
+        <Checkbox
+            id="editAddressCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editAddressCheckbox">Edit Site Addresses</label>
+        <Step2_SiteAddressView v-if="!isEditing" />
+        <hr />
+    </div>
     <Form
+        v-if="isEditing"
         ref="propertyAddressForm"
         v-slot="$form"
         name="propertyAddressForm"

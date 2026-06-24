@@ -169,26 +169,25 @@ const addExternalUrlDisabled = computed(() => {
     );
 });
 
+const chronologyDisplayFunction = (chronology: ChronologyTileType) => {
+    const data = chronology.aliased_data;
+    const start = getText(data.start_year);
+    const end = getText(data.end_year);
+
+    let label = getText(data.chronology);
+    if (start || end) label += ` (${start} - ${end})`;
+    if (currentChronology.value.circa) label += ' [Circa]';
+    if (currentChronology.value.chronologyNotes)
+        label += ` - ${currentChronology.value.chronologyNotes}`;
+    return label;
+};
+
 const saveChronology = function () {
     if (!Array.isArray(heritageSite.value.aliased_data.chronology)) {
         heritageSite.value.aliased_data.chronology = [];
     }
 
-    const data = currentChronology.value.aliased_data;
-    const start = getText(data.start_year);
-    const end = getText(data.end_year);
-    const type = getText(data.chronology);
-
-    let label = type;
-    if (start || end) label += ` (${start} - ${end})`;
-    if (currentChronology.value.circa) label += ' [Circa]';
-    if (currentChronology.value.chronologyNotes)
-        label += ` - ${currentChronology.value.chronologyNotes}`;
-
-    heritageSite.value.aliased_data.chronology.push({
-        ...currentChronology.value,
-        customDisplay: label || 'Untitled Chronology',
-    });
+    heritageSite.value.aliased_data.chronology.push(currentChronology.value);
 
     currentChronology.value = getChronology();
     chronologyKey.value++;
@@ -196,12 +195,10 @@ const saveChronology = function () {
     emit('update:stepIsValid', isValid());
 };
 
-const saveArchitectOrBuilder = function () {
-    if (!Array.isArray(heritageSite.value.aliased_data.construction_actors)) {
-        heritageSite.value.aliased_data.construction_actors = [];
-    }
-
-    const data = currentConstructionActor.value.aliased_data;
+const actorDisplayFunction = (
+    constructionActor: ConstructionActorsTileType,
+) => {
+    const data = constructionActor.aliased_data;
     const name = getText(data.construction_actor);
     const type = getText(data.construction_actor_type);
     const notes = getText(data.construction_actor_notes);
@@ -209,11 +206,17 @@ const saveArchitectOrBuilder = function () {
     let label = name;
     if (type) label += ` (${type})`;
     if (notes) label += ` - ${notes}`;
+    return label || 'Untitled Actor';
+};
 
-    heritageSite.value.aliased_data.construction_actors.push({
-        ...currentConstructionActor.value,
-        customDisplay: label || 'Untitled Actor',
-    });
+const saveArchitectOrBuilder = function () {
+    if (!Array.isArray(heritageSite.value.aliased_data.construction_actors)) {
+        heritageSite.value.aliased_data.construction_actors = [];
+    }
+
+    heritageSite.value.aliased_data.construction_actors.push(
+        currentConstructionActor.value,
+    );
 
     currentConstructionActor.value = getConstructionActor();
     actorKey.value++;
@@ -221,12 +224,8 @@ const saveArchitectOrBuilder = function () {
     emit('update:stepIsValid', isValid());
 };
 
-const saveExternalUrl = function () {
-    if (!Array.isArray(heritageSite.value.aliased_data.external_url)) {
-        heritageSite.value.aliased_data.external_url = [];
-    }
-
-    const data = currentExternalUrl.value.aliased_data;
+const externalUrlDisplayFunction = (externalUrl: ExternalUrlTileType) => {
+    const data = externalUrl.aliased_data;
 
     const type = getText(data.external_url_type);
     const url = getText(data.external_url);
@@ -234,11 +233,15 @@ const saveExternalUrl = function () {
     let label = type;
     if (label && url) label += `: ${url}`;
     else if (url) label = url;
+    return label;
+};
 
-    heritageSite.value.aliased_data.external_url.push({
-        ...currentExternalUrl.value,
-        customDisplay: label || 'Untitled URL',
-    });
+const saveExternalUrl = function () {
+    if (!Array.isArray(heritageSite.value.aliased_data.external_url)) {
+        heritageSite.value.aliased_data.external_url = [];
+    }
+
+    heritageSite.value.aliased_data.external_url.push(currentExternalUrl.value);
 
     currentExternalUrl.value = getExternalUrl();
     urlKey.value++;
@@ -442,7 +445,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Chronologies"
                 :items="chronologies"
-                display-key="customDisplay"
+                :display-function="chronologyDisplayFunction"
                 @remove="deleteChronologyCallback"
             />
         </div>
@@ -562,7 +565,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Architects / Builders"
                 :items="constructionActors"
-                display-key="customDisplay"
+                :display-function="actorDisplayFunction"
                 @remove="deleteArchitectBuilderCallback"
             />
         </div>
@@ -652,7 +655,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Related URLs"
                 :items="externalUrls"
-                display-key="customDisplay"
+                :display-function="externalUrlDisplayFunction"
                 @remove="deleteURLCallback"
             />
         </div>

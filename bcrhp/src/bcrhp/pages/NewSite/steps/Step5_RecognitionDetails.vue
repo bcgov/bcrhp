@@ -26,6 +26,8 @@ import {
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import Checkbox from 'primevue/checkbox';
+import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
 
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
@@ -143,11 +145,23 @@ function deleteProtectionEvent(index: number) {
     emit('update:stepIsValid', isValid());
 }
 
+const isEditing = ref(false);
 defineExpose({ isValid });
 </script>
 
 <template>
+    <div>
+        <Checkbox
+            id="editAddressCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editAddressCheckbox">Edit Recognition Details</label>
+        <Step5_RecognitionDetailsView v-if="!isEditing" />
+        <hr />
+    </div>
     <Form
+        v-if="isEditing"
         ref="recognitionDetailsForm"
         v-slot="$form"
         name="recognitionDetailsForm"

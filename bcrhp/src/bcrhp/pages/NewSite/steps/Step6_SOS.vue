@@ -97,7 +97,9 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="
+                                sosTile?.aliased_data?.physical_description
+                            "
                             graph-slug="heritage_site"
                             node-alias="physical_description"
                             @update:value="
@@ -118,7 +120,9 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="
+                                sosTile?.aliased_data?.heritage_value
+                            "
                             graph-slug="heritage_site"
                             node-alias="heritage_value"
                             @update:value="
@@ -139,7 +143,9 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="
+                                sosTile?.aliased_data?.defining_elements
+                            "
                             graph-slug="heritage_site"
                             node-alias="defining_elements"
                             @update:value="
@@ -160,7 +166,9 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="sosTile"
+                            :aliasedNodeData="
+                                sosTile?.aliased_data?.document_location
+                            "
                             graph-slug="heritage_site"
                             node-alias="document_location"
                             @update:value="

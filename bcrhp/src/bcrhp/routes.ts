@@ -29,67 +29,21 @@ const routes = [
             requiresAuthentication: !dev_mode,
         },
     },
-    // {
-    //     path: "/bcrhp/ipa_submit/",
-    //     name: "ipaSubmit",
-    //     component: () => import("@/bcrhp/pages/ipa/IpaSubmit.vue"),
-    //     meta: {
-    //         shouldShowNavigation: true,
-    //         requiresAuthentication: true,
-    //     },
-    // },
-    // {
-    //     path: "/login/:next?",
-    //     name: "login",
-    //     component: () => import("@/bcrhp/pages/LoginPage.vue"),
-    //     meta: {
-    //         shouldShowNavigation: false,
-    //         requiresAuthentication: false,
-    //     },
-    // },
-    // {
-    //     path: "/advanced-search",
-    //     name: "advanced-search",
-    //     component: () => import("@/bcrhp/pages/AdvancedSearch.vue"),
-    //     meta: {
-    //         shouldShowNavigation: true,
-    //         requiresAuthentication: true,
-    //     },
-    // },
-    // {
-    //     path: "/schemes",
-    //     name: "schemes",
-    //     component: () => import("@/bcrhp/pages/SchemeList.vue"),
-    //     meta: {
-    //         shouldShowNavigation: true,
-    //         requiresAuthentication: true,
-    //     },
-    // },
-    // {
-    //     path: "/concept/:id",
-    //     name: "concept",
-    //     component: () =>
-    //         import("@/bcrhp/pages/ConceptOrSchemeSplitter.vue"),
-    //     meta: {
-    //         shouldShowNavigation: true,
-    //         requiresAuthentication: true,
-    //     },
-    // },
-    // {
-    //     path: "/scheme/:id",
-    //     name: "scheme",
-    //     component: () =>
-    //         import("@/bcrhp/pages/ConceptOrSchemeSplitter.vue"),
-    //     meta: {
-    //         shouldShowNavigation: true,
-    //         requiresAuthentication: true,
-    //     },
-    // },
+    {
+        path: arches.urls.plugin('workflow-list/submissions/edit-site/:id'),
+        name: 'editSite',
+        component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
+        meta: {
+            shouldShowNavigation: true,
+            requiresAuthentication: !dev_mode,
+        },
+    },
 ];
 
 type BCRHPRouteNamesType = RouteNamesType & {
     newSite: string;
     updateSite: string;
+    editSite: string;
 };
 
 const routeNames: BCRHPRouteNamesType = {
@@ -97,6 +51,7 @@ const routeNames: BCRHPRouteNamesType = {
     login: 'login',
     newSite: 'newSite',
     updateSite: 'updateSite',
+    editSite: 'editSite',
     // search: "search",
     // advancedSearch: "advanced-search",
     // schemes: "schemes",

@@ -8,7 +8,7 @@ import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import Fieldset from 'primevue/fieldset';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
-import { formatPid } from '@/bcrhp/utils.ts';
+import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const today = currentDateValue();
@@ -142,69 +142,7 @@ defineExpose({ isValid });
         application:
     </p>
 
-    <Fieldset
-        legend="Address Information"
-        class="review-fieldset"
-    >
-        <div v-if="propertyAddresses.length === 0">No address provided.</div>
-
-        <div
-            v-for="(property_address, index) in propertyAddresses"
-            :key="property_address"
-            :class="{ 'border-t pt-4 mt-4': index > 0 }"
-        >
-            <div class="div-grid-cols">
-                <dt>Street Address</dt>
-                <dd>
-                    {{
-                        property_address.aliased_data.street_address
-                            .display_value
-                    }},
-                    {{ property_address.aliased_data.locality.display_value }},
-                    {{ property_address.aliased_data.city.display_value }},
-                    {{
-                        property_address.aliased_data.postal_code.display_value
-                    }}
-                </dd>
-
-                <dt>Detailed Location</dt>
-                <dd
-                    v-html="
-                        property_address.aliased_data.location_description
-                            .display_value || '-'
-                    "
-                ></dd>
-
-                <dt>PID(s)</dt>
-                <dd>
-                    <div
-                        v-for="legalDescription in property_address.aliased_data
-                            .bc_property_legal_description || []"
-                        :key="legalDescription"
-                    >
-                        <div>
-                            {{
-                                formatPid(
-                                    legalDescription.aliased_data?.pid
-                                        ?.node_value,
-                                ) || 'N/A'
-                            }}
-                        </div>
-                    </div>
-
-                    <div
-                        v-if="
-                            !property_address.aliased_data
-                                .bc_property_legal_description?.length
-                        "
-                    >
-                        No PID(s) recorded.
-                    </div>
-                </dd>
-            </div>
-        </div>
-    </Fieldset>
-
+    <Step2_SiteAddressView />
     <Fieldset
         legend="Site Names"
         class="review-fieldset"

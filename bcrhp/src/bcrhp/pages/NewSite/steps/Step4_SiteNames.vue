@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, onMounted, computed } from 'vue';
+import { useTemplateRef, inject, ref, onMounted, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
@@ -23,19 +23,28 @@ import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
+import Checkbox from 'primevue/checkbox';
+import Step4_SiteNamesView from '@/bcrhp/pages/NewSite/steps/Step4_SiteNamesView.vue';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
-const currentCommonName: Ref<SiteNamesTileType | null> = ref(null);
 const currentOtherName: Ref<SiteNamesTileType> = ref(null);
 const otherNameKey = ref(0);
 
-const otherNames = computed(() => {
+const filterNamesByType = function (name_type: string) {
     return heritageSite.value.aliased_data.site_names.filter(
         (name: SiteNamesTileType) =>
-            name?.aliased_data.name_type.display_value === 'Other',
+            name?.aliased_data.name_type.display_value === name_type,
     );
+};
+
+const currentCommonName = filterNamesByType('Common')?.[0] ?? ref(null);
+
+// const currentCommonName: Ref<SiteNamesTileType | null> = ref(commonName);
+
+const otherNames = computed(() => {
+    return filterNamesByType('Other');
 });
 
 const commonNameForm: Ref<FormInstance | null> = useTemplateRef(
@@ -73,26 +82,27 @@ const updateCommonName = function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
-    if (!currentCommonName.value) {
+    const commonNameArray = filterNamesByType('Common');
+    if (commonNameArray.length === 0) {
         getBlankCommonName().then((blankCommonName) => {
-            currentCommonName.value = blankCommonName;
             heritageSite.value.aliased_data.site_names = [
-                currentCommonName.value,
+                blankCommonName,
                 ...heritageSite.value.aliased_data.site_names,
             ];
             baseUpdateModelValue(
                 newValue,
                 attribute_name,
-                currentCommonName.value.aliased_data,
+                blankCommonName.aliased_data,
                 commonNameForm as Ref<FormInstance>,
             );
             emit('update:stepIsValid', isValid());
         });
     } else {
+        const commonName = commonNameArray?.[0];
         baseUpdateModelValue(
             newValue,
             attribute_name,
-            currentCommonName.value.aliased_data,
+            commonName,
             commonNameForm as Ref<FormInstance>,
         );
         emit('update:stepIsValid', isValid());
@@ -151,6 +161,23 @@ const handleRemoveOtherName = (index: number) => {
 
 defineExpose({ isValid });
 
+const isEditing = ref(false);
+watch(
+    () => [isEditing.value, commonNameForm.value?.valid] as const,
+    (valid) => {
+        console.log('hi', valid);
+        if (!isEditing.value) {
+            const parseResult = SiteNamesTileSchema.shape[
+                'aliased_data'
+            ].safeParse(filterNamesByType('Common')?.[0]?.aliased_data);
+            return parseResult.success;
+        } else {
+            emit('update:stepIsValid', isValid());
+        }
+    },
+    { immediate: true },
+);
+
 onMounted(() => {
     getBlankOtherName().then((blankOtherName) => {
         currentOtherName.value = blankOtherName;
@@ -160,6 +187,16 @@ onMounted(() => {
 
 <template>
     <div>
+        <Checkbox
+            id="editAddressCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editAddressCheckbox">Edit Names</label>
+        <Step4_SiteNamesView v-if="!isEditing" />
+        <hr />
+    </div>
+    <div v-if="isEditing">
         <FieldSet
             id="siteNamesFieldSet"
             legend="Site Names"
@@ -169,6 +206,7 @@ onMounted(() => {
                 v-slot="$form"
                 name="commonNameForm"
                 :validateOnBlur="true"
+                :validateOnMount="true"
                 :resolver="zodCommonNameResolver"
             >
                 <LabelledInput
@@ -182,7 +220,9 @@ onMounted(() => {
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="currentCommonName"
+                            :aliasedNodeData="
+                                currentCommonName?.aliased_data?.name
+                            "
                             graph-slug="heritage_site"
                             node-alias="name"
                             @update:value="updateCommonName($event, 'name')"
@@ -231,7 +271,7 @@ onMounted(() => {
 
             <ChipsList
                 :items="otherNames"
-                display-key="aliased_data.name.display_value"
+                :display-keys="['aliased_data.name.display_value']"
                 :emptyText="'No other names added.'"
                 @remove="handleRemoveOtherName"
             />

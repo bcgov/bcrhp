@@ -1,3 +1,4 @@
+import * as uuid from 'uuid';
 import arches from 'arches';
 import geojson from 'geojson';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
@@ -21,6 +22,17 @@ export async function getBlankHeritageSite(): Promise<HeritageSiteType> {
     );
     return await response.json();
 }
+
+export async function getHeritageSite(
+    siteId: string,
+): Promise<HeritageSiteType> {
+    const response = await fetch(
+        arches.urls.api_resource('heritage_site', siteId) + '?format=json',
+        {},
+    );
+    return await response.json();
+}
+
 export async function getNameType(name_type: string): Promise<ConceptValue> {
     if (Object.keys(siteNameTypes).length === 0) {
         const siteNameList = await fetchConceptsTree(
