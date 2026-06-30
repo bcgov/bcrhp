@@ -42,7 +42,13 @@ const filterNamesByType = function (name_type: string) {
     );
 };
 
-const currentCommonName = filterNamesByType('Common')?.[0] ?? ref(null);
+const currentCommonName = computed(() => {
+    const commonNames = heritageSite.value?.aliased_data?.site_names.filter(
+        (name: SiteNamesTileType) =>
+            name?.aliased_data.name_type.display_value === 'Common',
+    );
+    return commonNames?.length > 0 ? commonNames[0].aliased_data : null;
+});
 
 // const currentCommonName: Ref<SiteNamesTileType | null> = ref(commonName);
 
@@ -164,7 +170,7 @@ const handleRemoveOtherName = (index: number) => {
 
 defineExpose({ isValid });
 
-const isEditing = ref(false);
+const isEditing = ref(true);
 watch(
     () => [isEditing.value, commonNameForm.value?.valid] as const,
     (valid) => {
@@ -223,9 +229,7 @@ onMounted(() => {
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="
-                                currentCommonName?.aliased_data?.name
-                            "
+                            :aliased-node-data="currentCommonName?.name"
                             graph-slug="heritage_site"
                             node-alias="name"
                             @update:value="updateCommonName($event, 'name')"
