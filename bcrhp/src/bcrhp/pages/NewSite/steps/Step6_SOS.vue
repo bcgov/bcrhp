@@ -99,7 +99,7 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="
+                            :aliased-node-data="
                                 sosTile?.aliased_data?.physical_description
                             "
                             graph-slug="heritage_site"
@@ -122,7 +122,7 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="
+                            :aliased-node-data="
                                 sosTile?.aliased_data?.heritage_value
                             "
                             graph-slug="heritage_site"
@@ -145,7 +145,7 @@ defineExpose({ isValid });
                         <GenericWidget
                             :mode="EDIT"
                             :should-show-label="false"
-                            :aliasedNodeData="
+                            :aliased-node-data="
                                 sosTile?.aliased_data?.defining_elements
                             "
                             graph-slug="heritage_site"
