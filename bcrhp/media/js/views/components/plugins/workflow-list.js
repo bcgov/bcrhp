@@ -1,5 +1,6 @@
 import createVueApplication from 'arches/arches/app/media/js/utils/create-vue-application';
 import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
 import BCRHPApp from '@/bcrhp/App.vue';
 import { routes } from '@/bcrhp/routes.ts';
 import { definePreset } from '@primeuix/themes';
@@ -137,6 +138,7 @@ ko.components.register('workflow-list', {
                 },
             },
         }).then((vueApp) => {
+            vueApp.use(createPinia());
             vueApp.use(router);
             vueApp.mount('#bcrhp-mounting-point');
         });
