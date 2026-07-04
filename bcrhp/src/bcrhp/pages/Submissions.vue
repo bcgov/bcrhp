@@ -16,13 +16,13 @@ const workflowItems = ref([
         class: 'dashboard-card ipa',
         routeName: routeNames.newSite,
     },
-    // {
-    //     label: $gettext('Update Heritage Property'),
-    //     description: $gettext('Update an existing heritage property'),
-    //     icon: 'fa fa-pencil',
-    //     class: 'dashboard-card ipa',
-    //     routeName: routeNames.updateSite,
-    // },
+    {
+        label: $gettext('Update Heritage Property'),
+        description: $gettext('Update an existing heritage property'),
+        icon: 'fa fa-pencil',
+        class: 'dashboard-card ipa',
+        routeName: routeNames.updateSite,
+    },
     // {
     //     label: $gettext('Legacy Heritage Property'),
     //     description: $gettext('Deregister a Site'),
