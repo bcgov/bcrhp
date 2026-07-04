@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
 import {
     ProtectionEventTileSchema,
     type ProtectionEventTileType,
 } from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 import type { BooleanValue } from '@/arches_component_lab/datatypes/boolean/types.ts';
-import { BooleanValueSchema } from '@/bcgov_arches_common/datatypes/boolean/validation/zod.ts';
+import { BooleanValueSchema } from '@/arches_zod_validation/datatypes/boolean/validation/zod.ts';
 import type { ConceptListValue } from '@/arches_component_lab/datatypes/concept-list/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';

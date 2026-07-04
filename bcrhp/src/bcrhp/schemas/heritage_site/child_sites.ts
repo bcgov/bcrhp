@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { ResourceInstanceListValueRequiredSchema } from '@/bcgov_arches_common/datatypes/resource-instance-list/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { ResourceInstanceListValueRequiredSchema } from '@/arches_zod_validation/datatypes/resource-instance-list/validation/zod.ts';
 import { blankResourceInstanceListValue } from '@/bcrhp/utils.ts';
 import type { ResourceInstanceListValue } from '@/arches_component_lab/datatypes/resource-instance-list/types.ts';
 

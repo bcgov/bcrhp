@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
 import type { ConceptListValue } from '@/arches_component_lab/datatypes/concept-list/types.ts';
-import { getConceptListValueSchema } from '@/bcgov_arches_common/datatypes/concept-list/validation/zod.ts';
+import { getConceptListValueSchema } from '@/arches_zod_validation/datatypes/concept-list/validation/zod.ts';
 import { blankConceptListValue } from '@/arches_component_lab/datatypes/concept-list/utils.ts';
 
 // Auto-generated tile schema for alias: heritage_theme

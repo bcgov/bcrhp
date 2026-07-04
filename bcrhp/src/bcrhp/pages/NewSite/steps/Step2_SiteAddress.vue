@@ -10,7 +10,7 @@ import Chip from 'primevue/chip';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import { convertNbspToSpaces } from '@/arches_zod_validation/datatypes/string/validation/utils.ts';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
@@ -28,7 +28,7 @@ import {
     type BcPropertyLegalDescriptionTileType,
     getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';

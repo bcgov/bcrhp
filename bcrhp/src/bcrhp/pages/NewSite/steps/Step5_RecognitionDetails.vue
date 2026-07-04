@@ -25,7 +25,7 @@ import {
 } from '@/bcrhp/schemas/heritage_site/protection_event.ts';
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import Checkbox from 'primevue/checkbox';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
 

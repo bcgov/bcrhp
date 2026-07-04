@@ -6,7 +6,7 @@ import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import { getFlattenResolver } from '@/arches_zod_validation/validation-utils.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';

@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { ConceptValueSchema } from '@/arches_zod_validation/datatypes/concept/validation/zod.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { ConceptListValue } from '@/arches_component_lab/datatypes/concept-list/types.ts';
-import { ConceptListValueRequiredSchema } from '@/bcgov_arches_common/datatypes/concept-list/validation/zod.ts';
+import { ConceptListValueRequiredSchema } from '@/arches_zod_validation/datatypes/concept-list/validation/zod.ts';
 import { blankConceptValue } from '@/arches_component_lab/datatypes/concept/utils.ts';
 import { blankConceptListValue } from '@/arches_component_lab/datatypes/concept-list/utils.ts';
 

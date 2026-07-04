@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
 import { BcPropertyAddressTileSchema } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
 import { SiteBoundaryTileSchema } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import type { BcPropertyAddressTileType } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';

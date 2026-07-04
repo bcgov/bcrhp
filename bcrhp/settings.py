@@ -220,6 +220,7 @@ INSTALLED_APPS = (
     "bcrhp",
     "arches_component_lab",
     "arches_querysets",
+    "arches_zod_validation",
     "bcgov_arches_common",
 )
 INSTALLED_APPS += ("arches.app", "django.contrib.admin")

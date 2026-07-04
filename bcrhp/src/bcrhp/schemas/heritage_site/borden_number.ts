@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { TileSchema } from '@/arches_zod_validation/datatypes/tile.ts';
+import { getStringValueRequiredSchema } from '@/arches_zod_validation/datatypes/string/validation/zod.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import { blankStringValue } from '@/bcrhp/utils.ts';
 
