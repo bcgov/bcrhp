@@ -28,7 +28,9 @@ import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Checkbox from 'primevue/checkbox';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
     'recognitionDetailsForm',
 ) as Ref<FormInstance | null>;
@@ -150,18 +152,18 @@ defineExpose({ isValid });
 </script>
 
 <template>
-    <div>
+    <div v-if="editMode === EditMode.Edit">
         <Checkbox
-            id="editAddressCheckbox"
+            id="editRecognitionDetailsCheckbox"
             v-model="isEditing"
             binary
         ></Checkbox>
-        <label for="editAddressCheckbox">Edit Recognition Details</label>
+        <label for="editRecognitionDetailsCheckbox">Edit Recognition Details</label>
         <Step5_RecognitionDetailsView v-if="!isEditing" />
         <hr />
     </div>
     <Form
-        v-if="isEditing"
+        v-if="isEditing || editMode === EditMode.Add"
         ref="recognitionDetailsForm"
         v-slot="$form"
         name="recognitionDetailsForm"

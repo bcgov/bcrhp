@@ -34,9 +34,14 @@ const siteDocumentList = computed(() => {
 
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Button from 'primevue/button';
+import Checkbox from 'primevue/checkbox';
+import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isEditing = ref(false);
 const internalRemark = computed(() => {
     return heritageSite.value?.aliased_data.internal_remark[0];
 });
@@ -128,6 +133,17 @@ defineExpose({ isValid });
 </script>
 
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editDocumentsCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editDocumentsCheckbox">Edit Supporting Documents</label>
+        <Step10_SupportingDocumentsView v-if="!isEditing" />
+        <hr />
+    </div>
+    <template v-if="isEditing || editMode === EditMode.Add">
     <Form
         ref="supportingDocumentsForm"
         v-slot="$form"
@@ -267,6 +283,7 @@ defineExpose({ isValid });
             </LabelledInput>
         </FieldSet>
     </Form>
+    </template>
 </template>
 
 <style scoped>

@@ -27,9 +27,14 @@ import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
+import Checkbox from 'primevue/checkbox';
+import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassificationView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isEditing = ref(false);
 
 const heritageClassForm = useTemplateRef(
     'heritageClassForm',
@@ -245,6 +250,17 @@ defineExpose({ isValid });
 </script>
 
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editClassificationCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editClassificationCheckbox">Edit Site Classification</label>
+        <Step8_SiteClassificationView v-if="!isEditing" />
+        <hr />
+    </div>
+    <template v-if="isEditing || editMode === EditMode.Add">
     <Form
         ref="heritageClassForm"
         v-slot="$form"
@@ -497,6 +513,7 @@ defineExpose({ isValid });
             </LabelledInput>
         </FieldSet>
     </Form>
+    </template>
 </template>
 
 <style>

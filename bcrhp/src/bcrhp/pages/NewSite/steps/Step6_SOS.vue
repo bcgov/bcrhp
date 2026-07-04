@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -21,9 +21,14 @@ import {
 } from '@/bcrhp/utils.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
+import Checkbox from 'primevue/checkbox';
+import Step6_SOSView from '@/bcrhp/pages/NewSite/steps/Step6_SOSView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isEditing = ref(false);
 
 const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',
@@ -79,7 +84,18 @@ defineExpose({ isValid });
 </script>
 
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editSOSCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editSOSCheckbox">Edit Statement of Significance</label>
+        <Step6_SOSView v-if="!isEditing" />
+        <hr />
+    </div>
     <Form
+        v-if="isEditing || editMode === EditMode.Add"
         ref="statementOfSignificanceForm"
         v-slot="$form"
         name="statementOfSignificanceForm"

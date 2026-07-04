@@ -39,9 +39,14 @@ import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
 } from '@/bcrhp/utils.ts';
+import Checkbox from 'primevue/checkbox';
+import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isEditing = ref(false);
 
 //state
 const currentChronology = ref<ChronologyTileType>(getChronology());
@@ -302,6 +307,17 @@ defineExpose({ isValid });
 </script>
 
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editSiteDetailsCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editSiteDetailsCheckbox">Edit Site Details</label>
+        <Step9_SiteDetailsView v-if="!isEditing" />
+        <hr />
+    </div>
+    <template v-if="isEditing || editMode === EditMode.Add">
     <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
     <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div> -->
     <Form
@@ -661,6 +677,7 @@ defineExpose({ isValid });
         </div>
     </Form>
     <br /><br /><br />
+    </template>
 </template>
 
 <style scoped>

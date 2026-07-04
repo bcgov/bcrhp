@@ -25,7 +25,9 @@ import {
 } from '@/bcrhp/utils.ts';
 import Checkbox from 'primevue/checkbox';
 import Step4_SiteNamesView from '@/bcrhp/pages/NewSite/steps/Step4_SiteNamesView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 
@@ -170,16 +172,15 @@ const handleRemoveOtherName = (index: number) => {
 
 defineExpose({ isValid });
 
-const isEditing = ref(true);
+const isEditing = ref(false);
 watch(
     () => [isEditing.value, commonNameForm.value?.valid] as const,
-    (valid) => {
-        console.log('hi', valid);
+    () => {
         if (!isEditing.value) {
             const parseResult = SiteNamesTileSchema.shape[
                 'aliased_data'
             ].safeParse(filterNamesByType('Common')?.[0]?.aliased_data);
-            return parseResult.success;
+            emit('update:stepIsValid', parseResult.success);
         } else {
             emit('update:stepIsValid', isValid());
         }
@@ -195,17 +196,17 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
+    <div v-if="editMode === EditMode.Edit">
         <Checkbox
-            id="editAddressCheckbox"
+            id="editNamesCheckbox"
             v-model="isEditing"
             binary
         ></Checkbox>
-        <label for="editAddressCheckbox">Edit Names</label>
+        <label for="editNamesCheckbox">Edit Names</label>
         <Step4_SiteNamesView v-if="!isEditing" />
         <hr />
     </div>
-    <div v-if="isEditing">
+    <div v-if="isEditing || editMode === EditMode.Add">
         <FieldSet
             id="siteNamesFieldSet"
             legend="Site Names"

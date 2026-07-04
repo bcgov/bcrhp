@@ -28,9 +28,14 @@ import type {
 import Button from 'primevue/button';
 import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
+import Checkbox from 'primevue/checkbox';
+import Step7_SiteImagesView from '@/bcrhp/pages/NewSite/steps/Step7_SiteImagesView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
+const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
+const isEditing = ref(false);
 
 // Returns a new empty site image. Primary image defaults to true if it's the first,
 // otherwise it is set to false
@@ -174,7 +179,18 @@ defineExpose({ isValid });
 </script>
 
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editImagesCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editImagesCheckbox">Edit Images</label>
+        <Step7_SiteImagesView v-if="!isEditing" />
+        <hr />
+    </div>
     <Form
+        v-if="isEditing || editMode === EditMode.Add"
         ref="siteImageForm"
         v-slot="$form"
         name="siteImageForm"
