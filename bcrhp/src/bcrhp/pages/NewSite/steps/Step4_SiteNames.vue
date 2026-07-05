@@ -66,21 +66,30 @@ const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
 ) as Ref<FormInstance | null>;
 const zodCommonNameResolver = getFlattenResolver(
     zodResolver(SiteNamesTileSchema.shape['aliased_data']),
+    'commonName',
 );
 
 const zodOtherNameResolver = getFlattenResolver(
     zodResolver(SiteNamesTileSchema.shape['aliased_data']),
+    'otherName',
 );
 
-const isValid = () => {
-    return isCommonNameValid() && true;
-};
-
 const isCommonNameValid = () => {
+    if (!commonNameForm.value) {
+        // Form not mounted (view mode or transitioning) — validate data directly
+        const status = SiteNamesTileSchema.shape['aliased_data'].safeParse(
+            filterNamesByType('Common')?.[0]?.aliased_data,
+        );
+        return status.success;
+    }
     return baseIsValid(
         commonNameForm as Ref<FormInstance>,
         SiteNamesTileSchema.shape['aliased_data'],
     );
+};
+
+const isValid = () => {
+    return isCommonNameValid();
 };
 const isOtherNameValid = () => {
     return baseIsValid(
@@ -174,16 +183,14 @@ defineExpose({ isValid });
 
 const isEditing = ref(false);
 watch(
-    () => [isEditing.value, commonNameForm.value?.valid] as const,
+    () =>
+        [
+            isEditing.value,
+            commonNameForm.value?.valid,
+            heritageSite.value?.aliased_data?.site_names,
+        ] as const,
     () => {
-        if (!isEditing.value) {
-            const parseResult = SiteNamesTileSchema.shape[
-                'aliased_data'
-            ].safeParse(filterNamesByType('Common')?.[0]?.aliased_data);
-            emit('update:stepIsValid', parseResult.success);
-        } else {
-            emit('update:stepIsValid', isValid());
-        }
+        emit('update:stepIsValid', isValid());
     },
     { immediate: true },
 );

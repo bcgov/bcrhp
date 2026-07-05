@@ -92,30 +92,28 @@ export async function getPidData(pid: string): Promise<Partial<PidData>> {
     return result;
 }
 
-export async function submitHeritageSite(
+async function buildHeritageSiteFormData(
     site: HeritageSiteType,
-): Promise<HeritageSiteType> {
-    const csrftoken = await getToken();
+): Promise<FormData> {
     const fd = new FormData();
 
-    // Push image files onto form data
-    console.log(`Number of images: ${site.aliased_data.site_images.length}`);
-    console.log(`Number of documents: ${site.aliased_data.site_document}`);
     site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
         const file: FileReference = image_tile.aliased_data.site_images
             .node_value[0] as FileReference;
         if (file) {
-            file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
-            fd.append(
-                `file-list_${image_tile.tileid}-${file.node_id}`,
-                file.file as File,
-                file.name,
-            );
+            if (file?.status !== 'uploaded') {
+                file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
+                fd.append(
+                    `file-list_${image_tile.tileid}-${file.node_id}`,
+                    file.file as File,
+                    file.name,
+                );
+            }
         } else {
             console.log('no file found for image tile', image_tile);
         }
     });
-    // Push documents onto form data
+
     site.aliased_data.site_document.forEach(
         (document_tile: SiteDocumentTileType) => {
             const file = document_tile.aliased_data.site_document.node_value[0];
@@ -127,7 +125,16 @@ export async function submitHeritageSite(
             );
         },
     );
+
     fd.append('json', JSON.stringify(site));
+    return fd;
+}
+
+export async function submitHeritageSite(
+    site: HeritageSiteType,
+): Promise<HeritageSiteType> {
+    const csrftoken = await getToken();
+    const fd = await buildHeritageSiteFormData(site);
 
     const headers: Record<string, string> = {
         'X-CSRFToken': csrftoken,
@@ -147,6 +154,50 @@ export async function submitHeritageSite(
         } catch (e) {
             throw new Error(
                 `Unable to save submission: ${response.statusText}`,
+                { cause: e },
+            );
+        }
+        throw errorData;
+    }
+
+    const responseData = await response.json();
+    console.log('✅ RETURNED FROM BACKEND:', responseData);
+
+    return responseData;
+}
+
+export async function updateHeritageSite(
+    site: HeritageSiteType,
+): Promise<HeritageSiteType> {
+    const resourceinstanceid = site.resourceinstanceid;
+    if (!resourceinstanceid) {
+        throw new Error('Cannot update a site without a resourceinstanceid');
+    }
+
+    const csrftoken = await getToken();
+    const fd = await buildHeritageSiteFormData(site);
+
+    const headers: Record<string, string> = {
+        'X-CSRFToken': csrftoken,
+        Accept: 'application/json',
+        // DO NOT set Content-Type; the browser will add the correct multipart boundary.
+    };
+    const response = await fetch(
+        arches.urls.submit_update_site(resourceinstanceid),
+        {
+            method: 'PATCH',
+            headers: headers,
+            body: fd,
+        },
+    );
+
+    if (response.status !== 200) {
+        let errorData;
+        try {
+            errorData = await response.json();
+        } catch (e) {
+            throw new Error(
+                `Unable to update submission: ${response.statusText}`,
                 { cause: e },
             );
         }

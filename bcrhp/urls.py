@@ -35,9 +35,16 @@ urlpatterns = [
         bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"
     ),
     re_path(
-        bc_path_prefix(r"^api/submit_new_site/"),
+        bc_path_prefix(r"^api/submit_new_site/$"),
         SubmitHeritageSite.as_view(),
         name="submit-new-site",
+    ),
+    re_path(
+        bc_path_prefix(
+            r"^api/submit_new_site/(?P<resourceinstanceid>%s)/$" % uuid_regex
+        ),
+        SubmitHeritageSite.as_view(),
+        name="submit-update-site",
     ),
     re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),

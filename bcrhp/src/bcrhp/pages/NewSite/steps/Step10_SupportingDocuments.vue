@@ -144,145 +144,156 @@ defineExpose({ isValid });
         <hr />
     </div>
     <template v-if="isEditing || editMode === EditMode.Add">
-    <Form
-        ref="supportingDocumentsForm"
-        v-slot="$form"
-        name="supportingDocumentsForm"
-        :validateOnBlur="true"
-        :resolver="supportingDocumentsResolver"
-    >
-        <FieldSet
-            id="documentsFieldset"
-            legend="Required Documents"
+        <Form
+            ref="supportingDocumentsForm"
+            v-slot="$form"
+            name="supportingDocumentsForm"
+            :validateOnBlur="true"
+            :resolver="supportingDocumentsResolver"
         >
-            <div class="flex flex-row gap-4">
-                <div
-                    class="instructions"
-                    style="margin-bottom: 1rem"
-                >
-                    Upload supporting and required documents. Drag and drop 1
-                    file at a time, filling out the form for each file. Hit +Add
-                    after each completed entry. Required documents include:
+            <FieldSet
+                id="documentsFieldset"
+                legend="Required Documents"
+            >
+                <div class="flex flex-row gap-4">
+                    <div
+                        class="instructions"
+                        style="margin-bottom: 1rem"
+                    >
+                        Upload supporting and required documents. Drag and drop
+                        1 file at a time, filling out the form for each file.
+                        Hit +Add after each completed entry. Required documents
+                        include:
 
-                    <ul>
-                        <li>Bylaw, Resolution, or Council Meeting Minutes</li>
-                        <li>
-                            GIS files or Site Map (if no geospatial data was
-                            included in Step 3)
-                        </li>
-                    </ul>
+                        <ul>
+                            <li>
+                                Bylaw, Resolution, or Council Meeting Minutes
+                            </li>
+                            <li>
+                                GIS files or Site Map (if no geospatial data was
+                                included in Step 3)
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <LabelledInput
-                label="Document"
-                input-name="document"
-                :error-message="$form.site_document?.error?.message"
-                :required="true"
-            >
-                <GenericWidget
-                    :key="siteDocumentKey"
+                <LabelledInput
+                    label="Document"
+                    input-name="document"
+                    :error-message="$form.site_document?.error?.message"
                     :required="true"
-                    graph-slug="heritage_site"
-                    node-alias="site_document"
-                    :should-show-label="false"
-                    :mode="EDIT"
-                    :aliased-node-data="
-                        siteDocument.value?.aliased_data?.site_document
-                    "
-                    @update:value="updateModelValue($event, 'site_document')"
-                ></GenericWidget>
-            </LabelledInput>
-            <LabelledInput
-                label="Document Type"
-                input-name="document"
-                :error-message="$form.document_type?.error?.message"
-                :required="true"
-            >
-                <GenericWidget
-                    :key="siteDocumentKey"
-                    :required="true"
-                    graph-slug="heritage_site"
-                    node-alias="document_type"
-                    :should-show-label="false"
-                    :mode="EDIT"
-                    :card-x-node-x-widget-data-overrides="documentTypeOverrides"
-                    :aliased-node-data="
-                        siteDocument.value?.aliased_data?.document_type
-                    "
-                    @update:value="updateModelValue($event, 'document_type')"
-                ></GenericWidget>
-            </LabelledInput>
-            <LabelledInput
-                label="Document Description"
-                input-name="document"
-                :error-message="$form.document_description?.error?.message"
-                :required="true"
-                hint="Provide a short description of the document content"
-            >
-                <GenericWidget
-                    :key="siteDocumentKey"
-                    :required="true"
-                    graph-slug="heritage_site"
-                    node-alias="document_description"
-                    :should-show-label="false"
-                    :mode="EDIT"
-                    :aliased-node-data="
-                        siteDocument.value?.aliased_data?.document_description
-                    "
-                    @update:value="
-                        updateModelValue($event, 'document_description')
-                    "
-                ></GenericWidget>
-            </LabelledInput>
-            <br />
-        </FieldSet>
-    </Form>
-    <br />
-    <div class="row">
-        <Button
-            id="addOtherName"
-            label="+ Add"
-            class="button-padding"
-            :aria-disabled="addDocumentDisabled"
-            :disabled="addDocumentDisabled"
-            @click="saveDocument"
-        ></Button>
-        <ChipsList
-            label="Site Documents"
-            :items="siteDocumentList"
-            :display-keys="['customDisplay']"
-            @remove="deleteSiteDocument"
-        />
-    </div>
-    <br /><br />
-    <Form>
-        <FieldSet
-            id="submissionNotesFieldset"
-            legend="Submission Notes (Optional)"
-        >
-            <LabelledInput
-                input-name="submissionNotes"
-                hint="Enter any additional remarks about the site submission"
-            >
-                <div class="p-inputtext-fluid">
+                >
                     <GenericWidget
                         :key="siteDocumentKey"
                         :required="true"
                         graph-slug="heritage_site"
-                        node-alias="internal_remark"
+                        node-alias="site_document"
                         :should-show-label="false"
                         :mode="EDIT"
                         :aliased-node-data="
-                            internalRemark?.value?.aliased_data?.internal_remark
+                            siteDocument.value?.aliased_data?.site_document
                         "
                         @update:value="
-                            updateModelValue($event, 'internal_remark')
+                            updateModelValue($event, 'site_document')
                         "
                     ></GenericWidget>
-                </div>
-            </LabelledInput>
-        </FieldSet>
-    </Form>
+                </LabelledInput>
+                <LabelledInput
+                    label="Document Type"
+                    input-name="document"
+                    :error-message="$form.document_type?.error?.message"
+                    :required="true"
+                >
+                    <GenericWidget
+                        :key="siteDocumentKey"
+                        :required="true"
+                        graph-slug="heritage_site"
+                        node-alias="document_type"
+                        :should-show-label="false"
+                        :mode="EDIT"
+                        :card-x-node-x-widget-data-overrides="
+                            documentTypeOverrides
+                        "
+                        :aliased-node-data="
+                            siteDocument.value?.aliased_data?.document_type
+                        "
+                        @update:value="
+                            updateModelValue($event, 'document_type')
+                        "
+                    ></GenericWidget>
+                </LabelledInput>
+                <LabelledInput
+                    label="Document Description"
+                    input-name="document"
+                    :error-message="$form.document_description?.error?.message"
+                    :required="true"
+                    hint="Provide a short description of the document content"
+                >
+                    <GenericWidget
+                        :key="siteDocumentKey"
+                        :required="true"
+                        graph-slug="heritage_site"
+                        node-alias="document_description"
+                        :should-show-label="false"
+                        :mode="EDIT"
+                        :aliased-node-data="
+                            siteDocument.value?.aliased_data
+                                ?.document_description
+                        "
+                        @update:value="
+                            updateModelValue($event, 'document_description')
+                        "
+                    ></GenericWidget>
+                </LabelledInput>
+                <br />
+            </FieldSet>
+        </Form>
+        <br />
+        <div class="row">
+            <Button
+                id="addOtherName"
+                label="+ Add"
+                class="button-padding"
+                :aria-disabled="addDocumentDisabled"
+                :disabled="addDocumentDisabled"
+                @click="saveDocument"
+            ></Button>
+            <ChipsList
+                label="Site Documents"
+                :items="siteDocumentList"
+                :display-keys="['customDisplay']"
+                @remove="deleteSiteDocument"
+            />
+        </div>
+        <br /><br />
+        <Form>
+            <FieldSet
+                id="submissionNotesFieldset"
+                legend="Submission Notes (Optional)"
+            >
+                <LabelledInput
+                    input-name="submissionNotes"
+                    hint="Enter any additional remarks about the site submission"
+                >
+                    <div class="p-inputtext-fluid">
+                        <GenericWidget
+                            :key="siteDocumentKey"
+                            :required="true"
+                            graph-slug="heritage_site"
+                            node-alias="internal_remark"
+                            :should-show-label="false"
+                            :mode="EDIT"
+                            :aliased-node-data="
+                                internalRemark?.value?.aliased_data
+                                    ?.internal_remark
+                            "
+                            @update:value="
+                                updateModelValue($event, 'internal_remark')
+                            "
+                        ></GenericWidget>
+                    </div>
+                </LabelledInput>
+            </FieldSet>
+        </Form>
     </template>
 </template>
 

@@ -20,6 +20,7 @@ import {
     getBlankHeritageSite,
     getHeritageSite,
     submitHeritageSite,
+    updateHeritageSite,
 } from '@/bcrhp/api.ts';
 import {
     getHeritageSite as getHeritageSiteStatic,
@@ -149,14 +150,20 @@ const getBlank = async () => {
     return getBlankHeritageSite() as Promise<HeritageSiteType>;
 };
 
+const editMode: Ref<EditMode> = ref(
+    route.name === 'updateSite' ? EditMode.Edit : EditMode.Add,
+);
+
 const submit = async (data: unknown) => {
+    if (editMode.value === EditMode.Edit) {
+        return updateHeritageSite(
+            data as HeritageSiteType,
+        ) as Promise<HeritageSiteType>;
+    }
     return submitHeritageSite(
         data as HeritageSiteType,
     ) as Promise<HeritageSiteType>;
 };
-const editMode: Ref<EditMode> = ref(
-    route.name === 'updateSite' ? EditMode.Edit : EditMode.Add,
-);
 
 const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSiteStatic());
 </script>

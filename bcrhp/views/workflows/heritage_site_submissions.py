@@ -146,11 +146,14 @@ class PatchedArchesResourceBlankView(ArchesResourceBlankView):
         return serializer_context
 
 
-class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):
+class SubmitHeritageSite(
+    ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView, UpdateAPIView
+):
     permission_classes = [ResourceEditor | LocalGovernment]
     serializer_class = HeritageSiteSerializer
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination
+    lookup_field = "resourceinstanceid"
     valid_keys = ["aliased_data"]
     required_sections = [
         "resourceinstanceid",
@@ -245,7 +248,7 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
                     sb["aliased_data"]["site_boundary"]["node_value"]
                 )
 
-        site["aliased_data"].pop("borden_number")
+        site["aliased_data"].pop("borden_number", None)
         site["aliased_data"]["bc_right"]["aliased_data"]["registration_status"][
             "node_value"
         ] = self.get_default_registration_status_uuid()
@@ -316,6 +319,48 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         return JSONResponse(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def partial_update(self, request, *args, **kwargs):
+        raw = request.data
+        cleaned_object = raw
+        logger.debug("FILES keys=%s", list(request.FILES.keys()))
+
+        for field_name, f in request.FILES.items():
+            logger.debug(
+                "file field=%s name=%s size=%s content_type=%s",
+                field_name,
+                f.name,
+                f.size,
+                getattr(f, "content_type", None),
+            )
+
+        self.patch_data(cleaned_object)
+        self.prune_data(cleaned_object)
+        patched = cleaned_object
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=patched, partial=True)
+
+        if not serializer.is_valid():
+            logger.warning("serializer.errors: %s", serializer.errors)
+            for error in format_deep_errors(serializer.errors):
+                logger.warning(f" - {error}")
+            return JSONResponse(serializer.errors, status=400)
+
+        try:
+            self.perform_update(serializer)
+        except Exception as e:
+            logger.error(f"Unable to update: {e}", exc_info=True)
+            return JSONResponse(
+                {
+                    "error": "Unable to update resource",
+                    "message": str(e),
+                    "type": e.__class__.__name__,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return JSONResponse(serializer.data, status=status.HTTP_200_OK)
 
 
 # class SubmissionsForReviewPagination(ArchesLimitOffsetPagination):

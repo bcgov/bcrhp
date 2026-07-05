@@ -318,365 +318,377 @@ defineExpose({ isValid });
         <hr />
     </div>
     <template v-if="isEditing || editMode === EditMode.Add">
-    <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
+        <!-- <div class="mt-4">Chronology Valid? {{ isValidChronology }}</div>
     <div class="mt-4">Disable Button? {{ addChronologyDisabled }}</div> -->
-    <Form
-        ref="chronologyForm"
-        v-slot="$form"
-        name="chronologyForm"
-        :validateOnBlur="true"
-        :resolver="chronologyResolver"
-    >
-        <FieldSet
-            id="chronologyFieldset"
-            :key="chronologyKey"
-            legend="Chronology"
+        <Form
+            ref="chronologyForm"
+            v-slot="$form"
+            name="chronologyForm"
+            :validateOnBlur="true"
+            :resolver="chronologyResolver"
         >
-            <div class="flex flex-row flex-wrap">
-                <div class="flex-grow">
-                    <div class="flex flex-col flex-grow nobold_label">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="true"
-                            :aliasedNodeData="
-                                currentChronology.aliased_data.chronology
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="chronology"
-                            group-direction="column"
-                            @update:value="
-                                updateChronologyModelValue($event, 'chronology')
-                            "
-                        />
+            <FieldSet
+                id="chronologyFieldset"
+                :key="chronologyKey"
+                legend="Chronology"
+            >
+                <div class="flex flex-row flex-wrap">
+                    <div class="flex-grow">
+                        <div class="flex flex-col flex-grow nobold_label">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="true"
+                                :aliasedNodeData="
+                                    currentChronology.aliased_data.chronology
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="chronology"
+                                group-direction="column"
+                                @update:value="
+                                    updateChronologyModelValue(
+                                        $event,
+                                        'chronology',
+                                    )
+                                "
+                            />
+                        </div>
                     </div>
-                </div>
-                <div class="flex flex-row flex-grow">
-                    <LabelledInput
-                        label="Start Year"
-                        hint="Year the event started"
-                        input-name="ChronologyStartYear"
-                        :error-message="
-                            $form.chronologyStartYear?.error?.message
-                        "
-                    >
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentChronology.aliased_data.start_year
+                    <div class="flex flex-row flex-grow">
+                        <LabelledInput
+                            label="Start Year"
+                            hint="Year the event started"
+                            input-name="ChronologyStartYear"
+                            :error-message="
+                                $form.chronologyStartYear?.error?.message
                             "
-                            graph-slug="heritage_site"
-                            node-alias="start_year"
-                            placeholder="Select a Start Year"
-                            group-direction="column"
-                            class="flex-grow"
-                            @update:value="
-                                updateChronologyModelValue($event, 'start_year')
-                            "
-                        />
-                    </LabelledInput>
-                    <LabelledInput
-                        label="End Year"
-                        hint="Year the event ended if applicable"
-                        input-name="ChronologyEndYear"
-                        :error-message="$form.chronologyEndYear?.error?.message"
-                    >
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentChronology.aliased_data.end_year
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="end_year"
-                            placeholder="Select an End Year"
-                            group-direction="column"
-                            class="flex-grow"
-                            @update:value="
-                                updateChronologyModelValue($event, 'end_year')
-                            "
-                        />
-                    </LabelledInput>
-                    <div class="align-checkbox">
-                        <div class="flex flex-row flex-row-checkbox">
+                        >
                             <GenericWidget
                                 :mode="EDIT"
                                 :should-show-label="false"
                                 :aliasedNodeData="
-                                    currentChronology.aliased_data
-                                        .dates_approximate
+                                    currentChronology.aliased_data.start_year
                                 "
                                 graph-slug="heritage_site"
-                                node-alias="dates_approximate"
-                                :card-x-node-x-widget-data-overrides="
-                                    checkboxOverrides
-                                "
+                                node-alias="start_year"
+                                placeholder="Select a Start Year"
+                                group-direction="column"
+                                class="flex-grow"
                                 @update:value="
                                     updateChronologyModelValue(
                                         $event,
-                                        'dates_approximate',
+                                        'start_year',
                                     )
                                 "
                             />
-                            <div>Circa</div>
+                        </LabelledInput>
+                        <LabelledInput
+                            label="End Year"
+                            hint="Year the event ended if applicable"
+                            input-name="ChronologyEndYear"
+                            :error-message="
+                                $form.chronologyEndYear?.error?.message
+                            "
+                        >
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentChronology.aliased_data.end_year
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="end_year"
+                                placeholder="Select an End Year"
+                                group-direction="column"
+                                class="flex-grow"
+                                @update:value="
+                                    updateChronologyModelValue(
+                                        $event,
+                                        'end_year',
+                                    )
+                                "
+                            />
+                        </LabelledInput>
+                        <div class="align-checkbox">
+                            <div class="flex flex-row flex-row-checkbox">
+                                <GenericWidget
+                                    :mode="EDIT"
+                                    :should-show-label="false"
+                                    :aliasedNodeData="
+                                        currentChronology.aliased_data
+                                            .dates_approximate
+                                    "
+                                    graph-slug="heritage_site"
+                                    node-alias="dates_approximate"
+                                    :card-x-node-x-widget-data-overrides="
+                                        checkboxOverrides
+                                    "
+                                    @update:value="
+                                        updateChronologyModelValue(
+                                            $event,
+                                            'dates_approximate',
+                                        )
+                                    "
+                                />
+                                <div>Circa</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <br />
-            <div>
-                <LabelledInput
-                    label="Chronology Notes (Optional)"
-                    hint="Enter details about the significant event"
-                    input-name="chronologyNotes"
-                    :error-message="$form.chronologyNotes?.error?.message"
-                >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentChronology.aliased_data.chronology_notes
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="chronology_notes"
-                        @update:value="
-                            updateChronologyModelValue(
-                                $event,
-                                'chronology_notes',
-                            )
-                        "
-                    />
-                </LabelledInput>
-            </div>
-        </FieldSet>
-        <div class="row">
-            <Button
-                id="saveChronology"
-                label="+ Add Chronology"
-                class="button-padding"
-                :aria-disabled="addChronologyDisabled"
-                :disabled="addChronologyDisabled"
-                @click="saveChronology"
-            />
-            <ChipsList
-                label="Chronologies"
-                :items="chronologies"
-                :display-function="chronologyDisplayFunction"
-                @remove="deleteChronologyCallback"
-            />
-        </div>
-    </Form>
-
-    <Form
-        ref="constructionActorForm"
-        v-slot="$form"
-        name="constructionActorForm"
-        :validateOnBlur="true"
-        :resolver="constructionActorResolver"
-    >
-        <FieldSet
-            id="architectsBuildersFieldset"
-            :key="actorKey"
-            class="mt-2"
-            legend="Architects / Builders"
-        >
-            <div>
-                <LabelledInput
-                    label="Architect / Builder Name"
-                    hint="Enter the company or individual's name"
-                    input-name="architectOrBuilderName"
-                    class="flex-grow"
-                    :error-message="
-                        $form.architectOrBuilderName?.error?.message
-                    "
-                    :required="true"
-                >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliased-node-data="
-                            currentConstructionActor.aliased_data
-                                .construction_actor
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="construction_actor"
-                        placeholder="Select an Architect / Builder"
-                        group-direction="column"
-                        @update:value="
-                            updateConstructionActorValue(
-                                $event,
-                                'construction_actor',
-                            )
-                        "
-                    />
-                </LabelledInput>
-
-                <LabelledInput
-                    label="Type"
-                    input-name="architectOrBuilderType"
-                    class="flex-grow"
-                    :error-message="
-                        $form.architectOrBuilderType?.error?.message
-                    "
-                    :required="true"
-                >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliased-node-data="
-                            currentConstructionActor.aliased_data
-                                .construction_actor_type
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="construction_actor_type"
-                        placeholder="Select a Type"
-                        group-direction="column"
-                        @update:value="
-                            updateConstructionActorValue(
-                                $event,
-                                'construction_actor_type',
-                            )
-                        "
-                    />
-                </LabelledInput>
-            </div>
-
-            <div>
-                <LabelledInput
-                    label="Notes (Optional)"
-                    hint="Provide any additional comments"
-                    input-name="architectOrBuilderNotes"
-                    :error-message="
-                        $form.architectOrBuilderNotes?.error?.message
-                    "
-                >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentConstructionActor.aliased_data
-                                .construction_actor_notes
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="construction_actor_notes"
-                        group-direction="column"
-                        @update:value="
-                            updateConstructionActorValue(
-                                $event,
-                                'construction_actor_notes',
-                            )
-                        "
-                    />
-                </LabelledInput>
-            </div>
-        </FieldSet>
-        <div class="row">
-            <Button
-                id="addOtherName"
-                label="+ Add Architect/Builder"
-                class="button-padding"
-                :disabled="addConstructionActorDisabled"
-                @click="saveArchitectOrBuilder"
-            />
-            <ChipsList
-                label="Architects / Builders"
-                :items="constructionActors"
-                :display-function="actorDisplayFunction"
-                @remove="deleteArchitectBuilderCallback"
-            />
-        </div>
-    </Form>
-
-    <Form
-        ref="externalUrlForm"
-        v-slot="$form"
-        name="externalUrlForm"
-        :validateOnBlur="true"
-        :validateOnValueUpdate="true"
-        :resolver="externalUrlResolver"
-    >
-        <FieldSet
-            id="relatedURLsFieldset"
-            :key="urlKey"
-            legend="Related URLs"
-        >
-            <div>
-                <LabelledInput
-                    label="URL Type"
-                    hint="Select the type of link"
-                    input-name="external_url_type"
-                    class="flex-grow"
-                    :error-message="$form.external_url_type?.error?.message"
-                    :required="true"
-                >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliasedNodeData="
-                            currentExternalUrl.aliased_data.external_url_type
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="external_url_type"
-                        placeholder="Select a URL Type"
-                        group-direction="column"
-                        @update:value="
-                            updateExternalUrlModelValue(
-                                $event,
-                                'external_url_type',
-                            )
-                        "
-                    />
-                </LabelledInput>
-                <LabelledInput
-                    hint='Enter a description of the link in "URL Label", then provide the full, publicly accessible URL below'
-                    input-name="external_url"
-                    class="flex-grow"
-                    :error-message="$form.external_url?.error?.message"
-                >
-                    <FieldSet>
-                        <template #legend>
-                            <span class="bold_url fieldset-subheader">
-                                <span class="red">* </span>URL information
-                            </span>
-                        </template>
+                <br />
+                <div>
+                    <LabelledInput
+                        label="Chronology Notes (Optional)"
+                        hint="Enter details about the significant event"
+                        input-name="chronologyNotes"
+                        :error-message="$form.chronologyNotes?.error?.message"
+                    >
                         <GenericWidget
-                            :required="true"
                             :mode="EDIT"
                             :should-show-label="false"
                             :aliasedNodeData="
-                                currentExternalUrl.aliased_data.external_url
+                                currentChronology.aliased_data.chronology_notes
                             "
                             graph-slug="heritage_site"
-                            node-alias="external_url"
+                            node-alias="chronology_notes"
+                            @update:value="
+                                updateChronologyModelValue(
+                                    $event,
+                                    'chronology_notes',
+                                )
+                            "
+                        />
+                    </LabelledInput>
+                </div>
+            </FieldSet>
+            <div class="row">
+                <Button
+                    id="saveChronology"
+                    label="+ Add Chronology"
+                    class="button-padding"
+                    :aria-disabled="addChronologyDisabled"
+                    :disabled="addChronologyDisabled"
+                    @click="saveChronology"
+                />
+                <ChipsList
+                    label="Chronologies"
+                    :items="chronologies"
+                    :display-function="chronologyDisplayFunction"
+                    @remove="deleteChronologyCallback"
+                />
+            </div>
+        </Form>
+
+        <Form
+            ref="constructionActorForm"
+            v-slot="$form"
+            name="constructionActorForm"
+            :validateOnBlur="true"
+            :resolver="constructionActorResolver"
+        >
+            <FieldSet
+                id="architectsBuildersFieldset"
+                :key="actorKey"
+                class="mt-2"
+                legend="Architects / Builders"
+            >
+                <div>
+                    <LabelledInput
+                        label="Architect / Builder Name"
+                        hint="Enter the company or individual's name"
+                        input-name="architectOrBuilderName"
+                        class="flex-grow"
+                        :error-message="
+                            $form.architectOrBuilderName?.error?.message
+                        "
+                        :required="true"
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliased-node-data="
+                                currentConstructionActor.aliased_data
+                                    .construction_actor
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="construction_actor"
+                            placeholder="Select an Architect / Builder"
+                            group-direction="column"
+                            @update:value="
+                                updateConstructionActorValue(
+                                    $event,
+                                    'construction_actor',
+                                )
+                            "
+                        />
+                    </LabelledInput>
+
+                    <LabelledInput
+                        label="Type"
+                        input-name="architectOrBuilderType"
+                        class="flex-grow"
+                        :error-message="
+                            $form.architectOrBuilderType?.error?.message
+                        "
+                        :required="true"
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliased-node-data="
+                                currentConstructionActor.aliased_data
+                                    .construction_actor_type
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="construction_actor_type"
+                            placeholder="Select a Type"
+                            group-direction="column"
+                            @update:value="
+                                updateConstructionActorValue(
+                                    $event,
+                                    'construction_actor_type',
+                                )
+                            "
+                        />
+                    </LabelledInput>
+                </div>
+
+                <div>
+                    <LabelledInput
+                        label="Notes (Optional)"
+                        hint="Provide any additional comments"
+                        input-name="architectOrBuilderNotes"
+                        :error-message="
+                            $form.architectOrBuilderNotes?.error?.message
+                        "
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentConstructionActor.aliased_data
+                                    .construction_actor_notes
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="construction_actor_notes"
+                            group-direction="column"
+                            @update:value="
+                                updateConstructionActorValue(
+                                    $event,
+                                    'construction_actor_notes',
+                                )
+                            "
+                        />
+                    </LabelledInput>
+                </div>
+            </FieldSet>
+            <div class="row">
+                <Button
+                    id="addOtherName"
+                    label="+ Add Architect/Builder"
+                    class="button-padding"
+                    :disabled="addConstructionActorDisabled"
+                    @click="saveArchitectOrBuilder"
+                />
+                <ChipsList
+                    label="Architects / Builders"
+                    :items="constructionActors"
+                    :display-function="actorDisplayFunction"
+                    @remove="deleteArchitectBuilderCallback"
+                />
+            </div>
+        </Form>
+
+        <Form
+            ref="externalUrlForm"
+            v-slot="$form"
+            name="externalUrlForm"
+            :validateOnBlur="true"
+            :validateOnValueUpdate="true"
+            :resolver="externalUrlResolver"
+        >
+            <FieldSet
+                id="relatedURLsFieldset"
+                :key="urlKey"
+                legend="Related URLs"
+            >
+                <div>
+                    <LabelledInput
+                        label="URL Type"
+                        hint="Select the type of link"
+                        input-name="external_url_type"
+                        class="flex-grow"
+                        :error-message="$form.external_url_type?.error?.message"
+                        :required="true"
+                    >
+                        <GenericWidget
+                            :mode="EDIT"
+                            :should-show-label="false"
+                            :aliasedNodeData="
+                                currentExternalUrl.aliased_data
+                                    .external_url_type
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="external_url_type"
+                            placeholder="Select a URL Type"
                             group-direction="column"
                             @update:value="
                                 updateExternalUrlModelValue(
                                     $event,
-                                    'external_url',
+                                    'external_url_type',
                                 )
                             "
                         />
-                    </FieldSet>
-                </LabelledInput>
+                    </LabelledInput>
+                    <LabelledInput
+                        hint='Enter a description of the link in "URL Label", then provide the full, publicly accessible URL below'
+                        input-name="external_url"
+                        class="flex-grow"
+                        :error-message="$form.external_url?.error?.message"
+                    >
+                        <FieldSet>
+                            <template #legend>
+                                <span class="bold_url fieldset-subheader">
+                                    <span class="red">* </span>URL information
+                                </span>
+                            </template>
+                            <GenericWidget
+                                :required="true"
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentExternalUrl.aliased_data.external_url
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="external_url"
+                                group-direction="column"
+                                @update:value="
+                                    updateExternalUrlModelValue(
+                                        $event,
+                                        'external_url',
+                                    )
+                                "
+                            />
+                        </FieldSet>
+                    </LabelledInput>
+                </div>
+            </FieldSet>
+            <div class="row">
+                <Button
+                    id="saveURL"
+                    label="+ Add URL"
+                    class="button-padding"
+                    :disabled="addExternalUrlDisabled"
+                    @click="saveExternalUrl"
+                />
+                <ChipsList
+                    label="Related URLs"
+                    :items="externalUrls"
+                    :display-function="externalUrlDisplayFunction"
+                    @remove="deleteURLCallback"
+                />
             </div>
-        </FieldSet>
-        <div class="row">
-            <Button
-                id="saveURL"
-                label="+ Add URL"
-                class="button-padding"
-                :disabled="addExternalUrlDisabled"
-                @click="saveExternalUrl"
-            />
-            <ChipsList
-                label="Related URLs"
-                :items="externalUrls"
-                :display-function="externalUrlDisplayFunction"
-                @remove="deleteURLCallback"
-            />
-        </div>
-    </Form>
-    <br /><br /><br />
+        </Form>
+        <br /><br /><br />
     </template>
 </template>
 

@@ -158,7 +158,9 @@ defineExpose({ isValid });
             v-model="isEditing"
             binary
         ></Checkbox>
-        <label for="editRecognitionDetailsCheckbox">Edit Recognition Details</label>
+        <label for="editRecognitionDetailsCheckbox"
+            >Edit Recognition Details</label
+        >
         <Step5_RecognitionDetailsView v-if="!isEditing" />
         <hr />
     </div>
