@@ -100,29 +100,27 @@ async function buildHeritageSiteFormData(
     site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
         const file: FileReference = image_tile.aliased_data.site_images
             .node_value[0] as FileReference;
-        if (file) {
-            if (file?.status !== 'uploaded') {
-                file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
-                fd.append(
-                    `file-list_${image_tile.tileid}-${file.node_id}`,
-                    file.file as File,
-                    file.name,
-                );
-            }
-        } else {
-            console.log('no file found for image tile', image_tile);
+        if (file?.file instanceof File) {
+            file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
+            fd.append(
+                `file-list_${image_tile.tileid}-${file.node_id}`,
+                file.file,
+                file.name,
+            );
         }
     });
 
     site.aliased_data.site_document.forEach(
         (document_tile: SiteDocumentTileType) => {
             const file = document_tile.aliased_data.site_document.node_value[0];
-            file.file_id = `file-list_${document_tile.tileid}-${file.node_id}`;
-            fd.append(
-                `file-list_${document_tile.tileid}-${file.node_id}`,
-                file.file as File,
-                file.name,
-            );
+            if (file?.file instanceof File) {
+                file.file_id = `file-list_${document_tile.tileid}-${file.node_id}`;
+                fd.append(
+                    `file-list_${document_tile.tileid}-${file.node_id}`,
+                    file.file,
+                    file.name,
+                );
+            }
         },
     );
 
