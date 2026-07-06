@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -148,6 +148,17 @@ function deleteProtectionEvent(index: number) {
 }
 
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(heritageSite.value.aliased_data.bc_right),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.bc_right = snapshot as any;
+        snapshot = null;
+    }
+});
 defineExpose({ isValid });
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, inject, computed } from 'vue';
+import { ref, useTemplateRef, inject, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
@@ -36,6 +36,17 @@ const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(heritageSite.value.aliased_data.site_images),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.site_images = snapshot as any;
+        snapshot = null;
+    }
+});
 
 // Returns a new empty site image. Primary image defaults to true if it's the first,
 // otherwise it is set to false

@@ -35,6 +35,28 @@ const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify({
+                heritage_class:
+                    heritageSite.value.aliased_data.heritage_class,
+                heritage_function:
+                    heritageSite.value.aliased_data.heritage_function,
+                heritage_theme:
+                    heritageSite.value.aliased_data.heritage_theme,
+            }),
+        );
+    } else if (snapshot !== null) {
+        const s = snapshot as any;
+        heritageSite.value.aliased_data.heritage_class = s.heritage_class;
+        heritageSite.value.aliased_data.heritage_function =
+            s.heritage_function;
+        heritageSite.value.aliased_data.heritage_theme = s.heritage_theme;
+        snapshot = null;
+    }
+});
 
 const heritageClassForm = useTemplateRef(
     'heritageClassForm',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -357,6 +357,20 @@ const stringWidgetOverride = {
 };
 
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(
+                heritageSite.value.aliased_data.heritage_site_location,
+            ),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.heritage_site_location =
+            snapshot as any;
+        snapshot = null;
+    }
+});
 defineExpose({ isValid });
 </script>
 

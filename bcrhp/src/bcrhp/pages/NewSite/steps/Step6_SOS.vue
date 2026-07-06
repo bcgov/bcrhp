@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
@@ -29,6 +29,20 @@ const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(
+                heritageSite.value.aliased_data.bc_statement_of_significance,
+            ),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.bc_statement_of_significance =
+            snapshot as any;
+        snapshot = null;
+    }
+});
 
 const statementOfSignificanceForm: Ref<FormInstance | null> = useTemplateRef(
     'statementOfSignificanceForm',

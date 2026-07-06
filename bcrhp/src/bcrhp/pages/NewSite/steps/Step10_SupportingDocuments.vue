@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useTemplateRef, inject, ref } from 'vue';
+import { computed, useTemplateRef, inject, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 import FieldSet from 'primevue/fieldset';
 import { Form, type FormInstance } from '@primevue/forms';
@@ -42,6 +42,23 @@ const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify({
+                site_document: heritageSite.value.aliased_data.site_document,
+                internal_remark:
+                    heritageSite.value.aliased_data.internal_remark,
+            }),
+        );
+    } else if (snapshot !== null) {
+        const s = snapshot as any;
+        heritageSite.value.aliased_data.site_document = s.site_document;
+        heritageSite.value.aliased_data.internal_remark = s.internal_remark;
+        snapshot = null;
+    }
+});
 const internalRemark = computed(() => {
     return heritageSite.value?.aliased_data.internal_remark[0];
 });

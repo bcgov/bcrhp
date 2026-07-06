@@ -182,6 +182,17 @@ const handleRemoveOtherName = (index: number) => {
 defineExpose({ isValid });
 
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(heritageSite.value.aliased_data.site_names),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.site_names = snapshot as any;
+        snapshot = null;
+    }
+});
 watch(
     () =>
         [

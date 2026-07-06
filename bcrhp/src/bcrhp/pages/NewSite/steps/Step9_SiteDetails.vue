@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -47,6 +47,26 @@ const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify({
+                chronology: heritageSite.value.aliased_data.chronology,
+                construction_actors:
+                    heritageSite.value.aliased_data.construction_actors,
+                external_url: heritageSite.value.aliased_data.external_url,
+            }),
+        );
+    } else if (snapshot !== null) {
+        const s = snapshot as any;
+        heritageSite.value.aliased_data.chronology = s.chronology;
+        heritageSite.value.aliased_data.construction_actors =
+            s.construction_actors;
+        heritageSite.value.aliased_data.external_url = s.external_url;
+        snapshot = null;
+    }
+});
 
 //state
 const currentChronology = ref<ChronologyTileType>(getChronology());

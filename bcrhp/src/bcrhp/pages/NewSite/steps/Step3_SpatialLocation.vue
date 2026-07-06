@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed, inject, useTemplateRef, ref } from 'vue';
+import { computed, inject, useTemplateRef, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
 import Button from 'primevue/button';
+import Step3_SpatialLocationView from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocationView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 import { Form, type FormInstance } from '@primevue/forms';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
@@ -33,6 +36,23 @@ import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_
 //import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
+const { editMode } = useWorkflowStep();
+
+const isEditing = ref(false);
+let snapshot: unknown = null;
+watch(isEditing, (editing) => {
+    if (editing) {
+        snapshot = JSON.parse(
+            JSON.stringify(
+                heritageSite.value.aliased_data.heritage_site_location,
+            ),
+        );
+    } else if (snapshot !== null) {
+        heritageSite.value.aliased_data.heritage_site_location =
+            snapshot as any;
+        snapshot = null;
+    }
+});
 
 const isBoundaryBypassed = ref(false);
 const overrideBoundary = ref(false);
@@ -159,7 +179,18 @@ const clearGeometry = () => {
 defineExpose({ isValid });
 </script>
 <template>
+    <div v-if="editMode === EditMode.Edit">
+        <Checkbox
+            id="editSpatialLocationCheckbox"
+            v-model="isEditing"
+            binary
+        ></Checkbox>
+        <label for="editSpatialLocationCheckbox">Edit Spatial Location</label>
+        <Step3_SpatialLocationView v-if="!isEditing" />
+        <hr />
+    </div>
     <Form
+        v-if="isEditing || editMode === EditMode.Add"
         ref="siteBoundaryForm"
         name="siteBoundaryForm"
         :validateOnBlur="true"
