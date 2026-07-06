@@ -12,6 +12,7 @@ import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_Site
 import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
 import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
+import Step3_SpatialLocationView from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocationView.vue';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const today = currentDateValue();
@@ -113,6 +114,9 @@ defineExpose({ isValid });
     </p>
 
     <Step2_SiteAddressView />
+    <div class="small-map">
+        <Step3_SpatialLocationView />
+    </div>
     <Step4_SiteNamesView />
     <Step5_RecognitionDetailsView />
     <Step6_SOSView />
@@ -163,6 +167,11 @@ dt {
     border: solid medium darkgray;
     margin: 0 6rem 1rem 6rem;
     border-radius: 1rem;
+}
+.small-map {
+    --map-height: 300px;
+    --map-max-height: 300px;
+    --map-max-width: 500px;
 }
 </style>
 <style>

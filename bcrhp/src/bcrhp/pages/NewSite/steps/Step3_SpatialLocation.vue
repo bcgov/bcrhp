@@ -51,6 +51,7 @@ watch(isEditing, (editing) => {
         heritageSite.value.aliased_data.heritage_site_location =
             snapshot as any;
         snapshot = null;
+        emit('update:stepIsValid', isValid());
     }
 });
 
