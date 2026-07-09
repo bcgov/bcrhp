@@ -281,7 +281,7 @@ defineExpose({ isValid });
                                     <li>
                                         If the geospatial file does not import
                                         successfully, add files under the
-                                        Supporting Documents step.”
+                                        Supporting Documents step.
                                     </li>
                                 </ol>
                             </div>
