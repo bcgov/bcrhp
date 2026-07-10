@@ -64,7 +64,7 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
             try:
                 government_user = (
                     ResourceTileTree.get_tiles(graph_slug="lg_person")
-                    .filter(username__en__value=user.username)
+                    .filter(username=user.username)
                     .get()
                 )
                 if government_user.aliased_data.government_association:
