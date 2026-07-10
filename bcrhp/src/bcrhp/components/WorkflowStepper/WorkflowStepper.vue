@@ -19,6 +19,7 @@ import { EditMode } from './components/types.ts';
 interface Props {
     /** Page title shown above the step panels. */
     title: string;
+    subTitle?: string;
     /** Ordered step definitions. */
     steps: StepConfig[];
     /**
@@ -224,6 +225,7 @@ const showPrevious = computed(() => {
                 </div>
                 <div class="bcgov-vertical-step-panels">
                     <h1>{{ title }}</h1>
+                    <h3 class="site-name">{{ subTitle }}</h3>
                     <StepPanels>
                         <StepperNavigation
                             :step-number="currentStep"
@@ -380,5 +382,8 @@ const showPrevious = computed(() => {
 
 .step-description {
     margin-bottom: 1rem;
+}
+.site-name {
+    margin-top: 0;
 }
 </style>

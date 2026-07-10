@@ -35,7 +35,7 @@ import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
 
-const editMode = inject<Ref<EditMode>>('editMode')!;
+const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isValidatingPid = ref(false);
@@ -68,8 +68,8 @@ const legalWidgetRef = useTemplateRef('legalWidgetRef');
 const tempBoundaryData = ref<any>(null);
 
 // Keys to force UI resets
-const addressFormKey = ref(0);
-const descriptionKey = ref(0);
+const addressFormKey = ref(editMode === EditMode.Edit ? -1 : 0);
+const descriptionKey = ref(editMode === EditMode.Edit ? -1 : 0);
 const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
 const addLegalDescriptionVisible = ref(false);

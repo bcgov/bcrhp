@@ -21,9 +21,16 @@ import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import {
     getSiteDocument,
+    SiteDocument,
     SiteDocumentTileSchema,
 } from '@/bcrhp/schemas/heritage_site/site_document.ts';
 import { getInternalRemark } from '@/bcrhp/schemas/heritage_site/internal_remark.ts';
+
+import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import Button from 'primevue/button';
+import Checkbox from 'primevue/checkbox';
+import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
+import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
 const siteDocument = ref(getSiteDocument());
 const siteDocumentKey = ref(0);
@@ -31,12 +38,6 @@ const siteDocumentKey = ref(0);
 const siteDocumentList = computed(() => {
     return heritageSite.value?.aliased_data?.site_document ?? [];
 });
-
-import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
-import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
-import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -126,18 +127,17 @@ const saveDocument = async function () {
         siteDocument.value.aliased_data.site_document?.node_value?.[0]?.name ||
         '';
 
-    const eventToSave = {
-        ...siteDocument.value,
-        customDisplay: `${type} - ${name}`,
-    };
-
-    heritageSite.value.aliased_data.site_document.push(eventToSave);
+    heritageSite.value.aliased_data.site_document.push(siteDocument.value);
 
     siteDocument.value = getSiteDocument();
     siteDocumentKey.value++;
     supportingDocumentsForm.value?.reset();
 
     emit('update:stepIsValid', isValid());
+};
+
+const documentDisplayFunction = (siteDocument: SiteDocument) => {
+    return `${siteDocument.aliased_data.site_document.node_value?.[0].name}  (${siteDocument.aliased_data.document_type.display_value}) ${siteDocument.aliased_data.document_description.display_value}`;
 };
 
 const deleteSiteDocument = function (index: number) {
@@ -277,7 +277,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Site Documents"
                 :items="siteDocumentList"
-                :display-keys="['customDisplay']"
+                :display-function="documentDisplayFunction"
                 @remove="deleteSiteDocument"
             />
         </div>

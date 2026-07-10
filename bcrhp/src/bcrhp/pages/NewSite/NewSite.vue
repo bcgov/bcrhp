@@ -26,7 +26,7 @@ import {
     getHeritageSite as getHeritageSiteStatic,
     type HeritageSiteType,
 } from '@/bcrhp/schemas/heritage_site.ts';
-import { ref, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -166,12 +166,21 @@ const submit = async (data: unknown) => {
 };
 
 const heritageSite: Ref<HeritageSiteType> = ref(getHeritageSiteStatic());
+const workflowTitle = computed(() => {
+    return editMode.value === EditMode.Add
+        ? 'Submit New Heritage Property'
+        : 'Update Heritage Property';
+});
+const workflowSubtitle = computed(() => {
+    return heritageSite.value?.descriptors?.en?.name ?? '';
+});
 </script>
 
 <template>
     <WorkflowStepper
         v-model:data="heritageSite"
-        title="Submit New Heritage Property"
+        :title="workflowTitle"
+        :sub-title="workflowSubtitle"
         data-provide-key="heritageSite"
         :steps="steps"
         :edit-mode="editMode"
