@@ -27,7 +27,7 @@ export async function getHeritageSite(
     siteId: string,
 ): Promise<HeritageSiteType> {
     const response = await fetch(
-        arches.urls.api_resource('heritage_site', siteId) + '?format=json',
+        arches.urls.get_heritage_site(siteId) + '?format=json',
         {},
     );
     return await response.json();

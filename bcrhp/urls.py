@@ -47,6 +47,11 @@ urlpatterns = [
         name="submit-update-site",
     ),
     re_path(
+        bc_path_prefix(r"^api/heritage_site/(?P<resourceinstanceid>%s)/$" % uuid_regex),
+        SubmitHeritageSite.as_view(),
+        name="get-heritage-site",
+    ),
+    re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),
         BCTileserverProxyView.as_view(),
         name="bcrhp_tile_server",

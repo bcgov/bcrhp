@@ -66,7 +66,6 @@ const otherNameForm: Ref<FormInstance | null> = useTemplateRef(
 ) as Ref<FormInstance | null>;
 const zodCommonNameResolver = getFlattenResolver(
     zodResolver(SiteNamesTileSchema.shape['aliased_data']),
-    'commonName',
 );
 
 const zodOtherNameResolver = getFlattenResolver(

@@ -6,10 +6,17 @@ from arches.app.utils.betterJSONSerializer import JSONSerializer
 from arches.app.utils.response import JSONResponse
 from arches.app.models.concept import Concept
 from arches.app.models.models import Node
+from arches.app.models.tile import Tile
+from django.db.models import F
 from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
 
-from rest_framework.generics import ListCreateAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.parsers import JSONParser
 
 import json
@@ -147,7 +154,11 @@ class PatchedArchesResourceBlankView(ArchesResourceBlankView):
 
 
 class SubmitHeritageSite(
-    ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView, UpdateAPIView
+    ArchesModelAPIMixin,
+    CardNodeWidgetConfigMixin,
+    RetrieveAPIView,
+    CreateAPIView,
+    UpdateAPIView,
 ):
     permission_classes = [ResourceEditor | LocalGovernment]
     serializer_class = HeritageSiteSerializer
@@ -173,6 +184,19 @@ class SubmitHeritageSite(
         "construction_actors",
         "internal_remark",
     ]
+    # Aliases whose orphaned tiles should be deleted when omitted from a PATCH
+    # payload list. Sections absent from this set are never orphan-deleted even
+    # if they appear in the payload, preserving sparse-tree semantics for them.
+    deletable_list_aliases = {
+        "site_images",
+        "site_document",
+        "external_url",
+        "chronology",
+        "construction_actors",
+        "heritage_theme",
+        "heritage_class",
+        "heritage_function",
+    }
 
     def get_default_registration_status_uuid(self):
         return self.get_concept_uuid(
@@ -320,6 +344,56 @@ class SubmitHeritageSite(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        return JSONResponse(data, status=status.HTTP_200_OK)
+
+    def _delete_orphaned_tiles(
+        self, patched_data: dict, resourceinstanceid: str, request
+    ) -> None:
+        """Delete tiles that were removed from a list-type section in the payload.
+
+        Only sections that ARE present in the payload are diffed — sections
+        absent from the (sparse) payload are left completely untouched.
+
+        Uses Tile.delete() (not a bulk queryset delete) so that audit logging,
+        search index cleanup, and datatype post_tile_delete hooks all run.
+        """
+        aliased = patched_data.get("aliased_data", {})
+        for alias, value in aliased.items():
+            if alias not in self.deletable_list_aliases:
+                continue
+            if not isinstance(value, list):
+                continue
+            incoming_tileids = {
+                t["tileid"] for t in value if isinstance(t, dict) and t.get("tileid")
+            }
+            # The grouping node for a nodegroup is the node whose nodeid
+            # equals its own nodegroup_id.
+            node = Node.objects.filter(
+                alias=alias,
+                graph__slug="heritage_site",
+                nodeid=F("nodegroup_id"),
+            ).first()
+            if node is None:
+                continue
+            orphans = Tile.objects.filter(
+                resourceinstance_id=resourceinstanceid,
+                nodegroup_id=node.nodegroup_id,
+            ).exclude(tileid__in=incoming_tileids)
+            count = orphans.count()
+            if count:
+                logger.info(
+                    "Deleting %d orphaned tile(s) for alias=%s resource=%s",
+                    count,
+                    alias,
+                    resourceinstanceid,
+                )
+                for tile in orphans:
+                    tile.delete(request=request)
+
     def partial_update(self, request, *args, **kwargs):
         raw = request.data
         cleaned_object = raw
@@ -337,6 +411,9 @@ class SubmitHeritageSite(
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
         patched = cleaned_object
+
+        resourceinstanceid = self.kwargs.get("resourceinstanceid")
+        self._delete_orphaned_tiles(patched, resourceinstanceid, request)
 
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=patched, partial=True)
