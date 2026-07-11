@@ -70,7 +70,6 @@ const zodCommonNameResolver = getFlattenResolver(
 
 const zodOtherNameResolver = getFlattenResolver(
     zodResolver(SiteNamesTileSchema.shape['aliased_data']),
-    'otherName',
 );
 
 const isCommonNameValid = () => {
