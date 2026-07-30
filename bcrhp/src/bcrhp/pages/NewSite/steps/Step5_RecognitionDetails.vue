@@ -164,6 +164,11 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update Official Recognition Details, click “Edit Recognition
+            Details”. <br /><b>Do not remove previous recognitions</b>, add new
+            recognition or designation statuses as necessary.
+        </div>
         <Checkbox
             id="editRecognitionDetailsCheckbox"
             v-model="isEditing"

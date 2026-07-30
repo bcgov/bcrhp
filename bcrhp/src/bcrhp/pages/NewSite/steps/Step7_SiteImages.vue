@@ -191,6 +191,10 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update Images, click “Edit Images”. To remove existing photo(s),
+            click the red X icon on the top right corner of the photo.
+        </div>
         <Checkbox
             id="editImagesCheckbox"
             v-model="isEditing"

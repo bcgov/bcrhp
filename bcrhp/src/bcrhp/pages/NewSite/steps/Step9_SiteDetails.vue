@@ -42,6 +42,7 @@ import {
 import Checkbox from 'primevue/checkbox';
 import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -328,6 +329,24 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Site Details, click “Edit Site Details”. To remove the
+            existing details, click the
+            <span
+                style="
+                    background-color: #ffffff;
+                    padding: 0.2rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+                <TimesCircleIcon />
+            </span>
+            icon located to the right of the previously submitted detail at the
+            bottom of each section.
+        </div>
+
         <Checkbox
             id="editSiteDetailsCheckbox"
             v-model="isEditing"

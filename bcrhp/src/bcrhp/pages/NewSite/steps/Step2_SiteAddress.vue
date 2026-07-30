@@ -34,6 +34,7 @@ import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
+import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -376,6 +377,23 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Site Location, click “Edit Site Address”. To remove
+            the existing site address, click the
+            <span
+                style="
+                    background-color: #ffffff;
+                    padding: 0.2rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+                <TimesCircleIcon />
+            </span>
+            icon located to the right of the previously submitted address at the
+            bottom of the page.
+        </div>
         <Checkbox
             id="editAddressCheckbox"
             v-model="isEditing"

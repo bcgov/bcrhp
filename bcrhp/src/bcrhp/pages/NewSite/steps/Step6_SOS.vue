@@ -99,6 +99,10 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Statement of Significance, click “Edit Statement of
+            Significance”.
+        </div>
         <Checkbox
             id="editSOSCheckbox"
             v-model="isEditing"
