@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
+import { computed, inject, ref, useTemplateRef, watch } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -277,7 +277,11 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
 }
 
 const isValid = () => {
-    if (!hasPropertyAddress.value) return true;
+    if (
+        !hasPropertyAddress.value ||
+        (editMode == EditMode.Edit && !isEditing.value)
+    )
+        return true;
     return propertyAddressList.value.length > 0;
 };
 
@@ -371,6 +375,7 @@ watch(isEditing, (editing) => {
             snapshot as any;
         snapshot = null;
     }
+    emit('update:stepIsValid', isValid());
 });
 defineExpose({ isValid });
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Chip from 'primevue/chip';
-import type { PropType } from 'vue';
+import { computed, type PropType } from 'vue';
 
 const props = defineProps({
     label: { type: String, default: '' },
@@ -87,6 +87,10 @@ const itemDisabled = (item: any): boolean => {
     }
     return props.disabled ?? false;
 };
+
+function chipColor(item: any) {
+    return itemDisabled(item) ? '#444' : 'var(--p-chip-color)';
+}
 </script>
 
 <template>
@@ -105,6 +109,10 @@ const itemDisabled = (item: any): boolean => {
                 :key="getUniqueKey(item)"
                 :label="String(resolveLabel(item) || 'Untitled')"
                 :removable="!itemDisabled(item)"
+                :style="{
+                    '--p-chip-padding-x': '1.5rem',
+                    '--p-chip-color': chipColor(item),
+                }"
                 @remove="handleRemove($event, index)"
                 @click="handleClick(index)"
             >

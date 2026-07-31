@@ -140,6 +140,13 @@ const documentDisplayFunction = (siteDocument: SiteDocument) => {
     return `${siteDocument.aliased_data.site_document.node_value?.[0].name}  (${siteDocument.aliased_data.document_type.display_value}) ${siteDocument.aliased_data.document_description.display_value}`;
 };
 
+const isExistingDocument = (siteDocument: SiteDocument) => {
+    return (
+        siteDocument?.aliased_data?.site_document?.node_value?.[0]?.status ===
+        'uploaded'
+    );
+};
+
 const deleteSiteDocument = function (index: number) {
     heritageSite.value.aliased_data.site_document.splice(index, 1);
 
@@ -281,6 +288,7 @@ defineExpose({ isValid });
                 label="Site Documents"
                 :items="siteDocumentList"
                 :display-function="documentDisplayFunction"
+                :disabled-function="isExistingDocument"
                 @remove="deleteSiteDocument"
             />
         </div>

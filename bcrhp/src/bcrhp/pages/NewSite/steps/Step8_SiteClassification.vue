@@ -32,7 +32,7 @@ import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_Site
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
-const editMode = inject<Ref<EditMode>>('editMode')!;
+const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
@@ -122,6 +122,7 @@ const isValidHeritageFunction = () =>
     );
 
 const isValid = () => {
+    if (editMode === EditMode.Edit && !isEditing.value) return true;
     if (!heritageThemeForm.value) {
         // Form not mounted (view mode or transitioning) — validate data directly
         const status = HeritageThemeTileSchema.shape['aliased_data'].safeParse(
