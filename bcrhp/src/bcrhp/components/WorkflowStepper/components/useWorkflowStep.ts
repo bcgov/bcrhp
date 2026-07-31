@@ -7,7 +7,7 @@ import type { EditMode, ErrorMessage } from './types.ts';
  * Injects the common stepper context that WorkflowStepper provides.
  */
 export function useWorkflowStep() {
-    const editMode = inject<Ref<EditMode>>('editMode')!;
+    const editMode = inject<EditMode>('editMode')!;
     const submissionErrors = inject<Ref<ErrorMessage[]>>(
         'workflowSubmissionErrors',
     )!;

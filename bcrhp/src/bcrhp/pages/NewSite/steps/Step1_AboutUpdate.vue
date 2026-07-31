@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import FieldSet from 'primevue/fieldset';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-import { type Ref, inject, computed } from 'vue';
+import { type Ref, inject, computed, onMounted, ref } from 'vue';
 import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
-const isValid = () => {
-    return true;
-};
 import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 
 import type { Card, Node } from '@/arches_component_lab/types.ts';
@@ -15,8 +12,12 @@ import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSite } from '@/bcrhp/api.ts';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 
-const { editMode, working } = useWorkflowStep();
+const { working } = useWorkflowStep();
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+
+const isValid = () => {
+    return !!heritageSite?.value?.resourceinstanceid;
+};
 
 export interface CardXNodeXWidgetData {
     card: Card;
@@ -61,7 +62,9 @@ const node_data: ResourceInstanceCardXNodeXWidgetData = {
 };
 
 const setResourceId = async (site: ResourceInstanceValue) => {
-    if (site?.node_value && heritageSite?.value) {
+    if (!site?.node_value && heritageSite?.value) {
+        heritageSite.value = initialValue;
+    } else if (site?.node_value && heritageSite?.value) {
         working.value = true;
         try {
             const siteUUID = site.node_value.resourceId;
@@ -80,6 +83,11 @@ const setResourceId = async (site: ResourceInstanceValue) => {
 const siteURL = computed(() => {
     const id = heritageSite?.value?.resourceinstanceid;
     return id ? `/bcrhp/search?id=${id}` : '';
+});
+let initialValue: HeritageSiteType = null;
+
+onMounted(() => {
+    initialValue = heritageSite?.value;
 });
 
 defineExpose({ isValid });

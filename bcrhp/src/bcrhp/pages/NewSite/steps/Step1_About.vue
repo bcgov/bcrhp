@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import FieldSet from 'primevue/fieldset';
 import Step1_AboutNew from '@/bcrhp/pages/NewSite/steps/Step1_AboutNew.vue';
 import Step1_AboutUpdate from '@/bcrhp/pages/NewSite/steps/Step1_AboutUpdate.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-import { type Ref, inject } from 'vue';
-import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
-import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
+import { type Ref, inject, watch, onMounted, ref, watchEffect } from 'vue';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
-const isValid = () => {
-    return true;
-};
 import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 
 import type { Card, Node } from '@/arches_component_lab/types.ts';
@@ -17,6 +11,7 @@ import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSite } from '@/bcrhp/api.ts';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 
+const emit = defineEmits(['update:stepIsValid']);
 const { editMode, working } = useWorkflowStep();
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
 export interface CardXNodeXWidgetData {
@@ -78,11 +73,28 @@ const setResourceId = async (site: ResourceInstanceValue) => {
     }
 };
 
+const isValid = () => {
+    return EditMode.Add == editMode
+        ? true
+        : (step1_aboutUpdate.value?.isValid() ?? false);
+};
+const step1_aboutUpdate = ref<InstanceType<typeof Step1_AboutUpdate>>();
+
+watchEffect(() => {
+    emit('update:stepIsValid', isValid());
+});
+onMounted(() => {
+    emit('update:stepIsValid', isValid());
+});
+
 defineExpose({ isValid });
 </script>
 <template>
     <Step1_AboutNew v-if="EditMode.Add === editMode" />
-    <Step1_AboutUpdate v-else />
+    <Step1_AboutUpdate
+        v-else
+        ref="step1_aboutUpdate"
+    />
 </template>
 
 <style>
