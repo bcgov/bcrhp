@@ -147,6 +147,10 @@ function deleteProtectionEvent(index: number) {
     emit('update:stepIsValid', isValid());
 }
 
+function isExistingProtectionEvent(event: ProtectionEventTileType): boolean {
+    return !!event.tileid;
+}
+
 const isEditing = ref(false);
 let snapshot: unknown = null;
 watch(isEditing, (editing) => {
@@ -280,6 +284,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Protection Events"
                 :items="protectionEvents"
+                :disabled-function="isExistingProtectionEvent"
                 :display-keys="[
                     'aliased_data.designation_or_protection_start_date',
                     'aliased_data.legislative_act',

@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import Chip from 'primevue/chip';
+import type { PropType } from 'vue';
 
 const props = defineProps({
     label: { type: String, default: '' },
     items: { type: Array<any>, default: () => [] },
-    displayFunction: { type: Function, default: null },
+    displayFunction: {
+        type: Function as PropType<(item: any) => string>,
+        default: null,
+    },
     displayKeys: { type: Array<string>, default: () => [] },
+    disabledFunction: {
+        type: Function as PropType<(item: any) => boolean>,
+        default: null,
+    },
     disabled: { type: Boolean, default: false },
     emptyText: { type: String, default: 'No items added.' },
 });
@@ -72,6 +80,13 @@ const getUniqueKey = (item: any) => {
 
     return fallbackKeys.get(item);
 };
+
+const itemDisabled = (item: any): boolean => {
+    if (props.disabledFunction) {
+        return props.disabledFunction(item);
+    }
+    return props.disabled ?? false;
+};
 </script>
 
 <template>
@@ -89,7 +104,7 @@ const getUniqueKey = (item: any) => {
                 v-for="(item, index) in items"
                 :key="getUniqueKey(item)"
                 :label="String(resolveLabel(item) || 'Untitled')"
-                :removable="!disabled"
+                :removable="!itemDisabled(item)"
                 @remove="handleRemove($event, index)"
                 @click="handleClick(index)"
             >

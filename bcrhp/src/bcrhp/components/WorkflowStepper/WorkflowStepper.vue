@@ -184,8 +184,6 @@ const showPrevious = computed(() => {
 </script>
 
 <template>
-    <div>{{ working }}</div>
-    <div>{{ submitting }}</div>
     <div
         v-if="submitting || working"
         class="submit-overlay"
