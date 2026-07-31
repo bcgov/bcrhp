@@ -344,10 +344,32 @@ class SubmitHeritageSite(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
+    def transform_retrieved_data(self, data: dict) -> dict:
+        aliased = data.get("aliased_data", {})
+        site_images = aliased.get("site_images")
+        if isinstance(site_images, list) and len(site_images) > 1:
+
+            def primary_sort_key(image):
+                val = (
+                    image.get("aliased_data", {})
+                    .get("primary_image", {})
+                    .get("node_value")
+                )
+                if val is True:
+                    return 0
+                if val is False:
+                    return 1
+                return 2
+
+            aliased["site_images"] = sorted(site_images, key=primary_sort_key)
+            # We don't want internal remarks being sent to the client
+            aliased["internal_remark"] = []
+        return data
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        data = serializer.data
+        data = self.transform_retrieved_data(serializer.data)
         return JSONResponse(data, status=status.HTTP_200_OK)
 
     def _delete_orphaned_tiles(
