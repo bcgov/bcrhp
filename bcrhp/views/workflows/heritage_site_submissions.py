@@ -12,14 +12,12 @@ from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
 
 from rest_framework.generics import (
-    ListCreateAPIView,
     CreateAPIView,
     UpdateAPIView,
     RetrieveAPIView,
 )
 from rest_framework.parsers import JSONParser
 
-import json
 from arches_querysets.rest_framework.multipart_json_parser import MultiPartJSONParser
 from arches_querysets.rest_framework.pagination import ArchesLimitOffsetPagination
 from arches_querysets.rest_framework.permissions import ReadOnly, ResourceEditor
