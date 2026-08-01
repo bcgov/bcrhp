@@ -1,3 +1,4 @@
+import uuid
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.utils.translation import get_language
@@ -37,6 +38,7 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         page_number = request.GET.get("page", 1)
         items_per_page = request.GET.get("items", 25)
         initial_values = request.GET.getlist("initialValue", "")
+        filter_terms = request.GET.getlist("filter_term", [])
 
         resources = (
             ResourceInstance.objects.exclude(resourceinstanceid__in=initial_values)
@@ -49,6 +51,16 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
                 graph_slug=graph, alias=node_alias, user=request.user
             )
         )
+
+        if filter_terms:
+            text_filter = Q()
+            for term in filter_terms:
+                try:
+                    uuid.UUID(str(term))
+                    text_filter = text_filter & Q(resourceinstanceid=str(term))
+                except ValueError:
+                    text_filter = text_filter & Q(display_value__icontains=term)
+            resources = resources.filter(text_filter)
 
         selected_resources = (
             ResourceInstance.objects.filter(resourceinstanceid__in=initial_values)

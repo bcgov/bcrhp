@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FieldSet from 'primevue/fieldset';
 import { type Ref, inject, computed, onMounted } from 'vue';
-import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
@@ -56,7 +56,8 @@ const node_data: ResourceInstanceCardXNodeXWidgetData = {
     },
     widget: {
         widgetid: '',
-        component: '',
+        component:
+            'arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue',
     },
 };
 
@@ -93,7 +94,7 @@ defineExpose({ isValid });
 </script>
 <template>
     <FieldSet legend="Before you begin">
-        <ResourceWidget
+        <GenericWidget
             :mode="EDIT"
             :aliased-node-data="null"
             graph-slug="heritage_site"
