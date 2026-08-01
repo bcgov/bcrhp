@@ -6,15 +6,25 @@ from arches.app.models.models import ResourceInstance, Value
 from arches.app.utils.response import JSONResponse
 from arches_component_lab.views.api.relatable_resources import RelatableResourcesView
 from arches_querysets.models import ResourceTileTree
+from bcrhp.util.bcrhp_aliases import GraphSlugs as slugs
+from bcrhp.util.bcrhp_aliases import BCRHPSiteAliases as heritageSiteAliases
 
 # Add node aliases here that should return all ResourceInstances
 # rather than filtering by a node's graph config.
-SPECIAL_NODE_ALIASES = {"municipal_sites", "local_government_acts"}
+
+
+# This isn't a real alias - it's to filter the sites in the LG edit site workflow
+MUNICIPAL_SITES_ALIAS = "municipal_sites"
+CUSTOM_NODE_ALIASES = [MUNICIPAL_SITES_ALIAS]
+SPECIAL_NODE_ALIASES = {
+    slugs.HERITAGE_SITE: {MUNICIPAL_SITES_ALIAS, heritageSiteAliases.LEGISLATIVE_ACT}
+}
 
 
 class BcrhpRelatableResourcesView(RelatableResourcesView):
     def get(self, request, graph, node_alias):
-        if node_alias not in SPECIAL_NODE_ALIASES:
+        # Superuser or aliases that aren't overridden should be able to see everything so use standard list
+        if not self._should_override_alias(graph, node_alias, request.user):
             return super().get(request, graph, node_alias)
 
         language = get_language()
@@ -29,7 +39,9 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
             .order_by("graph", "pk")
         )
         resources = resources.filter(
-            self._get_filter_for_special_alias(node_alias, request.user)
+            self._get_filter_for_special_alias(
+                graph_slug=graph, alias=node_alias, user=request.user
+            )
         )
 
         selected_resources = (
@@ -59,15 +71,31 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
             }
         )
 
-    def _get_filter_for_special_alias(self, alias, user):
+    def _should_override_alias(self, graph_slug, alias, user):
+        # We need to override if:
+        # 1. It's a custom alias (ie - the slug/alias combination doesn't actually exist)
+        # 2. It's a valid slug/alias and we're not a superuser (this is typically for adding extra filters to the criteria)
+
+        return alias in CUSTOM_NODE_ALIASES or (
+            graph_slug in SPECIAL_NODE_ALIASES
+            and alias in SPECIAL_NODE_ALIASES[graph_slug]
+            and not user.is_superuser
+        )
+
+    def _get_filter_for_special_alias(self, graph_slug, alias, user):
         query_filter = Q()
         try:
-            if user.is_superuser:
-                return query_filter
 
-            if alias == "municipal_sites":
+            if graph_slug == slugs.HERITAGE_SITE and alias == MUNICIPAL_SITES_ALIAS:
+                # Superuser or aliases that aren't overridden should be able to see everything so use standard, complete list
+                if user.is_superuser:
+                    return Q(
+                        graph__slug=graph_slug,
+                        graph__publication__isnull=False,
+                        graph__is_active=True,
+                    )
                 government_user = (
-                    ResourceTileTree.get_tiles(graph_slug="lg_person")
+                    ResourceTileTree.get_tiles(graph_slug=slugs.GOVERNMENT_PERSON)
                     .filter(username=user.username)
                     .get()
                 )
@@ -76,17 +104,20 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
                         government_user.aliased_data.government_association.aliased_data.government_association
                     )
                     site_ids = (
-                        ResourceTileTree.get_tiles(graph_slug="heritage_site")
+                        ResourceTileTree.get_tiles(graph_slug=slugs.HERITAGE_SITE)
                         .filter(responsible_government__ids_contain=str(lg.pk))
                         .values("pk")
                     )
                     query_filter = query_filter & Q(pk__in=site_ids)
                 else:
                     query_filter = Q(pk__in=[])
-            elif alias == "local_government_acts":
+            elif (
+                graph_slug == slugs.HERITAGE_SITE
+                and alias == heritageSiteAliases.LEGISLATIVE_ACT
+            ):
                 collection_record = (
                     Value.objects.filter(
-                        value="BC Protection Event",
+                        value="BC Protection Authority",
                         valuetype="prefLabel",
                         concept__nodetype="Collection",
                     )
@@ -104,7 +135,7 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
                     return Q(pk__in=[])
                 municipal_value_id = municipal[2]
                 act_ids = (
-                    ResourceTileTree.get_tiles(graph_slug="legislative_act")
+                    ResourceTileTree.get_tiles(graph_slug=slugs.LEGISLATIVE_ACT)
                     .filter(authority=str(municipal_value_id))
                     .values("pk")
                 )

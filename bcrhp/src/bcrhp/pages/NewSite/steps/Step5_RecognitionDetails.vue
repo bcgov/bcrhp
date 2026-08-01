@@ -6,15 +6,12 @@ import FieldSet from 'primevue/fieldset';
 import Button from 'primevue/button';
 import { Form, type FormInstance } from '@primevue/forms';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
-import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
-import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
-import type { Node } from '@/arches_component_lab/types.ts';
 
 import {
     isValid as baseIsValid,
@@ -32,32 +29,6 @@ import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Checkbox from 'primevue/checkbox';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-
-const node_data: ResourceInstanceCardXNodeXWidgetData = {
-    card: {
-        name: '',
-        sortorder: 0,
-        cardid: '',
-        nodegroup_id: '',
-        nodes: [],
-    },
-    id: '',
-    label: 'Site',
-    sortorder: 0,
-    visible: true,
-    node: {
-        alias: 'municipal_sites',
-        config: {},
-    } as Node,
-    config: {
-        placeholder: 'Select Legislative Act',
-        defaultValue: '',
-    },
-    widget: {
-        widgetid: '',
-        component: '',
-    },
-};
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
@@ -265,15 +236,14 @@ defineExpose({ isValid });
                     :error-message="$form.legislative_act?.error?.message"
                     :required="true"
                 >
-                    <ResourceWidget
+                    <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
                         :aliased-node-data="
                             currentProtectionEvent.aliased_data.legislative_act
                         "
-                        :card-x-node-x-widget-data="node_data"
                         graph-slug="heritage_site"
-                        node-alias="local_government_acts"
+                        node-alias="legislative_act"
                         placeholder="Select a Legislative Act"
                         group-direction="column"
                         @update:value="
