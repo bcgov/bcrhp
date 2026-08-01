@@ -37,7 +37,9 @@ class SetCrhpAuthorityValueTest(TestCase):
         self.assertEqual(event["crhp_authority"], "City of Vancouver")
 
     def test_other_local(self):
-        event = self._event("Local", legal_instrument="BC Heritage Act", government_name="Kelowna")
+        event = self._event(
+            "Local", legal_instrument="BC Heritage Act", government_name="Kelowna"
+        )
         self.view.set_crhp_authority_value(event)
         self.assertEqual(event["crhp_authority"], "Local Governments (BC)")
 
@@ -139,8 +141,20 @@ class GetContextDataTest(TestCase):
     def test_sos_sorted_provincial_first(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
             sos=[
-                {"significance_type": "Local", "heritage_value": "", "defining_elements": "", "physical_description": "", "document_location": ""},
-                {"significance_type": "Provincial", "heritage_value": "", "defining_elements": "", "physical_description": "", "document_location": ""},
+                {
+                    "significance_type": "Local",
+                    "heritage_value": "",
+                    "defining_elements": "",
+                    "physical_description": "",
+                    "document_location": "",
+                },
+                {
+                    "significance_type": "Provincial",
+                    "heritage_value": "",
+                    "defining_elements": "",
+                    "physical_description": "",
+                    "document_location": "",
+                },
             ]
         )
         context = self.view.get_context_data("uuid")
@@ -150,18 +164,35 @@ class GetContextDataTest(TestCase):
     def test_protection_events_sorted_provincial_first(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
             protection_events=[
-                {"authority": "Local", "designation_or_protection_start_date": "2000-01-01", "legal_instrument": "", "government_name": ""},
-                {"authority": "Provincial", "designation_or_protection_start_date": "1990-01-01", "legal_instrument": "", "government_name": ""},
+                {
+                    "authority": "Local",
+                    "designation_or_protection_start_date": "2000-01-01",
+                    "legal_instrument": "",
+                    "government_name": "",
+                },
+                {
+                    "authority": "Provincial",
+                    "designation_or_protection_start_date": "1990-01-01",
+                    "legal_instrument": "",
+                    "government_name": "",
+                },
             ]
         )
         context = self.view.get_context_data("uuid")
-        self.assertEqual(context["data"].protection_events[0]["authority"], "Provincial")
+        self.assertEqual(
+            context["data"].protection_events[0]["authority"], "Provincial"
+        )
 
     @patch("bcrhp.views.crhp.CrhpExportData")
     def test_single_protection_event_not_sorted(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
             protection_events=[
-                {"authority": "Local", "designation_or_protection_start_date": "2000-01-01", "legal_instrument": "", "government_name": ""},
+                {
+                    "authority": "Local",
+                    "designation_or_protection_start_date": "2000-01-01",
+                    "legal_instrument": "",
+                    "government_name": "",
+                },
             ]
         )
         context = self.view.get_context_data("uuid")
@@ -170,13 +201,15 @@ class GetContextDataTest(TestCase):
     @patch("bcrhp.views.crhp.CrhpExportData")
     def test_image_type_historical_mapped(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
-            site_images=[{
-                "image_type": "Historical",
-                "copyright": "",
-                "image_caption": "",
-                "image_description": "",
-                "image_content_type": "",
-            }]
+            site_images=[
+                {
+                    "image_type": "Historical",
+                    "copyright": "",
+                    "image_caption": "",
+                    "image_description": "",
+                    "image_content_type": "",
+                }
+            ]
         )
         context = self.view.get_context_data("uuid")
         self.assertEqual(context["data"].site_images[0]["image_type"], "Historic Image")
@@ -184,26 +217,34 @@ class GetContextDataTest(TestCase):
     @patch("bcrhp.views.crhp.CrhpExportData")
     def test_image_type_non_historical_mapped(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
-            site_images=[{
-                "image_type": "Contemporary",
-                "copyright": "",
-                "image_caption": "",
-                "image_description": "",
-                "image_content_type": "",
-            }]
+            site_images=[
+                {
+                    "image_type": "Contemporary",
+                    "copyright": "",
+                    "image_caption": "",
+                    "image_description": "",
+                    "image_content_type": "",
+                }
+            ]
         )
         context = self.view.get_context_data("uuid")
-        self.assertEqual(context["data"].site_images[0]["image_type"], "Contemporary Photograph")
+        self.assertEqual(
+            context["data"].site_images[0]["image_type"], "Contemporary Photograph"
+        )
 
     @patch("bcrhp.views.crhp.CrhpExportData")
     def test_significant_event_date_converted(self, mock_model):
         mock_model.objects.get.return_value = self._mock_data(
-            significant_events=[{
-                "start_year": "1950-01-01",
-                "end_year": "1960-01-01",
-                "event_type": "Construction",
-                "dates_approximate": False,
-            }]
+            significant_events=[
+                {
+                    "start_year": "1950-01-01",
+                    "end_year": "1960-01-01",
+                    "event_type": "Construction",
+                    "dates_approximate": False,
+                }
+            ]
         )
         context = self.view.get_context_data("uuid")
-        self.assertIsInstance(context["data"].significant_events[0]["start_year"], datetime.datetime)
+        self.assertIsInstance(
+            context["data"].significant_events[0]["start_year"], datetime.datetime
+        )

@@ -10,7 +10,6 @@ from django.test import TestCase, RequestFactory
 
 from bcrhp.views.api import BordenNumber, LegislativeAct, UserProfile, MVT
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -32,6 +31,7 @@ def _mock_request(factory, method="GET", **params):
 
 class _UserWithoutProfile:
     """Plain user object that has no userprofile attribute."""
+
     pk = 1
     username = "test"
 

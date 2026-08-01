@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 
 from django.test import TestCase, RequestFactory
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -30,6 +29,7 @@ def _mock_request(factory, method="GET", **params):
 def _get_export_results():
     """Import and unwrap export_results to bypass group_required."""
     from bcrhp.views.search import export_results
+
     return _unwrap(export_results)
 
 
@@ -55,7 +55,9 @@ class ExportResultsBelowLimitTest(TestCase):
         mock_zip.zip_response.return_value = MagicMock(status_code=200)
 
         request = self._request(total="5", format="tilecsv")
-        with patch("bcrhp.search.search_export.BCRHPSearchResultsExporter") as mock_exp_cls:
+        with patch(
+            "bcrhp.search.search_export.BCRHPSearchResultsExporter"
+        ) as mock_exp_cls:
             mock_exp_cls.return_value.export.return_value = ([], {})
             self.export_results(request)
             mock_exp_cls.return_value.export.assert_called_once()
@@ -70,7 +72,9 @@ class ExportResultsBelowLimitTest(TestCase):
         mock_zip.zip_response.return_value = MagicMock(status_code=200)
 
         request = self._request(total="5", format="shp")
-        with patch("bcrhp.search.search_export.BCRHPSearchResultsExporter") as mock_exp_cls:
+        with patch(
+            "bcrhp.search.search_export.BCRHPSearchResultsExporter"
+        ) as mock_exp_cls:
             mock_exp_cls.return_value.export.return_value = ([], {})
             self.export_results(request)
             files_arg = mock_zip.zip_response.call_args[0][0]
@@ -88,7 +92,9 @@ class ExportResultsBelowLimitTest(TestCase):
         request = self._request(total="5", format="tilexl")
         fake_wb = MagicMock()
         fake_wb.save = MagicMock()
-        with patch("bcrhp.search.search_export.BCRHPSearchResultsExporter") as mock_exp_cls:
+        with patch(
+            "bcrhp.search.search_export.BCRHPSearchResultsExporter"
+        ) as mock_exp_cls:
             mock_exp_cls.return_value.export.return_value = (
                 [{"name": "export.xlsx", "outputfile": fake_wb}],
                 {},
@@ -174,7 +180,9 @@ class ExportResultsAboveLimitTest(TestCase):
         mock_zip.zip_response.return_value = MagicMock(status_code=200)
 
         request = _mock_request(self.factory, total="100", format="geojson")
-        with patch("bcrhp.search.search_export.BCRHPSearchResultsExporter") as mock_exp_cls:
+        with patch(
+            "bcrhp.search.search_export.BCRHPSearchResultsExporter"
+        ) as mock_exp_cls:
             mock_exp_cls.return_value.export.return_value = ([], {})
             self.export_results(request)
             mock_zip.zip_response.assert_called_once()

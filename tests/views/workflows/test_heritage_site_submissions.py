@@ -580,7 +580,9 @@ class RetrieveTest(TestCase):
 
     def test_calls_transform_retrieved_data(self):
         mock_serializer = self._setup_view()
-        self.view.transform_retrieved_data = MagicMock(return_value={"aliased_data": {}})
+        self.view.transform_retrieved_data = MagicMock(
+            return_value={"aliased_data": {}}
+        )
         self.view.retrieve(self.view.request)
         self.view.transform_retrieved_data.assert_called_once_with(mock_serializer.data)
 
