@@ -118,7 +118,10 @@ describe('Step7_SiteImages', () => {
                 // EditMode.Add is required so the Form renders. Without it the
                 // v-if="isEditing || editMode === EditMode.Add" guard hides the
                 // entire form and .max-limit-message is never in the DOM.
-                provide: { heritageSite: makeHeritageSite(images), editMode: EditMode.Add },
+                provide: {
+                    heritageSite: makeHeritageSite(images),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.find('.max-limit-message').exists()).toBe(true);

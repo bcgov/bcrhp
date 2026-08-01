@@ -72,7 +72,9 @@ describe('Step11_ReviewSubmission', () => {
         const result = wrapper.vm.isValid();
 
         expect(result).toBe(true);
-        expect(heritageSite.value.aliased_data.site_record_admin).toHaveLength(1);
+        expect(heritageSite.value.aliased_data.site_record_admin).toHaveLength(
+            1,
+        );
         const submittedDate =
             heritageSite.value.aliased_data.site_record_admin[0].aliased_data
                 .date_submitted_to_crhp.display_value;
@@ -89,14 +91,18 @@ describe('Step11_ReviewSubmission', () => {
                 },
             },
         };
-        const heritageSite = makeHeritageSite({ site_record_admin: [existingAdmin] });
+        const heritageSite = makeHeritageSite({
+            site_record_admin: [existingAdmin],
+        });
         const wrapper = mount(Step11ReviewSubmission, {
             global: makeGlobal({ heritageSite }),
         });
 
         wrapper.vm.isValid();
 
-        expect(heritageSite.value.aliased_data.site_record_admin).toHaveLength(1);
+        expect(heritageSite.value.aliased_data.site_record_admin).toHaveLength(
+            1,
+        );
         expect(
             heritageSite.value.aliased_data.site_record_admin[0].aliased_data
                 .date_submitted_to_crhp.display_value,
