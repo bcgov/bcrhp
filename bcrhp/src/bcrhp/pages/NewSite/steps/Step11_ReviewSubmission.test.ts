@@ -7,6 +7,14 @@ import { ref } from 'vue';
 // not implement.  Mock the entire library before any imports are evaluated.
 vi.mock('maplibre-gl', () => ({ default: {} }));
 
+// Step3_SpatialLocationView → SimpleMap/SimpleMap.vue → SimpleMap/api.ts →
+// geojson-feature-collection/api.ts calls createRequest('api-map-data') at
+// module-evaluation time, which accesses arches.urls before the Django server
+// has populated it.  Mock the api module to prevent the side effect.
+vi.mock('@/bcgov_arches_common/widgets/SimpleMap/api.ts', () => ({
+    fetchSystemMapData: vi.fn(),
+}));
+
 import Step11ReviewSubmission from './Step11_ReviewSubmission.vue';
 
 const stubs = {
