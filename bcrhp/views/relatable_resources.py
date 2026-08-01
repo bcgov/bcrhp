@@ -1,14 +1,15 @@
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.utils.translation import get_language
-from arches.app.models.models import ResourceInstance
+from arches.app.models.concept import Concept
+from arches.app.models.models import ResourceInstance, Value
 from arches.app.utils.response import JSONResponse
 from arches_component_lab.views.api.relatable_resources import RelatableResourcesView
 from arches_querysets.models import ResourceTileTree
 
 # Add node aliases here that should return all ResourceInstances
 # rather than filtering by a node's graph config.
-SPECIAL_NODE_ALIASES = {"municipal_sites"}
+SPECIAL_NODE_ALIASES = {"municipal_sites", "local_government_acts"}
 
 
 class BcrhpRelatableResourcesView(RelatableResourcesView):
@@ -60,8 +61,11 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
 
     def _get_filter_for_special_alias(self, alias, user):
         query_filter = Q()
-        if alias == "municipal_sites":
-            try:
+        try:
+            if user.is_superuser:
+                return query_filter
+
+            if alias == "municipal_sites":
                 government_user = (
                     ResourceTileTree.get_tiles(graph_slug="lg_person")
                     .filter(username=user.username)
@@ -79,7 +83,34 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
                     query_filter = query_filter & Q(pk__in=site_ids)
                 else:
                     query_filter = Q(pk__in=[])
-            except Exception as e:
-                print(e)
-                query_filter = Q(pk__in=[])
+            elif alias == "local_government_acts":
+                collection_record = (
+                    Value.objects.filter(
+                        value="BC Protection Event",
+                        valuetype="prefLabel",
+                        concept__nodetype="Collection",
+                    )
+                    .select_related("concept")
+                    .first()
+                )
+                if not collection_record:
+                    return Q(pk__in=[])
+                parent = Concept().get(str(collection_record.concept.pk))
+                children = parent.get_child_collections(
+                    str(collection_record.concept.pk)
+                )
+                municipal = next((c for c in children if c[1] == "Municipal"), None)
+                if not municipal:
+                    return Q(pk__in=[])
+                municipal_value_id = municipal[2]
+                act_ids = (
+                    ResourceTileTree.get_tiles(graph_slug="legislative_act")
+                    .filter(authority=str(municipal_value_id))
+                    .values("pk")
+                )
+                query_filter = query_filter & Q(pk__in=act_ids)
+        except Exception as e:
+            print(e)
+            query_filter = Q(pk__in=[])
+
         return query_filter
