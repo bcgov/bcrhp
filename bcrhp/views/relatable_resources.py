@@ -15,15 +15,21 @@ from bcrhp.util.bcrhp_aliases import BCRHPSiteAliases as heritageSiteAliases
 
 # This isn't a real alias - it's to filter the sites in the LG edit site workflow
 MUNICIPAL_SITES_ALIAS = "municipal_sites"
+# Synthetic aliases that don't correspond to a real node in any graph. These
+# always go through the custom view path so the parent view (which would fail
+# to resolve them) is never reached, even for superusers.
 CUSTOM_NODE_ALIASES = [MUNICIPAL_SITES_ALIAS]
 SPECIAL_NODE_ALIASES = {
-    slugs.HERITAGE_SITE: {MUNICIPAL_SITES_ALIAS, heritageSiteAliases.LEGISLATIVE_ACT}
+    # Aliases listed here are real node aliases whose results should be filtered
+    # for non-superusers. Superusers bypass this and go directly to the parent view.
+    slugs.HERITAGE_SITE: {heritageSiteAliases.LEGISLATIVE_ACT}
 }
 
 
 class BcrhpRelatableResourcesView(RelatableResourcesView):
     def get(self, request, graph, node_alias):
-        # Superuser or aliases that aren't overridden should be able to see everything so use standard list
+        # Custom aliases and non-superuser special aliases need custom handling;
+        # delegate everything else to the parent view.
         if not self._should_override_alias(graph, node_alias, request.user):
             return super().get(request, graph, node_alias)
 
@@ -54,16 +60,14 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         )
 
         paginator = Paginator(resources, items_per_page)
+        page = paginator.get_page(page_number)
 
-        data = list(selected_resources) + sorted(
-            paginator.get_page(page_number).object_list,
-            key=lambda resource: (resource.get("display_value") or "").lower(),
-        )
+        data = list(selected_resources) + list(page.object_list)
 
         return JSONResponse(
             {
                 "graphs": [],
-                "current_page": paginator.get_page(page_number).number,
+                "current_page": page.number,
                 "total_pages": paginator.num_pages,
                 "results_per_page": paginator.per_page,
                 "total_results": paginator.count,
@@ -87,7 +91,8 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         try:
 
             if graph_slug == slugs.HERITAGE_SITE and alias == MUNICIPAL_SITES_ALIAS:
-                # Superuser or aliases that aren't overridden should be able to see everything so use standard, complete list
+                # Superusers see all published heritage sites; non-superusers are
+                # restricted to sites belonging to their local government.
                 if user.is_superuser:
                     return Q(
                         graph__slug=graph_slug,
