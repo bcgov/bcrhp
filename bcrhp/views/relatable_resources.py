@@ -36,7 +36,7 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
             ResourceInstance.objects.exclude(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
             .annotate(display_value=F("descriptors__{}__name".format(language)))
-            .order_by("graph", "pk")
+            .order_by(F("display_value").asc(nulls_last=True), "pk")
         )
         resources = resources.filter(
             self._get_filter_for_special_alias(
@@ -48,7 +48,7 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
             ResourceInstance.objects.filter(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
             .annotate(display_value=F("descriptors__{}__name".format(language)))
-            .order_by("graph", "pk")
+            .order_by(F("display_value").asc(nulls_last=True), "pk")
             if int(page_number) == 1
             else []
         )
