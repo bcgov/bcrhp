@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Chip from 'primevue/chip';
-import { computed, type PropType } from 'vue';
+import { type PropType } from 'vue';
 
 const props = defineProps({
     label: { type: String, default: '' },
@@ -37,7 +37,7 @@ const getValueFromPath = (item: any, path: string) => {
             return '';
         }
         return val;
-    } catch (e) {
+    } catch {
         return '';
     }
 };

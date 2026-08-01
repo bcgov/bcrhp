@@ -1,4 +1,3 @@
-import * as uuid from 'uuid';
 import arches from 'arches';
 import geojson from 'geojson';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';

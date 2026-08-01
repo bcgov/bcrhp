@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import FieldSet from 'primevue/fieldset';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-import { type Ref, inject, computed, onMounted, ref } from 'vue';
+import { type Ref, inject, computed, onMounted } from 'vue';
 import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';

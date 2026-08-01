@@ -6,7 +6,6 @@ import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import Fieldset from 'primevue/fieldset';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
-const emit = defineEmits(['update:stepIsValid']);
 
 const siteDocuments = computed(() => {
     return heritageSite.value?.aliased_data?.site_document ?? [];

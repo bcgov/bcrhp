@@ -13,6 +13,8 @@ import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
+import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
+import type { Node } from '@/arches_component_lab/types.ts';
 
 import {
     isValid as baseIsValid,
@@ -30,7 +32,6 @@ import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Checkbox from 'primevue/checkbox';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-import type { Node, ResourceInstanceCardXNodeXWidgetData } from '*.ts';
 
 const node_data: ResourceInstanceCardXNodeXWidgetData = {
     card: {
@@ -49,7 +50,7 @@ const node_data: ResourceInstanceCardXNodeXWidgetData = {
         config: {},
     } as Node,
     config: {
-        placeholder: 'Select site to updated',
+        placeholder: 'Select Legislative Act',
         defaultValue: '',
     },
     widget: {

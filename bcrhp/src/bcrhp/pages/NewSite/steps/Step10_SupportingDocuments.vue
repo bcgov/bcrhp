@@ -121,12 +121,6 @@ const addDocumentDisabled = computed(() => {
 });
 
 const saveDocument = async function () {
-    const type =
-        siteDocument.value.aliased_data.document_type?.display_value || '';
-    const name =
-        siteDocument.value.aliased_data.site_document?.node_value?.[0]?.name ||
-        '';
-
     heritageSite.value.aliased_data.site_document.push(siteDocument.value);
 
     siteDocument.value = getSiteDocument();
