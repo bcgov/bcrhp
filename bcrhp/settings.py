@@ -9,7 +9,9 @@ import sys
 import ast
 import arches
 import inspect
+import re
 import semantic_version
+from importlib.metadata import version as _pkg_version
 from datetime import datetime, timedelta
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
@@ -41,7 +43,8 @@ load_dotenv(
     os.path.join(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0], ".env")
 )
 APP_NAME = "bcrhp"
-APP_VERSION = semantic_version.Version(major=1, minor=4, patch=0)
+_v = re.match(r'^(\d+)\.(\d+)\.(\d+)', _pkg_version('bcrhp'))
+APP_VERSION = semantic_version.Version(major=int(_v.group(1)), minor=int(_v.group(2)), patch=int(_v.group(3)))
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 DEPLOYMENT_TIMESTAMP = get_env_variable("DEPLOYMENT_TIMESTAMP")
 
@@ -655,6 +658,10 @@ TILESERVER_URL = "https://openmaps.gov.bc.ca/"
 BC_TILESERVER_URLS = {
     "maps": {
         "url": "https://maps.gov.bc.ca/",
+        "use_outbound_proxy": True,  # Use outbound proxy for this source
+    },
+    "protected": {
+        "url": "https://apps.gov.bc.ca/",
         "use_outbound_proxy": True,  # Use outbound proxy for this source
     },
     "openmaps": {
