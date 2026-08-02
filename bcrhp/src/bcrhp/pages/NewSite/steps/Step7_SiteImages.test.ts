@@ -7,6 +7,7 @@ vi.mock('uuid', () => ({
 }));
 import { ref } from 'vue';
 import Step7SiteImages from './Step7_SiteImages.vue';
+import { EditMode } from '../constants.ts';
 
 const stubs = {
     Form: { template: '<form><slot v-bind="{}" /></form>' },
@@ -19,6 +20,10 @@ const stubs = {
         emits: ['click'],
     },
 };
+
+// v-tooltip is a PrimeVue directive; stub it so Vue doesn't warn about an
+// unresolved directive in the test environment.
+const directives = { tooltip: {} };
 
 function makeHeritageSite(site_images: any[] = []) {
     return ref({
@@ -78,7 +83,11 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([]) },
+                directives,
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.exists()).toBe(true);
@@ -88,7 +97,11 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite([]) },
+                directives,
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(true);
@@ -98,11 +111,13 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
+                directives,
                 provide: {
                     heritageSite: makeHeritageSite([
                         makeImage(0),
                         makeImage(1),
                     ]),
+                    editMode: EditMode.Add,
                 },
             },
         });
@@ -114,7 +129,14 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite(images) },
+                directives,
+                // EditMode.Add is required so the Form renders. Without it the
+                // v-if="isEditing || editMode === EditMode.Add" guard hides the
+                // entire form and .max-limit-message is never in the DOM.
+                provide: {
+                    heritageSite: makeHeritageSite(images),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.find('.max-limit-message').exists()).toBe(true);
@@ -125,7 +147,11 @@ describe('Step7_SiteImages', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
-                provide: { heritageSite: makeHeritageSite(images) },
+                directives,
+                provide: {
+                    heritageSite: makeHeritageSite(images),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.find('.max-limit-message').exists()).toBe(false);

@@ -11,9 +11,12 @@ update_notes = "264 - Update username datatype and max length"
 
 def fix_username_config_and_data(apps, schema_editor):
     # First update the graph to make submission photos 1:n
-    source_graph = models.Graph.objects.get(
-        slug=graph_slug, source_identifier__isnull=True
-    )
+    try:
+        source_graph = models.Graph.objects.get(
+            slug=graph_slug, source_identifier__isnull=True
+        )
+    except models.Graph.DoesNotExist:
+        return
     draft_graph = source_graph.draft.first()
     # print(f"Got draft {draft_graph}")
     if not draft_graph:
@@ -81,9 +84,12 @@ def fix_username_config_and_data(apps, schema_editor):
 
 
 def revert_username_config_and_data(apps, schema_editor):
-    current_graph = models.Graph.objects.get(
-        slug=graph_slug, source_identifier__isnull=True
-    )
+    try:
+        current_graph = models.Graph.objects.get(
+            slug=graph_slug, source_identifier__isnull=True
+        )
+    except models.Graph.DoesNotExist:
+        return
     if current_graph.publication.notes == update_notes:
         published_graphs = models.GraphXPublishedGraph.objects.filter(
             graph=current_graph

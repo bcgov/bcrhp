@@ -8,7 +8,6 @@ import GenericWidget from '@/arches_component_lab/generics/GenericWidget/Generic
 import { VIEW } from '@/arches_component_lab/widgets/constants.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
-const emit = defineEmits(['update:stepIsValid']);
 </script>
 
 <template>

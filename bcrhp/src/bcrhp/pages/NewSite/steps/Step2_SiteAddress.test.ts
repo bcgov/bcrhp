@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import Step2SiteAddress from './Step2_SiteAddress.vue';
+import { EditMode } from '../constants.ts';
 
 vi.mock('@/bcrhp/api.ts', () => ({
     getPidData: vi.fn(),
@@ -84,7 +85,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([]) },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.exists()).toBe(true);
@@ -94,7 +98,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([]) },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(false);
@@ -104,7 +111,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([makeAddress()]) },
+                provide: {
+                    heritageSite: makeHeritageSite([makeAddress()]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(true);
@@ -114,7 +124,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([]) },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.vm.isValid()).toBe(false);
@@ -128,7 +141,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([]) },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
 
@@ -145,7 +161,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([address]) },
+                provide: {
+                    heritageSite: makeHeritageSite([address]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         const text = wrapper.text();
@@ -180,7 +199,10 @@ describe('Step2_SiteAddress', () => {
         const wrapper = mount(Step2SiteAddress, {
             global: {
                 ...globalConfig,
-                provide: { heritageSite: makeHeritageSite([emptyAddress]) },
+                provide: {
+                    heritageSite: makeHeritageSite([emptyAddress]),
+                    editMode: EditMode.Add,
+                },
             },
         });
         expect(wrapper.text()).toContain('Untitled Address');

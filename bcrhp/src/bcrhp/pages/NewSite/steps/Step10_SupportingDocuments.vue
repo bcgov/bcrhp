@@ -121,12 +121,6 @@ const addDocumentDisabled = computed(() => {
 });
 
 const saveDocument = async function () {
-    const type =
-        siteDocument.value.aliased_data.document_type?.display_value || '';
-    const name =
-        siteDocument.value.aliased_data.site_document?.node_value?.[0]?.name ||
-        '';
-
     heritageSite.value.aliased_data.site_document.push(siteDocument.value);
 
     siteDocument.value = getSiteDocument();
@@ -140,6 +134,13 @@ const documentDisplayFunction = (siteDocument: SiteDocument) => {
     return `${siteDocument.aliased_data.site_document.node_value?.[0].name}  (${siteDocument.aliased_data.document_type.display_value}) ${siteDocument.aliased_data.document_description.display_value}`;
 };
 
+const isExistingDocument = (siteDocument: SiteDocument) => {
+    return (
+        siteDocument?.aliased_data?.site_document?.node_value?.[0]?.status ===
+        'uploaded'
+    );
+};
+
 const deleteSiteDocument = function (index: number) {
     heritageSite.value.aliased_data.site_document.splice(index, 1);
 
@@ -151,12 +152,15 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To add Supporting Documents, click “Edit Supporting Documents”.
+        </div>
         <Checkbox
             id="editDocumentsCheckbox"
             v-model="isEditing"
             binary
         ></Checkbox>
-        <label for="editDocumentsCheckbox">Edit Supporting Documents</label>
+        <label for="editDocumentsCheckbox">Add Supporting Documents</label>
         <Step10_SupportingDocumentsView v-if="!isEditing" />
         <hr />
     </div>
@@ -278,6 +282,7 @@ defineExpose({ isValid });
                 label="Site Documents"
                 :items="siteDocumentList"
                 :display-function="documentDisplayFunction"
+                :disabled-function="isExistingDocument"
                 @remove="deleteSiteDocument"
             />
         </div>

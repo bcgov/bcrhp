@@ -147,6 +147,10 @@ function deleteProtectionEvent(index: number) {
     emit('update:stepIsValid', isValid());
 }
 
+function isExistingProtectionEvent(event: ProtectionEventTileType): boolean {
+    return !!event.tileid;
+}
+
 const isEditing = ref(false);
 let snapshot: unknown = null;
 watch(isEditing, (editing) => {
@@ -164,6 +168,11 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update Official Recognition Details, click “Edit Recognition
+            Details”. <br /><b>Do not remove previous recognitions</b>, add new
+            recognition or designation statuses as necessary.
+        </div>
         <Checkbox
             id="editRecognitionDetailsCheckbox"
             v-model="isEditing"
@@ -230,7 +239,7 @@ defineExpose({ isValid });
                     <GenericWidget
                         :mode="EDIT"
                         :should-show-label="false"
-                        :aliasedNodeData="
+                        :aliased-node-data="
                             currentProtectionEvent.aliased_data.legislative_act
                         "
                         graph-slug="heritage_site"
@@ -275,6 +284,7 @@ defineExpose({ isValid });
             <ChipsList
                 label="Protection Events"
                 :items="protectionEvents"
+                :disabled-function="isExistingProtectionEvent"
                 :display-keys="[
                     'aliased_data.designation_or_protection_start_date',
                     'aliased_data.legislative_act',

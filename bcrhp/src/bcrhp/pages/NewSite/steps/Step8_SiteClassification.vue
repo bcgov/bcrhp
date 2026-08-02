@@ -30,8 +30,9 @@ import {
 import Checkbox from 'primevue/checkbox';
 import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassificationView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import TimesCircleIcon from '@primevue/icons/timescircle';
 
-const editMode = inject<Ref<EditMode>>('editMode')!;
+const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
@@ -121,6 +122,7 @@ const isValidHeritageFunction = () =>
     );
 
 const isValid = () => {
+    if (editMode === EditMode.Edit && !isEditing.value) return true;
     if (!heritageThemeForm.value) {
         // Form not mounted (view mode or transitioning) — validate data directly
         const status = HeritageThemeTileSchema.shape['aliased_data'].safeParse(
@@ -290,6 +292,23 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Site Classification details, click “Edit Site
+            Classification”. To remove the existing details, click the
+            <span
+                style="
+                    background-color: #ffffff;
+                    padding: 0.2rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+                <TimesCircleIcon />
+            </span>
+            icon located to the right of the previously submitted detail at the
+            bottom of each section.
+        </div>
         <Checkbox
             id="editClassificationCheckbox"
             v-model="isEditing"

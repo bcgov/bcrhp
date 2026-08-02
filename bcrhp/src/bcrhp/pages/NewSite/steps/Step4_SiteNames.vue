@@ -7,6 +7,7 @@ import FieldSet from 'primevue/fieldset';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
+import TimesCircleIcon from '@primevue/icons/timescircle';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import {
     getBlankCommonName,
@@ -213,6 +214,23 @@ onMounted(() => {
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Site Names, click “Edit Names”. To remove the existing
+            site name(s), click the
+            <span
+                style="
+                    background-color: #ffffff;
+                    padding: 0.2rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+                <TimesCircleIcon />
+            </span>
+            icon located to the right of the previously submitted name at the
+            bottom of the page.
+        </div>
         <Checkbox
             id="editNamesCheckbox"
             v-model="isEditing"

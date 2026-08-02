@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import FieldSet from 'primevue/fieldset';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
-import { type Ref, inject, computed } from 'vue';
-import ResourceWidget from '@/arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue';
+import { type Ref, inject, computed, onMounted } from 'vue';
+import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { ResourceInstanceValue } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
-const isValid = () => {
-    return true;
-};
 import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 
 import type { Card, Node } from '@/arches_component_lab/types.ts';
@@ -15,8 +11,12 @@ import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSite } from '@/bcrhp/api.ts';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 
-const { editMode, working } = useWorkflowStep();
+const { working } = useWorkflowStep();
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite');
+
+const isValid = () => {
+    return !!heritageSite?.value?.resourceinstanceid;
+};
 
 export interface CardXNodeXWidgetData {
     card: Card;
@@ -56,12 +56,15 @@ const node_data: ResourceInstanceCardXNodeXWidgetData = {
     },
     widget: {
         widgetid: '',
-        component: '',
+        component:
+            'arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue',
     },
 };
 
 const setResourceId = async (site: ResourceInstanceValue) => {
-    if (site?.node_value && heritageSite?.value) {
+    if (!site?.node_value && heritageSite?.value) {
+        heritageSite.value = initialValue;
+    } else if (site?.node_value && heritageSite?.value) {
         working.value = true;
         try {
             const siteUUID = site.node_value.resourceId;
@@ -81,12 +84,17 @@ const siteURL = computed(() => {
     const id = heritageSite?.value?.resourceinstanceid;
     return id ? `/bcrhp/search?id=${id}` : '';
 });
+let initialValue: HeritageSiteType = null;
+
+onMounted(() => {
+    initialValue = heritageSite?.value;
+});
 
 defineExpose({ isValid });
 </script>
 <template>
     <FieldSet legend="Before you begin">
-        <ResourceWidget
+        <GenericWidget
             :mode="EDIT"
             :aliased-node-data="null"
             graph-slug="heritage_site"
@@ -121,9 +129,9 @@ defineExpose({ isValid });
                 <a
                     href="/bcrhp/search"
                     target="bcrhp_search"
-                    >Search Page</a
+                    >Search Page on BCRHP</a
                 >
-                on BCRHP. Consult the Consult the
+                . Consult the Consult the
                 <a
                     href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/20240719_how_to_search_bcrhp_final.pdf"
                     target="how_to_guide"
@@ -164,67 +172,21 @@ defineExpose({ isValid });
                     <li>
                         Do not remove previous recognition (unless it is no
                         longer accurate), add new recognition or designation
-                        statuses as necessary
+                        statuses as necessary.
                     </li>
                 </ul>
             </li>
             <li>
-                Steps 2-5 and 10 are mandatory to complete the basic data
-                requirements for a notification.
-            </li>
-            <li>
-                Information required for Steps 2-5:
+                Required documents for Step 10:
                 <ul class="bullet-list ml-4 mt-2">
-                    <li>Site name (use address if no name has been given)</li>
-                    <li>Street address of site</li>
-                    <li>
-                        Mapping information, you must have one of the following:
-                        <ul class="bullet-list-nested ml-4 mt-1">
-                            <li>PID</li>
-                            <li>Shapefile or KML</li>
-                        </ul>
-                    </li>
-                    <li>
-                        Formal recognition information, which includes the
-                        following:
-                        <ul class="bullet-list-nested ml-4 mt-1">
-                            <li>
-                                Designation or Recognition Start Date-the date
-                                the site was formally recognized by Bylaw,
-                                Council Resolution, Order in Council, etc.
-                            </li>
-                            <li>
-                                Legislative Act- legislation that the site is
-                                formally recognized under.
-                            </li>
-                            <li>
-                                Reference Number-Enter how the decision was
-                                enacted and the corresponding reference number
-                                if applicable (e.g. Bylaw 12-983)
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        Required documents for Step 10:
-                        <ul class="bullet-list-nested ml-4 mt-1">
-                            <li>
-                                Copy of Bylaw, Resolution, or Meeting Minutes
-                            </li>
-                            <li>
-                                GIS files or Site Map if no PID or Shapefile/KML
-                                is provided in Step 3
-                            </li>
-                        </ul>
-                    </li>
+                    <li>Copy of Bylaw, Resolution, or Meeting Minutes</li>
                 </ul>
             </li>
         </ul>
         <div class="mt-4">
             <span class="red">*</span>The system does not have a save for later
             or draft function, so it is important to have all information ready
-            before starting. It is highly recommended to complete the remaining
-            steps if information is available to improve the historic site’s
-            search ability on the register.
+            before starting.
         </div>
     </FieldSet>
 </template>

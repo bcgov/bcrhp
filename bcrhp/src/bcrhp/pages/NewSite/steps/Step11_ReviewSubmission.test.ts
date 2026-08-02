@@ -1,6 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
+
+// Step3_SpatialLocationView → SimpleMap → maplibre-gl calls
+// window.URL.createObjectURL() at module-evaluation time, which jsdom does
+// not implement.  Mock the entire library before any imports are evaluated.
+vi.mock('maplibre-gl', () => ({ default: {} }));
+
+// Step3_SpatialLocationView → SimpleMap/SimpleMap.vue → SimpleMap/api.ts →
+// geojson-feature-collection/api.ts calls createRequest('api-map-data') at
+// module-evaluation time, which accesses arches.urls before the Django server
+// has populated it.  Mock the api module to prevent the side effect.
+vi.mock('@/bcgov_arches_common/widgets/SimpleMap/api.ts', () => ({
+    fetchSystemMapData: vi.fn(),
+}));
+
 import Step11ReviewSubmission from './Step11_ReviewSubmission.vue';
 
 const stubs = {
@@ -35,14 +49,24 @@ function makeHeritageSite(overrides: Record<string, any> = {}) {
     });
 }
 
+// Default global config shared by all tests.
+// workflowSubmissionErrors and workflowSubmissionComplete are the inject keys
+// that useWorkflowStep() (used inside Step11) reads.  They must be provided
+// here; passing them as `props` has no effect because the component never
+// calls defineProps for them.
+const makeGlobal = (extraProvide: Record<string, unknown> = {}) => ({
+    stubs,
+    provide: {
+        workflowSubmissionErrors: ref<unknown[]>([]),
+        workflowSubmissionComplete: ref(false),
+        ...extraProvide,
+    },
+});
+
 describe('Step11_ReviewSubmission', () => {
     it('mounts without error', () => {
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite: makeHeritageSite() },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite: makeHeritageSite() }),
         });
         expect(wrapper.exists()).toBe(true);
     });
@@ -50,11 +74,7 @@ describe('Step11_ReviewSubmission', () => {
     it("isValid adds today's date to an empty site_record_admin and returns true", () => {
         const heritageSite = makeHeritageSite({ site_record_admin: [] });
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite }),
         });
 
         const result = wrapper.vm.isValid();
@@ -83,11 +103,7 @@ describe('Step11_ReviewSubmission', () => {
             site_record_admin: [existingAdmin],
         });
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite }),
         });
 
         wrapper.vm.isValid();
@@ -103,22 +119,14 @@ describe('Step11_ReviewSubmission', () => {
 
     it('shows "No address provided" when propertyAddresses is empty', () => {
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite: makeHeritageSite() },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite: makeHeritageSite() }),
         });
         expect(wrapper.text()).toContain('No address provided');
     });
 
     it('shows "No documents uploaded" when siteDocuments is empty', () => {
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite: makeHeritageSite() },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite: makeHeritageSite() }),
         });
         expect(wrapper.text()).toContain('No documents uploaded');
     });
@@ -131,12 +139,13 @@ describe('Step11_ReviewSubmission', () => {
                 message: 'Required field missing',
             },
         ];
+        // submissionErrors comes from inject('workflowSubmissionErrors'), not
+        // from a declared prop.  Providing it here is the correct approach.
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite: makeHeritageSite() },
-            },
-            props: { submissionErrors: errors },
+            global: makeGlobal({
+                heritageSite: makeHeritageSite(),
+                workflowSubmissionErrors: ref(errors),
+            }),
         });
         expect(wrapper.text()).toContain('ValidationError');
         expect(wrapper.text()).toContain('Required field missing');
@@ -162,11 +171,7 @@ describe('Step11_ReviewSubmission', () => {
             ],
         });
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite }),
         });
         expect(wrapper.text()).toContain('Humboldt House');
     });
@@ -205,11 +210,7 @@ describe('Step11_ReviewSubmission', () => {
             ],
         });
         const wrapper = mount(Step11ReviewSubmission, {
-            global: {
-                stubs,
-                provide: { heritageSite },
-            },
-            props: { submissionErrors: [] },
+            global: makeGlobal({ heritageSite }),
         });
         expect(wrapper.text()).toContain('Main Name');
         expect(wrapper.text()).toContain('Historic Name');

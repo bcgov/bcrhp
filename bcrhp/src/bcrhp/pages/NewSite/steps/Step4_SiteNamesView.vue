@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, computed } from 'vue';
+import { inject, computed } from 'vue';
 import type { Ref } from 'vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
@@ -7,7 +7,6 @@ import Fieldset from 'primevue/fieldset';
 import type { SiteNamesTileType } from '@/bcrhp/schemas/heritage_site/site_names.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
-const emit = defineEmits(['update:stepIsValid']);
 const commonName = computed(() => {
     const commonNames = heritageSite.value?.aliased_data?.site_names.filter(
         (name: SiteNamesTileType) =>

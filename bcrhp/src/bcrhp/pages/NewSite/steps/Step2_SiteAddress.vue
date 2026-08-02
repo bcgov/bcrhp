@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed, watch } from 'vue';
 import type { Ref } from 'vue';
+import { computed, inject, ref, useTemplateRef, watch } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
@@ -34,6 +34,7 @@ import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
+import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -276,7 +277,11 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
 }
 
 const isValid = () => {
-    if (!hasPropertyAddress.value) return true;
+    if (
+        !hasPropertyAddress.value ||
+        (editMode == EditMode.Edit && !isEditing.value)
+    )
+        return true;
     return propertyAddressList.value.length > 0;
 };
 
@@ -370,12 +375,30 @@ watch(isEditing, (editing) => {
             snapshot as any;
         snapshot = null;
     }
+    emit('update:stepIsValid', isValid());
 });
 defineExpose({ isValid });
 </script>
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update the Site Location, click “Edit Site Address”. To remove
+            the existing site address, click the
+            <span
+                style="
+                    background-color: #ffffff;
+                    padding: 0.2rem;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                "
+            >
+                <TimesCircleIcon />
+            </span>
+            icon located to the right of the previously submitted address at the
+            bottom of the page.
+        </div>
         <Checkbox
             id="editAddressCheckbox"
             v-model="isEditing"

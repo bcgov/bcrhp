@@ -191,6 +191,10 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div style="margin-bottom: 1rem">
+            To update Images, click “Edit Images”. To remove existing photo(s),
+            click the red X icon on the top right corner of the photo.
+        </div>
         <Checkbox
             id="editImagesCheckbox"
             v-model="isEditing"
@@ -277,12 +281,12 @@ defineExpose({ isValid });
                         <Button
                             v-if="addingNewImage && siteImagesCount < 10"
                             id="addOtherName"
-                            class="inline-block"
-                            :aria-disabled="addImageDisabled"
-                            :disabled="addImageDisabled"
                             v-tooltip="
                                 'Save the new image before adding another'
                             "
+                            class="inline-block"
+                            :aria-disabled="addImageDisabled"
+                            :disabled="addImageDisabled"
                             @click="saveImage"
                             ><i class="fa fa-save mr-2"></i>
                             Save
@@ -297,14 +301,14 @@ defineExpose({ isValid });
                             @click="setCurrentImage(index)"
                         >
                             <div
-                                class="fa fa-remove image-icons image-delete-icon"
                                 v-tooltip="'Remove Image'"
+                                class="fa fa-remove image-icons image-delete-icon"
                                 @click.stop="deleteSiteImage(index)"
                             ></div>
                             <div
                                 v-if="index !== 0"
-                                class="fa fa-flag image-icons image-primary-icon"
                                 v-tooltip="'Set as Primary Image'"
+                                class="fa fa-flag image-icons image-primary-icon"
                                 @click.stop="setPrimaryImage(index)"
                             ></div>
                             <GenericWidget
