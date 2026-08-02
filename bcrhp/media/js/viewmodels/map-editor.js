@@ -12,7 +12,7 @@ import proj4 from 'proj4';
 import MapComponentViewModel from 'views/components/map';
 import selectFeatureLayersFactory from 'views/components/cards/select-feature-layers';
 import geojsonDatatype from 'views/components/datatypes/geojson-feature-collection';
-import { getFeatureForObjectId } from '../utils/parcelmap-api.ts';
+import { getFeatureForObjectId } from '@/bcrhp/parcelmap-api.ts';
 
 import externalUtils from 'utils/map-filter-utils';
 import MapboxDraw from 'mapbox-gl-draw';

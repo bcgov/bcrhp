@@ -9,19 +9,13 @@ import {
 } from 'vitest';
 import { getFeatureForObjectId } from './parcelmap-api.ts';
 
-// NOTE: There is a bug in parcelmap-api.ts — `response.json()` is called
-// without `await`, so `featureCollection` is a Promise rather than the parsed
-// data. Accessing `.features` on a Promise is `undefined`, which causes the
-// tests that exercise the success path to throw a TypeError and fail. The fix
-// is to add `await` before `response.json()` in the source file.
-
 afterEach(() => {
     vi.restoreAllMocks();
 });
 
 const EXPECTED_URL =
     '/bcrhp/bctileserver/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows' +
-    '?service=WFS&version=2.0.0&request=GetFeature' +
+    '?service=WFS&version=2.0.0&request=GetFeature&srsName=EPSG:4326' +
     '&typeNames=WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW' +
     '&outputFormat=application/json&CQL_FILTER=OBJECTID=';
 
@@ -63,7 +57,7 @@ describe('getFeatureForObjectId — URL', () => {
                 .mockResolvedValue(makeFeatureCollection([makeFeature()])),
         } as any);
 
-        await getFeatureForObjectId(255056656).catch(() => {});
+        await getFeatureForObjectId(255056656);
 
         expect(fetch).toHaveBeenCalledWith(EXPECTED_URL + 255056656);
     });
