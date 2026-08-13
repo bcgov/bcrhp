@@ -159,23 +159,24 @@ describe('Step2_SiteAddress — Add mode', () => {
         expect(mountComponent(EditMode.Add, hs).vm.isValid()).toBe(true);
     });
 
-    it('isValid returns true after "no street address" checkbox is toggled, regardless of address list', async () => {
+    it('isValid returns false when "no street address" is toggled but no location description is provided', async () => {
         const wrapper = mountComponent(EditMode.Add);
         expect(wrapper.vm.isValid()).toBe(false);
 
         await wrapper.find('#hasCivicAddress').trigger('change');
 
-        expect(wrapper.vm.isValid()).toBe(true);
+        // bypass is active but location_description is empty → still false
+        expect(wrapper.vm.isValid()).toBe(false);
     });
 
-    it('emits update:stepIsValid with true after "no street address" is checked', async () => {
+    it('emits update:stepIsValid with false after "no street address" is checked without a location description', async () => {
         const wrapper = mountComponent(EditMode.Add);
 
         await wrapper.find('#hasCivicAddress').trigger('change');
 
         const emitted = wrapper.emitted('update:stepIsValid');
         expect(emitted).toBeTruthy();
-        expect(emitted![emitted!.length - 1]).toEqual([true]);
+        expect(emitted![emitted!.length - 1]).toEqual([false]);
     });
 
     it('getAddressLabel uses " - " as separator between non-empty fields', () => {

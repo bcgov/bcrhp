@@ -10,13 +10,15 @@ import Chip from 'primevue/chip';
 import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import {
+    convertNbspToSpaces,
+    htmlToPlainText,
+} from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
-import { getPidData } from '@/bcrhp/api.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 import {
@@ -39,7 +41,6 @@ import TimesCircleIcon from '@primevue/icons/timescircle';
 const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
-const isValidatingPid = ref(false);
 const currentPidLength = ref(0);
 const pidSuccess = ref(false);
 
@@ -93,11 +94,21 @@ const propertyAddressResolver = getFlattenResolver(
     zodResolver(BcPropertyAddressTileSchema.shape['aliased_data']),
 );
 
-const currentAddressHasStreet = computed(() => {
-    const streetVal =
-        currentPropertyAddress.value?.aliased_data?.street_address
-            ?.display_value || '';
-    return streetVal.trim().length > 0;
+const currentAddressValid = computed(() => {
+    if (hasPropertyAddress.value) {
+        const streetVal =
+            currentPropertyAddress.value?.aliased_data?.street_address
+                ?.display_value || '';
+        return streetVal.trim().length > 0;
+    } else {
+        console.log('|', currentPropertyAddress.value);
+        const strippedDescription = htmlToPlainText(
+            currentPropertyAddress.value?.aliased_data?.location_description
+                ?.display_value ?? '',
+        );
+
+        return strippedDescription.trim().length > 0;
+    }
 });
 
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
@@ -181,8 +192,22 @@ function deleteAddress(index: number) {
     emit('update:stepIsValid', isValid());
 }
 
+const blankField = () => ({ display_value: '', node_value: null, details: [] });
+const clearCivicFields = (aliasedData: any) => {
+    aliasedData.street_address = blankField();
+    aliasedData.city = blankField();
+    aliasedData.postal_code = blankField();
+    aliasedData.locality = blankField();
+};
+
 const hasAddressChanged = function () {
     hasPropertyAddress.value = !hasPropertyAddress.value;
+    if (disableAddressSection.value) {
+        clearCivicFields(currentPropertyAddress.value.aliased_data);
+        propertyAddressList.value.forEach((address: any) =>
+            clearCivicFields(address.aliased_data),
+        );
+    }
     emit('update:stepIsValid', isValid());
 };
 
@@ -277,11 +302,7 @@ function deleteLegalDescription(addressIndex: number, legalIndex: number) {
 }
 
 const isValid = () => {
-    if (
-        !hasPropertyAddress.value ||
-        (editMode == EditMode.Edit && !isEditing.value)
-    )
-        return true;
+    if (editMode == EditMode.Edit && !isEditing.value) return true;
     return propertyAddressList.value.length > 0;
 };
 
@@ -389,9 +410,9 @@ defineExpose({ isValid });
             id="propertyAddressFieldset"
             :key="addressFormKey"
             legend="Civic Address"
-            :disabled="disableAddressSection"
         >
             <div
+                v-if="!disableAddressSection"
                 class="row"
                 style="width: 100%"
             >
@@ -437,6 +458,7 @@ defineExpose({ isValid });
             </div>
 
             <div
+                v-if="!disableAddressSection"
                 class="row"
                 style="width: 100%"
             >
@@ -475,24 +497,35 @@ defineExpose({ isValid });
                     />
                 </div>
             </div>
-            <GenericWidget
-                :key="descriptionKey"
-                style="margin-bottom: 1rem"
-                :mode="EDIT"
-                :aliased-node-data="
-                    currentPropertyAddress?.aliased_data?.location_description
-                "
-                graph-slug="heritage_site"
-                node-alias="location_description"
-                @update:value="updateAddress($event, 'location_description')"
-            />
+
+            <LabelledInput
+                label="Location Description"
+                input-name="location_description"
+                :required="disableAddressSection"
+            >
+                <GenericWidget
+                    :key="descriptionKey"
+                    style="margin-bottom: 1rem"
+                    :mode="EDIT"
+                    :should-show-label="false"
+                    :aliased-node-data="
+                        currentPropertyAddress?.aliased_data
+                            ?.location_description
+                    "
+                    graph-slug="heritage_site"
+                    node-alias="location_description"
+                    @update:value="
+                        updateAddress($event, 'location_description')
+                    "
+                />
+            </LabelledInput>
         </FieldSet>
         <br />
         <div class="mt-4">
             <Button
                 style="align-self: flex-start"
                 class="w-fit mb-6"
-                :disabled="!currentAddressHasStreet"
+                :disabled="!currentAddressValid"
                 @click="saveAddress"
             >
                 {{ addingNewAddress ? '+ Add Address' : 'Save Changes' }}
