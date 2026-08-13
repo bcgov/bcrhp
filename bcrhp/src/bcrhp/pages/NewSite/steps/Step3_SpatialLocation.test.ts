@@ -306,7 +306,6 @@ describe('Step3_SpatialLocation — PID grid visibility', () => {
     it('hides the PID grid when override is active', async () => {
         const hs = makeHeritageSite([
             makeLocation({
-                boundaryFeatures: [POLYGON_FEATURE],
                 addresses: [makeAddress([makeLegalDescription(3456789)])],
             }),
         ]);
@@ -322,7 +321,6 @@ describe('Step3_SpatialLocation — PID grid visibility', () => {
     it('restores the PID grid when override is unchecked', async () => {
         const hs = makeHeritageSite([
             makeLocation({
-                boundaryFeatures: [POLYGON_FEATURE],
                 addresses: [makeAddress([makeLegalDescription(3456789)])],
             }),
         ]);
@@ -338,21 +336,37 @@ describe('Step3_SpatialLocation — PID grid visibility', () => {
 });
 
 // ---------------------------------------------------------------------------
-// overrideBoundary checkbox stays visible while override is active
+// overrideBoundary checkbox is always visible; upload instructions follow it
 // ---------------------------------------------------------------------------
 
 describe('Step3_SpatialLocation — overrideBoundary checkbox visibility', () => {
-    it('controls container remains visible after override is checked', async () => {
-        const hs = makeHeritageSite([
-            makeLocation({ boundaryFeatures: [POLYGON_FEATURE] }),
-        ]);
-        const wrapper = mountComponent(EditMode.Add, hs);
+    it('is visible even when there are no boundary features', async () => {
+        // Controls container is unconditional — no geometry needed to reveal it.
+        const wrapper = mountComponent(EditMode.Add);
         await nextTick();
         expect(wrapper.find('#overrideBoundary').exists()).toBe(true);
+    });
 
+    it('remains visible after override is checked', async () => {
+        const wrapper = mountComponent(EditMode.Add);
+        await nextTick();
         await wrapper.find('#overrideBoundary').setValue(true);
         await nextTick();
         expect(wrapper.find('#overrideBoundary').exists()).toBe(true);
+    });
+
+    it('does not show upload instructions when there is no geometry and override is off', async () => {
+        // widgetMode stays VIEW when override is unchecked; instructions are gated on EDIT mode.
+        const wrapper = mountComponent(EditMode.Add);
+        await nextTick();
+        expect(wrapper.find('.instructions').exists()).toBe(false);
+    });
+
+    it('shows upload instructions only when override is active', async () => {
+        const wrapper = mountComponent(EditMode.Add);
+        await wrapper.find('#overrideBoundary').setValue(true);
+        await nextTick();
+        expect(wrapper.find('.instructions').exists()).toBe(true);
     });
 });
 

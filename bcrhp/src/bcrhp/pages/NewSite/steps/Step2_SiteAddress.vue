@@ -304,56 +304,6 @@ const ensureSiteLocation = () => {
     }
 };
 
-const validatePID = async () => {
-    const pidVal =
-        currentLegalDescription.value?.aliased_data?.pid?.display_value ||
-        currentLegalDescription.value?.aliased_data?.pid?.node_value;
-    const pid = String(pidVal || '').replace(/\D/g, '');
-
-    if (!pid || pid.length < 9) return;
-    isValidatingPid.value = true;
-    pidSuccess.value = false;
-
-    try {
-        const data = await getPidData(pid);
-
-        if (data.boundary) {
-            const geojsonValue = {
-                type: 'FeatureCollection',
-                features: [data.boundary],
-            };
-            tempBoundaryData.value = {
-                display_value: 'PID Boundary',
-                node_value: geojsonValue,
-                details: [],
-            };
-
-            pidSuccess.value = true;
-        }
-        if (data.legalDescription) {
-            updateLegal(
-                {
-                    display_value: data.legalDescription,
-                    node_value: data.legalDescription,
-                    details: [],
-                },
-                'legal_description',
-            );
-
-            const inputLd = (legalWidgetRef.value as any)?.$el?.querySelector(
-                'input, textarea',
-            );
-            if (inputLd) {
-                inputLd.value = data.legalDescription;
-                inputLd.dispatchEvent(new Event('input', { bubbles: true }));
-                inputLd.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        }
-    } finally {
-        isValidatingPid.value = false;
-    }
-};
-
 const stringWidgetOverride = {
     widget: {
         widgetid: '',
@@ -661,17 +611,6 @@ defineExpose({ isValid });
                                 node-alias="pid"
                                 @update:value="updateLegal($event, 'pid')"
                             />
-
-                            <Button
-                                id="validateParcel"
-                                :label="pidSuccess ? 'Success' : 'Get Boundary'"
-                                :icon="pidSuccess ? 'pi pi-check' : ''"
-                                :severity="pidSuccess ? 'success' : 'primary'"
-                                class="button-padding"
-                                :loading="isValidatingPid"
-                                :disabled="currentPidLength !== 9"
-                                @click="validatePID"
-                            ></Button>
                         </div>
                     </div>
                 </LabelledInput>

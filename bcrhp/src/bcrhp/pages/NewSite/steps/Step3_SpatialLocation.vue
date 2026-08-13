@@ -117,7 +117,6 @@ const siteArea = computed(() => {
 });
 
 const widgetMode = computed(() => {
-    if (!hasBoundaryData.value) return EDIT;
     if (overrideBoundary.value) return EDIT;
     return VIEW;
 });
@@ -360,10 +359,7 @@ defineExpose({ isValid });
                             label="Site Boundary"
                             :required="!isBoundaryBypassed"
                         >
-                            <div
-                                v-if="hasBoundaryData || overrideBoundary"
-                                class="controls-container mb-3"
-                            >
+                            <div class="controls-container mb-3">
                                 <div class="flex items-center gap-4">
                                     <LabelledCheckboxInput
                                         label="Use Shapefile / KML / GeoJSON instead of Cadastral Features"
