@@ -22,8 +22,8 @@ import {
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step6_SOSView from '@/bcrhp/pages/NewSite/steps/Step6_SOSView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step6_SOSView from '@/bcrhp/pages/SiteSubmission/steps/Step6_SOSView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;

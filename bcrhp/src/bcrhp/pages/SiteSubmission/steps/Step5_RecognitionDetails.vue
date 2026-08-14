@@ -8,7 +8,7 @@ import { Form, type FormInstance } from '@primevue/forms';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
@@ -27,8 +27,8 @@ import {
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step5_RecognitionDetailsView from '@/bcrhp/pages/SiteSubmission/steps/Step5_RecognitionDetailsView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(

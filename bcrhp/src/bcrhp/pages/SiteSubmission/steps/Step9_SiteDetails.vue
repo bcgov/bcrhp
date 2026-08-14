@@ -13,7 +13,7 @@ import type {
 } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 
 import {
@@ -40,8 +40,8 @@ import {
     updateModelValue as baseUpdateModelValue,
 } from '@/bcrhp/utils.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step9_SiteDetailsView from '@/bcrhp/pages/SiteSubmission/steps/Step9_SiteDetailsView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;

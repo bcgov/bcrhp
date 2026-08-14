@@ -31,11 +31,11 @@ import {
     getLegalDescription,
 } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
-import Step2_SiteAddressView from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddressView.vue';
+import Step2_SiteAddressView from '@/bcrhp/pages/SiteSubmission/steps/Step2_SiteAddressView.vue';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<EditMode>('editMode')!;

@@ -11,7 +11,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref, nextTick } from 'vue';
 import Step3SpatialLocation from './Step3_SpatialLocation.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import { getPidData } from '@/bcrhp/api.ts';
 
 afterEach(() => {

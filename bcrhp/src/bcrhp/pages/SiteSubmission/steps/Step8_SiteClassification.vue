@@ -8,7 +8,7 @@ import { Form, type FormInstance } from '@primevue/forms';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
@@ -28,8 +28,8 @@ import {
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassificationView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step8_SiteClassificationView from '@/bcrhp/pages/SiteSubmission/steps/Step8_SiteClassificationView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<EditMode>('editMode')!;

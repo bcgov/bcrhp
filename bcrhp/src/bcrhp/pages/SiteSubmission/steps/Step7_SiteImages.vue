@@ -29,8 +29,8 @@ import Button from 'primevue/button';
 import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step7_SiteImagesView from '@/bcrhp/pages/NewSite/steps/Step7_SiteImagesView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step7_SiteImagesView from '@/bcrhp/pages/SiteSubmission/steps/Step7_SiteImagesView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;

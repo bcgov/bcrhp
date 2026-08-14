@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref, nextTick } from 'vue';
 import Step9SiteDetails from './Step9_SiteDetails.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 // ---------------------------------------------------------------------------
 // Stubs

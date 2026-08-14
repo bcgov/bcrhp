@@ -15,7 +15,8 @@ const routes = [
         path: arches.urls.plugin('workflow-list/submissions/new-site/new'),
         name: 'newSite',
         params: { editMode: 'create' },
-        component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
+        component: () =>
+            import('@/bcrhp/pages/SiteSubmission/SiteSubmission.vue'),
         meta: {
             shouldShowNavigation: true,
             requiresAuthentication: !dev_mode,
@@ -24,7 +25,8 @@ const routes = [
     {
         path: arches.urls.plugin('workflow-list/submissions/edit-site/'),
         name: 'updateSite',
-        component: () => import('@/bcrhp/pages/NewSite/NewSite.vue'),
+        component: () =>
+            import('@/bcrhp/pages/SiteSubmission/SiteSubmission.vue'),
         params: { editMode: 'update' },
         meta: {
             shouldShowNavigation: true,

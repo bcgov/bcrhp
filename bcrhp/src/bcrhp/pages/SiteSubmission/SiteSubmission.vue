@@ -5,17 +5,17 @@ import {
     type StepConfig,
 } from '@/bcrhp/components/WorkflowStepper/components/types.ts';
 import type { ErrorMessage } from '@/bcrhp/types.ts';
-import NewSiteStep1 from '@/bcrhp/pages/NewSite/steps/Step1_About.vue';
-import SiteAddress from '@/bcrhp/pages/NewSite/steps/Step2_SiteAddress.vue';
-import SpatialLocation from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocation.vue';
-import SiteNames from '@/bcrhp/pages/NewSite/steps/Step4_SiteNames.vue';
-import RecognitionDetails from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetails.vue';
-import SOS from '@/bcrhp/pages/NewSite/steps/Step6_SOS.vue';
-import SiteImages from '@/bcrhp/pages/NewSite/steps/Step7_SiteImages.vue';
-import SiteClassification from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassification.vue';
-import SiteDetails from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetails.vue';
-import SupportingDocuments from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocuments.vue';
-import ReviewSubmission from '@/bcrhp/pages/NewSite/steps/Step11_ReviewSubmission.vue';
+import Step1About from '@/bcrhp/pages/SiteSubmission/steps/Step1_About.vue';
+import SiteAddress from '@/bcrhp/pages/SiteSubmission/steps/Step2_SiteAddress.vue';
+import SpatialLocation from '@/bcrhp/pages/SiteSubmission/steps/Step3_SpatialLocation.vue';
+import SiteNames from '@/bcrhp/pages/SiteSubmission/steps/Step4_SiteNames.vue';
+import RecognitionDetails from '@/bcrhp/pages/SiteSubmission/steps/Step5_RecognitionDetails.vue';
+import SOS from '@/bcrhp/pages/SiteSubmission/steps/Step6_SOS.vue';
+import SiteImages from '@/bcrhp/pages/SiteSubmission/steps/Step7_SiteImages.vue';
+import SiteClassification from '@/bcrhp/pages/SiteSubmission/steps/Step8_SiteClassification.vue';
+import SiteDetails from '@/bcrhp/pages/SiteSubmission/steps/Step9_SiteDetails.vue';
+import SupportingDocuments from '@/bcrhp/pages/SiteSubmission/steps/Step10_SupportingDocuments.vue';
+import ReviewSubmission from '@/bcrhp/pages/SiteSubmission/steps/Step11_ReviewSubmission.vue';
 import {
     getBlankHeritageSite,
     getHeritageSite,
@@ -38,7 +38,7 @@ const steps: StepConfig[] = [
     {
         value: 1,
         label: 'Submission Information',
-        component: NewSiteStep1,
+        component: Step1About,
     },
     {
         value: 2,

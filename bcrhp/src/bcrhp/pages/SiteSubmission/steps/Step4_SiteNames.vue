@@ -16,7 +16,7 @@ import {
     type SiteNamesTileType,
 } from '@/bcrhp/schemas/heritage_site/site_names.ts';
 
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
@@ -25,8 +25,8 @@ import {
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step4_SiteNamesView from '@/bcrhp/pages/NewSite/steps/Step4_SiteNamesView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step4_SiteNamesView from '@/bcrhp/pages/SiteSubmission/steps/Step4_SiteNamesView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;

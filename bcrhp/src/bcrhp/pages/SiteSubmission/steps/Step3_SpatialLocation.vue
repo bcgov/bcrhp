@@ -4,8 +4,8 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import ToggleSwitch from 'primevue/toggleswitch';
-import Step3_SpatialLocationView from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocationView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step3_SpatialLocationView from '@/bcrhp/pages/SiteSubmission/steps/Step3_SpatialLocationView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
 import { Form, type FormInstance } from '@primevue/forms';
 import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
