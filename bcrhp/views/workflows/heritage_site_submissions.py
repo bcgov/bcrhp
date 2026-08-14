@@ -277,6 +277,12 @@ class SubmitHeritageSite(
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
+        if site["aliased_data"]["bc_right"]["aliased_data"][
+            "officially_recognized_site"
+        ]["node_value"] not in (True, False):
+            site["aliased_data"]["bc_right"]["aliased_data"][
+                "officially_recognized_site"
+            ]["node_value"] = True
         if (
             "internal_remark" in site["aliased_data"]
             and len(site["aliased_data"]["internal_remark"]) == 1

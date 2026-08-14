@@ -33,7 +33,16 @@ function makeHeritageSite(overrides: Record<string, any> = {}) {
             heritage_site_location: [
                 { aliased_data: { bc_property_address: [] } },
             ],
-            bc_right: { aliased_data: { protection_event: [] } },
+            bc_right: {
+                aliased_data: {
+                    protection_event: [],
+                    officially_recognized_site: {
+                        display_value: '',
+                        node_value: null,
+                        details: [],
+                    },
+                },
+            },
             bc_statement_of_significance: [],
             site_images: [],
             heritage_class: [],

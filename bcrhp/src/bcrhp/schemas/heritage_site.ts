@@ -121,7 +121,7 @@ export class HeritageSite implements HeritageSiteType {
             chronology: [],
             bc_right: getBcRight(),
             heritage_class: [],
-            bc_statement_of_significance: getStatementOfSignificance(),
+            bc_statement_of_significance: [getStatementOfSignificance()],
             heritage_function: [],
             construction_actors: [],
         };
@@ -140,7 +140,7 @@ export class HeritageSite implements HeritageSiteType {
         chronology: ChronologyTileType[];
         bc_right: BcRightTileType;
         heritage_class: HeritageClassTileType[];
-        bc_statement_of_significance: BcStatementOfSignificanceTileType;
+        bc_statement_of_significance: BcStatementOfSignificanceTileType[];
         heritage_function: HeritageFunctionTileType[];
         construction_actors: ConstructionActorsTileType[];
     };

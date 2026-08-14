@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject, type Ref } from 'vue';
+import { inject, type Ref } from 'vue';
 import Message from 'primevue/message';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { currentDateValue } from '@/bcrhp/utils.ts';
@@ -36,12 +36,6 @@ const isValid = function () {
     return true;
 };
 
-const formSubmitted = computed(
-    () =>
-        !!heritageSite.value?.aliased_data.bc_right.aliased_data
-            ?.registration_status?.node_value,
-);
-
 defineExpose({ isValid });
 </script>
 
@@ -49,7 +43,7 @@ defineExpose({ isValid });
     <div class="step-title">Submission Details</div>
 
     <div
-        v-if="!formSubmitted"
+        v-if="!submissionComplete"
         class="submission-notice"
     >
         By clicking “Submit,” you are providing notice to the Heritage Minister
@@ -66,15 +60,12 @@ defineExpose({ isValid });
         save a copy of your submission.
     </div>
     <div
-        v-if="formSubmitted"
+        v-if="submissionComplete"
         class="row"
     >
         <dt>Submission Date:&nbsp;</dt>
         <dd>
-            {{
-                heritageSite.aliased_data?.site_record_admin?.[0]?.aliased_data
-                    ?.date_submitted_to_crhp?.display_value || today.node_value
-            }}
+            {{ today.node_value }}
         </dd>
     </div>
 
