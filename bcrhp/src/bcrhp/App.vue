@@ -108,6 +108,14 @@ main {
 </style>
 
 <style>
+.ql-editor ol {
+    list-style: none;
+}
+
+.ql-editor li[data-list='bullet']::before {
+    content: '\2022';
+}
+
 #bcrhp-mounting-point {
     //font-size: 0.8rem;
 }
