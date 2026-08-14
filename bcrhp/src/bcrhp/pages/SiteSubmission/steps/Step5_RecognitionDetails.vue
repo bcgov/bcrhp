@@ -12,7 +12,7 @@ import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
-
+import type { Node } from '@/arches_component_lab/types.ts';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
