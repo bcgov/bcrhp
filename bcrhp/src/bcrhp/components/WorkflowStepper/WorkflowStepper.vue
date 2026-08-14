@@ -190,16 +190,6 @@ const showPrevious = computed(() => {
     >
         <ProgressSpinner />
     </div>
-    <div
-        class="debug-step"
-        :class="{ 'show-debug': showDebug }"
-    >
-        {{ JSON.stringify(data) }}
-    </div>
-    <i
-        class="fa fa-eye-slash debug-toggle"
-        @click="showDebug = !showDebug"
-    ></i>
     <Panel class="full-height">
         <Stepper
             ref="myStepper"
@@ -354,28 +344,6 @@ const showPrevious = computed(() => {
     z-index: 500;
     left: 0;
     top: 0;
-}
-
-.debug-step {
-    max-width: 80%;
-    margin-top: 100px;
-    display: none;
-    position: absolute;
-    bottom: 10px;
-    word-wrap: anywhere;
-    color: darkgray;
-}
-
-.show-debug {
-    display: inline-block !important;
-}
-
-.debug-toggle {
-    position: absolute;
-    top: 0;
-    left: 0.5rem;
-    color: white;
-    z-index: 9000;
 }
 
 .step-description {
