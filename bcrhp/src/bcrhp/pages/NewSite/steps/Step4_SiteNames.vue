@@ -287,37 +287,51 @@ onMounted(() => {
                     :error-message="$form.otherName?.error?.message"
                 >
                     <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :key="otherNameKey"
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="currentOtherName"
-                            graph-slug="heritage_site"
-                            node-alias="name"
-                            @update:value="updateOtherName($event, 'name')"
-                        />
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                            "
+                        >
+                            <div style="flex-grow: 1">
+                                <GenericWidget
+                                    :key="otherNameKey"
+                                    :mode="EDIT"
+                                    :should-show-label="false"
+                                    :aliased-node-data="currentOtherName"
+                                    graph-slug="heritage_site"
+                                    node-alias="name"
+                                    @update:value="
+                                        updateOtherName($event, 'name')
+                                    "
+                                />
+                            </div>
+                            <Button
+                                id="addOtherName"
+                                class="button-padding"
+                                label="+ Add"
+                                :aria-disabled="addOtherNameDisabled"
+                                :disabled="addOtherNameDisabled"
+                                @click="saveOtherName"
+                            ></Button>
+                        </div>
                     </div>
                 </LabelledInput>
+                <div
+                    class="row"
+                    style="margin-left: 0.5rem"
+                >
+                    <ChipsList
+                        :items="otherNames"
+                        :display-keys="['aliased_data.name.display_value']"
+                        :emptyText="'No other names added.'"
+                        @remove="handleRemoveOtherName"
+                    />
+                </div>
             </Form>
         </FieldSet>
         <br />
-        <div class="row">
-            <Button
-                id="addOtherName"
-                class="button-padding"
-                label="+ Add"
-                :aria-disabled="addOtherNameDisabled"
-                :disabled="addOtherNameDisabled"
-                @click="saveOtherName"
-            ></Button>
 
-            <ChipsList
-                :items="otherNames"
-                :display-keys="['aliased_data.name.display_value']"
-                :emptyText="'No other names added.'"
-                @remove="handleRemoveOtherName"
-            />
-        </div>
         <br /><br /><br /><br /><br />
     </div>
 </template>

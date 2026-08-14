@@ -306,9 +306,8 @@ defineExpose({ isValid });
                                 @click.stop="deleteSiteImage(index)"
                             ></div>
                             <div
-                                v-if="index !== 0"
                                 v-tooltip="'Set as Primary Image'"
-                                class="fa fa-flag image-icons image-primary-icon"
+                                :class="`fa-star fa-solid image-icons image-primary-icon${index !== 0 ? ' star-outline' : ''}`"
                                 @click.stop="setPrimaryImage(index)"
                             ></div>
                             <GenericWidget
@@ -586,6 +585,10 @@ defineExpose({ isValid });
 .image-primary-icon {
     top: 2rem;
     color: darkorange;
+}
+.star-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px darkorange; /* or a specific colour */
 }
 </style>
 <style>

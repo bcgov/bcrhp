@@ -245,6 +245,7 @@ def _make_site(feature_id=None, include_bbox=True):
                 "aliased_data": {
                     "registration_status": {"node_value": None},
                     "registry_types": {"node_value": None},
+                    "officially_recognized_site": {"node_value": None},
                 }
             },
             "internal_remark": [
@@ -524,27 +525,18 @@ class TransformRetrievedDataTest(TestCase):
         self.assertEqual(false_images[0].get("label"), "a")
         self.assertEqual(false_images[1].get("label"), "b")
 
-    def test_internal_remark_cleared_when_multiple_images(self):
+    def test_internal_remark_always_cleared(self):
         remarks = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
-        data = self._data(
-            site_images=[_make_image(True), _make_image(False)],
-            internal_remark=remarks,
-        )
+        data = self._data(internal_remark=remarks)
         self.view.transform_retrieved_data(data)
         self.assertEqual(data["aliased_data"]["internal_remark"], [])
 
-    def test_internal_remark_not_cleared_for_single_image(self):
-        # The clearing block only runs when len(site_images) > 1.
-        remarks = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
-        data = self._data(site_images=[_make_image(True)], internal_remark=remarks)
+    def test_site_document_always_cleared(self):
+        docs = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
+        data = self._data()
+        data["aliased_data"]["site_document"] = docs
         self.view.transform_retrieved_data(data)
-        self.assertEqual(data["aliased_data"]["internal_remark"], remarks)
-
-    def test_internal_remark_not_cleared_when_no_images(self):
-        remarks = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
-        data = self._data(site_images=[], internal_remark=remarks)
-        self.view.transform_retrieved_data(data)
-        self.assertEqual(data["aliased_data"]["internal_remark"], remarks)
+        self.assertEqual(data["aliased_data"]["site_document"], [])
 
     def test_missing_primary_image_key_sorts_last(self):
         img_no_key = {"aliased_data": {}}  # no primary_image key at all

@@ -4,7 +4,6 @@ import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import Checkbox from 'primevue/checkbox';
-import Button from 'primevue/button';
 import Step3_SpatialLocationView from '@/bcrhp/pages/NewSite/steps/Step3_SpatialLocationView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import { useWorkflowStep } from '@/bcrhp/components/WorkflowStepper/components/useWorkflowStep.ts';
@@ -13,17 +12,17 @@ import { EDIT, VIEW } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
 import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinput/LabelledCheckbox.vue';
-import {
-    // getUniquePIDsFromHeritageSite,
-    type HeritageSiteType,
-} from '@/bcrhp/schemas/heritage_site.ts';
+import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 
 import {
     getSiteBoundary,
     SiteBoundaryTileSchema,
 } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import {
+    updateModelValue as baseUpdateModelValue,
+    formatPid,
+} from '@/bcrhp/utils.ts';
 
 import type {
     AliasedNodeData,
@@ -32,32 +31,52 @@ import type {
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
-import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
+import {
+    getHeritageSiteLocation,
+    type HeritageSiteLocationTileType,
+} from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
+import type { BcPropertyAddressTileType } from '@/bcrhp/schemas/heritage_site/bc_property_address.ts';
+import type { BcPropertyLegalDescriptionTileType } from '@/bcrhp/schemas/heritage_site/bc_property_legal_description.ts';
+import type { FeatureCollection } from 'geojson';
+import { getPidData } from '@/bcrhp/api.ts';
 //import { FeatureCollectionWithNonEmptyPolygonsSchema } from '@/bcgov_arches_common/datatypes/geojson-feature-collection/validation/zod.ts';
 
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const { editMode } = useWorkflowStep();
 
 const isEditing = ref(false);
+const matchingExistingPid = ref<number | null>(null);
+const existingGeometrySnapshot = ref<any>(null);
+const uploadedGeometry = ref<any>(null);
 let snapshot: unknown = null;
-watch(isEditing, (editing) => {
+watch(isEditing, async (editing) => {
     if (editing) {
         snapshot = JSON.parse(
             JSON.stringify(
                 heritageSite.value.aliased_data.heritage_site_location,
             ),
         );
+        existingGeometrySnapshot.value =
+            (snapshot as any)?.[0]?.aliased_data?.site_boundary?.[0]
+                ?.aliased_data?.site_boundary ?? null;
+        if (matchingExistingPid.value !== null) {
+            await getPidGeometry(String(matchingExistingPid.value));
+            selectedPids.value = [matchingExistingPid.value];
+        }
     } else if (snapshot !== null) {
         heritageSite.value.aliased_data.heritage_site_location =
             snapshot as any;
         snapshot = null;
+        selectedPids.value = [];
+        existingGeometrySnapshot.value = null;
+        uploadedGeometry.value = null;
+        overrideBoundary.value = false;
         emit('update:stepIsValid', isValid());
     }
 });
 
 const isBoundaryBypassed = ref(false);
 const overrideBoundary = ref(false);
-const mapWidgetKey = ref(0); // Forces map re-render
 
 const ensureSiteLocation = () => {
     if (heritageSite.value?.aliased_data?.heritage_site_location.length === 0) {
@@ -98,7 +117,6 @@ const siteArea = computed(() => {
 });
 
 const widgetMode = computed(() => {
-    if (!hasBoundaryData.value) return EDIT;
     if (overrideBoundary.value) return EDIT;
     return VIEW;
 });
@@ -134,6 +152,7 @@ const updateModelValue = async function (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) {
+    uploadedGeometry.value = newValue;
     ensureSiteLocation();
     baseUpdateModelValue(
         newValue,
@@ -146,35 +165,149 @@ const updateModelValue = async function (
     });
 };
 
-const clearGeometry = () => {
-    ensureSiteLocation();
+watch(overrideBoundary, (isOverride) => {
+    if (!isOverride) {
+        uploadedGeometry.value = null;
+    }
+});
 
-    const boundaryTile =
-        heritageSite.value.aliased_data.heritage_site_location[0].aliased_data
-            .site_boundary[0];
+const pidGeometries = ref<Record<string, FeatureCollection>>({});
+const selectedPids = ref<number[]>([]);
+const showExistingGeometry = ref(true);
 
-    if (boundaryTile.aliased_data.site_boundary) {
-        boundaryTile.aliased_data.site_boundary = {
-            node_value: {
-                type: 'FeatureCollection',
-                features: [],
-            },
+const allPids = computed<number[]>(() => {
+    const pids = heritageSite.value.aliased_data.heritage_site_location.flatMap(
+        (location: HeritageSiteLocationTileType) =>
+            location.aliased_data.bc_property_address.flatMap(
+                (address: BcPropertyAddressTileType) =>
+                    address.aliased_data.bc_property_legal_description.flatMap(
+                        (
+                            legal: BcPropertyLegalDescriptionTileType,
+                        ): number[] =>
+                            legal.aliased_data.pid.node_value != null
+                                ? [legal.aliased_data.pid.node_value]
+                                : [],
+                    ),
+            ),
+    );
+    return [...new Set<number>(pids)].sort((a, b) => a - b);
+});
+
+const getPidGeometry = async (pid: string) => {
+    const fullPid = pid.padStart(9, '0');
+    if (fullPid in pidGeometries.value) {
+        return pidGeometries.value[fullPid];
+    }
+
+    const data = await getPidData(fullPid);
+
+    if (data.boundary) {
+        const geojsonValue = {
+            type: 'FeatureCollection',
+            features: [data.boundary],
+        } as FeatureCollection;
+        pidGeometries.value[fullPid] = geojsonValue;
+        return geojsonValue;
+    }
+};
+
+const siteBoundaryValue = computed(() => {
+    if (editMode === EditMode.Edit && !isEditing.value) {
+        return heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            ?.aliased_data?.site_boundary?.[0]?.aliased_data?.site_boundary;
+    }
+    if (isBoundaryBypassed.value) {
+        return {
+            node_value: { type: 'FeatureCollection' as const, features: [] },
             display_value: '',
             details: [],
         };
     }
-
-    if (boundaryTile.aliased_data.mapped_area) {
-        boundaryTile.aliased_data.mapped_area = {
-            node_value: null,
-            display_value: '',
-            details: [],
-        };
+    if (overrideBoundary.value) {
+        return (
+            uploadedGeometry.value ?? {
+                node_value: {
+                    type: 'FeatureCollection' as const,
+                    features: [],
+                },
+                display_value: '',
+                details: [],
+            }
+        );
     }
+    const pidFeatures = selectedPids.value.flatMap((pid) => {
+        const fullPid = String(pid).padStart(9, '0');
+        return pidGeometries.value[fullPid]?.features ?? [];
+    });
+    const existingFeatures =
+        showExistingGeometry.value &&
+        existingGeometrySnapshot.value !== null &&
+        matchingExistingPid.value === null
+            ? (existingGeometrySnapshot.value?.node_value?.features ?? [])
+            : [];
+    return {
+        node_value: {
+            type: 'FeatureCollection' as const,
+            features: [...existingFeatures, ...pidFeatures],
+        },
+        display_value: '',
+        details: [],
+    };
+});
 
-    overrideBoundary.value = false;
-    mapWidgetKey.value++;
-    emit('update:stepIsValid', isValid());
+watch(
+    siteBoundaryValue,
+    (val) => {
+        if (val === undefined) return;
+        if (editMode === EditMode.Edit && !isEditing.value) return;
+        if (isBoundaryBypassed.value) return;
+        if (overrideBoundary.value) return;
+        ensureSiteLocation();
+        const boundary =
+            heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+                ?.aliased_data?.site_boundary?.[0];
+        if (boundary) {
+            boundary.aliased_data.site_boundary = val as any;
+        }
+        emit('update:stepIsValid', isValid());
+    },
+    { deep: true },
+);
+
+const geometrySignature = (fc: FeatureCollection): string =>
+    JSON.stringify(fc.features.map((f) => JSON.stringify(f.geometry)).sort());
+
+const checkExistingGeometryMatchesPid = async () => {
+    matchingExistingPid.value = null;
+    if (editMode !== EditMode.Edit || !hasBoundaryData.value) return;
+
+    const existingFeatures =
+        heritageSite.value?.aliased_data?.heritage_site_location?.[0]
+            ?.aliased_data?.site_boundary?.[0]?.aliased_data?.site_boundary
+            ?.node_value?.features ?? [];
+    if (existingFeatures.length === 0) return;
+
+    const existingSig = geometrySignature({
+        type: 'FeatureCollection',
+        features: existingFeatures,
+    });
+
+    for (const pid of allPids.value) {
+        const pidGeo = await getPidGeometry(String(pid));
+        if (!pidGeo || pidGeo.features.length === 0) continue;
+        if (geometrySignature(pidGeo) === existingSig) {
+            matchingExistingPid.value = pid;
+            return;
+        } else {
+            console.log('Dont match', geometrySignature(pidGeo), existingSig);
+        }
+    }
+};
+
+watch(allPids, checkExistingGeometryMatchesPid, { immediate: true });
+
+const onSelectPid = async (pid: number) => {
+    await getPidGeometry(String(pid));
 };
 
 defineExpose({ isValid });
@@ -214,6 +347,7 @@ defineExpose({ isValid });
                     />
                 </LabelledCheckboxInput>
             </div>
+
             <FieldSet
                 id="siteBoundaryFieldSet"
                 legend="Site Boundary"
@@ -225,13 +359,10 @@ defineExpose({ isValid });
                             label="Site Boundary"
                             :required="!isBoundaryBypassed"
                         >
-                            <div
-                                v-if="hasBoundaryData"
-                                class="controls-container mb-3"
-                            >
+                            <div class="controls-container mb-3">
                                 <div class="flex items-center gap-4">
                                     <LabelledCheckboxInput
-                                        label="Update / Replace existing boundary data"
+                                        label="Use Shapefile / KML / GeoJSON instead of Cadastral Features"
                                         hint="Check this box to upload a new file"
                                         input-name="overrideBoundary"
                                     >
@@ -242,15 +373,6 @@ defineExpose({ isValid });
                                             small
                                         />
                                     </LabelledCheckboxInput>
-
-                                    <Button
-                                        label="Remove Geometry"
-                                        icon="pi pi-trash"
-                                        severity="danger"
-                                        size="small"
-                                        outlined
-                                        @click="clearGeometry"
-                                    />
                                 </div>
 
                                 <div
@@ -259,6 +381,49 @@ defineExpose({ isValid });
                                 >
                                     <i class="pi pi-info-circle mr-1"></i>
                                     <strong>Mapped Area:</strong> {{ siteArea }}
+                                </div>
+                            </div>
+                            <div
+                                v-if="!isBoundaryBypassed && !overrideBoundary"
+                                class="pid-geometries-grid"
+                            >
+                                <div
+                                    v-if="
+                                        editMode === EditMode.Edit &&
+                                        existingGeometrySnapshot?.node_value
+                                            ?.features?.length > 0 &&
+                                        matchingExistingPid === null
+                                    "
+                                    class="pid-geometries"
+                                >
+                                    <Checkbox
+                                        id="existingGeometry"
+                                        v-model="showExistingGeometry"
+                                        :binary="true"
+                                    />
+                                    <label for="existingGeometry"
+                                        >Existing geometry</label
+                                    >
+                                </div>
+                                <div
+                                    v-for="pid in allPids"
+                                    :key="pid"
+                                    class="pid-geometries"
+                                >
+                                    <Checkbox
+                                        :id="`bypassBoundary-${formatPid(pid)}`"
+                                        v-model="selectedPids"
+                                        :value="pid"
+                                        @change="onSelectPid(pid)"
+                                    />
+                                    <span
+                                        >{{ formatPid(pid)
+                                        }}{{
+                                            pid === matchingExistingPid
+                                                ? ' (Existing)'
+                                                : ''
+                                        }}</span
+                                    >
                                 </div>
                             </div>
 
@@ -287,7 +452,6 @@ defineExpose({ isValid });
                             </div>
 
                             <GenericWidget
-                                :key="mapWidgetKey"
                                 graph-slug="heritage_site"
                                 node-alias="site_boundary"
                                 :should-show-label="false"
@@ -295,12 +459,7 @@ defineExpose({ isValid });
                                     mapOverrides
                                 "
                                 :mode="widgetMode"
-                                :aliased-node-data="
-                                    heritageSite?.aliased_data
-                                        ?.heritage_site_location?.[0]
-                                        ?.aliased_data?.site_boundary?.[0]
-                                        ?.aliased_data?.site_boundary
-                                "
+                                :aliased-node-data="siteBoundaryValue"
                                 @update:value="
                                     updateModelValue($event, 'site_boundary')
                                 "
@@ -336,6 +495,23 @@ defineExpose({ isValid });
     border: 1px dashed #ccc;
     border-radius: 4px;
     background-color: #fafafa;
+}
+
+/* Grid container: fills top-to-bottom first, then left-to-right, up to 5×5. */
+.pid-geometries-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
+    grid-template-columns: repeat(5, auto);
+    gap: 0.25rem 1.5rem;
+    width: fit-content;
+}
+
+/* Individual pid item: checkbox + label as a horizontal pair. */
+.pid-geometries {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .area-data {

@@ -187,7 +187,6 @@ class SubmitHeritageSite(
     # if they appear in the payload, preserving sparse-tree semantics for them.
     deletable_list_aliases = {
         "site_images",
-        "site_document",
         "external_url",
         "chronology",
         "construction_actors",
@@ -277,6 +276,12 @@ class SubmitHeritageSite(
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
+        if site["aliased_data"]["bc_right"]["aliased_data"][
+            "officially_recognized_site"
+        ]["node_value"] not in (True, False):
+            site["aliased_data"]["bc_right"]["aliased_data"][
+                "officially_recognized_site"
+            ]["node_value"] = True
         if (
             "internal_remark" in site["aliased_data"]
             and len(site["aliased_data"]["internal_remark"]) == 1
@@ -360,8 +365,9 @@ class SubmitHeritageSite(
                 return 2
 
             aliased["site_images"] = sorted(site_images, key=primary_sort_key)
-            # We don't want internal remarks being sent to the client
-            aliased["internal_remark"] = []
+        # We don't want internal remarks or site_documents being sent to the client
+        aliased["internal_remark"] = []
+        aliased["site_document"] = []
         return data
 
     def retrieve(self, request, *args, **kwargs):
@@ -445,6 +451,10 @@ class SubmitHeritageSite(
             return JSONResponse(serializer.errors, status=400)
 
         try:
+            # We only want any documents or internal remarks sent in this update to be passed back to the client
+            # so save them here
+            site_document = patched.get("aliased_data", {}).get("site_document", [])
+            internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
             self.perform_update(serializer)
         except Exception as e:
             logger.error(f"Unable to update: {e}", exc_info=True)
@@ -457,7 +467,11 @@ class SubmitHeritageSite(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        return JSONResponse(serializer.data, status=status.HTTP_200_OK)
+        # Restore the documents and internal remarks sent by the client
+        return_object = serializer.data
+        return_object.get("aliased_data", {})["site_document"] = site_document
+        return_object.get("aliased_data", {})["internal_remark"] = internal_remark
+        return JSONResponse(return_object, status=status.HTTP_200_OK)
 
 
 # class SubmissionsForReviewPagination(ArchesLimitOffsetPagination):
