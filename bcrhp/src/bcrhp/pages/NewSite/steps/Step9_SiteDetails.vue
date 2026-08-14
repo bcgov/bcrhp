@@ -39,7 +39,7 @@ import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
 } from '@/bcrhp/utils.ts';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
@@ -347,12 +347,8 @@ defineExpose({ isValid });
             bottom of each section.
         </div>
 
-        <Checkbox
-            id="editSiteDetailsCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editSiteDetailsCheckbox">Edit Site Details</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Site Details</label>
         <Step9_SiteDetailsView v-if="!isEditing" />
         <hr />
     </div>

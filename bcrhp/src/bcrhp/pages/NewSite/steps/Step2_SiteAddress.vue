@@ -3,7 +3,7 @@ import type { Ref } from 'vue';
 import { computed, inject, ref, useTemplateRef, watch } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Chip from 'primevue/chip';
@@ -370,12 +370,8 @@ defineExpose({ isValid });
             icon located to the right of the previously submitted address at the
             bottom of the page.
         </div>
-        <Checkbox
-            id="editAddressCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editAddressCheckbox">Edit Site Addresses</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Site Addresses</label>
         <Step2_SiteAddressView v-if="!isEditing" />
         <hr />
     </div>

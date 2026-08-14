@@ -27,7 +27,7 @@ import {
     updateModelValue as baseUpdateModelValue,
     isValid as baseIsValid,
 } from '@/bcrhp/utils.ts';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Step8_SiteClassificationView from '@/bcrhp/pages/NewSite/steps/Step8_SiteClassificationView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
@@ -309,12 +309,8 @@ defineExpose({ isValid });
             icon located to the right of the previously submitted detail at the
             bottom of each section.
         </div>
-        <Checkbox
-            id="editClassificationCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editClassificationCheckbox">Edit Site Classification</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Site Classification</label>
         <Step8_SiteClassificationView v-if="!isEditing" />
         <hr />
     </div>

@@ -26,7 +26,7 @@ import {
 
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/NewSite/steps/Step5_RecognitionDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
@@ -173,14 +173,8 @@ defineExpose({ isValid });
             Details”. <br /><b>Do not remove previous recognitions</b>, add new
             recognition or designation statuses as necessary.
         </div>
-        <Checkbox
-            id="editRecognitionDetailsCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editRecognitionDetailsCheckbox"
-            >Edit Recognition Details</label
-        >
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Recognition Details</label>
         <Step5_RecognitionDetailsView v-if="!isEditing" />
         <hr />
     </div>

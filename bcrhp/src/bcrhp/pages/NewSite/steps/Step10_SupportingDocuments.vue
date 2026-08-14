@@ -28,7 +28,7 @@ import { getInternalRemark } from '@/bcrhp/schemas/heritage_site/internal_remark
 
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
@@ -155,12 +155,8 @@ defineExpose({ isValid });
         <div style="margin-bottom: 1rem">
             To add Supporting Documents, click “Edit Supporting Documents”.
         </div>
-        <Checkbox
-            id="editDocumentsCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editDocumentsCheckbox">Add Supporting Documents</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Add Supporting Documents</label>
         <Step10_SupportingDocumentsView v-if="!isEditing" />
         <hr />
     </div>

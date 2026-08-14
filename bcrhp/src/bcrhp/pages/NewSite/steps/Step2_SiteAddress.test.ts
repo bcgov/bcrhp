@@ -14,6 +14,21 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
+// ToggleSwitch stub — used for the edit-mode toggle.
+// ---------------------------------------------------------------------------
+
+const ToggleSwitchStub = {
+    props: { modelValue: { type: Boolean, default: false } },
+    emits: ['update:modelValue'],
+    template: `<input
+        type="checkbox"
+        role="switch"
+        :checked="modelValue"
+        @change="$emit('update:modelValue', $event.target.checked)"
+    />`,
+};
+
+// ---------------------------------------------------------------------------
 // Checkbox stub — supports binary v-model (boolean) and array v-model.
 // Declaring binary/small as Boolean ensures Vue coerces bare attributes to true.
 // ---------------------------------------------------------------------------
@@ -59,6 +74,7 @@ const stubs = {
     FieldSet: { template: '<fieldset><slot /></fieldset>' },
     LabelledInput: { template: '<div><slot /></div>' },
     LabelledCheckboxInput: { template: '<div><slot /></div>' },
+    ToggleSwitch: ToggleSwitchStub,
     Checkbox: CheckboxStub,
     Button: {
         template:
@@ -242,18 +258,18 @@ describe('Step2_SiteAddress — Edit mode', () => {
 
     it('shows the address form after "Edit Site Addresses" is checked', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editAddressCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
     });
 
     it('hides the address form again when editing is cancelled', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editAddressCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
 
-        await wrapper.find('#editAddressCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(false);
     });
@@ -262,7 +278,7 @@ describe('Step2_SiteAddress — Edit mode', () => {
         const hs = makeHeritageSite([makeAddress('123 Original St')]);
         const wrapper = mountComponent(EditMode.Edit, hs);
 
-        await wrapper.find('#editAddressCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         // Mutate the address list while editing
@@ -275,7 +291,7 @@ describe('Step2_SiteAddress — Edit mode', () => {
         ).toHaveLength(2);
 
         // Cancel — snapshot should be restored
-        await wrapper.find('#editAddressCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         const addresses =
@@ -289,7 +305,7 @@ describe('Step2_SiteAddress — Edit mode', () => {
 
     it('isValid returns false while editing with no addresses', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editAddressCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.vm.isValid()).toBe(false);
     });
@@ -297,7 +313,7 @@ describe('Step2_SiteAddress — Edit mode', () => {
     it('isValid returns true while editing when an address exists', async () => {
         const hs = makeHeritageSite([makeAddress()]);
         const wrapper = mountComponent(EditMode.Edit, hs);
-        await wrapper.find('#editAddressCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.vm.isValid()).toBe(true);
     });

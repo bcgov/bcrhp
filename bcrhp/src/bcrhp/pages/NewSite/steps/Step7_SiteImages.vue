@@ -28,7 +28,7 @@ import type {
 import Button from 'primevue/button';
 import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import Checkbox from 'primevue/checkbox';
+import ToggleSwitch from 'primevue/toggleswitch';
 import Step7_SiteImagesView from '@/bcrhp/pages/NewSite/steps/Step7_SiteImagesView.vue';
 import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
 
@@ -195,12 +195,8 @@ defineExpose({ isValid });
             To update Images, click “Edit Images”. To remove existing photo(s),
             click the red X icon on the top right corner of the photo.
         </div>
-        <Checkbox
-            id="editImagesCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editImagesCheckbox">Edit Images</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Images</label>
         <Step7_SiteImagesView v-if="!isEditing" />
         <hr />
     </div>
@@ -396,29 +392,6 @@ defineExpose({ isValid });
                         placeholder="E.g. 1234 Street, Humboldt Residence, Front View of entrance way in winter. Photographed on 2024-01-01."
                         @update:value="
                             updateModelValue($event, 'image_description')
-                        "
-                    />
-                </div>
-            </LabelledInput>
-            <LabelledInput
-                label="Image Features"
-                hint="Enter the features or subjects depicted by the photograph"
-                input-name="imageFeatures"
-                :error-message="$form.imageFeatures?.error?.message"
-            >
-                <div>
-                    <GenericWidget
-                        :key="siteImageKey"
-                        graph-slug="heritage_site"
-                        node-alias="image_features"
-                        :mode="EDIT"
-                        :aliasedNodeData="
-                            currentSiteImage?.aliased_data?.image_features
-                        "
-                        :should-show-label="false"
-                        placeholder="E.g. Stained Glass Window"
-                        @update:value="
-                            updateModelValue($event, 'image_features')
                         "
                     />
                 </div>
