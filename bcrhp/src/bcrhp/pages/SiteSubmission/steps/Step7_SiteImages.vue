@@ -53,9 +53,9 @@ watch(isEditing, (editing) => {
 const getBlankSiteImage = () => {
     let siteImage = getSiteImages();
     siteImage.aliased_data.primary_image =
-        (heritageSite.value?.aliased_data?.site_images?.length ?? 0 > 0)
-            ? falseBooleanValue
-            : trueBooleanValue;
+        (heritageSite.value?.aliased_data?.site_images?.length ?? 0) > 0
+            ? falseBooleanValue()
+            : trueBooleanValue();
     return siteImage;
 };
 
@@ -144,6 +144,10 @@ const saveImage = async function () {
 const deleteSiteImage = function (index: number) {
     console.log(`Deleting site image at index ${index}`);
     heritageSite.value.aliased_data.site_images.splice(index, 1);
+    // Currently staged image is now the first in the list so set it as the primary
+    if (heritageSite.value.aliased_data.site_images.length === 0) {
+        currentSiteImage.value.aliased_data.primary_image = trueBooleanValue();
+    }
 };
 
 const setCurrentImage = function (index: number) {
@@ -165,7 +169,7 @@ const setPrimaryImage = function (index: number) {
     heritageSite.value.aliased_data.site_images.forEach(
         (image: SiteImagesTileType, idx: number) => {
             image.aliased_data.primary_image =
-                idx === 0 ? trueBooleanValue : falseBooleanValue;
+                idx === 0 ? trueBooleanValue() : falseBooleanValue();
         },
     );
 };
