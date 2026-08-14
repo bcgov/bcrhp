@@ -170,7 +170,7 @@ const legislative_act_node_data: ResourceInstanceCardXNodeXWidgetData = {
         config: {},
     } as Node,
     config: {
-        placeholder: 'Select legislative act',
+        placeholder: 'Select Legislative Act',
         defaultValue: '',
     },
     widget: {
