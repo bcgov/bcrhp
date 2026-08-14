@@ -29,6 +29,7 @@ import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
 import Step5_RecognitionDetailsView from '@/bcrhp/pages/SiteSubmission/steps/Step5_RecognitionDetailsView.vue';
 import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
+import type { ResourceInstanceCardXNodeXWidgetData } from '@/arches_component_lab/datatypes/resource-instance/types.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const recognitionDetailsForm: Ref<FormInstance | null> = useTemplateRef(
@@ -151,6 +152,33 @@ function isExistingProtectionEvent(event: ProtectionEventTileType): boolean {
     return !!event.tileid;
 }
 
+const showInactiveActs = ref(false);
+const legislative_act_node_data: ResourceInstanceCardXNodeXWidgetData = {
+    card: {
+        name: '',
+        sortorder: 0,
+        cardid: '',
+        nodegroup_id: '',
+        nodes: [],
+    },
+    id: '',
+    label: 'Legislative Act',
+    sortorder: 0,
+    visible: true,
+    node: {
+        alias: 'legislative_act',
+        config: {},
+    } as Node,
+    config: {
+        placeholder: 'Select legislative act',
+        defaultValue: '',
+    },
+    widget: {
+        widgetid: '',
+        component:
+            'arches_component_lab/widgets/ResourceInstanceSelectWidget/ResourceInstanceSelectWidget.vue',
+    },
+};
 const isEditing = ref(false);
 let snapshot: unknown = null;
 watch(isEditing, (editing) => {
@@ -230,20 +258,36 @@ defineExpose({ isValid });
                     :error-message="$form.legislative_act?.error?.message"
                     :required="true"
                 >
-                    <GenericWidget
-                        :mode="EDIT"
-                        :should-show-label="false"
-                        :aliased-node-data="
-                            currentProtectionEvent.aliased_data.legislative_act
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="legislative_act"
-                        placeholder="Select a Legislative Act"
-                        group-direction="column"
-                        @update:value="
-                            updateModelValue($event, 'legislative_act')
-                        "
-                    />
+                    <div class="legislative-act-row">
+                        <div class="legislative-act-select">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliased-node-data="
+                                    currentProtectionEvent.aliased_data
+                                        .legislative_act
+                                "
+                                graph-slug="heritage_site"
+                                :node-alias="
+                                    showInactiveActs
+                                        ? 'legislative_act'
+                                        : 'legislative_act_active'
+                                "
+                                :card-x-node-x-widget-data="
+                                    legislative_act_node_data
+                                "
+                                placeholder="Select a Legislative Act"
+                                group-direction="column"
+                                @update:value="
+                                    updateModelValue($event, 'legislative_act')
+                                "
+                            />
+                        </div>
+                        <div class="legislative-act-toggle">
+                            <ToggleSwitch v-model="showInactiveActs" />
+                            <label>Show inactive acts</label>
+                        </div>
+                    </div>
                 </LabelledInput>
             </div>
             <LabelledInput
@@ -290,11 +334,25 @@ defineExpose({ isValid });
     </Form>
     <br /><br /><br />
 </template>
-<style>
-#historicActsCheck {
+<style scoped>
+.legislative-act-row {
     display: flex;
-    align-self: center;
-    flex-direction: column;
-    margin-right: 1rem;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.legislative-act-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.legislative-act-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+}
+.legislative-act-toggle > label {
+    margin-bottom: 0;
 }
 </style>

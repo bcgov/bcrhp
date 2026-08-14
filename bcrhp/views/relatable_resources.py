@@ -1,6 +1,8 @@
 import uuid
 from django.core.paginator import Paginator
 from django.db.models import F, Q
+from django.db.models.fields.json import KeyTextTransform, KeyTransform
+from django.db.models.functions import Lower
 from django.utils.translation import get_language
 from arches.app.models.concept import Concept
 from arches.app.models.models import ResourceInstance, Value
@@ -16,10 +18,11 @@ from bcrhp.util.bcrhp_aliases import BCRHPSiteAliases as heritageSiteAliases
 
 # This isn't a real alias - it's to filter the sites in the LG edit site workflow
 MUNICIPAL_SITES_ALIAS = "municipal_sites"
+LEGISLATIVE_ACT_ACTIVE_ALIAS = "legislative_act_active"
 # Synthetic aliases that don't correspond to a real node in any graph. These
 # always go through the custom view path so the parent view (which would fail
 # to resolve them) is never reached, even for superusers.
-CUSTOM_NODE_ALIASES = [MUNICIPAL_SITES_ALIAS]
+CUSTOM_NODE_ALIASES = [MUNICIPAL_SITES_ALIAS, LEGISLATIVE_ACT_ACTIVE_ALIAS]
 SPECIAL_NODE_ALIASES = {
     # Aliases listed here are real node aliases whose results should be filtered
     # for non-superusers. Superusers bypass this and go directly to the parent view.
@@ -43,8 +46,8 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         resources = (
             ResourceInstance.objects.exclude(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
-            .annotate(display_value=F("descriptors__{}__name".format(language)))
-            .order_by(F("display_value").asc(nulls_last=True), "pk")
+            .annotate(display_value=KeyTextTransform("name", KeyTransform(language, "descriptors")))
+            .order_by(Lower("display_value").asc(nulls_last=True), "pk")
         )
         resources = resources.filter(
             self._get_filter_for_special_alias(
@@ -65,8 +68,8 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         selected_resources = (
             ResourceInstance.objects.filter(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
-            .annotate(display_value=F("descriptors__{}__name".format(language)))
-            .order_by(F("display_value").asc(nulls_last=True), "pk")
+            .annotate(display_value=KeyTextTransform("name", KeyTransform(language, "descriptors")))
+            .order_by(Lower("display_value").asc(nulls_last=True), "pk")
             if int(page_number) == 1
             else []
         )
@@ -128,35 +131,34 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
                     query_filter = query_filter & Q(pk__in=site_ids)
                 else:
                     query_filter = Q(pk__in=[])
-            elif (
-                graph_slug == slugs.HERITAGE_SITE
-                and alias == heritageSiteAliases.LEGISLATIVE_ACT
-            ):
-                collection_record = (
-                    Value.objects.filter(
-                        value="BC Protection Authority",
-                        valuetype="prefLabel",
-                        concept__nodetype="Collection",
+            elif graph_slug == slugs.HERITAGE_SITE and alias in {
+                heritageSiteAliases.LEGISLATIVE_ACT,
+                LEGISLATIVE_ACT_ACTIVE_ALIAS,
+            }:
+                act_tiles = ResourceTileTree.get_tiles(graph_slug=slugs.LEGISLATIVE_ACT)
+                if not user.is_superuser:
+                    collection_record = (
+                        Value.objects.filter(
+                            value="BC Protection Authority",
+                            valuetype="prefLabel",
+                            concept__nodetype="Collection",
+                        )
+                        .select_related("concept")
+                        .first()
                     )
-                    .select_related("concept")
-                    .first()
-                )
-                if not collection_record:
-                    return Q(pk__in=[])
-                parent = Concept().get(str(collection_record.concept.pk))
-                children = parent.get_child_collections(
-                    str(collection_record.concept.pk)
-                )
-                municipal = next((c for c in children if c[1] == "Municipal"), None)
-                if not municipal:
-                    return Q(pk__in=[])
-                municipal_value_id = municipal[2]
-                act_ids = (
-                    ResourceTileTree.get_tiles(graph_slug=slugs.LEGISLATIVE_ACT)
-                    .filter(authority=str(municipal_value_id))
-                    .values("pk")
-                )
-                query_filter = query_filter & Q(pk__in=act_ids)
+                    if not collection_record:
+                        return Q(pk__in=[])
+                    parent = Concept().get(str(collection_record.concept.pk))
+                    children = parent.get_child_collections(
+                        str(collection_record.concept.pk)
+                    )
+                    municipal = next((c for c in children if c[1] == "Municipal"), None)
+                    if not municipal:
+                        return Q(pk__in=[])
+                    act_tiles = act_tiles.filter(authority=str(municipal[2]))
+                if alias == LEGISLATIVE_ACT_ACTIVE_ALIAS:
+                    act_tiles = act_tiles.filter(active=True)
+                query_filter = query_filter & Q(pk__in=act_tiles.values("pk"))
         except Exception as e:
             print(e)
             query_filter = Q(pk__in=[])
