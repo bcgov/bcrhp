@@ -4,6 +4,7 @@ import { computed, inject, ref, useTemplateRef, watch } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
 import ToggleSwitch from 'primevue/toggleswitch';
+import Checkbox from 'primevue/checkbox';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Chip from 'primevue/chip';

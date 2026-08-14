@@ -2,6 +2,7 @@
 import { computed, inject, useTemplateRef, ref, watch } from 'vue';
 import type { Ref } from 'vue';
 
+import Checkbox from 'primevue/checkbox';
 import FieldSet from 'primevue/fieldset';
 import ToggleSwitch from 'primevue/toggleswitch';
 import Step3_SpatialLocationView from '@/bcrhp/pages/SiteSubmission/steps/Step3_SpatialLocationView.vue';
