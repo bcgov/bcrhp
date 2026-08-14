@@ -19,7 +19,10 @@ import LabelledCheckboxInput from '@/bcgov_arches_common/components/labelledinpu
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
-import { updateModelValue as baseUpdateModelValue } from '@/bcrhp/utils.ts';
+import {
+    formatPid,
+    updateModelValue as baseUpdateModelValue,
+} from '@/bcrhp/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 import { getHeritageSiteLocation } from '@/bcrhp/schemas/heritage_site/heritage_site_location.ts';
 import {
@@ -221,10 +224,14 @@ const getAddressLabel = (addr: any) => {
     const locality = data.locality.display_value;
     const postal = data.postal_code.display_value;
 
+    const streetAddress = [street, city, locality, postal]
+        .filter((s) => s && s.trim().length > 0)
+        .join(' - ');
+
     return (
-        [street, city, locality, postal]
-            .filter((s) => s && s.trim().length > 0)
-            .join(' - ') || 'Untitled Address'
+        streetAddress ||
+        htmlToPlainText(data.location_description?.display_value) ||
+        'Untitled Address'
     );
 };
 
@@ -332,6 +339,16 @@ const stringWidgetOverride = {
         component: 'arches_component_lab/widgets/TextWidget/TextWidget.vue',
     },
 };
+
+const addAddressButtonLabel = computed(() => {
+    {
+        return addingNewAddress.value
+            ? hasPropertyAddress.value
+                ? '+ Add Address'
+                : '+ Add Location'
+            : 'Save Changes';
+    }
+});
 
 const isEditing = ref(false);
 let snapshot: unknown = null;
@@ -523,9 +540,9 @@ defineExpose({ isValid });
                 style="align-self: flex-start"
                 class="w-fit mb-6"
                 :disabled="!currentAddressValid"
+                :label="addAddressButtonLabel"
                 @click="saveAddress"
             >
-                {{ addingNewAddress ? '+ Add Address' : 'Save Changes' }}
             </Button>
             <br />
 
@@ -535,13 +552,6 @@ defineExpose({ isValid });
                     :key="index"
                     class="chip-row"
                 >
-                    <Button
-                        class="add-legal-button"
-                        @click="openLegalDialog(index)"
-                    >
-                        + Add PID
-                    </Button>
-
                     <div class="flex flex-col flex-grow gap-2">
                         <div class="flex justify-between items-start">
                             <Chip>
@@ -573,15 +583,27 @@ defineExpose({ isValid });
                                     />
                                 </div>
                             </Chip>
+
+                            <Button
+                                class="add-legal-button"
+                                @click="openLegalDialog(index)"
+                            >
+                                + Add PID
+                            </Button>
                         </div>
 
                         <div style="margin-top: 0.3rem">
                             <ChipsList
                                 :items="getLegalsForAddress(address)"
-                                :display-keys="[
-                                    'aliased_data.pid',
-                                    'aliased_data.legal_description',
-                                ]"
+                                :display-function="
+                                    (address) =>
+                                        formatPid(
+                                            address.aliased_data.pid
+                                                ?.node_value ?? '',
+                                        ) +
+                                        (address.aliased_data.legal_description
+                                            ?.display_value ?? '')
+                                "
                                 @remove="
                                     (legalIndex) =>
                                         deleteLegalDescription(
@@ -706,6 +728,14 @@ defineExpose({ isValid });
     </Dialog>
 </template>
 
+<style scoped>
+.chip-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin: 1.5rem 0;
+}
+</style>
 <style>
 .row {
     display: flex;
@@ -716,18 +746,12 @@ defineExpose({ isValid });
     margin-left: 1.5rem;
     margin-right: 1.5rem;
 }
-.chip-row {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    margin: 1.5rem;
-}
 .add-legal-button {
     display: flex;
     align-items: center;
     justify-content: center;
     align-self: center;
-    margin-right: 3rem;
+    margin-left: 3rem;
 }
 .input-grow {
     width: 100%;
