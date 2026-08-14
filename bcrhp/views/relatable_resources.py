@@ -46,7 +46,11 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         resources = (
             ResourceInstance.objects.exclude(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
-            .annotate(display_value=KeyTextTransform("name", KeyTransform(language, "descriptors")))
+            .annotate(
+                display_value=KeyTextTransform(
+                    "name", KeyTransform(language, "descriptors")
+                )
+            )
             .order_by(Lower("display_value").asc(nulls_last=True), "pk")
         )
         resources = resources.filter(
@@ -68,7 +72,11 @@ class BcrhpRelatableResourcesView(RelatableResourcesView):
         selected_resources = (
             ResourceInstance.objects.filter(resourceinstanceid__in=initial_values)
             .values("resourceinstanceid")
-            .annotate(display_value=KeyTextTransform("name", KeyTransform(language, "descriptors")))
+            .annotate(
+                display_value=KeyTextTransform(
+                    "name", KeyTransform(language, "descriptors")
+                )
+            )
             .order_by(Lower("display_value").asc(nulls_last=True), "pk")
             if int(page_number) == 1
             else []
