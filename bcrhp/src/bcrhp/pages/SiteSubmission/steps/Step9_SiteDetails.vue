@@ -13,7 +13,7 @@ import type {
 } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import LabelledInput from '@/bcgov_arches_common/components/labelledinput/LabelledInput.vue';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
 
 import {
@@ -39,9 +39,9 @@ import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
 } from '@/bcrhp/utils.ts';
-import Checkbox from 'primevue/checkbox';
-import Step9_SiteDetailsView from '@/bcrhp/pages/NewSite/steps/Step9_SiteDetailsView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import ToggleSwitch from 'primevue/toggleswitch';
+import Step9_SiteDetailsView from '@/bcrhp/pages/SiteSubmission/steps/Step9_SiteDetailsView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
@@ -347,12 +347,8 @@ defineExpose({ isValid });
             bottom of each section.
         </div>
 
-        <Checkbox
-            id="editSiteDetailsCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editSiteDetailsCheckbox">Edit Site Details</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Site Details</label>
         <Step9_SiteDetailsView v-if="!isEditing" />
         <hr />
     </div>

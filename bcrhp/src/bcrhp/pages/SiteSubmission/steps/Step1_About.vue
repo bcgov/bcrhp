@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Step1_AboutNew from '@/bcrhp/pages/NewSite/steps/Step1_AboutNew.vue';
-import Step1_AboutUpdate from '@/bcrhp/pages/NewSite/steps/Step1_AboutUpdate.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import Step1_AboutNew from '@/bcrhp/pages/SiteSubmission/steps/Step1_AboutNew.vue';
+import Step1_AboutUpdate from '@/bcrhp/pages/SiteSubmission/steps/Step1_AboutUpdate.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import { onMounted, ref, watchEffect } from 'vue';
 
 import type { Card, Node } from '@/arches_component_lab/types.ts';

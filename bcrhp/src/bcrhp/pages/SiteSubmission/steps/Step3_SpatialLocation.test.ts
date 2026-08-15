@@ -11,7 +11,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref, nextTick } from 'vue';
 import Step3SpatialLocation from './Step3_SpatialLocation.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import { getPidData } from '@/bcrhp/api.ts';
 
 afterEach(() => {
@@ -93,6 +93,21 @@ function makeHeritageSite(locations?: any[]) {
 }
 
 // ---------------------------------------------------------------------------
+// ToggleSwitch stub — used for the edit-mode toggle.
+// ---------------------------------------------------------------------------
+
+const ToggleSwitchStub = {
+    props: { modelValue: { type: Boolean, default: false } },
+    emits: ['update:modelValue'],
+    template: `<input
+        type="checkbox"
+        role="switch"
+        :checked="modelValue"
+        @change="$emit('update:modelValue', $event.target.checked)"
+    />`,
+};
+
+// ---------------------------------------------------------------------------
 // Checkbox stub — supports binary v-model (boolean) and array v-model (PIDs).
 // Uses inheritAttrs: false + v-bind="$attrs" so that id and other attributes
 // are forwarded to the rendered <input>.
@@ -143,6 +158,7 @@ const stubs = {
     Step3_SpatialLocationView: {
         template: '<div class="spatial-location-view" />',
     },
+    ToggleSwitch: ToggleSwitchStub,
     Checkbox: CheckboxStub,
 };
 
@@ -386,18 +402,18 @@ describe('Step3_SpatialLocation — Edit mode', () => {
 
     it('shows the form after "Edit Spatial Location" is checked', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
     });
 
     it('hides the form again when editing is cancelled', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(false);
     });
@@ -407,7 +423,7 @@ describe('Step3_SpatialLocation — Edit mode', () => {
             makeLocation({ boundaryFeatures: [POLYGON_FEATURE] }),
         ]);
         const wrapper = mountComponent(EditMode.Edit, hs);
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('#existingGeometry').exists()).toBe(true);
     });
@@ -415,7 +431,7 @@ describe('Step3_SpatialLocation — Edit mode', () => {
     it('does not show "Existing geometry" checkbox when snapshot has no boundary features', async () => {
         const hs = makeHeritageSite([makeLocation({ boundaryFeatures: [] })]);
         const wrapper = mountComponent(EditMode.Edit, hs);
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('#existingGeometry').exists()).toBe(false);
     });
@@ -426,10 +442,10 @@ describe('Step3_SpatialLocation — Edit mode', () => {
         ]);
         const wrapper = mountComponent(EditMode.Edit, hs);
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         const features =
@@ -457,7 +473,7 @@ describe('Step3_SpatialLocation — matchingExistingPid', () => {
         const wrapper = mountComponent(EditMode.Edit, hs);
         await flushPromises();
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         const spans = wrapper.findAll('.pid-geometries span');
@@ -475,7 +491,7 @@ describe('Step3_SpatialLocation — matchingExistingPid', () => {
         const wrapper = mountComponent(EditMode.Edit, hs);
         await flushPromises();
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         const spans = wrapper.findAll('.pid-geometries span');
@@ -493,7 +509,7 @@ describe('Step3_SpatialLocation — matchingExistingPid', () => {
         const wrapper = mountComponent(EditMode.Edit, hs);
         await flushPromises();
 
-        await wrapper.find('#editSpatialLocationCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         expect(wrapper.find('#existingGeometry').exists()).toBe(false);

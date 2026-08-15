@@ -7,7 +7,7 @@ vi.mock('uuid', () => ({
 }));
 import { ref } from 'vue';
 import Step10SupportingDocuments from './Step10_SupportingDocuments.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const stubs = {
     Form: { template: '<form><slot v-bind="{}" /></form>' },

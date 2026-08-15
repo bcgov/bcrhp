@@ -2,45 +2,21 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref, nextTick } from 'vue';
 import Step9SiteDetails from './Step9_SiteDetails.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 // ---------------------------------------------------------------------------
 // Stubs
 // ---------------------------------------------------------------------------
 
-const CheckboxStub = {
-    inheritAttrs: false,
-    props: {
-        modelValue: { default: undefined },
-        binary: { type: Boolean, default: false },
-        value: { default: undefined },
-    },
-    emits: ['update:modelValue', 'change'],
+const ToggleSwitchStub = {
+    props: { modelValue: { type: Boolean, default: false } },
+    emits: ['update:modelValue'],
     template: `<input
         type="checkbox"
-        v-bind="$attrs"
-        :checked="binary ? modelValue : (Array.isArray(modelValue) && modelValue.includes(value))"
-        @change="onChange"
+        role="switch"
+        :checked="modelValue"
+        @change="$emit('update:modelValue', $event.target.checked)"
     />`,
-    methods: {
-        onChange(e: Event) {
-            const checked = (e.target as HTMLInputElement).checked;
-            if ((this as any).binary) {
-                (this as any).$emit('update:modelValue', checked);
-            } else {
-                const arr = Array.isArray((this as any).modelValue)
-                    ? [...(this as any).modelValue]
-                    : [];
-                if (checked) arr.push((this as any).value);
-                else {
-                    const i = arr.indexOf((this as any).value);
-                    if (i !== -1) arr.splice(i, 1);
-                }
-                (this as any).$emit('update:modelValue', arr);
-            }
-            (this as any).$emit('change', e);
-        },
-    },
 };
 
 const ChipsListStub = {
@@ -69,7 +45,7 @@ const stubs = {
     ChipsList: ChipsListStub,
     Step9_SiteDetailsView: { template: '<div class="site-details-view" />' },
     TimesCircleIcon: { template: '<span />' },
-    Checkbox: CheckboxStub,
+    ToggleSwitch: ToggleSwitchStub,
 };
 
 // ---------------------------------------------------------------------------
@@ -156,7 +132,7 @@ describe('Step9_SiteDetails — Add mode', () => {
 
     it('does not render the Edit mode checkbox in Add mode', () => {
         const wrapper = mountComponent(EditMode.Add);
-        expect(wrapper.find('#editSiteDetailsCheckbox').exists()).toBe(false);
+        expect(wrapper.find('input[role="switch"]').exists()).toBe(false);
     });
 });
 
@@ -170,9 +146,9 @@ describe('Step9_SiteDetails — Edit mode', () => {
         expect(wrapper.exists()).toBe(true);
     });
 
-    it('shows the Edit checkbox and hides forms before editing starts', () => {
+    it('shows the Edit toggle and hides forms before editing starts', () => {
         const wrapper = mountComponent(EditMode.Edit);
-        expect(wrapper.find('#editSiteDetailsCheckbox').exists()).toBe(true);
+        expect(wrapper.find('input[role="switch"]').exists()).toBe(true);
         expect(wrapper.find('form').exists()).toBe(false);
     });
 
@@ -181,20 +157,20 @@ describe('Step9_SiteDetails — Edit mode', () => {
         expect(wrapper.find('.site-details-view').exists()).toBe(true);
     });
 
-    it('shows forms after Edit checkbox is toggled on', async () => {
+    it('shows forms after Edit toggle is switched on', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
     });
 
     it('hides forms again when editing is cancelled', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(false);
     });
@@ -216,7 +192,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         });
         const wrapper = mountComponent(EditMode.Edit, hs);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         // Mutate while editing
@@ -230,7 +206,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         expect(hs.value.aliased_data.chronology).toHaveLength(2);
 
         // Cancel — snapshot should restore
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         expect(hs.value.aliased_data.chronology).toHaveLength(1);
@@ -255,7 +231,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         });
         const wrapper = mountComponent(EditMode.Edit, hs);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         hs.value.aliased_data.construction_actors.push({
@@ -271,7 +247,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         } as any);
         expect(hs.value.aliased_data.construction_actors).toHaveLength(2);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         expect(hs.value.aliased_data.construction_actors).toHaveLength(1);
@@ -296,7 +272,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         });
         const wrapper = mountComponent(EditMode.Edit, hs);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         hs.value.aliased_data.external_url.push({
@@ -312,7 +288,7 @@ describe('Step9_SiteDetails — Edit mode', () => {
         } as any);
         expect(hs.value.aliased_data.external_url).toHaveLength(2);
 
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         expect(hs.value.aliased_data.external_url).toHaveLength(1);
@@ -336,7 +312,7 @@ describe('Step9_SiteDetails — isValid', () => {
 
     it('returns true in Edit mode when editing', async () => {
         const wrapper = mountComponent(EditMode.Edit);
-        await wrapper.find('#editSiteDetailsCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.vm.isValid()).toBe(true);
     });
@@ -554,7 +530,7 @@ const stubsInteractive = {
     ChipsList: ChipsListWithDisplayStub,
     Step9_SiteDetailsView: { template: '<div class="site-details-view" />' },
     TimesCircleIcon: { template: '<span />' },
-    Checkbox: CheckboxStub,
+    ToggleSwitch: ToggleSwitchStub,
 };
 
 function mountInteractive(

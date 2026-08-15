@@ -235,6 +235,11 @@ class SubmitHeritageSite(
         # This seems wrong. We should allow a GeoJSON to be supplied as an object,
         # not already serialized?
         for loc in site["aliased_data"]["heritage_site_location"]:
+            loc["aliased_data"]["site_boundary"] = [
+                sb
+                for sb in loc["aliased_data"]["site_boundary"]
+                if sb["aliased_data"]["site_boundary"]["node_value"]["features"]
+            ]
             for sb in loc["aliased_data"]["site_boundary"]:
                 logger.debug(sb["aliased_data"]["site_boundary"])
                 if (

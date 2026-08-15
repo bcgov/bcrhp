@@ -8,7 +8,7 @@ import LabelledInput from '@/bcgov_arches_common/components/labelledinput/Labell
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import { type HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import ChipsList from '@/bcrhp/pages/NewSite/steps/ChipsList.vue';
+import ChipsList from '@/bcrhp/pages/SiteSubmission/steps/ChipsList.vue';
 import {
     isValid as baseIsValid,
     updateModelValue as baseUpdateModelValue,
@@ -28,9 +28,9 @@ import { getInternalRemark } from '@/bcrhp/schemas/heritage_site/internal_remark
 
 import { getFlattenResolver } from '@/bcgov_arches_common/validation-utils.ts';
 import Button from 'primevue/button';
-import Checkbox from 'primevue/checkbox';
-import Step10_SupportingDocumentsView from '@/bcrhp/pages/NewSite/steps/Step10_SupportingDocumentsView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import ToggleSwitch from 'primevue/toggleswitch';
+import Step10_SupportingDocumentsView from '@/bcrhp/pages/SiteSubmission/steps/Step10_SupportingDocumentsView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const siteDocument = ref(getSiteDocument());
 const siteDocumentKey = ref(0);
@@ -155,12 +155,8 @@ defineExpose({ isValid });
         <div style="margin-bottom: 1rem">
             To add Supporting Documents, click “Edit Supporting Documents”.
         </div>
-        <Checkbox
-            id="editDocumentsCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editDocumentsCheckbox">Add Supporting Documents</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Add Supporting Documents</label>
         <Step10_SupportingDocumentsView v-if="!isEditing" />
         <hr />
     </div>

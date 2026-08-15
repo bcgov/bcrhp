@@ -21,9 +21,9 @@ import {
 } from '@/bcrhp/utils.ts';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
-import Checkbox from 'primevue/checkbox';
-import Step6_SOSView from '@/bcrhp/pages/NewSite/steps/Step6_SOSView.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import ToggleSwitch from 'primevue/toggleswitch';
+import Step6_SOSView from '@/bcrhp/pages/SiteSubmission/steps/Step6_SOSView.vue';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const editMode = inject<Ref<EditMode>>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -103,12 +103,8 @@ defineExpose({ isValid });
             To update the Statement of Significance, click “Edit Statement of
             Significance”.
         </div>
-        <Checkbox
-            id="editSOSCheckbox"
-            v-model="isEditing"
-            binary
-        ></Checkbox>
-        <label for="editSOSCheckbox">Edit Statement of Significance</label>
+        <ToggleSwitch v-model="isEditing" />
+        <label>Edit Statement of Significance</label>
         <Step6_SOSView v-if="!isEditing" />
         <hr />
     </div>

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { ref } from 'vue';
 import Step6SOS from './Step6_SOS.vue';
-import { EditMode } from '@/bcrhp/pages/NewSite/constants.ts';
+import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 
 const stubs = {
     Form: { template: '<form><slot v-bind="{}" /></form>' },

@@ -24,44 +24,15 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 const VALID_UUID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
-// ---------------------------------------------------------------------------
-// Checkbox stub — supports binary v-model (boolean).
-// ---------------------------------------------------------------------------
-
-const CheckboxStub = {
-    inheritAttrs: false,
-    props: {
-        modelValue: { default: undefined },
-        binary: { type: Boolean, default: false },
-        value: { default: undefined },
-        small: { type: Boolean, default: false },
-    },
-    emits: ['update:modelValue', 'change'],
+const ToggleSwitchStub = {
+    props: { modelValue: { type: Boolean, default: false } },
+    emits: ['update:modelValue'],
     template: `<input
         type="checkbox"
-        v-bind="$attrs"
-        :checked="binary ? modelValue : (Array.isArray(modelValue) && modelValue.includes(value))"
-        @change="onChange"
+        role="switch"
+        :checked="modelValue"
+        @change="$emit('update:modelValue', $event.target.checked)"
     />`,
-    methods: {
-        onChange(e: Event) {
-            const checked = (e.target as HTMLInputElement).checked;
-            if ((this as any).binary) {
-                (this as any).$emit('update:modelValue', checked);
-            } else {
-                const arr = Array.isArray((this as any).modelValue)
-                    ? [...(this as any).modelValue]
-                    : [];
-                if (checked) arr.push((this as any).value);
-                else {
-                    const i = arr.indexOf((this as any).value);
-                    if (i !== -1) arr.splice(i, 1);
-                }
-                (this as any).$emit('update:modelValue', arr);
-            }
-            (this as any).$emit('change', e);
-        },
-    },
 };
 
 // ChipsList stub that renders a remove button per item so tests can trigger removal.
@@ -91,7 +62,7 @@ const stubs = {
     ChipsList: ChipsListStub,
     Step4_SiteNamesView: { template: '<div class="site-names-view" />' },
     TimesCircleIcon: { template: '<span />' },
-    Checkbox: CheckboxStub,
+    ToggleSwitch: ToggleSwitchStub,
 };
 
 // ---------------------------------------------------------------------------
@@ -159,7 +130,7 @@ describe('Step4_SiteNames — Add mode', () => {
     it('does not render the Edit mode header in Add mode', async () => {
         const wrapper = mountComponent(EditMode.Add);
         await flushPromises();
-        expect(wrapper.find('#editNamesCheckbox').exists()).toBe(false);
+        expect(wrapper.find('input[role="switch"]').exists()).toBe(false);
     });
 });
 
@@ -183,7 +154,7 @@ describe('Step4_SiteNames — Edit mode', () => {
     it('shows the names form after "Edit Names" is checked', async () => {
         const wrapper = mountComponent(EditMode.Edit);
         await flushPromises();
-        await wrapper.find('#editNamesCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
     });
@@ -191,11 +162,11 @@ describe('Step4_SiteNames — Edit mode', () => {
     it('hides the names form again when editing is cancelled', async () => {
         const wrapper = mountComponent(EditMode.Edit);
         await flushPromises();
-        await wrapper.find('#editNamesCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(true);
 
-        await wrapper.find('#editNamesCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
         expect(wrapper.find('form').exists()).toBe(false);
     });
@@ -205,7 +176,7 @@ describe('Step4_SiteNames — Edit mode', () => {
         const wrapper = mountComponent(EditMode.Edit, hs);
         await flushPromises();
 
-        await wrapper.find('#editNamesCheckbox').setValue(true);
+        await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
 
         // Mutate site_names while editing
@@ -213,7 +184,7 @@ describe('Step4_SiteNames — Edit mode', () => {
         expect(hs.value.aliased_data.site_names).toHaveLength(2);
 
         // Cancel — snapshot should restore the original list
-        await wrapper.find('#editNamesCheckbox').setValue(false);
+        await wrapper.find('input[role="switch"]').setValue(false);
         await nextTick();
 
         expect(hs.value.aliased_data.site_names).toHaveLength(1);
