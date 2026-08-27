@@ -433,7 +433,7 @@ defineExpose({ isValid });
                 <div style="flex: 2; margin-left: 0.75rem">
                     <LabelledInput
                         label="Street Address"
-                        hint="Select the government with the jurisdiction over the site"
+                        hint="Enter one street address, or if applicable, an address range"
                         input-name="streetAddress"
                         :error-message="$form.streetAddress?.error?.message"
                         :required="true"
@@ -497,23 +497,30 @@ defineExpose({ isValid });
                         @update:value="updateAddress($event, 'postal_code')"
                     />
                 </div>
-                <div style="flex: 1; margin-left: 1.5rem">
-                    <GenericWidget
-                        ref="localityWidgetRef"
-                        class="input-grow"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            currentPropertyAddress?.aliased_data?.locality
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="locality"
-                        @update:value="updateAddress($event, 'locality')"
-                    />
+                <div class="inline-labeled-input locality">
+                    <LabelledInput
+                        hint="Enter the name of the established area or neighbourhood, if applicable"
+                        input-name="locality"
+                        :error-message="$form.locality?.error?.message"
+                    >
+                        <GenericWidget
+                            ref="localityWidgetRef"
+                            class="input-grow"
+                            :mode="EDIT"
+                            :aliased-node-data="
+                                currentPropertyAddress?.aliased_data?.locality
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="locality"
+                            @update:value="updateAddress($event, 'locality')"
+                        />
+                    </LabelledInput>
                 </div>
             </div>
 
             <LabelledInput
                 label="Location Description"
+                hint="Enter the location and extent of the site concisely. E.g. Located in central BC, 90km east of Quesnel"
                 input-name="location_description"
                 :required="disableAddressSection"
             >
@@ -641,7 +648,7 @@ defineExpose({ isValid });
             <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
-                    hint="Click to retrieve the geospatial boundary associated with the PID."
+                    hint="Add a 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
                     input-name="parcelId"
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
@@ -729,6 +736,11 @@ defineExpose({ isValid });
 </template>
 
 <style scoped>
+.inline-labeled-input {
+    flex: 1;
+    margin-left: 1.5rem;
+}
+
 .chip-row {
     display: flex;
     flex-direction: row;
@@ -737,6 +749,9 @@ defineExpose({ isValid });
 }
 </style>
 <style>
+.inline-labeled-input.locality .form-label {
+    display: inline;
+}
 .row {
     display: flex;
     flex-direction: row;
