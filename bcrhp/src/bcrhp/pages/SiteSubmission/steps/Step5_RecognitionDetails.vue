@@ -198,8 +198,7 @@ defineExpose({ isValid });
     <div v-if="editMode === EditMode.Edit">
         <div style="margin-bottom: 1rem">
             To update Official Recognition Details, click “Edit Recognition
-            Details”. <br /><b>Do not remove previous recognitions</b>, add new
-            recognition or designation statuses as necessary.
+            Details.” Previous entries cannot be edited or removed.
         </div>
         <ToggleSwitch v-model="isEditing" />
         <label>Edit Recognition Details</label>
