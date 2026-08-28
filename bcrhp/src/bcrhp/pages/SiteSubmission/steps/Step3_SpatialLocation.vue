@@ -315,6 +315,21 @@ defineExpose({ isValid });
 </script>
 <template>
     <div v-if="editMode === EditMode.Edit">
+        <div class="edit-instructions">
+            <div class="edit-instruction">
+                Verify that the site boundary displayed on the map accurately
+                represents the historic site before proceeding to the next step.
+            </div>
+            <div class="edit-instruction">
+                If it does not, click "Edit Spatial Location". Provide a new
+                site boundary by selecting one or more PID(s) or by uploading a
+                spatial file.
+            </div>
+            <div class="edit-instruction">
+                If you are unable to update the incorrect boundary using either
+                of these options, select Bypass Site Boundary.
+            </div>
+        </div>
         <ToggleSwitch v-model="isEditing" />
         <label>Edit Spatial Location</label>
         <Step3_SpatialLocationView v-if="!isEditing" />
@@ -330,9 +345,18 @@ defineExpose({ isValid });
     >
         <div>
             <div class="mb-4">
+                <div
+                    v-if="editMode === EditMode.Add"
+                    class="edit-instructions"
+                >
+                    Provide a site boundary by selecting one or more PID(s) or
+                    by uploading a spatial file. Verify that the site boundary
+                    displayed on the map accurately represents the historic site
+                    before proceeding to the next step.
+                </div>
                 <LabelledCheckboxInput
                     label="Bypass Site Boundary"
-                    hint="Check this box if the geometry is incorrect or unavailable at this time."
+                    hint="Select if the site boundary cannot be provided using a PID or uploaded spatial file."
                     input-name="bypassBoundary"
                 >
                     <Checkbox
@@ -343,6 +367,15 @@ defineExpose({ isValid });
                         @change="onBypassToggle"
                     />
                 </LabelledCheckboxInput>
+                <div
+                    v-if="isBoundaryBypassed"
+                    class="bypass-warning form-warning"
+                >
+                    Bypass Site Boundary is selected. To process the submission,
+                    either upload a site map during the Supporting Documents
+                    step, or send spatial files directly to the Heritage Branch:
+                    BCHistoricPlacesRegister@gov.bc.ca
+                </div>
             </div>
 
             <FieldSet
@@ -352,116 +385,94 @@ defineExpose({ isValid });
             >
                 <div>
                     <div>
-                        <LabelledInput
-                            label="Site Boundary"
-                            :required="!isBoundaryBypassed"
-                        >
-                            <div class="controls-container mb-3">
-                                <div class="flex items-center gap-4">
-                                    <LabelledCheckboxInput
-                                        label="Use Shapefile / KML / GeoJSON instead of Cadastral Features"
-                                        hint="Check this box to upload a new file"
-                                        input-name="overrideBoundary"
-                                    >
-                                        <Checkbox
-                                            id="overrideBoundary"
-                                            v-model="overrideBoundary"
-                                            :binary="true"
-                                            small
-                                        />
-                                    </LabelledCheckboxInput>
-                                </div>
-
-                                <div
-                                    v-if="siteArea"
-                                    class="area-data ml-6 mt-2 text-sm text-gray-600"
-                                >
-                                    <i class="pi pi-info-circle mr-1"></i>
-                                    <strong>Mapped Area:</strong> {{ siteArea }}
-                                </div>
-                            </div>
-                            <div
-                                v-if="!isBoundaryBypassed && !overrideBoundary"
-                                class="pid-geometries-grid"
-                            >
-                                <div
-                                    v-if="
-                                        editMode === EditMode.Edit &&
-                                        existingGeometrySnapshot?.node_value
-                                            ?.features?.length > 0 &&
-                                        matchingExistingPid === null
-                                    "
-                                    class="pid-geometries"
+                        <div class="controls-container mb-3">
+                            <div class="flex items-center gap-4">
+                                <LabelledCheckboxInput
+                                    label="Use Shapefile / KML / GeoJSON instead of Cadastral Features"
+                                    hint="Check this box to upload a new file"
+                                    input-name="overrideBoundary"
                                 >
                                     <Checkbox
-                                        id="existingGeometry"
-                                        v-model="showExistingGeometry"
+                                        id="overrideBoundary"
+                                        v-model="overrideBoundary"
                                         :binary="true"
+                                        small
                                     />
-                                    <label for="existingGeometry"
-                                        >Existing geometry</label
-                                    >
-                                </div>
-                                <div
-                                    v-for="pid in allPids"
-                                    :key="pid"
-                                    class="pid-geometries"
-                                >
-                                    <Checkbox
-                                        :id="`bypassBoundary-${formatPid(pid)}`"
-                                        v-model="selectedPids"
-                                        :value="pid"
-                                        @change="onSelectPid(pid)"
-                                    />
-                                    <span
-                                        >{{ formatPid(pid)
-                                        }}{{
-                                            pid === matchingExistingPid
-                                                ? ' (Existing)'
-                                                : ''
-                                        }}</span
-                                    >
-                                </div>
+                                </LabelledCheckboxInput>
                             </div>
 
                             <div
-                                v-if="widgetMode === EDIT"
-                                class="instructions"
+                                v-if="siteArea"
+                                class="area-data ml-6 mt-2 text-sm text-gray-600"
                             >
-                                <ol>
-                                    <li>
-                                        If you entered and validated a PID in
-                                        Step 2 you should see the site mapped on
-                                        this page. If so, uploading a spatial
-                                        file is not necessary.
-                                    </li>
-                                    <li>
-                                        If there is no geospatial data/file add
-                                        a Site Map under the Supporting
-                                        Documents step.
-                                    </li>
-                                    <li>
-                                        If the geospatial file does not import
-                                        successfully, add files under the
-                                        Supporting Documents step.
-                                    </li>
-                                </ol>
+                                <i class="pi pi-info-circle mr-1"></i>
+                                <strong>Mapped Area:</strong> {{ siteArea }}
                             </div>
+                        </div>
+                        <div
+                            v-if="!isBoundaryBypassed && !overrideBoundary"
+                            class="pid-geometries-grid"
+                        >
+                            <div
+                                v-if="
+                                    editMode === EditMode.Edit &&
+                                    existingGeometrySnapshot?.node_value
+                                        ?.features?.length > 0 &&
+                                    matchingExistingPid === null
+                                "
+                                class="pid-geometries"
+                            >
+                                <Checkbox
+                                    id="existingGeometry"
+                                    v-model="showExistingGeometry"
+                                    :binary="true"
+                                />
+                                <label for="existingGeometry"
+                                    >Existing geometry</label
+                                >
+                            </div>
+                            <div
+                                v-for="pid in allPids"
+                                :key="pid"
+                                class="pid-geometries"
+                            >
+                                <Checkbox
+                                    :id="`bypassBoundary-${formatPid(pid)}`"
+                                    v-model="selectedPids"
+                                    :value="pid"
+                                    @change="onSelectPid(pid)"
+                                />
+                                <span
+                                    >{{ formatPid(pid)
+                                    }}{{
+                                        pid === matchingExistingPid
+                                            ? ' (Existing)'
+                                            : ''
+                                    }}</span
+                                >
+                            </div>
+                        </div>
 
-                            <GenericWidget
-                                graph-slug="heritage_site"
-                                node-alias="site_boundary"
-                                :should-show-label="false"
-                                :card-x-node-x-widget-data-overrides="
-                                    mapOverrides
-                                "
-                                :mode="widgetMode"
-                                :aliased-node-data="siteBoundaryValue"
-                                @update:value="
-                                    updateModelValue($event, 'site_boundary')
-                                "
-                            ></GenericWidget>
-                        </LabelledInput>
+                        <div
+                            v-if="widgetMode === EDIT"
+                            class="instructions"
+                        >
+                            Having trouble uploading a spatial file? Email it or
+                            send it via a file transfer service to the Heritage
+                            Branch.
+                        </div>
+
+                        <GenericWidget
+                            graph-slug="heritage_site"
+                            node-alias="site_boundary"
+                            :should-show-label="false"
+                            :card-x-node-x-widget-data-overrides="mapOverrides"
+                            :mode="widgetMode"
+                            :aliased-node-data="siteBoundaryValue"
+                            @update:value="
+                                updateModelValue($event, 'site_boundary')
+                            "
+                        ></GenericWidget>
                     </div>
                 </div>
             </FieldSet>
@@ -470,12 +481,9 @@ defineExpose({ isValid });
 </template>
 
 <style scoped>
-.instructions {
-    margin-left: 2rem;
-}
-
-.instructions > ol {
-    list-style-type: decimal;
+.instructions,
+.edit-instructions {
+    margin: 1rem 2rem;
 }
 
 .inline-block {
@@ -518,5 +526,14 @@ defineExpose({ isValid });
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
     border: 1px solid #dee2e6;
+}
+
+.form-warning {
+    font-size: 1.6rem;
+    margin: 0.5rem 4rem;
+    padding: 0.5rem 2rem;
+    background-color: rgba(216, 41, 47, 0.05);
+    border-radius: 1rem;
+    border: 1px solid rgba(216, 41, 47, 1);
 }
 </style>
