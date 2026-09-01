@@ -97,9 +97,11 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                         <li>
                             <a href="{% url 'search_home' %}">{% trans "Search Sites" %}</a>
                         </li>
+                        {% if user.username and user.username == 'anonymous' %}
                         <li>
-                            <a href="#info-block-2">{% trans "Local Governments" %}</a>
+                            <a href="/bcrhp/auth/?next=/bcrhp/search">{% trans "Local Government Login" %}</a>
                         </li>
+                        {% endif %}
                         {% if user.username and user.username != 'anonymous' %}
                         {% if user|can_create_resource_instance %}
                         <li>
@@ -312,18 +314,21 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                         <div class="app-info-block-intro">
                             <h3 class="app-info-block-title">{% trans "For Local Governments" %}</h3>
                             <p class="app-info-block-text">
-                                {% trans "Sign in to add or update historic place records for your jurisdiction. Submission forms are available from the search page after authentication." %}
+                                {% trans "Submit heritage property notifications and update historic place records in the BC Register of Historic Places. To sign in, click Local Governments in the top toolbar. Submission forms are available from the search page. Instructions are available in the guides below." %}
                             </p>
-                            <p class="app-info-block-text" style="align-content: center">
-                                <a href="/bcrhp/auth/?next=/bcrhp/search">
-                                    <button  type="button" style="background-color: rgb(29,78,216);color: #eee;border-color: rgb(29,78,216);border-radius: 6px;font-weight: 200;display: block;margin: 1rem auto;">
-                                        Local Government Login
-                                    </button>
-                                </a>
-                            </p>
-                            <p class="app-info-block-text">
-                                {% trans "Need Help Logging in? View the" %} <a href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/access_guide.pdf">{% trans "Access Guide" %}</a> {% trans "." %}
-                            </p>
+                            <div class="app-info-manual" style="display: flex; justify-content: center; gap: 1rem;">
+                                <div class="app-info-manual-item" style="max-width: calc(100% / 3 - 20px)">
+                                    <a href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/access_guide.pdf"
+                                       target="access_guide">
+                                        <img alt="Local Government Access Guide" src="{% webpack_static 'img/front/local-government-access.jpg' %}" />
+                                    </a>
+                                </div>
+                                <div class="app-info-manual-item" style="max-width: calc(100% / 3 - 20px)">
+                                    <a href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/submission_guide.pdf" target="submission_guide">
+                                        <img alt="Local Government Submission Guide" src="{% webpack_static 'img/front/local-government-submission-guide.jpg' %}" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
 
