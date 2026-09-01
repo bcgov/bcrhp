@@ -94,13 +94,8 @@ const imageFormResolver = async (
 };
 
 const isValid = () => {
-    if (addingNewImage.value && hasUnsavedImage.value) return false;
-
-    const aliasedDataSchema = SiteImagesTileSchema.shape['aliased_data'];
-    return heritageSite.value.aliased_data.site_images.every(
-        (image: SiteImagesTileType) =>
-            aliasedDataSchema.safeParse(image.aliased_data).success,
-    );
+    if (addingNewImage.value) return !hasUnsavedImage.value;
+    return isImageFormValid();
 };
 
 const isImageFormValid = () => {
@@ -142,11 +137,13 @@ const addNewImage = function () {
     currentSiteImage.value = getBlankSiteImage();
     addingNewImage.value = true;
     siteImageKey.value = nextImageKey.value;
+    emit('update:stepIsValid', isValid());
 };
 
 const clearPendingImage = () => {
     currentSiteImage.value = getBlankSiteImage();
     siteImageKey.value++;
+    emit('update:stepIsValid', isValid());
 };
 
 const saveImage = async function () {
@@ -156,18 +153,18 @@ const saveImage = async function () {
 
     // Increment the key to force the GenericWidget to re-render from scratch
     siteImageKey.value = nextImageKey.value;
-
-    // Optional: Reset the form validation state to remove any "touched" or error states
     siteImageForm.value?.reset();
+
+    emit('update:stepIsValid', isValid());
 };
 
 const deleteSiteImage = function (index: number) {
     console.log(`Deleting site image at index ${index}`);
     heritageSite.value.aliased_data.site_images.splice(index, 1);
-    // Currently staged image is now the first in the list so set it as the primary
-    if (heritageSite.value.aliased_data.site_images.length === 0) {
-        currentSiteImage.value.aliased_data.primary_image = trueBooleanValue();
-    }
+    currentSiteImage.value = getBlankSiteImage();
+    addingNewImage.value = true;
+    siteImageKey.value = nextImageKey.value;
+    emit('update:stepIsValid', isValid());
 };
 
 const setCurrentImage = async function (index: number) {
@@ -178,6 +175,7 @@ const setCurrentImage = async function (index: number) {
     addingNewImage.value = false;
     await nextTick();
     isFormTransitioning.value = false;
+    emit('update:stepIsValid', isValid());
 };
 
 const setPrimaryImage = function (index: number) {
