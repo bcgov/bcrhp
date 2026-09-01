@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, inject, computed, watch } from 'vue';
+import { ref, useTemplateRef, inject, computed, watch, nextTick } from 'vue';
 import type { Ref } from 'vue';
 
 import { Form, type FormInstance } from '@primevue/forms';
@@ -26,7 +26,10 @@ import type {
     CardXNodeXWidgetData,
 } from '@/arches_component_lab/types.ts';
 import Button from 'primevue/button';
-import { convertNbspToSpaces } from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
+import {
+    convertNbspToSpaces,
+    htmlToPlainText,
+} from '@/bcgov_arches_common/datatypes/string/validation/utils.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
 import ToggleSwitch from 'primevue/toggleswitch';
 import Step7_SiteImagesView from '@/bcrhp/pages/SiteSubmission/steps/Step7_SiteImagesView.vue';
@@ -60,7 +63,7 @@ const getBlankSiteImage = () => {
 };
 
 const currentSiteImage: Ref<SiteImagesTileType> = ref(getBlankSiteImage());
-const siteImageKey = ref<number>(0);
+const siteImageKey = ref<number>(-1);
 const addingNewImage = ref<boolean>(true);
 
 const siteImageList = computed(() => {
@@ -79,11 +82,26 @@ const hasUnsavedImage = computed(() => {
 const siteImageForm: Ref<FormInstance | null> = useTemplateRef(
     'siteImageForm',
 ) as Ref<FormInstance | null>;
-const imageFormResolver = getFlattenResolver(
+const isFormTransitioning = ref(false);
+const _baseImageFormResolver = getFlattenResolver(
     zodResolver(SiteImagesTileSchema.shape['aliased_data']),
 );
+const imageFormResolver = async (
+    values: Parameters<typeof _baseImageFormResolver>[0],
+) => {
+    if (isFormTransitioning.value) return { errors: {} };
+    return _baseImageFormResolver(values);
+};
 
-const isValid = () => true;
+const isValid = () => {
+    if (addingNewImage.value && hasUnsavedImage.value) return false;
+
+    const aliasedDataSchema = SiteImagesTileSchema.shape['aliased_data'];
+    return heritageSite.value.aliased_data.site_images.every(
+        (image: SiteImagesTileType) =>
+            aliasedDataSchema.safeParse(image.aliased_data).success,
+    );
+};
 
 const isImageFormValid = () => {
     return baseIsValid(
@@ -107,7 +125,9 @@ const addImageDisabled = computed(() => {
     const data = currentSiteImage.value?.aliased_data;
     const hasImageType = !!data?.image_type?.display_value;
     const hasImageView = !!data?.image_view?.display_value;
-    const hasImageDesc = data?.image_description?.display_value?.length > 0;
+    const hasImageDesc =
+        htmlToPlainText(data?.image_description?.display_value ?? '').length >
+        0;
 
     return (
         !(hasImageType && hasImageView && hasImageDesc) || !isImageFormValid()
@@ -150,11 +170,14 @@ const deleteSiteImage = function (index: number) {
     }
 };
 
-const setCurrentImage = function (index: number) {
+const setCurrentImage = async function (index: number) {
     console.log(`Setting current index to ${index}`);
+    isFormTransitioning.value = true;
     currentSiteImage.value = heritageSite.value.aliased_data.site_images[index];
     siteImageKey.value = index;
     addingNewImage.value = false;
+    await nextTick();
+    isFormTransitioning.value = false;
 };
 
 const setPrimaryImage = function (index: number) {
@@ -206,6 +229,7 @@ defineExpose({ isValid });
     </div>
     <Form
         v-if="isEditing || editMode === EditMode.Add"
+        :key="siteImageKey"
         ref="siteImageForm"
         v-slot="$form"
         name="siteImageForm"
@@ -272,7 +296,7 @@ defineExpose({ isValid });
                         <Button
                             v-if="!addingNewImage && siteImagesCount < 10"
                             id="addImage"
-                            label="+ Add"
+                            label="+ Add Another Image"
                             class="inline-block"
                             :aria-disabled="addImageDisabled"
                             :disabled="addImageDisabled"
@@ -289,7 +313,7 @@ defineExpose({ isValid });
                             :disabled="addImageDisabled"
                             @click="saveImage"
                             ><i class="fa fa-save mr-2"></i>
-                            Save
+                            Save New Image
                         </Button>
                     </div>
                     <div class="flex flex-row image-placeholders">
@@ -350,7 +374,7 @@ defineExpose({ isValid });
                 <div class="flex-grow">
                     <LabelledInput
                         label="Image View"
-                        hint="Select the view that best describes the image"
+                        hint="Expand options to select the specific view"
                         input-name="imageView"
                         :required="true"
                     >
@@ -380,7 +404,7 @@ defineExpose({ isValid });
                 label="Image Description"
                 hint="Summarize the image content including site address and site name. Include additional information that does not fit fields above"
                 input-name="definingElements"
-                :error-message="$form.imageDescription?.error?.message"
+                :error-message="$form.image_description?.error?.message"
                 :required="true"
             >
                 <div class="p-inputtext-fluid">
