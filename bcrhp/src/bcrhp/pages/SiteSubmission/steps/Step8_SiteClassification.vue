@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed, watch } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch, watchEffect } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -13,7 +13,10 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { HeritageThemeTileSchema } from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
+import {
+    getHeritageTheme,
+    HeritageThemeTileSchema,
+} from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
 import {
     HeritageFunctionTileSchema,
     getHeritageFunction,
@@ -123,12 +126,33 @@ const isValidHeritageFunction = () =>
 
 const isValid = () => {
     if (editMode === EditMode.Edit && !isEditing.value) return true;
+
+    const classData = currentHeritageClass.value.aliased_data;
+    const hasUnsavedClass = !!(
+        classData.heritage_category?.node_value ||
+        classData.contributing_resource_count?.node_value ||
+        classData.ownership?.node_value
+    );
+    if (hasUnsavedClass) return false;
+
+    const funcData = currentHeritageFunction.value.aliased_data;
+    const hasUnsavedFunction = !!(
+        funcData.functional_category?.node_value ||
+        (funcData.functional_state?.node_value ?? []).length > 0
+    );
+    if (hasUnsavedFunction) return false;
+
+    // Form not mounted (view mode or transitioning) — validate data directly
     if (!heritageThemeForm.value) {
-        // Form not mounted (view mode or transitioning) — validate data directly
+        // Heritage theme node doesn't exist (and it's not mandatory) so return true
+        if (!heritageSite.value?.aliased_data?.heritage_theme) return true;
         const status = HeritageThemeTileSchema.shape['aliased_data'].safeParse(
             heritageSite.value?.aliased_data?.heritage_theme?.aliased_data,
         );
         return status.success;
+    }
+    if (!heritageThemeForm.value?.states?.heritage_theme?.value?.node_value) {
+        return true;
     }
     return baseIsValid(
         heritageThemeForm as Ref<FormInstance>,
@@ -146,14 +170,10 @@ const addHeritageClassDisabled = computed(() => {
         data.contributing_resource_count?.display_value ||
         data.contributing_resource_count?.node_value
     );
-    const hasOwnership = !!(
-        data.ownership?.display_value || data.ownership?.node_value
-    );
 
     return (
         !hasResourceCount ||
         !hasCategory ||
-        !hasOwnership ||
         !isValidHeritageClass() ||
         heritageClasses.value.length >= 5
     );
@@ -265,6 +285,9 @@ const updateHeritageThemeModelValue = (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) => {
+    if (!heritageSite.value.aliased_data.heritage_theme) {
+        heritageSite.value.aliased_data.heritage_theme = getHeritageTheme();
+    }
     baseUpdateModelValue(
         newValue,
         attribute_name,
@@ -286,6 +309,9 @@ watch(
     },
     { immediate: true },
 );
+watchEffect(() => {
+    emit('update:stepIsValid', isValid());
+});
 
 defineExpose({ isValid });
 </script>
@@ -319,6 +345,7 @@ defineExpose({ isValid });
             ref="heritageClassForm"
             v-slot="$form"
             name="heritageClassForm"
+            class="form-section"
             :validateOnBlur="true"
             :resolver="heritageClassResolver"
         >
@@ -327,37 +354,40 @@ defineExpose({ isValid });
                 :key="classKey"
                 legend="Heritage Class"
             >
-                <LabelledInput
-                    label="Number of Contributing Resources"
-                    input-name="contributing_resource_count"
-                    :error-message="
-                        $form.contributing_resource_count?.error?.message
-                    "
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentHeritageClass.aliased_data
-                                    .contributing_resource_count
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="contributing_resource_count"
-                            @update:value="
-                                updateHeritageClassModelValue(
-                                    $event,
-                                    'contributing_resource_count',
-                                )
-                            "
-                        />
-                    </div>
-                </LabelledInput>
-                <div class="row">
+                <div class="flex">
+                    <LabelledInput
+                        label="Number of Contributing Resources"
+                        input-name="contributing_resource_count"
+                        hint="Enter the number of buildings, structures, or other elements that contribute to the site"
+                        class="grow"
+                        :error-message="
+                            $form.contributing_resource_count?.error?.message
+                        "
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentHeritageClass.aliased_data
+                                        .contributing_resource_count
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="contributing_resource_count"
+                                @update:value="
+                                    updateHeritageClassModelValue(
+                                        $event,
+                                        'contributing_resource_count',
+                                    )
+                                "
+                            />
+                        </div>
+                    </LabelledInput>
                     <LabelledInput
                         label="Heritage Category"
                         input-name="heritage_category"
+                        hint="Select the type of contributing resource"
                         class="grow"
                         :error-message="$form.heritage_category?.error?.message"
                         :required="true"
@@ -384,37 +414,6 @@ defineExpose({ isValid });
                             />
                         </div>
                     </LabelledInput>
-
-                    <br />
-
-                    <LabelledInput
-                        label="Ownership"
-                        input-name="ownership"
-                        class="grow"
-                        :error-message="$form.ownership?.error?.message"
-                        :required="true"
-                    >
-                        <div class="p-inputtext-fluid">
-                            <GenericWidget
-                                :mode="EDIT"
-                                :should-show-label="false"
-                                :aliasedNodeData="
-                                    currentHeritageClass.aliased_data.ownership
-                                "
-                                :card-x-node-x-widget-data-overrides="
-                                    conceptSingleSelectOverride
-                                "
-                                graph-slug="heritage_site"
-                                node-alias="ownership"
-                                @update:value="
-                                    updateHeritageClassModelValue(
-                                        $event,
-                                        'ownership',
-                                    )
-                                "
-                            />
-                        </div>
-                    </LabelledInput>
                 </div>
             </FieldSet>
 
@@ -435,12 +434,11 @@ defineExpose({ isValid });
             </div>
         </Form>
 
-        <br /><br />
-
         <Form
             ref="heritageFunctionForm"
             v-slot="$form"
             name="heritageFunctionForm"
+            class="form-section"
             :validateOnBlur="true"
             :resolver="heritageFunctionResolver"
         >
@@ -449,63 +447,70 @@ defineExpose({ isValid });
                 :key="funcKey"
                 legend="Heritage Function"
             >
-                <LabelledInput
-                    label="Function Category"
-                    input-name="functional_category"
-                    :error-message="$form.functional_category?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentHeritageFunction.aliased_data
-                                    .functional_category
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="functional_category"
-                            placeholder="Select a Function Category"
-                            @update:value="
-                                updateFunctionCategoryModelValue(
-                                    $event,
-                                    'functional_category',
-                                )
-                            "
-                        />
-                    </div>
-                </LabelledInput>
+                <div class="flex flexrow">
+                    <LabelledInput
+                        label="Function Category"
+                        input-name="functional_category"
+                        hint="Expand categories to select the specific function subcategory"
+                        class="grow"
+                        :error-message="
+                            $form.functional_category?.error?.message
+                        "
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentHeritageFunction.aliased_data
+                                        .functional_category
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="functional_category"
+                                placeholder="Select a Function Category"
+                                @update:value="
+                                    updateFunctionCategoryModelValue(
+                                        $event,
+                                        'functional_category',
+                                    )
+                                "
+                            />
+                        </div>
+                    </LabelledInput>
 
-                <br />
+                    <br />
 
-                <LabelledInput
-                    label="Function Period"
-                    input-name="functional_state"
-                    :error-message="$form.functional_state?.error?.message"
-                    :required="true"
-                >
-                    <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliasedNodeData="
-                                currentHeritageFunction.aliased_data
-                                    .functional_state
-                            "
-                            :card-x-node-x-widget-data-overrides="
-                                conceptSelectOverride
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="functional_state"
-                            @update:value="
-                                updateFunctionCategoryModelValue(
-                                    $event,
-                                    'functional_state',
-                                )
-                            "
-                        />
-                    </div>
-                </LabelledInput>
+                    <LabelledInput
+                        label="Function Period"
+                        input-name="functional_state"
+                        class="grow"
+                        :error-message="$form.functional_state?.error?.message"
+                        :required="true"
+                    >
+                        <div class="p-inputtext-fluid">
+                            <GenericWidget
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliasedNodeData="
+                                    currentHeritageFunction.aliased_data
+                                        .functional_state
+                                "
+                                :card-x-node-x-widget-data-overrides="
+                                    conceptSelectOverride
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="functional_state"
+                                @update:value="
+                                    updateFunctionCategoryModelValue(
+                                        $event,
+                                        'functional_state',
+                                    )
+                                "
+                            />
+                        </div>
+                    </LabelledInput>
+                </div>
             </FieldSet>
 
             <div class="row">
@@ -525,8 +530,6 @@ defineExpose({ isValid });
             </div>
         </Form>
 
-        <br /><br />
-
         <Form
             ref="heritageThemeForm"
             v-slot="$form"
@@ -542,8 +545,8 @@ defineExpose({ isValid });
                 <LabelledInput
                     label="Heritage Theme"
                     input-name="heritage_theme"
+                    hint="Expand categories to select up to three subcategories. All selected items will appear in the field."
                     :error-message="$form.heritage_theme?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
@@ -570,9 +573,12 @@ defineExpose({ isValid });
     </template>
 </template>
 
-<style>
+<style scoped>
 .grow {
     flex: 1;
     margin: 1rem;
+}
+.form-section {
+    margin-bottom: 4rem;
 }
 </style>

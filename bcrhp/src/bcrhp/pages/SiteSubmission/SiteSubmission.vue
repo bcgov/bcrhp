@@ -190,3 +190,9 @@ const workflowSubtitle = computed(() => {
         :parse-error="parseError"
     />
 </template>
+
+<style>
+.p-form {
+    margin-bottom: 4rem;
+}
+</style>

@@ -156,7 +156,6 @@ describe('Step8_SiteClassification — Edit mode', () => {
                         heritage_category: {
                             display_value: 'Original Category',
                         },
-                        ownership: { display_value: 'Public' },
                         contributing_resource_count: {
                             display_value: '5',
                             node_value: 5,
@@ -174,7 +173,6 @@ describe('Step8_SiteClassification — Edit mode', () => {
         hs.value.aliased_data.heritage_class.push({
             aliased_data: {
                 heritage_category: { display_value: 'New Category' },
-                ownership: { display_value: 'Private' },
                 contributing_resource_count: {
                     display_value: '2',
                     node_value: 2,
@@ -264,6 +262,73 @@ describe('Step8_SiteClassification — isValid', () => {
         const wrapper = mountComponent(EditMode.Edit);
         expect(wrapper.vm.isValid()).toBe(true);
     });
+
+    it('returns true in Add mode when all fields are blank', () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        expect(wrapper.vm.isValid()).toBe(true);
+    });
+
+    it('returns false when heritage_category has a node_value (unsaved class)', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'heritage_category', {
+            display_value: 'Commercial',
+            node_value: 'uuid-cat',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when contributing_resource_count has a node_value (unsaved class)', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'contributing_resource_count', {
+            display_value: '3',
+            node_value: 3,
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when functional_category has a node_value (unsaved function)', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'functional_category', {
+            display_value: 'Residential',
+            node_value: 'uuid-fcat',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when functional_state has node_value items (unsaved function)', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'functional_state', {
+            display_value: 'Current',
+            node_value: ['uuid-fst'],
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns true after saving a heritage class (fields reset to blank)', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'heritage_category', {
+            display_value: 'Commercial',
+            node_value: 'uuid-cat',
+            details: [],
+        });
+        await emitWidgetValue(wrapper, 'contributing_resource_count', {
+            display_value: '3',
+            node_value: 3,
+            details: [],
+        });
+        // isValid is false while data is unsaved
+        expect(wrapper.vm.isValid()).toBe(false);
+
+        await wrapper.find('#saveHeritageClass').trigger('click');
+        await flushPromises();
+
+        // After save the form is reset — no unsaved data
+        expect(wrapper.vm.isValid()).toBe(true);
+    });
 });
 
 // ---------------------------------------------------------------------------
@@ -277,7 +342,6 @@ describe('Step8_SiteClassification — heritage_class ChipsList removal', () => 
                 {
                     aliased_data: {
                         heritage_category: { display_value: 'Category A' },
-                        ownership: { display_value: 'Public' },
                         contributing_resource_count: {
                             display_value: '1',
                             node_value: 1,
@@ -287,7 +351,6 @@ describe('Step8_SiteClassification — heritage_class ChipsList removal', () => 
                 {
                     aliased_data: {
                         heritage_category: { display_value: 'Category B' },
-                        ownership: { display_value: 'Private' },
                         contributing_resource_count: {
                             display_value: '2',
                             node_value: 2,
@@ -490,17 +553,13 @@ describe('Step8_SiteClassification — computed fallbacks', () => {
 // ---------------------------------------------------------------------------
 
 describe('Step8_SiteClassification — heritageClassDisplayFunction', () => {
-    it('formats category, ownership, and resource count via getText', () => {
+    it('formats category and resource count via getText', () => {
         const hs = makeHeritageSite({
             heritage_class: [
                 {
                     aliased_data: {
                         heritage_category: {
                             display_value: 'Commercial',
-                            node_value: null,
-                        },
-                        ownership: {
-                            display_value: 'Public',
                             node_value: null,
                         },
                         contributing_resource_count: {
@@ -514,7 +573,6 @@ describe('Step8_SiteClassification — heritageClassDisplayFunction', () => {
         const wrapper = mountInteractive(EditMode.Add, hs);
         const label = wrapper.find('.chip-label');
         expect(label.text()).toContain('Commercial');
-        expect(label.text()).toContain('Public');
         expect(label.text()).toContain('5');
     });
 
@@ -526,10 +584,6 @@ describe('Step8_SiteClassification — heritageClassDisplayFunction', () => {
                         heritage_category: {
                             display_value: '',
                             node_value: { en: { value: 'Via node value' } },
-                        },
-                        ownership: {
-                            display_value: 'Public',
-                            node_value: null,
                         },
                         contributing_resource_count: {
                             display_value: '2',
@@ -551,10 +605,6 @@ describe('Step8_SiteClassification — heritageClassDisplayFunction', () => {
                         heritage_category: {
                             display_value: '',
                             node_value: 'string-uuid',
-                        },
-                        ownership: {
-                            display_value: 'Public',
-                            node_value: null,
                         },
                         contributing_resource_count: {
                             display_value: '1',
@@ -608,11 +658,6 @@ describe('Step8_SiteClassification — updateHeritageClassModelValue', () => {
             node_value: 'uuid-cat',
             details: [],
         });
-        await emitWidgetValue(wrapper, 'ownership', {
-            display_value: 'Public',
-            node_value: 'uuid-own',
-            details: [],
-        });
         await emitWidgetValue(wrapper, 'contributing_resource_count', {
             display_value: '3',
             node_value: 3,
@@ -638,11 +683,6 @@ describe('Step8_SiteClassification — saveHeritageClass', () => {
             node_value: 'uuid-cat',
             details: [],
         });
-        await emitWidgetValue(wrapper, 'ownership', {
-            display_value: 'Public',
-            node_value: 'uuid-own',
-            details: [],
-        });
         await emitWidgetValue(wrapper, 'contributing_resource_count', {
             display_value: '3',
             node_value: 3,
@@ -661,11 +701,6 @@ describe('Step8_SiteClassification — saveHeritageClass', () => {
         await emitWidgetValue(wrapper, 'heritage_category', {
             display_value: 'Commercial',
             node_value: 'uuid-cat',
-            details: [],
-        });
-        await emitWidgetValue(wrapper, 'ownership', {
-            display_value: 'Public',
-            node_value: 'uuid-own',
             details: [],
         });
         await emitWidgetValue(wrapper, 'contributing_resource_count', {

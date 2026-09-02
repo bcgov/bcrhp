@@ -51,7 +51,7 @@ const node_data: ResourceInstanceCardXNodeXWidgetData = {
         config: {},
     } as Node,
     config: {
-        placeholder: 'Select site to updated',
+        placeholder: 'Search and select site to update',
         defaultValue: '',
     },
     widget: {
@@ -116,78 +116,51 @@ defineExpose({ isValid });
             </div>
         </FieldSet>
         <div class="mb-2">
-            <p>
-                This function is used to update or edit current site records.
-                Current site record information is pre-filled in the system; to
-                change this information you can either remove information or add
-                to the current record.
-            </p>
-            <p>
-                Before you begin, review the current site record on the BC
-                Register of Historic Places by conducting the searches outlined
-                below on the
-                <a
-                    href="/bcrhp/search"
-                    target="bcrhp_search"
-                    >Search Page on BCRHP</a
-                >
-                . Consult the Consult the
-                <a
-                    href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/20240719_how_to_search_bcrhp_final.pdf"
-                    target="how_to_guide"
-                    >How to Search PDF Guide</a
-                >
-                as needed.
-            </p>
             <ul class="bullet-list ml-4">
-                <li>Enter the site’s name in the Find a resource search bar</li>
                 <li>
-                    Enter the site’s address in the map Find an address search
-                    bar
+                    Have all required information ready to complete the form.
+                    The form cannot be saved as a draft.
+                </li>
+                <li>
+                    Don’t see the heritage site in the list? Go to the
+                    <a
+                        href="/bcrhp/search"
+                        target="bcrhp_search"
+                        >Search page</a
+                    >
+                    to verify the site name and/or Borden number on the existing
+                    record.
                 </li>
             </ul>
         </div>
 
         <h3 class="mb-2 font-bold mt-4">Submission Requirements</h3>
-
+        Some updates have mandatory submission requirements. When a heritage
+        site receives a new designation or recognition status, the submission
+        must include:
         <ul class="bullet-list ml-4">
-            <li>
-                For updates to formal recognition information, ensure you have
-                the following details:
-                <ul>
-                    <li>
-                        Designation or Recognition Start Date-the date the site
-                        was formally recognized by Bylaw, Council Resolution,
-                        Order in Council, etc.
-                    </li>
-                    <li>
-                        Legislative Act - legislation that the site is formally
-                        recognized under.
-                    </li>
-                    <li>
-                        Reference Number-Enter how the decision was enacted and
-                        the corresponding reference number if applicable (e.g.
-                        Bylaw 12-983)
-                    </li>
-                    <li>
-                        Do not remove previous recognition (unless it is no
-                        longer accurate), add new recognition or designation
-                        statuses as necessary.
-                    </li>
-                </ul>
-            </li>
-            <li>
-                Required documents for Step 10:
-                <ul class="bullet-list ml-4 mt-2">
-                    <li>Copy of Bylaw, Resolution, or Meeting Minutes</li>
-                </ul>
-            </li>
+            <li>Designation and recognition information and dates</li>
+            <li>Supporting bylaw, resolution, or meeting minutes</li>
         </ul>
-        <div class="mt-4">
-            <span class="red">*</span>The system does not have a save for later
-            or draft function, so it is important to have all information ready
-            before starting.
-        </div>
+
+        <h3 class="mb-2 font-bold mt-4">Documentation Standards</h3>
+
+        The following are standard components of BC Register of Historic Places
+        records:
+        <ul class="bullet-list ml-4">
+            <li>Statement of Significance</li>
+            <li>Photographs</li>
+        </ul>
+        If these components are not available at the time of submission, they
+        should be submitted in a future update to complete the record.
+
+        <h3 class="mb-2 font-bold mt-4">Additional Information</h3>
+        <strong
+            >Completing optional information fields improves the discoverability
+            and public understanding of historic places. More detailed records
+            support research, heritage planning, and public access to
+            comprehensive information.</strong
+        >
     </FieldSet>
 </template>
 
@@ -208,5 +181,11 @@ li {
     list-style-type: circle;
     padding-left: 2rem;
     margin-top: 0.25rem;
+}
+</style>
+
+<style scoped>
+h3 {
+    font-size: 2rem;
 }
 </style>

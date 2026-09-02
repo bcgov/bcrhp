@@ -200,7 +200,6 @@ const blankField = () => ({ display_value: '', node_value: null, details: [] });
 const clearCivicFields = (aliasedData: any) => {
     aliasedData.street_address = blankField();
     aliasedData.city = blankField();
-    aliasedData.postal_code = blankField();
     aliasedData.locality = blankField();
 };
 
@@ -222,9 +221,8 @@ const getAddressLabel = (addr: any) => {
     const street = data.street_address.display_value;
     const city = data.city.display_value;
     const locality = data.locality.display_value;
-    const postal = data.postal_code.display_value;
 
-    const streetAddress = [street, city, locality, postal]
+    const streetAddress = [street, city, locality]
         .filter((s) => s && s.trim().length > 0)
         .join(' - ');
 
@@ -433,7 +431,7 @@ defineExpose({ isValid });
                 <div style="flex: 2; margin-left: 0.75rem">
                     <LabelledInput
                         label="Street Address"
-                        hint="Select the government with the jurisdiction over the site"
+                        hint="Enter one street address, or if applicable, an address range"
                         input-name="streetAddress"
                         :error-message="$form.streetAddress?.error?.message"
                         :required="true"
@@ -470,50 +468,39 @@ defineExpose({ isValid });
                     />
                 </div>
             </div>
-
             <div
-                v-if="!disableAddressSection"
                 class="row"
                 style="width: 100%"
             >
                 <div
-                    style="
-                        flex: 0 0 10rem;
-                        margin-left: 0.75rem;
-                        margin-bottom: 1rem;
-                    "
+                    v-if="!disableAddressSection"
+                    class="row"
+                    style="flex: 2; margin-left: 0.75rem"
                 >
-                    <GenericWidget
-                        ref="postalWidgetRef"
-                        :key="addressFormKey"
-                        class="input-grow"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            currentPropertyAddress?.aliased_data?.postal_code
-                        "
-                        :error-message="$form.postal_code?.error?.message"
-                        graph-slug="heritage_site"
-                        node-alias="postal_code"
-                        @update:value="updateAddress($event, 'postal_code')"
-                    />
-                </div>
-                <div style="flex: 1; margin-left: 1.5rem">
-                    <GenericWidget
-                        ref="localityWidgetRef"
-                        class="input-grow"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            currentPropertyAddress?.aliased_data?.locality
-                        "
-                        graph-slug="heritage_site"
-                        node-alias="locality"
-                        @update:value="updateAddress($event, 'locality')"
-                    />
+                    <LabelledInput
+                        hint="Enter the name of the established area or neighbourhood, if applicable"
+                        input-name="locality"
+                        class="grow"
+                        :error-message="$form.locality?.error?.message"
+                    >
+                        <GenericWidget
+                            ref="localityWidgetRef"
+                            class="input-grow"
+                            :mode="EDIT"
+                            :aliased-node-data="
+                                currentPropertyAddress?.aliased_data?.locality
+                            "
+                            graph-slug="heritage_site"
+                            node-alias="locality"
+                            @update:value="updateAddress($event, 'locality')"
+                        />
+                    </LabelledInput>
                 </div>
             </div>
 
             <LabelledInput
                 label="Location Description"
+                hint="Enter the location and extent of the site concisely. E.g. Located in central BC, 90km east of Quesnel"
                 input-name="location_description"
                 :required="disableAddressSection"
             >
@@ -641,7 +628,7 @@ defineExpose({ isValid });
             <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
-                    hint="Click to retrieve the geospatial boundary associated with the PID."
+                    hint="Add a 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
                     input-name="parcelId"
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
@@ -729,14 +716,26 @@ defineExpose({ isValid });
 </template>
 
 <style scoped>
+.inline-labeled-input {
+    flex: 1;
+    margin-left: 1.5rem;
+}
+
 .chip-row {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     margin: 1.5rem 0;
 }
+
+.grow {
+    flex: 1;
+}
 </style>
 <style>
+.inline-labeled-input.locality .form-label {
+    display: inline;
+}
 .row {
     display: flex;
     flex-direction: row;
@@ -764,5 +763,9 @@ defineExpose({ isValid });
 }
 .hidden {
     display: none;
+}
+label[for='streetAddress'],
+label[for='location_description'] {
+    font-weight: 600;
 }
 </style>

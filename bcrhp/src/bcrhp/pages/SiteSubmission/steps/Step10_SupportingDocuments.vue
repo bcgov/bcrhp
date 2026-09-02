@@ -39,7 +39,7 @@ const siteDocumentList = computed(() => {
     return heritageSite.value?.aliased_data?.site_document ?? [];
 });
 
-const editMode = inject<Ref<EditMode>>('editMode')!;
+const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
@@ -73,7 +73,7 @@ const supportingDocumentsResolver = getFlattenResolver(
 );
 
 const isValid = () => {
-    return siteDocumentList.value.length > 0;
+    return editMode === EditMode.Edit || siteDocumentList.value.length > 0;
 };
 
 const documentTypeOverrides = {
@@ -152,9 +152,6 @@ defineExpose({ isValid });
 
 <template>
     <div v-if="editMode === EditMode.Edit">
-        <div style="margin-bottom: 1rem">
-            To add Supporting Documents, click “Edit Supporting Documents”.
-        </div>
         <ToggleSwitch v-model="isEditing" />
         <label>Add Supporting Documents</label>
         <Step10_SupportingDocumentsView v-if="!isEditing" />
@@ -179,16 +176,16 @@ defineExpose({ isValid });
                     >
                         Upload supporting and required documents. Drag and drop
                         1 file at a time, filling out the form for each file.
-                        Hit +Add after each completed entry. Required documents
-                        include:
+                        Click +Add after each completed entry. Required
+                        documents include:
 
                         <ul>
                             <li>
                                 Bylaw, Resolution, or Council Meeting Minutes
                             </li>
                             <li>
-                                GIS files or Site Map (if no geospatial data was
-                                included in Step 3)
+                                Site Map (if no site boundary was provided in
+                                Step 3)
                             </li>
                         </ul>
                     </div>
@@ -261,10 +258,8 @@ defineExpose({ isValid });
                         "
                     ></GenericWidget>
                 </LabelledInput>
-                <br />
             </FieldSet>
         </Form>
-        <br />
         <div class="row">
             <Button
                 id="addOtherName"
@@ -282,37 +277,35 @@ defineExpose({ isValid });
                 @remove="deleteSiteDocument"
             />
         </div>
-        <br /><br />
-        <Form>
-            <FieldSet
-                id="submissionNotesFieldset"
-                legend="Submission Notes (Optional)"
-            >
-                <LabelledInput
-                    input-name="submissionNotes"
-                    hint="Enter any additional remarks about the site submission"
-                >
-                    <div class="p-inputtext-fluid">
-                        <GenericWidget
-                            :key="siteDocumentKey"
-                            :required="true"
-                            graph-slug="heritage_site"
-                            node-alias="internal_remark"
-                            :should-show-label="false"
-                            :mode="EDIT"
-                            :aliased-node-data="
-                                internalRemark?.value?.aliased_data
-                                    ?.internal_remark
-                            "
-                            @update:value="
-                                updateModelValue($event, 'internal_remark')
-                            "
-                        ></GenericWidget>
-                    </div>
-                </LabelledInput>
-            </FieldSet>
-        </Form>
     </template>
+    <Form>
+        <FieldSet
+            id="submissionNotesFieldset"
+            legend="Submission Notes (Optional)"
+        >
+            <LabelledInput
+                input-name="submissionNotes"
+                hint="Enter any additional remarks about the site submission"
+            >
+                <div class="p-inputtext-fluid">
+                    <GenericWidget
+                        :key="siteDocumentKey"
+                        :required="true"
+                        graph-slug="heritage_site"
+                        node-alias="internal_remark"
+                        :should-show-label="false"
+                        :mode="EDIT"
+                        :aliased-node-data="
+                            internalRemark?.value?.aliased_data?.internal_remark
+                        "
+                        @update:value="
+                            updateModelValue($event, 'internal_remark')
+                        "
+                    ></GenericWidget>
+                </div>
+            </LabelledInput>
+        </FieldSet>
+    </Form>
 </template>
 
 <style scoped>

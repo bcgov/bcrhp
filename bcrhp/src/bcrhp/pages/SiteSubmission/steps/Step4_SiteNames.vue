@@ -215,8 +215,8 @@ onMounted(() => {
 <template>
     <div v-if="editMode === EditMode.Edit">
         <div style="margin-bottom: 1rem">
-            To update the Site Names, click “Edit Names”. To remove the existing
-            site name(s), click the
+            To update the Site Names, click “Edit Names”. Edit the Common Name
+            directly in the field. To remove Other Name(s), click the
             <span
                 style="
                     background-color: #ffffff;
@@ -228,8 +228,7 @@ onMounted(() => {
             >
                 <TimesCircleIcon />
             </span>
-            icon located to the right of the previously submitted name at the
-            bottom of the page.
+            icon beside the name below the field.
         </div>
         <ToggleSwitch v-model="isEditing" />
         <label>Edit Names</label>
@@ -239,6 +238,7 @@ onMounted(() => {
     <div v-if="isEditing || editMode === EditMode.Add">
         <FieldSet
             id="siteNamesFieldSet"
+            class="p-form"
             legend="Site Names"
         >
             <Form
@@ -326,8 +326,5 @@ onMounted(() => {
                 </div>
             </Form>
         </FieldSet>
-        <br />
-
-        <br /><br /><br /><br /><br />
     </div>
 </template>
