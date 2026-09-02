@@ -200,7 +200,6 @@ const blankField = () => ({ display_value: '', node_value: null, details: [] });
 const clearCivicFields = (aliasedData: any) => {
     aliasedData.street_address = blankField();
     aliasedData.city = blankField();
-    aliasedData.postal_code = blankField();
     aliasedData.locality = blankField();
 };
 
@@ -222,9 +221,8 @@ const getAddressLabel = (addr: any) => {
     const street = data.street_address.display_value;
     const city = data.city.display_value;
     const locality = data.locality.display_value;
-    const postal = data.postal_code.display_value;
 
-    const streetAddress = [street, city, locality, postal]
+    const streetAddress = [street, city, locality]
         .filter((s) => s && s.trim().length > 0)
         .join(' - ');
 
@@ -470,37 +468,19 @@ defineExpose({ isValid });
                     />
                 </div>
             </div>
-
             <div
-                v-if="!disableAddressSection"
                 class="row"
                 style="width: 100%"
             >
                 <div
-                    style="
-                        flex: 0 0 10rem;
-                        margin-left: 0.75rem;
-                        margin-bottom: 1rem;
-                    "
+                    v-if="!disableAddressSection"
+                    class="row"
+                    style="flex: 2; margin-left: 0.75rem"
                 >
-                    <GenericWidget
-                        ref="postalWidgetRef"
-                        :key="addressFormKey"
-                        class="input-grow"
-                        :mode="EDIT"
-                        :aliased-node-data="
-                            currentPropertyAddress?.aliased_data?.postal_code
-                        "
-                        :error-message="$form.postal_code?.error?.message"
-                        graph-slug="heritage_site"
-                        node-alias="postal_code"
-                        @update:value="updateAddress($event, 'postal_code')"
-                    />
-                </div>
-                <div class="inline-labeled-input locality">
                     <LabelledInput
                         hint="Enter the name of the established area or neighbourhood, if applicable"
                         input-name="locality"
+                        class="grow"
                         :error-message="$form.locality?.error?.message"
                     >
                         <GenericWidget
@@ -747,6 +727,10 @@ defineExpose({ isValid });
     align-items: flex-start;
     margin: 1.5rem 0;
 }
+
+.grow {
+    flex: 1;
+}
 </style>
 <style>
 .inline-labeled-input.locality .form-label {
@@ -779,5 +763,9 @@ defineExpose({ isValid });
 }
 .hidden {
     display: none;
+}
+label[for='streetAddress'],
+label[for='location_description'] {
+    font-weight: 600;
 }
 </style>
