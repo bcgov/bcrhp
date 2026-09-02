@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, inject, ref, computed, watch } from 'vue';
+import { useTemplateRef, inject, ref, computed, watch, watchEffect } from 'vue';
 import type { Ref } from 'vue';
 
 import FieldSet from 'primevue/fieldset';
@@ -13,7 +13,10 @@ import type { AliasedNodeData } from '@/arches_component_lab/types.ts';
 import GenericWidget from '@/arches_component_lab/generics/GenericWidget/GenericWidget.vue';
 import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import type { HeritageSiteType } from '@/bcrhp/schemas/heritage_site.ts';
-import { HeritageThemeTileSchema } from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
+import {
+    getHeritageTheme,
+    HeritageThemeTileSchema,
+} from '@/bcrhp/schemas/heritage_site/heritage_theme.ts';
 import {
     HeritageFunctionTileSchema,
     getHeritageFunction,
@@ -123,12 +126,33 @@ const isValidHeritageFunction = () =>
 
 const isValid = () => {
     if (editMode === EditMode.Edit && !isEditing.value) return true;
+
+    const classData = currentHeritageClass.value.aliased_data;
+    const hasUnsavedClass = !!(
+        classData.heritage_category?.node_value ||
+        classData.contributing_resource_count?.node_value ||
+        classData.ownership?.node_value
+    );
+    if (hasUnsavedClass) return false;
+
+    const funcData = currentHeritageFunction.value.aliased_data;
+    const hasUnsavedFunction = !!(
+        funcData.functional_category?.node_value ||
+        (funcData.functional_state?.node_value ?? []).length > 0
+    );
+    if (hasUnsavedFunction) return false;
+
+    // Form not mounted (view mode or transitioning) — validate data directly
     if (!heritageThemeForm.value) {
-        // Form not mounted (view mode or transitioning) — validate data directly
+        // Heritage theme node doesn't exist (and it's not mandatory) so return true
+        if (!heritageSite.value?.aliased_data?.heritage_theme) return true;
         const status = HeritageThemeTileSchema.shape['aliased_data'].safeParse(
             heritageSite.value?.aliased_data?.heritage_theme?.aliased_data,
         );
         return status.success;
+    }
+    if (!heritageThemeForm.value?.states?.heritage_theme?.value?.node_value) {
+        return true;
     }
     return baseIsValid(
         heritageThemeForm as Ref<FormInstance>,
@@ -265,6 +289,9 @@ const updateHeritageThemeModelValue = (
     newValue: AliasedNodeData,
     attribute_name: string,
 ) => {
+    if (!heritageSite.value.aliased_data.heritage_theme) {
+        heritageSite.value.aliased_data.heritage_theme = getHeritageTheme();
+    }
     baseUpdateModelValue(
         newValue,
         attribute_name,
@@ -286,6 +313,9 @@ watch(
     },
     { immediate: true },
 );
+watchEffect(() => {
+    emit('update:stepIsValid', isValid());
+});
 
 defineExpose({ isValid });
 </script>
@@ -543,7 +573,6 @@ defineExpose({ isValid });
                     label="Heritage Theme"
                     input-name="heritage_theme"
                     :error-message="$form.heritage_theme?.error?.message"
-                    :required="true"
                 >
                     <div class="p-inputtext-fluid">
                         <GenericWidget
