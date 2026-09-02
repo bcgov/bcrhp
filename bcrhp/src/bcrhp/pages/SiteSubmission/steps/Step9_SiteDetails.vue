@@ -44,7 +44,7 @@ import Step9_SiteDetailsView from '@/bcrhp/pages/SiteSubmission/steps/Step9_Site
 import { EditMode } from '@/bcrhp/pages/SiteSubmission/constants.ts';
 import TimesCircleIcon from '@primevue/icons/timescircle';
 
-const editMode = inject<Ref<EditMode>>('editMode')!;
+const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
 const emit = defineEmits(['update:stepIsValid']);
 const isEditing = ref(false);
@@ -135,7 +135,36 @@ const externalUrls = computed(() =>
         : [],
 );
 
-const isValid = () => true;
+const isValid = () => {
+    if (editMode === EditMode.Edit && !isEditing.value) return true;
+    const chrono = currentChronology.value.aliased_data;
+    const hasUnsavedChronology = !!(
+        chrono.chronology?.node_value ||
+        chrono.start_year?.node_value ||
+        chrono.end_year?.node_value ||
+        chrono.dates_approximate?.node_value ||
+        chrono.chronology_notes?.node_value?.en?.value
+    );
+    if (hasUnsavedChronology) return false;
+
+    const actor = currentConstructionActor.value.aliased_data;
+    const hasUnsavedActor = !!(
+        actor.construction_actor?.node_value?.en?.value ||
+        actor.construction_actor_type?.node_value ||
+        actor.construction_actor_notes?.node_value?.en?.value
+    );
+    if (hasUnsavedActor) return false;
+
+    const url = currentExternalUrl.value.aliased_data;
+    const hasUnsavedUrl = !!(
+        url.external_url_type?.node_value ||
+        url.external_url?.node_value?.url ||
+        url.external_url?.node_value?.url_label
+    );
+    if (hasUnsavedUrl) return false;
+
+    return true;
+};
 
 const isValidChronology = computed(() => {
     return baseIsValid(
