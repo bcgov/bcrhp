@@ -6,13 +6,18 @@ from arches.app.utils.betterJSONSerializer import JSONSerializer
 from arches.app.utils.response import JSONResponse
 from arches.app.models.concept import Concept
 from arches.app.models.models import Node
+from arches.app.models.tile import Tile
+from django.db.models import F
 from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
 
-from rest_framework.generics import ListCreateAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    UpdateAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.parsers import JSONParser
 
-import json
 from arches_querysets.rest_framework.multipart_json_parser import MultiPartJSONParser
 from arches_querysets.rest_framework.pagination import ArchesLimitOffsetPagination
 from arches_querysets.rest_framework.permissions import ReadOnly, ResourceEditor
@@ -146,11 +151,18 @@ class PatchedArchesResourceBlankView(ArchesResourceBlankView):
         return serializer_context
 
 
-class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):
+class SubmitHeritageSite(
+    ArchesModelAPIMixin,
+    CardNodeWidgetConfigMixin,
+    RetrieveAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+):
     permission_classes = [ResourceEditor | LocalGovernment]
     serializer_class = HeritageSiteSerializer
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination
+    lookup_field = "resourceinstanceid"
     valid_keys = ["aliased_data"]
     required_sections = [
         "resourceinstanceid",
@@ -170,6 +182,18 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         "construction_actors",
         "internal_remark",
     ]
+    # Aliases whose orphaned tiles should be deleted when omitted from a PATCH
+    # payload list. Sections absent from this set are never orphan-deleted even
+    # if they appear in the payload, preserving sparse-tree semantics for them.
+    deletable_list_aliases = {
+        "site_images",
+        "external_url",
+        "chronology",
+        "construction_actors",
+        "heritage_theme",
+        "heritage_class",
+        "heritage_function",
+    }
 
     def get_default_registration_status_uuid(self):
         return self.get_concept_uuid(
@@ -211,6 +235,11 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         # This seems wrong. We should allow a GeoJSON to be supplied as an object,
         # not already serialized?
         for loc in site["aliased_data"]["heritage_site_location"]:
+            loc["aliased_data"]["site_boundary"] = [
+                sb
+                for sb in loc["aliased_data"]["site_boundary"]
+                if sb["aliased_data"]["site_boundary"]["node_value"]["features"]
+            ]
             for sb in loc["aliased_data"]["site_boundary"]:
                 logger.debug(sb["aliased_data"]["site_boundary"])
                 if (
@@ -245,13 +274,19 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
                     sb["aliased_data"]["site_boundary"]["node_value"]
                 )
 
-        site["aliased_data"].pop("borden_number")
+        site["aliased_data"].pop("borden_number", None)
         site["aliased_data"]["bc_right"]["aliased_data"]["registration_status"][
             "node_value"
         ] = self.get_default_registration_status_uuid()
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
+        if site["aliased_data"]["bc_right"]["aliased_data"][
+            "officially_recognized_site"
+        ]["node_value"] not in (True, False):
+            site["aliased_data"]["bc_right"]["aliased_data"][
+                "officially_recognized_site"
+            ]["node_value"] = True
         if (
             "internal_remark" in site["aliased_data"]
             and len(site["aliased_data"]["internal_remark"]) == 1
@@ -316,6 +351,132 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         return JSONResponse(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def transform_retrieved_data(self, data: dict) -> dict:
+        aliased = data.get("aliased_data", {})
+        site_images = aliased.get("site_images")
+        if isinstance(site_images, list) and len(site_images) > 1:
+
+            def primary_sort_key(image):
+                val = (
+                    image.get("aliased_data", {})
+                    .get("primary_image", {})
+                    .get("node_value")
+                )
+                if val is True:
+                    return 0
+                if val is False:
+                    return 1
+                return 2
+
+            aliased["site_images"] = sorted(site_images, key=primary_sort_key)
+        # We don't want internal remarks or site_documents being sent to the client
+        aliased["internal_remark"] = []
+        aliased["site_document"] = []
+        return data
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = self.transform_retrieved_data(serializer.data)
+        return JSONResponse(data, status=status.HTTP_200_OK)
+
+    def _delete_orphaned_tiles(
+        self, patched_data: dict, resourceinstanceid: str, request
+    ) -> None:
+        """Delete tiles that were removed from a list-type section in the payload.
+
+        Only sections that ARE present in the payload are diffed — sections
+        absent from the (sparse) payload are left completely untouched.
+
+        Uses Tile.delete() (not a bulk queryset delete) so that audit logging,
+        search index cleanup, and datatype post_tile_delete hooks all run.
+        """
+        aliased = patched_data.get("aliased_data", {})
+        for alias, value in aliased.items():
+            if alias not in self.deletable_list_aliases:
+                continue
+            if not isinstance(value, list):
+                continue
+            incoming_tileids = {
+                t["tileid"] for t in value if isinstance(t, dict) and t.get("tileid")
+            }
+            # The grouping node for a nodegroup is the node whose nodeid
+            # equals its own nodegroup_id.
+            node = Node.objects.filter(
+                alias=alias,
+                graph__slug="heritage_site",
+                nodeid=F("nodegroup_id"),
+            ).first()
+            if node is None:
+                continue
+            orphans = Tile.objects.filter(
+                resourceinstance_id=resourceinstanceid,
+                nodegroup_id=node.nodegroup_id,
+            ).exclude(tileid__in=incoming_tileids)
+            count = orphans.count()
+            if count:
+                logger.info(
+                    "Deleting %d orphaned tile(s) for alias=%s resource=%s",
+                    count,
+                    alias,
+                    resourceinstanceid,
+                )
+                for tile in orphans:
+                    tile.delete(request=request)
+
+    def partial_update(self, request, *args, **kwargs):
+        raw = request.data
+        cleaned_object = raw
+        logger.debug("FILES keys=%s", list(request.FILES.keys()))
+
+        for field_name, f in request.FILES.items():
+            logger.debug(
+                "file field=%s name=%s size=%s content_type=%s",
+                field_name,
+                f.name,
+                f.size,
+                getattr(f, "content_type", None),
+            )
+
+        self.patch_data(cleaned_object)
+        self.prune_data(cleaned_object)
+        patched = cleaned_object
+
+        resourceinstanceid = self.kwargs.get("resourceinstanceid")
+        self._delete_orphaned_tiles(patched, resourceinstanceid, request)
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=patched, partial=True)
+
+        if not serializer.is_valid():
+            logger.warning("serializer.errors: %s", serializer.errors)
+            for error in format_deep_errors(serializer.errors):
+                logger.warning(f" - {error}")
+            return JSONResponse(serializer.errors, status=400)
+
+        try:
+            # We only want any documents or internal remarks sent in this update to be passed back to the client
+            # so save them here
+            site_document = patched.get("aliased_data", {}).get("site_document", [])
+            internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
+            self.perform_update(serializer)
+        except Exception as e:
+            logger.error(f"Unable to update: {e}", exc_info=True)
+            return JSONResponse(
+                {
+                    "error": "Unable to update resource",
+                    "message": str(e),
+                    "type": e.__class__.__name__,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Restore the documents and internal remarks sent by the client
+        return_object = serializer.data
+        return_object.get("aliased_data", {})["site_document"] = site_document
+        return_object.get("aliased_data", {})["internal_remark"] = internal_remark
+        return JSONResponse(return_object, status=status.HTTP_200_OK)
 
 
 # class SubmissionsForReviewPagination(ArchesLimitOffsetPagination):

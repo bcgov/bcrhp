@@ -149,6 +149,12 @@
     font-size: 1.4rem;
 }
 
+.username.lg_person {
+    float: unset;
+    line-height: unset;
+    border: unset;
+}
+
 /* Image slider caption information */
 .photo-info {
     max-width: 500px;

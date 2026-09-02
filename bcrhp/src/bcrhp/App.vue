@@ -108,6 +108,14 @@ main {
 </style>
 
 <style>
+.ql-editor ol {
+    list-style: none;
+}
+
+.ql-editor li[data-list='bullet']::before {
+    content: '\2022';
+}
+
 #bcrhp-mounting-point {
     //font-size: 0.8rem;
 }
@@ -135,5 +143,13 @@ main {
 .p-button-label,
 .p-inputtext {
     //font-size: 0.8rem !important;
+}
+.p-datepicker-day,
+.p-datepicker-weekday {
+    font-size: 1.4rem;
+}
+
+th.p-datepicker-weekday-cell {
+    text-align: center;
 }
 </style>

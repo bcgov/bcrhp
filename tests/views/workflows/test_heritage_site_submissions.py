@@ -245,6 +245,7 @@ def _make_site(feature_id=None, include_bbox=True):
                 "aliased_data": {
                     "registration_status": {"node_value": None},
                     "registry_types": {"node_value": None},
+                    "officially_recognized_site": {"node_value": None},
                 }
             },
             "internal_remark": [
@@ -458,3 +459,287 @@ class SubmitHeritageSiteCreateTest(TestCase):
 
         view.create(request)
         self.assertEqual(call_order, ["patch", "prune", "get_serializer"])
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite.transform_retrieved_data
+# ---------------------------------------------------------------------------
+
+
+def _make_image(primary_value):
+    return {"aliased_data": {"primary_image": {"node_value": primary_value}}}
+
+
+class TransformRetrievedDataTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+
+    def _data(self, site_images=None, internal_remark=None):
+        aliased = {}
+        if site_images is not None:
+            aliased["site_images"] = site_images
+        if internal_remark is not None:
+            aliased["internal_remark"] = internal_remark
+        return {"aliased_data": aliased}
+
+    def test_returns_same_data_object(self):
+        data = self._data()
+        self.assertIs(self.view.transform_retrieved_data(data), data)
+
+    def test_no_site_images_key_untouched(self):
+        data = self._data()
+        self.view.transform_retrieved_data(data)
+        self.assertNotIn("site_images", data["aliased_data"])
+
+    def test_single_image_not_reordered(self):
+        images = [_make_image(False)]
+        data = self._data(site_images=images)
+        self.view.transform_retrieved_data(data)
+        self.assertEqual(data["aliased_data"]["site_images"], images)
+
+    def test_multiple_images_true_first(self):
+        images = [_make_image(False), _make_image(None), _make_image(True)]
+        data = self._data(site_images=images)
+        self.view.transform_retrieved_data(data)
+        result = data["aliased_data"]["site_images"]
+        self.assertIs(result[0]["aliased_data"]["primary_image"]["node_value"], True)
+
+    def test_multiple_images_false_before_none(self):
+        images = [_make_image(None), _make_image(True), _make_image(False)]
+        data = self._data(site_images=images)
+        self.view.transform_retrieved_data(data)
+        result = data["aliased_data"]["site_images"]
+        self.assertIs(result[1]["aliased_data"]["primary_image"]["node_value"], False)
+        self.assertIsNone(result[2]["aliased_data"]["primary_image"]["node_value"])
+
+    def test_sort_is_stable_for_equal_values(self):
+        img_a = {**_make_image(False), "label": "a"}
+        img_b = {**_make_image(False), "label": "b"}
+        data = self._data(site_images=[img_a, img_b, _make_image(True)])
+        self.view.transform_retrieved_data(data)
+        false_images = [
+            img
+            for img in data["aliased_data"]["site_images"]
+            if img["aliased_data"]["primary_image"]["node_value"] is False
+        ]
+        self.assertEqual(false_images[0].get("label"), "a")
+        self.assertEqual(false_images[1].get("label"), "b")
+
+    def test_internal_remark_always_cleared(self):
+        remarks = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
+        data = self._data(internal_remark=remarks)
+        self.view.transform_retrieved_data(data)
+        self.assertEqual(data["aliased_data"]["internal_remark"], [])
+
+    def test_site_document_always_cleared(self):
+        docs = [{"tileid": str(uuid.uuid4()), "aliased_data": {}}]
+        data = self._data()
+        data["aliased_data"]["site_document"] = docs
+        self.view.transform_retrieved_data(data)
+        self.assertEqual(data["aliased_data"]["site_document"], [])
+
+    def test_missing_primary_image_key_sorts_last(self):
+        img_no_key = {"aliased_data": {}}  # no primary_image key at all
+        data = self._data(site_images=[img_no_key, _make_image(True)])
+        self.view.transform_retrieved_data(data)
+        result = data["aliased_data"]["site_images"]
+        self.assertIs(result[0]["aliased_data"]["primary_image"]["node_value"], True)
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite.retrieve
+# ---------------------------------------------------------------------------
+
+
+class RetrieveTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.view.kwargs = {}
+        self.view.format_kwarg = None
+
+    def _setup_view(self, serializer_data=None):
+        self.view.get_object = MagicMock(return_value=MagicMock())
+        mock_serializer = MagicMock()
+        mock_serializer.data = serializer_data or {"aliased_data": {}}
+        self.view.get_serializer = MagicMock(return_value=mock_serializer)
+        self.view.request = _make_mock_request()
+        return mock_serializer
+
+    def test_returns_200(self):
+        self._setup_view()
+        response = self.view.retrieve(self.view.request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_calls_transform_retrieved_data(self):
+        mock_serializer = self._setup_view()
+        self.view.transform_retrieved_data = MagicMock(
+            return_value={"aliased_data": {}}
+        )
+        self.view.retrieve(self.view.request)
+        self.view.transform_retrieved_data.assert_called_once_with(mock_serializer.data)
+
+    def test_response_body_is_transformed_data(self):
+        self._setup_view()
+        sentinel = {"aliased_data": {"transformed": True}}
+        self.view.transform_retrieved_data = MagicMock(return_value=sentinel)
+        response = self.view.retrieve(self.view.request)
+        self.assertEqual(json.loads(response.content), sentinel)
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite._filter_new_remarks
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite._delete_orphaned_tiles
+# ---------------------------------------------------------------------------
+
+_PATCH_NODE = "bcrhp.views.workflows.heritage_site_submissions.Node"
+_PATCH_TILE = "bcrhp.views.workflows.heritage_site_submissions.Tile"
+
+
+class DeleteOrphanedTilesTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.resource_id = str(uuid.uuid4())
+        self.request = _make_mock_request()
+
+    def test_skips_alias_not_in_deletable_list(self):
+        # internal_remark is intentionally absent from deletable_list_aliases
+        data = {"aliased_data": {"internal_remark": []}}
+        with patch(_PATCH_NODE) as mock_node:
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+            mock_node.objects.filter.assert_not_called()
+
+    def test_skips_non_list_value(self):
+        data = {"aliased_data": {"site_images": "not-a-list"}}
+        with patch(_PATCH_NODE) as mock_node:
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+            mock_node.objects.filter.assert_not_called()
+
+    def test_skips_when_node_not_found(self):
+        data = {"aliased_data": {"site_images": []}}
+        with patch(_PATCH_NODE) as mock_node_cls, patch(_PATCH_TILE) as mock_tile_cls:
+            mock_node_cls.objects.filter.return_value.first.return_value = None
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+            mock_tile_cls.objects.filter.assert_not_called()
+
+    def test_deletes_orphaned_tile(self):
+        kept_id = str(uuid.uuid4())
+        data = {"aliased_data": {"site_images": [{"tileid": kept_id}]}}
+
+        mock_node = MagicMock()
+        mock_node.nodegroup_id = "ng-id"
+
+        orphan = MagicMock()
+        orphan_qs = MagicMock()
+        orphan_qs.count.return_value = 1
+        orphan_qs.__iter__ = MagicMock(return_value=iter([orphan]))
+
+        with patch(_PATCH_NODE) as mock_node_cls, patch(_PATCH_TILE) as mock_tile_cls:
+            mock_node_cls.objects.filter.return_value.first.return_value = mock_node
+            mock_tile_cls.objects.filter.return_value.exclude.return_value = orphan_qs
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+
+        orphan.delete.assert_called_once_with(request=self.request)
+
+    def test_no_orphans_means_no_delete_calls(self):
+        kept_id = str(uuid.uuid4())
+        data = {"aliased_data": {"site_images": [{"tileid": kept_id}]}}
+
+        mock_node = MagicMock()
+        mock_node.nodegroup_id = "ng-id"
+
+        orphan = MagicMock()
+        empty_qs = MagicMock()
+        empty_qs.count.return_value = 0
+
+        with patch(_PATCH_NODE) as mock_node_cls, patch(_PATCH_TILE) as mock_tile_cls:
+            mock_node_cls.objects.filter.return_value.first.return_value = mock_node
+            mock_tile_cls.objects.filter.return_value.exclude.return_value = empty_qs
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+
+        orphan.delete.assert_not_called()
+
+    def test_only_deletable_aliases_are_processed(self):
+        """Aliases in deletable_list_aliases trigger a node lookup; others do not."""
+        alias = next(iter(self.view.deletable_list_aliases))
+        data = {"aliased_data": {alias: [], "some_other": []}}
+
+        mock_node = MagicMock()
+        mock_node.nodegroup_id = "ng-id"
+        empty_qs = MagicMock()
+        empty_qs.count.return_value = 0
+
+        with patch(_PATCH_NODE) as mock_node_cls, patch(_PATCH_TILE) as mock_tile_cls:
+            mock_node_cls.objects.filter.return_value.first.return_value = mock_node
+            mock_tile_cls.objects.filter.return_value.exclude.return_value = empty_qs
+            self.view._delete_orphaned_tiles(data, self.resource_id, self.request)
+
+        # filter called exactly once (for the one deletable alias)
+        self.assertEqual(mock_node_cls.objects.filter.call_count, 1)
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite.partial_update
+# ---------------------------------------------------------------------------
+
+
+class PartialUpdateTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.resource_id = str(uuid.uuid4())
+        self.view.kwargs = {"resourceinstanceid": self.resource_id}
+        self.view.format_kwarg = None
+        # Pre-mock the methods that have external dependencies so individual
+        # tests only need to override what they're interested in.
+        self.view.patch_data = MagicMock()
+        self.view.prune_data = MagicMock()
+        self.view._delete_orphaned_tiles = MagicMock()
+        self.view.get_object = MagicMock(return_value=MagicMock())
+
+    def _make_serializer(self, valid=True, raises=None):
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = valid
+        mock_serializer.errors = {"field": ["error"]}
+        mock_serializer.data = {"resourceinstanceid": self.resource_id}
+        if raises:
+            self.view.perform_update = MagicMock(side_effect=raises)
+        else:
+            self.view.perform_update = MagicMock()
+        self.view.get_serializer = MagicMock(return_value=mock_serializer)
+        return mock_serializer
+
+    def _run(self, data=None, **serializer_kwargs):
+        self._make_serializer(**serializer_kwargs)
+        request = _make_mock_request(data or {"aliased_data": {}})
+        self.view.request = request
+        return self.view.partial_update(request)
+
+    def test_success_returns_200(self):
+        self.assertEqual(self._run().status_code, 200)
+
+    def test_invalid_serializer_returns_400(self):
+        self.assertEqual(self._run(valid=False).status_code, 400)
+
+    def test_perform_update_exception_returns_400(self):
+        response = self._run(raises=RuntimeError("db error"))
+        self.assertEqual(response.status_code, 400)
+        body = json.loads(response.content)
+        self.assertEqual(body["type"], "RuntimeError")
+
+    def test_call_order_patch_then_prune(self):
+        call_order = []
+        self.view.patch_data.side_effect = lambda _: call_order.append("patch")
+        self.view.prune_data.side_effect = lambda _: call_order.append("prune")
+        self._run()
+        self.assertEqual(call_order, ["patch", "prune"])
+
+    def test_delete_orphaned_tiles_called(self):
+        self._run()
+        self.view._delete_orphaned_tiles.assert_called_once()
+
+    def test_delete_orphaned_tiles_receives_resourceinstanceid(self):
+        self._run()
+        args = self.view._delete_orphaned_tiles.call_args
+        self.assertEqual(args[0][1], self.resource_id)
