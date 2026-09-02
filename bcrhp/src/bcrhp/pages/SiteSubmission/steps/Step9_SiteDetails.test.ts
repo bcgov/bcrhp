@@ -296,24 +296,102 @@ describe('Step9_SiteDetails — Edit mode', () => {
 });
 
 // ---------------------------------------------------------------------------
-// isValid — always returns true
+// isValid — returns true when no unsaved data, false when sub-form has data
 // ---------------------------------------------------------------------------
 
 describe('Step9_SiteDetails — isValid', () => {
-    it('returns true in Add mode', () => {
+    it('returns true in Add mode with no unsaved data', () => {
         const wrapper = mountComponent(EditMode.Add);
         expect(wrapper.vm.isValid()).toBe(true);
     });
 
-    it('returns true in Edit mode when not editing', () => {
+    it('returns true in Edit mode when not editing (early-return guard)', () => {
         const wrapper = mountComponent(EditMode.Edit);
         expect(wrapper.vm.isValid()).toBe(true);
     });
 
-    it('returns true in Edit mode when editing', async () => {
+    it('returns true in Edit mode when editing with no unsaved data', async () => {
         const wrapper = mountComponent(EditMode.Edit);
         await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
+        expect(wrapper.vm.isValid()).toBe(true);
+    });
+
+    it('returns false when chronology has an unsaved node_value', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'chronology', {
+            display_value: 'Construction',
+            node_value: 'uuid-chron',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when start_year has an unsaved node_value', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'start_year', {
+            display_value: '1920',
+            node_value: '1920',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when construction_actor has an unsaved node_value.en.value', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'construction_actor', {
+            display_value: 'Smith & Sons',
+            node_value: { en: { value: 'Smith & Sons', direction: 'ltr' } },
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when construction_actor_type has an unsaved node_value', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'construction_actor_type', {
+            display_value: 'Builder',
+            node_value: 'uuid-type',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when external_url_type has an unsaved node_value', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'external_url_type', {
+            display_value: 'Website',
+            node_value: 'uuid-url-type',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns false when external_url has an unsaved node_value.url', async () => {
+        const wrapper = mountInteractive(EditMode.Add);
+        await emitWidgetValue(wrapper, 'external_url', {
+            display_value: 'Example Site',
+            node_value: { url: 'https://example.com', url_label: 'Example' },
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns true after saving a chronology (fields reset to blank)', async () => {
+        const hs = makeHeritageSite();
+        const wrapper = mountInteractive(EditMode.Add, hs);
+        await nextTick(); // wait for isValidChronology computed
+
+        await emitWidgetValue(wrapper, 'chronology', {
+            display_value: 'Construction',
+            node_value: 'uuid-chron',
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+
+        await wrapper.find('#saveChronology').trigger('click');
+        await flushPromises();
+
         expect(wrapper.vm.isValid()).toBe(true);
     });
 });

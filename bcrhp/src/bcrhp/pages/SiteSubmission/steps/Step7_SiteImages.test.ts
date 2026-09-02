@@ -5,7 +5,7 @@ vi.mock('uuid', () => ({
     generate: vi.fn(() => '00000000-0000-0000-0000-000000000000'),
     v4: vi.fn(() => '00000000-0000-0000-0000-000000000000'),
 }));
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import Step7SiteImages from './Step7_SiteImages.vue';
 import { EditMode } from '../constants.ts';
 
@@ -93,7 +93,7 @@ describe('Step7_SiteImages', () => {
         expect(wrapper.exists()).toBe(true);
     });
 
-    it('isValid always returns true', () => {
+    it('isValid returns true initially (addingNewImage=true, no pending file)', () => {
         const wrapper = mount(Step7SiteImages, {
             global: {
                 stubs,
@@ -155,5 +155,150 @@ describe('Step7_SiteImages', () => {
             },
         });
         expect(wrapper.find('.max-limit-message').exists()).toBe(false);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Interactive stubs — GenericWidget that emits, FormStubWithState with empty
+// states so baseIsValid returns true vacuously.
+// ---------------------------------------------------------------------------
+
+const FormStubWithState = {
+    template: '<form><slot v-bind="{}" /></form>',
+    setup() {
+        return {
+            states: {},
+            validate: vi.fn().mockResolvedValue({ errors: {} }),
+            reset: vi.fn(),
+            valid: true,
+        };
+    },
+};
+
+const GenericWidgetInteractiveStub = {
+    inheritAttrs: false,
+    props: { nodeAlias: String },
+    emits: ['update:value'],
+    template: '<div :data-node-alias="nodeAlias" />',
+};
+
+const stubsInteractive = {
+    Form: FormStubWithState,
+    FieldSet: { template: '<fieldset><slot /></fieldset>' },
+    LabelledInput: { template: '<div><slot /></div>' },
+    GenericWidget: GenericWidgetInteractiveStub,
+    Button: {
+        template:
+            '<button :disabled="$attrs.disabled" @click="$emit(\'click\')">{{ $attrs.label }}<slot /></button>',
+        emits: ['click'],
+    },
+    Step7_SiteImagesView: { template: '<div />' },
+    ToggleSwitch: {
+        props: { modelValue: { type: Boolean, default: false } },
+        emits: ['update:modelValue'],
+        template: `<input type="checkbox" role="switch" :checked="modelValue" @change="$emit('update:modelValue', $event.target.checked)" />`,
+    },
+};
+
+function mountInteractive(site_images: any[] = []) {
+    return mount(Step7SiteImages, {
+        global: {
+            stubs: stubsInteractive,
+            directives,
+            provide: {
+                heritageSite: makeHeritageSite(site_images),
+                editMode: EditMode.Add,
+            },
+        },
+    });
+}
+
+async function emitWidgetValue(
+    wrapper: ReturnType<typeof mountInteractive>,
+    nodeAlias: string,
+    value: unknown,
+) {
+    const widget = wrapper
+        .findAllComponents(GenericWidgetInteractiveStub)
+        .find((w) => w.props('nodeAlias') === nodeAlias);
+    expect(widget, `widget[node-alias="${nodeAlias}"] not found`).toBeDefined();
+    await widget!.vm.$emit('update:value', value);
+    await nextTick();
+}
+
+// ---------------------------------------------------------------------------
+// isValid — addingNewImage / hasUnsavedImage logic
+// ---------------------------------------------------------------------------
+
+describe('Step7_SiteImages — isValid (pending image detection)', () => {
+    it('returns false when site_images widget emits a non-empty node_value', async () => {
+        const wrapper = mountInteractive();
+        await emitWidgetValue(wrapper, 'site_images', {
+            display_value: '',
+            node_value: [{ name: 'photo.jpg' }],
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+    });
+
+    it('returns true after clearPendingImage resets the pending file', async () => {
+        const wrapper = mountInteractive();
+        await emitWidgetValue(wrapper, 'site_images', {
+            display_value: '',
+            node_value: [{ name: 'photo.jpg' }],
+            details: [],
+        });
+        expect(wrapper.vm.isValid()).toBe(false);
+
+        // "Remove / Change Image" button triggers clearPendingImage
+        const clearButton = wrapper
+            .findAll('button')
+            .find((b) => b.text().includes('Remove'));
+        expect(clearButton).toBeDefined();
+        await clearButton!.trigger('click');
+
+        expect(wrapper.vm.isValid()).toBe(true);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// deleteSiteImage — resets to add mode
+// ---------------------------------------------------------------------------
+
+describe('Step7_SiteImages — deleteSiteImage', () => {
+    it('removes the image from site_images and emits update:stepIsValid', async () => {
+        const hs = makeHeritageSite([makeImage(0), makeImage(1)]);
+        const wrapper = mount(Step7SiteImages, {
+            global: {
+                stubs: stubsInteractive,
+                directives,
+                provide: { heritageSite: hs, editMode: EditMode.Add },
+            },
+        });
+
+        const deleteIcons = wrapper.findAll('.image-delete-icon');
+        expect(deleteIcons).toHaveLength(2);
+
+        await deleteIcons[0].trigger('click');
+        await nextTick();
+
+        expect(hs.value.aliased_data.site_images).toHaveLength(1);
+        expect(wrapper.emitted('update:stepIsValid')).toBeTruthy();
+    });
+
+    it('isValid returns true after deleting an image (resets to add mode)', async () => {
+        const hs = makeHeritageSite([makeImage(0)]);
+        const wrapper = mount(Step7SiteImages, {
+            global: {
+                stubs: stubsInteractive,
+                directives,
+                provide: { heritageSite: hs, editMode: EditMode.Add },
+            },
+        });
+
+        await wrapper.find('.image-delete-icon').trigger('click');
+        await nextTick();
+
+        expect(wrapper.vm.isValid()).toBe(true);
     });
 });
