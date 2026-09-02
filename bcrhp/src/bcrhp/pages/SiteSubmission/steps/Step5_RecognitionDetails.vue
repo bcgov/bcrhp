@@ -331,7 +331,6 @@ defineExpose({ isValid });
             />
         </div>
     </Form>
-    <br /><br /><br />
 </template>
 <style scoped>
 .legislative-act-row {

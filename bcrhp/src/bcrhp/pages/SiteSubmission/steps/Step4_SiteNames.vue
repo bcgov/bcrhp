@@ -238,6 +238,7 @@ onMounted(() => {
     <div v-if="isEditing || editMode === EditMode.Add">
         <FieldSet
             id="siteNamesFieldSet"
+            class="p-form"
             legend="Site Names"
         >
             <Form
@@ -325,8 +326,5 @@ onMounted(() => {
                 </div>
             </Form>
         </FieldSet>
-        <br />
-
-        <br /><br /><br /><br /><br />
     </div>
 </template>

@@ -488,7 +488,6 @@ defineExpose({ isValid });
             </LabelledInput>
         </FieldSet>
     </Form>
-    <br /><br />
 </template>
 
 <style scoped>
@@ -512,7 +511,7 @@ defineExpose({ isValid });
 
 .uploader-container {
     width: 300px;
-    min-height: 200px;
+    margin-bottom: 4rem;
 }
 
 .max-limit-message {

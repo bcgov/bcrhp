@@ -469,7 +469,6 @@ defineExpose({ isValid });
                         </div>
                     </div>
                 </div>
-                <br />
                 <div>
                     <LabelledInput
                         label="Chronology Notes (Optional)"
@@ -723,7 +722,6 @@ defineExpose({ isValid });
                 />
             </div>
         </Form>
-        <br /><br /><br />
     </template>
 </template>
 
@@ -745,6 +743,7 @@ defineExpose({ isValid });
 
 .align-checkbox {
     align-self: center;
+    margin-bottom: 1rem;
 }
 
 .button-padding {

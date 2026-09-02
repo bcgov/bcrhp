@@ -261,6 +261,7 @@ const showPrevious = computed(() => {
                             :is-valid="currentStepIsValid"
                             :show-previous="showPrevious"
                             :next-label="nextLabel"
+                            class="bottom-stepper-navigation"
                             @next-click="activateNextStep"
                             @previous-click="activatePreviousStep"
                         />
@@ -351,5 +352,8 @@ const showPrevious = computed(() => {
 }
 .site-name {
     margin-top: 0;
+}
+.bottom-stepper-navigation {
+    margin-bottom: 4rem;
 }
 </style>

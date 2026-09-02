@@ -258,10 +258,8 @@ defineExpose({ isValid });
                         "
                     ></GenericWidget>
                 </LabelledInput>
-                <br />
             </FieldSet>
         </Form>
-        <br />
         <div class="row">
             <Button
                 id="addOtherName"
