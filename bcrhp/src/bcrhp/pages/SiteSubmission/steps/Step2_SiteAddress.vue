@@ -689,7 +689,7 @@ defineExpose({ isValid });
             <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
-                    hint="Add a 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
+                    hint="Add 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
                     input-name="parcelId"
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
