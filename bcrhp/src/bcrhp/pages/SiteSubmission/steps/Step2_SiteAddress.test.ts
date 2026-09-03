@@ -3,6 +3,21 @@ vi.mock('@/bcrhp/api.ts', () => ({
     getPidData: vi.fn(),
 }));
 
+const { geocoderClearMock, geocoderSearchMock } = vi.hoisted(() => ({
+    geocoderClearMock: vi.fn(),
+    geocoderSearchMock: vi.fn(),
+}));
+
+vi.mock('@/bcgov_arches_common/composables/useBCGeocoder.ts', () => ({
+    useBCGeocoder: () => ({
+        results: { value: [] },
+        isLoading: { value: false },
+        error: { value: null },
+        search: geocoderSearchMock,
+        clear: geocoderClearMock,
+    }),
+}));
+
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { ref, nextTick } from 'vue';
@@ -90,6 +105,14 @@ const stubs = {
     ChipsList: { template: '<div />' },
     Step2_SiteAddressView: { template: '<div class="site-address-view" />' },
     TimesCircleIcon: { template: '<span />' },
+    BCGeocoderPopup: {
+        props: {
+            results: { type: Array, default: () => [] },
+            loading: { type: Boolean, default: false },
+        },
+        emits: ['select'],
+        template: '<div><slot /></div>',
+    },
 };
 
 // ---------------------------------------------------------------------------
@@ -316,5 +339,299 @@ describe('Step2_SiteAddress — Edit mode', () => {
         await wrapper.find('input[role="switch"]').setValue(true);
         await nextTick();
         expect(wrapper.vm.isValid()).toBe(true);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Geocoder integration
+// ---------------------------------------------------------------------------
+
+const geocoderFeature = {
+    type: 'Feature' as const,
+    geometry: { type: 'Point', coordinates: [-123.365, 48.428] },
+    properties: {
+        fullAddress: '100 Fort St, Victoria, BC',
+        civicNumber: '100',
+        streetName: 'Fort',
+        streetType: 'St',
+        streetDirection: '',
+        localityName: 'Victoria',
+    },
+};
+
+// BCGeocoderPopup stub that emits 'select' with a preset feature on click.
+const BCGeocoderPopupSelectStub = {
+    emits: ['select'],
+    setup() {
+        return { feature: geocoderFeature };
+    },
+    template:
+        '<div><slot /><button class="geocoder-select" @click="$emit(\'select\', feature)">Pick</button></div>',
+};
+
+// Button stub that renders its label prop so buttons can be found by text.
+const ButtonWithLabelStub = {
+    template:
+        '<button :disabled="$attrs.disabled" @click="$emit(\'click\')">{{ $attrs.label }}<slot /></button>',
+    emits: ['click'],
+};
+
+// Form stub that exposes validate/reset so baseUpdateModelValue doesn't throw.
+const FormStubWithValidate = {
+    template: '<form><slot v-bind="{}" /></form>',
+    setup() {
+        return {
+            states: {},
+            validate: vi.fn().mockResolvedValue({ errors: {} }),
+            reset: vi.fn(),
+            valid: true,
+        };
+    },
+};
+
+// GenericWidget stub that emits update:value events.
+const GenericWidgetInteractiveStub = {
+    inheritAttrs: false,
+    props: { nodeAlias: String },
+    emits: ['update:value'],
+    template: '<div :data-node-alias="nodeAlias" />',
+};
+
+// Stubs used by selectGeocoderResult tests: renders button labels so the
+// "Add Address" save button can be located by text, not just disabled state.
+const stubsForGeocoderSelect = {
+    ...stubs,
+    BCGeocoderPopup: BCGeocoderPopupSelectStub,
+    Button: ButtonWithLabelStub,
+};
+
+describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
+    it('populates street_address and city from the selected feature', async () => {
+        const hs = makeHeritageSite([]);
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForGeocoderSelect,
+                directives: { tooltip: {} },
+                provide: { heritageSite: hs, editMode: EditMode.Add },
+            },
+        });
+
+        await wrapper.find('.geocoder-select').trigger('click');
+        await nextTick();
+
+        // Find the "Add Address" save button by label text and click it.
+        const saveBtn = wrapper
+            .findAll('button')
+            .find((b) => b.text().includes('Add'));
+        expect(saveBtn).toBeDefined();
+        expect((saveBtn!.element as HTMLButtonElement).disabled).toBe(false);
+        await saveBtn!.trigger('click');
+        await nextTick();
+
+        const addresses =
+            hs.value.aliased_data.heritage_site_location[0].aliased_data
+                .bc_property_address;
+        expect(addresses).toHaveLength(1);
+        expect(addresses[0].aliased_data.street_address.display_value).toBe(
+            '100 Fort St',
+        );
+        expect(addresses[0].aliased_data.city.display_value).toBe('Victoria');
+    });
+
+    it('builds street from civicNumber, streetName, streetType parts', async () => {
+        const featureWithDirection = {
+            ...geocoderFeature,
+            properties: {
+                ...geocoderFeature.properties,
+                civicNumber: '555',
+                streetName: 'Douglas',
+                streetType: 'St',
+                streetDirection: 'N',
+                localityName: 'Victoria',
+            },
+        };
+
+        const stub = {
+            emits: ['select'],
+            setup() {
+                return { feature: featureWithDirection };
+            },
+            template:
+                '<div><slot /><button class="geocoder-select" @click="$emit(\'select\', feature)">Pick</button></div>',
+        };
+
+        const hs = makeHeritageSite([]);
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: { ...stubs, BCGeocoderPopup: stub, Button: ButtonWithLabelStub },
+                directives: { tooltip: {} },
+                provide: { heritageSite: hs, editMode: EditMode.Add },
+            },
+        });
+
+        await wrapper.find('.geocoder-select').trigger('click');
+        await nextTick();
+
+        const saveBtn = wrapper
+            .findAll('button')
+            .find((b) => b.text().includes('Add'));
+        await saveBtn!.trigger('click');
+        await nextTick();
+
+        const street =
+            hs.value.aliased_data.heritage_site_location[0].aliased_data
+                .bc_property_address[0].aliased_data.street_address.display_value;
+        expect(street).toBe('555 Douglas St N');
+    });
+
+    it('calls geocoderClear after a result is selected', async () => {
+        geocoderClearMock.mockClear();
+
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForGeocoderSelect,
+                directives: { tooltip: {} },
+                provide: { heritageSite: makeHeritageSite([]), editMode: EditMode.Add },
+            },
+        });
+
+        await wrapper.find('.geocoder-select').trigger('click');
+        await nextTick();
+
+        expect(geocoderClearMock).toHaveBeenCalled();
+    });
+
+    it('emits update:stepIsValid after a result is selected', async () => {
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForGeocoderSelect,
+                directives: { tooltip: {} },
+                provide: { heritageSite: makeHeritageSite([]), editMode: EditMode.Add },
+            },
+        });
+
+        await wrapper.find('.geocoder-select').trigger('click');
+        await nextTick();
+
+        expect(wrapper.emitted('update:stepIsValid')).toBeTruthy();
+    });
+});
+
+describe('Step2_SiteAddress — geocoder: hasAddressChanged clears results', () => {
+    it('calls geocoderClear when "no street address" checkbox is toggled', async () => {
+        geocoderClearMock.mockClear();
+
+        const wrapper = mountComponent(EditMode.Add);
+        await wrapper.find('#hasCivicAddress').trigger('change');
+
+        expect(geocoderClearMock).toHaveBeenCalled();
+    });
+});
+
+// Stubs used by debounce tests: Form needs validate() so updateAddress doesn't
+// throw when GenericWidget emits update:value.
+const stubsForDebounce = {
+    ...stubs,
+    Form: FormStubWithValidate,
+    BCGeocoderPopup: { template: '<div><slot /></div>' },
+    GenericWidget: GenericWidgetInteractiveStub,
+};
+
+describe('Step2_SiteAddress — geocoder: search debounce', () => {
+    it('calls geocoderSearch after 300 ms when street_address emits >2 chars', async () => {
+        vi.useFakeTimers();
+        geocoderSearchMock.mockClear();
+
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForDebounce,
+                directives: { tooltip: {} },
+                provide: {
+                    heritageSite: makeHeritageSite(),
+                    editMode: EditMode.Add,
+                },
+            },
+        });
+
+        const streetWidget = wrapper
+            .findAllComponents(GenericWidgetInteractiveStub)
+            .find((w) => w.props('nodeAlias') === 'street_address');
+        expect(streetWidget).toBeDefined();
+
+        await streetWidget!.vm.$emit('update:value', {
+            display_value: '100 Fort',
+            node_value: null,
+            details: [],
+        });
+        await nextTick();
+
+        expect(geocoderSearchMock).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(300);
+        await nextTick();
+
+        expect(geocoderSearchMock).toHaveBeenCalledWith('100 Fort');
+
+        vi.useRealTimers();
+    });
+
+    it('does not call geocoderSearch when street_address emits ≤2 chars', async () => {
+        vi.useFakeTimers();
+        geocoderSearchMock.mockClear();
+
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForDebounce,
+                directives: { tooltip: {} },
+                provide: {
+                    heritageSite: makeHeritageSite(),
+                    editMode: EditMode.Add,
+                },
+            },
+        });
+
+        const streetWidget = wrapper
+            .findAllComponents(GenericWidgetInteractiveStub)
+            .find((w) => w.props('nodeAlias') === 'street_address');
+
+        await streetWidget!.vm.$emit('update:value', {
+            display_value: 'AB',
+            node_value: null,
+            details: [],
+        });
+        await nextTick();
+        vi.advanceTimersByTime(300);
+
+        expect(geocoderSearchMock).not.toHaveBeenCalled();
+
+        vi.useRealTimers();
+    });
+
+    it('calls geocoderClear when street_address emits ≤2 chars', async () => {
+        geocoderClearMock.mockClear();
+
+        const wrapper = mount(Step2SiteAddress, {
+            global: {
+                stubs: stubsForDebounce,
+                directives: { tooltip: {} },
+                provide: {
+                    heritageSite: makeHeritageSite(),
+                    editMode: EditMode.Add,
+                },
+            },
+        });
+
+        const streetWidget = wrapper
+            .findAllComponents(GenericWidgetInteractiveStub)
+            .find((w) => w.props('nodeAlias') === 'street_address');
+
+        await streetWidget!.vm.$emit('update:value', {
+            display_value: 'AB',
+            node_value: null,
+            details: [],
+        });
+        await nextTick();
+
+        expect(geocoderClearMock).toHaveBeenCalled();
     });
 });
