@@ -147,6 +147,9 @@ const clearPendingImage = () => {
 };
 
 const saveImage = async function () {
+    // Make sure the primary image flag is set correctly before saving
+    currentSiteImage.value.aliased_data.primary_image.node_value =
+        heritageSite.value.aliased_data.site_images.length === 0;
     heritageSite.value.aliased_data.site_images.push(currentSiteImage.value);
 
     currentSiteImage.value = getBlankSiteImage();

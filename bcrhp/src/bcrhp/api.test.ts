@@ -317,7 +317,7 @@ describe('submitHeritageSite', () => {
         );
     });
 
-    it('appends image files to FormData and sets file_id on the file reference', async () => {
+    it('appends image files to FormData without mutating the original tile', async () => {
         let capturedBody: FormData | undefined;
         vi.spyOn(global, 'fetch').mockImplementation(
             async (_url, options: any) => {
@@ -333,13 +333,21 @@ describe('submitHeritageSite', () => {
         await submitHeritageSite(makeMinimalSite([image]));
 
         const expectedKey = 'file-list_image-tile-0-image-node-0';
+        // File binary is appended to FormData
         expect(capturedBody?.get(expectedKey)).toBeInstanceOf(File);
-        expect(image.aliased_data.site_images.node_value[0].file_id).toBe(
-            expectedKey,
-        );
+        // Original reactive state is NOT mutated
+        expect(
+            image.aliased_data.site_images.node_value[0].file_id,
+        ).toBeUndefined();
+        // JSON payload (clone) has file_id set to the upload key
+        const jsonPayload = JSON.parse(capturedBody?.get('json') as string);
+        expect(
+            jsonPayload.aliased_data.site_images[0].aliased_data.site_images
+                .node_value[0].file_id,
+        ).toBe(expectedKey);
     });
 
-    it('appends document files to FormData and sets file_id on the file reference', async () => {
+    it('appends document files to FormData without mutating the original tile', async () => {
         let capturedBody: FormData | undefined;
         vi.spyOn(global, 'fetch').mockImplementation(
             async (_url, options: any) => {
@@ -355,10 +363,18 @@ describe('submitHeritageSite', () => {
         await submitHeritageSite(makeMinimalSite([], [doc]));
 
         const expectedKey = 'file-list_doc-tile-0-doc-node-0';
+        // File binary is appended to FormData
         expect(capturedBody?.get(expectedKey)).toBeInstanceOf(File);
-        expect(doc.aliased_data.site_document.node_value[0].file_id).toBe(
-            expectedKey,
-        );
+        // Original reactive state is NOT mutated
+        expect(
+            doc.aliased_data.site_document.node_value[0].file_id,
+        ).toBeUndefined();
+        // JSON payload (clone) has file_id set to the upload key
+        const jsonPayload = JSON.parse(capturedBody?.get('json') as string);
+        expect(
+            jsonPayload.aliased_data.site_document[0].aliased_data.site_document
+                .node_value[0].file_id,
+        ).toBe(expectedKey);
     });
 
     it('appends JSON-serialized site data to FormData', async () => {

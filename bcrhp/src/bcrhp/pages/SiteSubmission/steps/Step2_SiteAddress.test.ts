@@ -399,8 +399,10 @@ const GenericWidgetInteractiveStub = {
 
 // Stubs used by selectGeocoderResult tests: renders button labels so the
 // "Add Address" save button can be located by text, not just disabled state.
+// Form must expose reset() so saveAddress() doesn't throw when it's called.
 const stubsForGeocoderSelect = {
     ...stubs,
+    Form: FormStubWithValidate,
     BCGeocoderPopup: BCGeocoderPopupSelectStub,
     Button: ButtonWithLabelStub,
 };
@@ -465,6 +467,7 @@ describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
             global: {
                 stubs: {
                     ...stubs,
+                    Form: FormStubWithValidate,
                     BCGeocoderPopup: stub,
                     Button: ButtonWithLabelStub,
                 },

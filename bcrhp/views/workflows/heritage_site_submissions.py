@@ -302,6 +302,25 @@ class SubmitHeritageSite(
             if key not in allowed_sections:
                 site["aliased_data"].pop(key)
 
+    _DEFAULT_I18N = {"en": {"value": "", "direction": "ltr"}}
+    _IMAGE_I18N_FIELDS = ("title", "altText", "attribution", "description")
+
+    def _ensure_image_i18n_fields(self, site: dict) -> None:
+        """Add missing i18n metadata fields to every file entry in site_images tiles."""
+        for image_tile in site.get("aliased_data", {}).get("site_images", []):
+            files = (
+                image_tile.get("aliased_data", {})
+                .get("site_images", {})
+                .get("node_value")
+                or []
+            )
+            for file_entry in files:
+                if not isinstance(file_entry, dict):
+                    continue
+                for field in self._IMAGE_I18N_FIELDS:
+                    if field not in file_entry:
+                        file_entry[field] = dict(self._DEFAULT_I18N)
+
     def create(self, request, *args, **kwargs):
         raw = request.data
         cleaned_object = raw
@@ -318,6 +337,7 @@ class SubmitHeritageSite(
         logger.debug(f"Before clean")
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
+        self._ensure_image_i18n_fields(cleaned_object)
         patched = cleaned_object
         serializer = self.get_serializer(data=patched)
 
@@ -441,6 +461,7 @@ class SubmitHeritageSite(
 
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
+        self._ensure_image_i18n_fields(cleaned_object)
         patched = cleaned_object
 
         resourceinstanceid = self.kwargs.get("resourceinstanceid")
@@ -456,9 +477,14 @@ class SubmitHeritageSite(
             return JSONResponse(serializer.errors, status=400)
 
         try:
-            # We only want any documents or internal remarks sent in this update to be passed back to the client
-            # so save them here
-            site_document = patched.get("aliased_data", {}).get("site_document", [])
+            # Capture the tileids of any documents/remarks submitted in this request so we
+            # can filter the server-processed response to just those tiles (rather than
+            # returning all historical documents).
+            submitted_doc_tileids = {
+                t.get("tileid")
+                for t in patched.get("aliased_data", {}).get("site_document", [])
+                if t.get("tileid")
+            }
             internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
             self.perform_update(serializer)
         except Exception as e:
@@ -472,9 +498,18 @@ class SubmitHeritageSite(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Restore the documents and internal remarks sent by the client
+        # Return the server-processed versions of the submitted document tiles so the
+        # client receives permanent file_ids (UUIDs) rather than the temporary upload-key
+        # format ("file-list_<tileid>-<nodeid>") that was in the original request body.
+        # Returning the client-sent payload here would cause the non-UUID file_id to
+        # persist in the client state and be re-sent on subsequent saves, making the
+        # server treat an unchanged existing document as a new upload every time.
         return_object = serializer.data
-        return_object.get("aliased_data", {})["site_document"] = site_document
+        all_saved_docs = return_object.get("aliased_data", {}).get("site_document", [])
+        saved_submitted_docs = [
+            t for t in all_saved_docs if t.get("tileid") in submitted_doc_tileids
+        ]
+        return_object.get("aliased_data", {})["site_document"] = saved_submitted_docs
         return_object.get("aliased_data", {})["internal_remark"] = internal_remark
         return JSONResponse(return_object, status=status.HTTP_200_OK)
 
