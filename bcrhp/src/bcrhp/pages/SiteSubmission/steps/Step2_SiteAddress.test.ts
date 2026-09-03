@@ -463,7 +463,11 @@ describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
         const hs = makeHeritageSite([]);
         const wrapper = mount(Step2SiteAddress, {
             global: {
-                stubs: { ...stubs, BCGeocoderPopup: stub, Button: ButtonWithLabelStub },
+                stubs: {
+                    ...stubs,
+                    BCGeocoderPopup: stub,
+                    Button: ButtonWithLabelStub,
+                },
                 directives: { tooltip: {} },
                 provide: { heritageSite: hs, editMode: EditMode.Add },
             },
@@ -480,7 +484,8 @@ describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
 
         const street =
             hs.value.aliased_data.heritage_site_location[0].aliased_data
-                .bc_property_address[0].aliased_data.street_address.display_value;
+                .bc_property_address[0].aliased_data.street_address
+                .display_value;
         expect(street).toBe('555 Douglas St N');
     });
 
@@ -491,7 +496,10 @@ describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
             global: {
                 stubs: stubsForGeocoderSelect,
                 directives: { tooltip: {} },
-                provide: { heritageSite: makeHeritageSite([]), editMode: EditMode.Add },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
 
@@ -506,7 +514,10 @@ describe('Step2_SiteAddress — geocoder: selectGeocoderResult', () => {
             global: {
                 stubs: stubsForGeocoderSelect,
                 directives: { tooltip: {} },
-                provide: { heritageSite: makeHeritageSite([]), editMode: EditMode.Add },
+                provide: {
+                    heritageSite: makeHeritageSite([]),
+                    editMode: EditMode.Add,
+                },
             },
         });
 
