@@ -17,3 +17,5 @@ oauth_auth_endpoint: "https://loginproxy.gov.bc.ca/auth/realms/bcregistry/protoc
 oauth_token_endpoint: "https://loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/token"
 oauth_jwks_uri: "https://loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/certs"
 oauth_server_metadata_url: "https://loginproxy.gov.bc.ca/auth/realms/bcregistry/.well-known/openid-configuration"
+
+bc_geocoder_url: "https://geocoder.api.gov.bc.ca/addresses.json"

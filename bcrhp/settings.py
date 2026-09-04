@@ -676,6 +676,13 @@ BC_TILESERVER_URLS = {
     # },
 }
 
+BC_GEOCODER_CONFIG = {
+  "url": get_env_variable("BC_GEOCODER_API_URL"),
+  "api_key": get_env_variable("BC_GEOCODER_API_KEY"),   # optional
+  "max_results": "10",         # optional, default "10"
+  "min_score": "5",            # optional, default "2"
+}
+
 AUTH_BYPASS_HOSTS = get_env_variable("AUTH_BYPASS_HOSTS")
 AUTH_NOACCESS_URL = "https://www2.gov.bc.ca/gov/content/governments/celebrating-british-columbia/historic-places/"
 
