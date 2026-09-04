@@ -228,12 +228,12 @@ const chronologyDisplayFunction = (chronology: ChronologyTileType) => {
     const data = chronology.aliased_data;
     const start = getText(data.start_year);
     const end = getText(data.end_year);
+    const circa = data.dates_approximate.node_value ? 'Circa ' : '';
+    const notes = getText(data.chronology_notes);
 
     let label = getText(data.chronology);
-    if (start || end) label += ` (${start} - ${end})`;
-    if (currentChronology.value.circa) label += ' [Circa]';
-    if (currentChronology.value.chronologyNotes)
-        label += ` - ${currentChronology.value.chronologyNotes}`;
+    if (start || end) label += ` (${circa}${start} - ${end})`;
+    if (notes) label += ` - ${notes}`;
     return label;
 };
 
