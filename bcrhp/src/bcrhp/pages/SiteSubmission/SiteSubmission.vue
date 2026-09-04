@@ -195,4 +195,10 @@ const workflowSubtitle = computed(() => {
 .p-form {
     margin-bottom: 4rem;
 }
+.flex-grow {
+    flex-grow: 1;
+}
+.grow {
+    width: 100%;
+}
 </style>

@@ -293,7 +293,7 @@ defineExpose({ isValid });
                 </div>
 
                 <div class="placeholders">
-                    <div>
+                    <div class="add-image-row">
                         <Button
                             v-if="!addingNewImage && siteImagesCount < 10"
                             id="addImage"
@@ -303,6 +303,12 @@ defineExpose({ isValid });
                             :disabled="addImageDisabled"
                             @click="addNewImage"
                         ></Button>
+                        <span
+                            v-if="!addingNewImage"
+                            class="autosaved-message"
+                        >
+                            Changes Automatically Saved
+                        </span>
                         <Button
                             v-if="addingNewImage && siteImagesCount < 10"
                             id="addOtherName"
@@ -508,9 +514,6 @@ defineExpose({ isValid });
 .flex-nowrap {
     flex-wrap: nowrap;
 }
-.flex-grow {
-    flex-grow: 1;
-}
 
 .uploader-container {
     width: 300px;
@@ -548,6 +551,17 @@ defineExpose({ isValid });
     padding: 10px;
     border-radius: 4px;
     text-align: center;
+}
+
+.add-image-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.autosaved-message {
+    font-size: 0.85em;
+    color: #2e7d32;
 }
 
 .image-placeholders {

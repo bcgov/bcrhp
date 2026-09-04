@@ -76,9 +76,6 @@ const otherNames = computed(() => {
     align-self: center;
     margin-right: 3rem;
 }
-.input-grow {
-    width: 100%;
-}
 .dialogFonts {
     //font-size: 1rem;
 }

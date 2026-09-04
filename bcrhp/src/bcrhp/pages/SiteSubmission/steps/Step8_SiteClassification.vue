@@ -354,12 +354,16 @@ defineExpose({ isValid });
                 :key="classKey"
                 legend="Heritage Class"
             >
-                <div class="flex">
+                <div
+                    class="flex"
+                    style="gap: 1rem"
+                >
                     <LabelledInput
                         label="Number of Contributing Resources"
                         input-name="contributing_resource_count"
                         hint="Enter the number of buildings, structures, or other elements that contribute to the site"
-                        class="grow"
+                        class="flex-grow"
+                        style="max-width: 40%"
                         :error-message="
                             $form.contributing_resource_count?.error?.message
                         "
@@ -388,7 +392,7 @@ defineExpose({ isValid });
                         label="Heritage Category"
                         input-name="heritage_category"
                         hint="Select the type of contributing resource"
-                        class="grow"
+                        class="flex-grow"
                         :error-message="$form.heritage_category?.error?.message"
                         :required="true"
                     >
@@ -447,12 +451,15 @@ defineExpose({ isValid });
                 :key="funcKey"
                 legend="Heritage Function"
             >
-                <div class="flex flexrow">
+                <div
+                    class="flex flexrow"
+                    style="gap: 1rem"
+                >
                     <LabelledInput
                         label="Function Category"
                         input-name="functional_category"
                         hint="Expand categories to select the specific function subcategory"
-                        class="grow"
+                        class="flex-grow"
                         :error-message="
                             $form.functional_category?.error?.message
                         "
@@ -484,7 +491,7 @@ defineExpose({ isValid });
                     <LabelledInput
                         label="Function Period"
                         input-name="functional_state"
-                        class="grow"
+                        class="flex-grow"
                         :error-message="$form.functional_state?.error?.message"
                         :required="true"
                     >
@@ -574,10 +581,6 @@ defineExpose({ isValid });
 </template>
 
 <style scoped>
-.grow {
-    flex: 1;
-    margin: 1rem;
-}
 .form-section {
     margin-bottom: 4rem;
 }

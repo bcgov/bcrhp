@@ -497,7 +497,7 @@ defineExpose({ isValid });
                             <GenericWidget
                                 :key="streetAddressKey"
                                 ref="streetWidgetRef"
-                                class="input-grow"
+                                class="flex-grow"
                                 :mode="EDIT"
                                 :should-show-label="false"
                                 :aliased-node-data="
@@ -518,7 +518,7 @@ defineExpose({ isValid });
                     <GenericWidget
                         :key="cityKey"
                         ref="cityWidgetRef"
-                        class="input-grow"
+                        class="flex-grow"
                         :mode="EDIT"
                         :aliased-node-data="
                             currentPropertyAddress?.aliased_data?.city
@@ -546,7 +546,6 @@ defineExpose({ isValid });
                     >
                         <GenericWidget
                             ref="localityWidgetRef"
-                            class="input-grow"
                             :mode="EDIT"
                             :aliased-node-data="
                                 currentPropertyAddress?.aliased_data?.locality
@@ -698,7 +697,7 @@ defineExpose({ isValid });
                         <div class="row">
                             <GenericWidget
                                 :ref="pidField"
-                                style="flex-grow: 1; margin-left: 1rem"
+                                class="flex-grow"
                                 :mode="EDIT"
                                 :should-show-label="false"
                                 :aliased-node-data="
@@ -788,10 +787,6 @@ defineExpose({ isValid });
     align-items: flex-start;
     margin: 1.5rem 0;
 }
-
-.grow {
-    flex: 1;
-}
 </style>
 <style>
 .inline-labeled-input.locality .form-label {
@@ -812,9 +807,6 @@ defineExpose({ isValid });
     justify-content: center;
     align-self: center;
     margin-left: 3rem;
-}
-.input-grow {
-    width: 100%;
 }
 
 .dialogFonts {

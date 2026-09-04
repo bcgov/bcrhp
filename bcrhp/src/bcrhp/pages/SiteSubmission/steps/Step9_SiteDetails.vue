@@ -398,7 +398,7 @@ defineExpose({ isValid });
             >
                 <div class="flex flex-row flex-wrap">
                     <div class="flex-grow">
-                        <div class="flex flex-col flex-grow nobold_label">
+                        <div class="flex flex-col nobold_label">
                             <GenericWidget
                                 :mode="EDIT"
                                 :should-show-label="true"
@@ -765,7 +765,6 @@ defineExpose({ isValid });
     gap: 0.25rem !important;
 }
 
-.flex-grow,
 .flex-grow .widget {
     flex-grow: 1;
 }
