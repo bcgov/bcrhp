@@ -6,17 +6,24 @@ from arches.app.utils.betterJSONSerializer import JSONSerializer
 from arches.app.utils.response import JSONResponse
 from arches.app.models.concept import Concept
 from arches.app.models.models import Node
+from arches.app.models.tile import Tile
+from django.db.models import F
 from rest_framework import status
 from arches_component_lab.views.node_config_mixin import CardNodeWidgetConfigMixin
 
-from rest_framework.generics import ListCreateAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    UpdateAPIView,
+    RetrieveAPIView,
+)
 from rest_framework.parsers import JSONParser
 
-import json
+from arches_querysets.models import ResourceTileTree
 from arches_querysets.rest_framework.multipart_json_parser import MultiPartJSONParser
 from arches_querysets.rest_framework.pagination import ArchesLimitOffsetPagination
 from arches_querysets.rest_framework.permissions import ReadOnly, ResourceEditor
 from bcrhp.rest_framework.permissions import LocalGovernment
+from bcrhp.util.bcrhp_aliases import GraphSlugs as slugs
 from arches_querysets.rest_framework.serializers import (
     ArchesResourceSerializer,
 )
@@ -146,11 +153,21 @@ class PatchedArchesResourceBlankView(ArchesResourceBlankView):
         return serializer_context
 
 
-class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateAPIView):
+class SubmitHeritageSite(
+    ArchesModelAPIMixin,
+    CardNodeWidgetConfigMixin,
+    RetrieveAPIView,
+    CreateAPIView,
+    UpdateAPIView,
+):
     permission_classes = [ResourceEditor | LocalGovernment]
     serializer_class = HeritageSiteSerializer
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination
+    # This will apply provisional edits visible to the user
+    provisional_edits = True
+
+    lookup_field = "resourceinstanceid"
     valid_keys = ["aliased_data"]
     required_sections = [
         "resourceinstanceid",
@@ -170,6 +187,18 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         "construction_actors",
         "internal_remark",
     ]
+    # Aliases whose orphaned tiles should be deleted when omitted from a PATCH
+    # payload list. Sections absent from this set are never orphan-deleted even
+    # if they appear in the payload, preserving sparse-tree semantics for them.
+    deletable_list_aliases = {
+        "site_images",
+        "external_url",
+        "chronology",
+        "construction_actors",
+        "heritage_theme",
+        "heritage_class",
+        "heritage_function",
+    }
 
     def get_default_registration_status_uuid(self):
         return self.get_concept_uuid(
@@ -211,6 +240,11 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         # This seems wrong. We should allow a GeoJSON to be supplied as an object,
         # not already serialized?
         for loc in site["aliased_data"]["heritage_site_location"]:
+            loc["aliased_data"]["site_boundary"] = [
+                sb
+                for sb in loc["aliased_data"]["site_boundary"]
+                if sb["aliased_data"]["site_boundary"]["node_value"]["features"]
+            ]
             for sb in loc["aliased_data"]["site_boundary"]:
                 logger.debug(sb["aliased_data"]["site_boundary"])
                 if (
@@ -245,13 +279,19 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
                     sb["aliased_data"]["site_boundary"]["node_value"]
                 )
 
-        site["aliased_data"].pop("borden_number")
+        site["aliased_data"].pop("borden_number", None)
         site["aliased_data"]["bc_right"]["aliased_data"]["registration_status"][
             "node_value"
         ] = self.get_default_registration_status_uuid()
         site["aliased_data"]["bc_right"]["aliased_data"]["registry_types"][
             "node_value"
         ] = [self.get_default_registry_type_uuid()]
+        if site["aliased_data"]["bc_right"]["aliased_data"][
+            "officially_recognized_site"
+        ]["node_value"] not in (True, False):
+            site["aliased_data"]["bc_right"]["aliased_data"][
+                "officially_recognized_site"
+            ]["node_value"] = True
         if (
             "internal_remark" in site["aliased_data"]
             and len(site["aliased_data"]["internal_remark"]) == 1
@@ -266,6 +306,120 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         for key in keys:
             if key not in allowed_sections:
                 site["aliased_data"].pop(key)
+
+    _DEFAULT_I18N = {"en": {"value": "", "direction": "ltr"}}
+    _IMAGE_I18N_FIELDS = ("title", "altText", "attribution", "description")
+
+    def _pre_clear_primary_image(
+        self, resourceinstanceid: str, site_images: list
+    ) -> None:
+        """Clear primary_image on existing site_images tiles before a batch PATCH.
+
+        UniqueBooleanValue.save() queries the DB for conflicting tiles at
+        pre-save time — before any writes in the batch are committed. When the
+        primary image changes (old tile A was True, new tile C becomes True),
+        __preSave(Tile_C) finds Tile_A still True in the DB and raises a false
+        uniqueness conflict.
+
+        Pre-clearing all primary_image True values here ensures no conflict
+        exists when the batch save runs its pre-save checks.
+        Only runs when at least one incoming tile has primary_image=True.
+        """
+        has_incoming_primary = any(
+            isinstance(t, dict)
+            and t.get("aliased_data", {}).get("primary_image", {}).get("node_value")
+            is True
+            for t in site_images
+        )
+        if not has_incoming_primary:
+            return
+
+        primary_image_node = Node.objects.filter(
+            alias="primary_image",
+            graph__slug="heritage_site",
+        ).first()
+        if primary_image_node is None:
+            return
+
+        node_id = str(primary_image_node.nodeid)
+        tiles = Tile.objects.filter(
+            resourceinstance_id=resourceinstanceid,
+            nodegroup_id=primary_image_node.nodegroup_id,
+        )
+        to_clear = [t for t in tiles if t.data.get(node_id) is True]
+        if to_clear:
+            for tile in to_clear:
+                tile.data[node_id] = False
+            Tile.objects.bulk_update(to_clear, ["data"])
+
+    def _ensure_image_i18n_fields(self, site: dict) -> None:
+        """Add missing i18n metadata fields to every file entry in site_images tiles."""
+        for image_tile in site.get("aliased_data", {}).get("site_images", []):
+            files = (
+                image_tile.get("aliased_data", {})
+                .get("site_images", {})
+                .get("node_value")
+                or []
+            )
+            for file_entry in files:
+                if not isinstance(file_entry, dict):
+                    continue
+                for field in self._IMAGE_I18N_FIELDS:
+                    if field not in file_entry:
+                        file_entry[field] = dict(self._DEFAULT_I18N)
+
+    def _get_user_government_node_value(self, user):
+        """Return the government_association node_value for the authenticated user.
+
+        Returns a resource-instance-list value suitable for setting responsible_government:
+            [{"resourceId": "<uuid>", "ontologyProperty": "", "inverseOntologyProperty": ""}]
+
+        Returns None if the user has no linked government_person or government_association.
+        """
+        try:
+            government_user = (
+                ResourceTileTree.get_tiles(graph_slug=slugs.GOVERNMENT_PERSON)
+                .filter(username=user.username)
+                .get()
+            )
+            gov_assoc_tile = government_user.aliased_data.government_association
+            if not gov_assoc_tile:
+                return None
+            gov_assoc_resource = gov_assoc_tile.aliased_data.government_association
+            if not gov_assoc_resource:
+                return None
+            return [
+                {
+                    "resourceId": str(gov_assoc_resource.pk),
+                    "ontologyProperty": "",
+                    "inverseOntologyProperty": "",
+                }
+            ]
+        except Exception:
+            pass
+        return None
+
+    def _set_responsible_government(self, site: dict, government_node_value) -> None:
+        """Set responsible_government on new protection_event tiles only.
+
+        Skips any event that already has a tileid (already saved to the DB) or
+        that already carries a responsible_government value.
+        """
+        protection_events = (
+            site.get("aliased_data", {})
+            .get("bc_right", {})
+            .get("aliased_data", {})
+            .get("protection_event", [])
+        )
+        for event in protection_events:
+            if not isinstance(event, dict):
+                continue
+            if event.get("tileid"):
+                continue
+            aliased = event.setdefault("aliased_data", {})
+            if (aliased.get("responsible_government") or {}).get("node_value"):
+                continue
+            aliased["responsible_government"] = {"node_value": government_node_value}
 
     def create(self, request, *args, **kwargs):
         raw = request.data
@@ -283,6 +437,10 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         logger.debug(f"Before clean")
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
+        self._ensure_image_i18n_fields(cleaned_object)
+        government_node_value = self._get_user_government_node_value(request.user)
+        if government_node_value:
+            self._set_responsible_government(cleaned_object, government_node_value)
         patched = cleaned_object
         serializer = self.get_serializer(data=patched)
 
@@ -316,6 +474,153 @@ class SubmitHeritageSite(ArchesModelAPIMixin, CardNodeWidgetConfigMixin, CreateA
         return JSONResponse(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def transform_retrieved_data(self, data: dict) -> dict:
+        aliased = data.get("aliased_data", {})
+        site_images = aliased.get("site_images")
+        if isinstance(site_images, list) and len(site_images) > 1:
+
+            def primary_sort_key(image):
+                val = (
+                    image.get("aliased_data", {})
+                    .get("primary_image", {})
+                    .get("node_value")
+                )
+                if val is True:
+                    return 0
+                if val is False:
+                    return 1
+                return 2
+
+            aliased["site_images"] = sorted(site_images, key=primary_sort_key)
+        # We don't want internal remarks or site_documents being sent to the client
+        aliased["internal_remark"] = []
+        aliased["site_document"] = []
+        return data
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = self.transform_retrieved_data(serializer.data)
+        return JSONResponse(data, status=status.HTTP_200_OK)
+
+    def _delete_orphaned_tiles(
+        self, patched_data: dict, resourceinstanceid: str, request
+    ) -> None:
+        """Delete tiles that were removed from a list-type section in the payload.
+
+        Only sections that ARE present in the payload are diffed — sections
+        absent from the (sparse) payload are left completely untouched.
+
+        Uses Tile.delete() (not a bulk queryset delete) so that audit logging,
+        search index cleanup, and datatype post_tile_delete hooks all run.
+        """
+        aliased = patched_data.get("aliased_data", {})
+        for alias, value in aliased.items():
+            if alias not in self.deletable_list_aliases:
+                continue
+            if not isinstance(value, list):
+                continue
+            incoming_tileids = {
+                t["tileid"] for t in value if isinstance(t, dict) and t.get("tileid")
+            }
+            # The grouping node for a nodegroup is the node whose nodeid
+            # equals its own nodegroup_id.
+            node = Node.objects.filter(
+                alias=alias,
+                graph__slug="heritage_site",
+                nodeid=F("nodegroup_id"),
+            ).first()
+            if node is None:
+                continue
+            orphans = Tile.objects.filter(
+                resourceinstance_id=resourceinstanceid,
+                nodegroup_id=node.nodegroup_id,
+            ).exclude(tileid__in=incoming_tileids)
+            count = orphans.count()
+            if count:
+                logger.info(
+                    "Deleting %d orphaned tile(s) for alias=%s resource=%s",
+                    count,
+                    alias,
+                    resourceinstanceid,
+                )
+                for tile in orphans:
+                    tile.delete(request=request)
+
+    def partial_update(self, request, *args, **kwargs):
+        raw = request.data
+        cleaned_object = raw
+        logger.debug("FILES keys=%s", list(request.FILES.keys()))
+
+        for field_name, f in request.FILES.items():
+            logger.debug(
+                "file field=%s name=%s size=%s content_type=%s",
+                field_name,
+                f.name,
+                f.size,
+                getattr(f, "content_type", None),
+            )
+
+        self.patch_data(cleaned_object)
+        self.prune_data(cleaned_object)
+        self._ensure_image_i18n_fields(cleaned_object)
+        government_node_value = self._get_user_government_node_value(request.user)
+        if government_node_value:
+            self._set_responsible_government(cleaned_object, government_node_value)
+        patched = cleaned_object
+
+        resourceinstanceid = self.kwargs.get("resourceinstanceid")
+        self._delete_orphaned_tiles(patched, resourceinstanceid, request)
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=patched, partial=True)
+
+        if not serializer.is_valid():
+            logger.warning("serializer.errors: %s", serializer.errors)
+            for error in format_deep_errors(serializer.errors):
+                logger.warning(f" - {error}")
+            return JSONResponse(serializer.errors, status=400)
+
+        try:
+            # Capture the tileids of any documents/remarks submitted in this request so we
+            # can filter the server-processed response to just those tiles (rather than
+            # returning all historical documents).
+            submitted_doc_tileids = {
+                t.get("tileid")
+                for t in patched.get("aliased_data", {}).get("site_document", [])
+                if t.get("tileid")
+            }
+            internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
+            site_images = patched.get("aliased_data", {}).get("site_images", [])
+            if site_images:
+                self._pre_clear_primary_image(resourceinstanceid, site_images)
+            self.perform_update(serializer)
+        except Exception as e:
+            logger.error(f"Unable to update: {e}", exc_info=True)
+            return JSONResponse(
+                {
+                    "error": "Unable to update resource",
+                    "message": str(e),
+                    "type": e.__class__.__name__,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Return the server-processed versions of the submitted document tiles so the
+        # client receives permanent file_ids (UUIDs) rather than the temporary upload-key
+        # format ("file-list_<tileid>-<nodeid>") that was in the original request body.
+        # Returning the client-sent payload here would cause the non-UUID file_id to
+        # persist in the client state and be re-sent on subsequent saves, making the
+        # server treat an unchanged existing document as a new upload every time.
+        return_object = serializer.data
+        all_saved_docs = return_object.get("aliased_data", {}).get("site_document", [])
+        saved_submitted_docs = [
+            t for t in all_saved_docs if t.get("tileid") in submitted_doc_tileids
+        ]
+        return_object.get("aliased_data", {})["site_document"] = saved_submitted_docs
+        return_object.get("aliased_data", {})["internal_remark"] = internal_remark
+        return JSONResponse(return_object, status=status.HTTP_200_OK)
 
 
 # class SubmissionsForReviewPagination(ArchesLimitOffsetPagination):

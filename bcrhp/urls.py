@@ -12,6 +12,7 @@ from bcrhp.views.workflows.heritage_site_submissions import (
     SubmitHeritageSite,
     PatchedArchesResourceBlankView,
 )
+from bcrhp.views.relatable_resources import BcrhpRelatableResourcesView
 import re
 
 uuid_regex = settings.UUID_REGEX
@@ -34,9 +35,21 @@ urlpatterns = [
         bc_path_prefix(r"^submissions/"), BcrhpRootView.as_view(), name="submissions"
     ),
     re_path(
-        bc_path_prefix(r"^api/submit_new_site/"),
+        bc_path_prefix(r"^api/submit_new_site/$"),
         SubmitHeritageSite.as_view(),
         name="submit-new-site",
+    ),
+    re_path(
+        bc_path_prefix(
+            r"^api/submit_new_site/(?P<resourceinstanceid>%s)/$" % uuid_regex
+        ),
+        SubmitHeritageSite.as_view(),
+        name="submit-update-site",
+    ),
+    re_path(
+        bc_path_prefix(r"^api/heritage_site/(?P<resourceinstanceid>%s)/$" % uuid_regex),
+        SubmitHeritageSite.as_view(),
+        name="get-heritage-site",
     ),
     re_path(
         bc_path_prefix(r"^bctileserver/(?P<path>.*)$"),
@@ -87,6 +100,12 @@ urlpatterns = [
         f"{bc_path_prefix()}bcrhp/api/resource/<slug:graph>/blank",
         PatchedArchesResourceBlankView.as_view(),
         name="api-resource-blank",
+    ),
+    # Shadow arches_component_lab's relatable-resources URL to allow special node aliases
+    path(
+        f"{bc_path_prefix()}api/relatable-resources/<slug:graph>/<slug:node_alias>",
+        BcrhpRelatableResourcesView.as_view(),
+        name="bcrhp-api-relatable-resources",
     ),
     path(bc_path_prefix(), include("bcgov_arches_common.urls")),
     path(bc_path_prefix(), include("arches_querysets.urls")),

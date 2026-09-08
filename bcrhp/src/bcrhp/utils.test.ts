@@ -274,7 +274,7 @@ describe('updateModelValue', () => {
         expect(data.name).toBe('Bob');
     });
 
-    it('does not update dataObject when validate returns errors', async () => {
+    it('updates dataObject even when validate returns errors', async () => {
         const validate = vi.fn().mockResolvedValue({
             errors: { name: ['Name is required'] },
         });
@@ -283,7 +283,8 @@ describe('updateModelValue', () => {
 
         await updateModelValue('' as any, 'name', data, form);
 
-        expect(data.name).toBe('Alice');
+        expect(validate).toHaveBeenCalledWith('name');
+        expect(data.name).toBe('');
     });
 
     it('updates dataObject when validate returns errors for other fields only', async () => {

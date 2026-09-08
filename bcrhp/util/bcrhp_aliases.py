@@ -123,6 +123,8 @@ class LegislativeActAliases(AbstractAliases):
 
 
 class GraphSlugs:
+    GOVERNMENT = "local_government"
+    GOVERNMENT_PERSON = "lg_person"
     HERITAGE_SITE = "heritage_site"
     LEGISLATIVE_ACT = "legislative_act"
     SITE_SUBMISSION = "site_submission"

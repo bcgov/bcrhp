@@ -137,10 +137,9 @@ export const updateModelValue = async function (
 ) {
     console.log('updateModelValue', attribute_name, newValue);
     if (dataObject[attribute_name] === newValue) return;
+    dataObject[attribute_name] = newValue;
     const result = await form.value.validate(attribute_name);
     if (result?.errors?.[attribute_name]?.length ?? 0 > 0) {
         console.log(result.errors[attribute_name]);
-    } else {
-        dataObject[attribute_name] = newValue;
     }
 };

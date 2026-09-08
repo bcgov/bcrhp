@@ -97,6 +97,11 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                         <li>
                             <a href="{% url 'search_home' %}">{% trans "Search Sites" %}</a>
                         </li>
+                        {% if user.username and user.username == 'anonymous' %}
+                        <li>
+                            <a href="/bcrhp/auth/?next=/bcrhp/search">{% trans "Local Government Login" %}</a>
+                        </li>
+                        {% endif %}
                         {% if user.username and user.username != 'anonymous' %}
                         {% if user|can_create_resource_instance %}
                         <li>
@@ -286,7 +291,7 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                             <div class="app-info-block-intro">
                                 <h3 class="app-info-block-title">{% trans "Local Government Historic Places" %}</h3>
                                 <p class="app-info-block-text">
-                                    {% trans "Under the" %} <a target="lgact" href="https://www.bclaws.gov.bc.ca/civix/document/id/consol21/consol21/96323_31">{% trans "Local Government Act" %}</a> {% trans "and the" %} <a target="vancharter" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/vanch_29">{% trans "Vancouver Charter" %}</a>{% trans ", local governments can formally protect and recognize places with local or regional heritage significance, primarily through municipal designation and community heritage register listings. Local governments notify the province of recognized municipal historic places so they can be added to the BC Register of Historic Places." %}
+                                    {% trans "Local governments play an important role in identifying, evaluating, and recognizing historic places that are significant to their communities. Under the" %}  <a target="lgact" href="https://www.bclaws.gov.bc.ca/civix/document/id/consol21/consol21/96323_31">{% trans "Local Government Act" %}</a> {% trans "and the" %} <a target="vancharter" href="https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/vanch_29">{% trans "Vancouver Charter" %}</a>{% trans ", they may protect historic places through municipal designation or officially recognize them by listing them on a community heritage register. Designated and recognized historic places are reported to the Province and added to the BC Register of Historic Places." %}
                                 </p>
                             </div>
                     </div>
@@ -294,7 +299,7 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                     <div class="info-section">
                         <div class="app-info-block-intro">
                             <p class="app-info-block-text">
-                                {% trans "If you have questions about a site recognized under the Local Government Act, you should contact the Local government for further information." %}
+                                {% trans "For information about a historic place recognized or protected by a local government, please contact the local government identified in the record details." %}
                             </p>
                         </div>
                     </div>
@@ -304,6 +309,31 @@ along with this program. if not, see <http://www.gnu.org/licenses/>.
                         <img class="sub-block-image" src="{% webpack_static 'img/front/figure2_filter.jpg' %}" alt="Arches Workflows">
                         <figcaption>{% trans "Figure 2: Filter search by local government. Showing map card pop-up for Nelson Street Grids." %}</figcaption>
                     </figure>
+
+                    <div class="info-body">
+                        <div class="app-info-block-intro">
+                            <h3 class="app-info-block-title">{% trans "For Local Governments" %}</h3>
+                            <p class="app-info-block-text">
+                                {% trans "Submit heritage property notifications and update historic place records in the BC Register of Historic Places. To sign in, click Local Governments in the top toolbar. Submission forms are available from the search page. Instructions are available in the guides below." %}
+                            </p>
+                            <div class="app-info-manual" style="display: flex; justify-content: center; gap: 1rem;">
+                                <div class="app-info-manual-item" style="max-width: calc(100% / 3 - 20px)">
+                                    <a href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/access_guide.pdf"
+                                       target="access_guide">
+                                        <img alt="Local Government Access Guide" src="{% webpack_static 'img/front/local-government-access.jpg' %}" />
+                                    </a>
+                                </div>
+                                <div class="app-info-manual-item" style="max-width: calc(100% / 3 - 20px)">
+                                    <a href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/submission_guide.pdf" target="submission_guide">
+                                        <img alt="Local Government Submission Guide" src="{% webpack_static 'img/front/local-government-submission-guide.jpg' %}" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
 
                 </div>
             </section>
