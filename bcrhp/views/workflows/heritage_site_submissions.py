@@ -18,10 +18,12 @@ from rest_framework.generics import (
 )
 from rest_framework.parsers import JSONParser
 
+from arches_querysets.models import ResourceTileTree
 from arches_querysets.rest_framework.multipart_json_parser import MultiPartJSONParser
 from arches_querysets.rest_framework.pagination import ArchesLimitOffsetPagination
 from arches_querysets.rest_framework.permissions import ReadOnly, ResourceEditor
 from bcrhp.rest_framework.permissions import LocalGovernment
+from bcrhp.util.bcrhp_aliases import GraphSlugs as slugs
 from arches_querysets.rest_framework.serializers import (
     ArchesResourceSerializer,
 )
@@ -162,6 +164,9 @@ class SubmitHeritageSite(
     serializer_class = HeritageSiteSerializer
     parser_classes = [JSONParser, MultiPartJSONParser]
     pagination_class = ArchesLimitOffsetPagination
+    # This will apply provisional edits visible to the user
+    provisional_edits = True
+
     lookup_field = "resourceinstanceid"
     valid_keys = ["aliased_data"]
     required_sections = [
@@ -305,6 +310,48 @@ class SubmitHeritageSite(
     _DEFAULT_I18N = {"en": {"value": "", "direction": "ltr"}}
     _IMAGE_I18N_FIELDS = ("title", "altText", "attribution", "description")
 
+    def _pre_clear_primary_image(
+        self, resourceinstanceid: str, site_images: list
+    ) -> None:
+        """Clear primary_image on existing site_images tiles before a batch PATCH.
+
+        UniqueBooleanValue.save() queries the DB for conflicting tiles at
+        pre-save time — before any writes in the batch are committed. When the
+        primary image changes (old tile A was True, new tile C becomes True),
+        __preSave(Tile_C) finds Tile_A still True in the DB and raises a false
+        uniqueness conflict.
+
+        Pre-clearing all primary_image True values here ensures no conflict
+        exists when the batch save runs its pre-save checks.
+        Only runs when at least one incoming tile has primary_image=True.
+        """
+        has_incoming_primary = any(
+            isinstance(t, dict)
+            and t.get("aliased_data", {}).get("primary_image", {}).get("node_value")
+            is True
+            for t in site_images
+        )
+        if not has_incoming_primary:
+            return
+
+        primary_image_node = Node.objects.filter(
+            alias="primary_image",
+            graph__slug="heritage_site",
+        ).first()
+        if primary_image_node is None:
+            return
+
+        node_id = str(primary_image_node.nodeid)
+        tiles = Tile.objects.filter(
+            resourceinstance_id=resourceinstanceid,
+            nodegroup_id=primary_image_node.nodegroup_id,
+        )
+        to_clear = [t for t in tiles if t.data.get(node_id) is True]
+        if to_clear:
+            for tile in to_clear:
+                tile.data[node_id] = False
+            Tile.objects.bulk_update(to_clear, ["data"])
+
     def _ensure_image_i18n_fields(self, site: dict) -> None:
         """Add missing i18n metadata fields to every file entry in site_images tiles."""
         for image_tile in site.get("aliased_data", {}).get("site_images", []):
@@ -320,6 +367,59 @@ class SubmitHeritageSite(
                 for field in self._IMAGE_I18N_FIELDS:
                     if field not in file_entry:
                         file_entry[field] = dict(self._DEFAULT_I18N)
+
+    def _get_user_government_node_value(self, user):
+        """Return the government_association node_value for the authenticated user.
+
+        Returns a resource-instance-list value suitable for setting responsible_government:
+            [{"resourceId": "<uuid>", "ontologyProperty": "", "inverseOntologyProperty": ""}]
+
+        Returns None if the user has no linked government_person or government_association.
+        """
+        try:
+            government_user = (
+                ResourceTileTree.get_tiles(graph_slug=slugs.GOVERNMENT_PERSON)
+                .filter(username=user.username)
+                .get()
+            )
+            gov_assoc_tile = government_user.aliased_data.government_association
+            if not gov_assoc_tile:
+                return None
+            gov_assoc_resource = gov_assoc_tile.aliased_data.government_association
+            if not gov_assoc_resource:
+                return None
+            return [
+                {
+                    "resourceId": str(gov_assoc_resource.pk),
+                    "ontologyProperty": "",
+                    "inverseOntologyProperty": "",
+                }
+            ]
+        except Exception:
+            pass
+        return None
+
+    def _set_responsible_government(self, site: dict, government_node_value) -> None:
+        """Set responsible_government on new protection_event tiles only.
+
+        Skips any event that already has a tileid (already saved to the DB) or
+        that already carries a responsible_government value.
+        """
+        protection_events = (
+            site.get("aliased_data", {})
+            .get("bc_right", {})
+            .get("aliased_data", {})
+            .get("protection_event", [])
+        )
+        for event in protection_events:
+            if not isinstance(event, dict):
+                continue
+            if event.get("tileid"):
+                continue
+            aliased = event.setdefault("aliased_data", {})
+            if (aliased.get("responsible_government") or {}).get("node_value"):
+                continue
+            aliased["responsible_government"] = {"node_value": government_node_value}
 
     def create(self, request, *args, **kwargs):
         raw = request.data
@@ -338,6 +438,9 @@ class SubmitHeritageSite(
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
         self._ensure_image_i18n_fields(cleaned_object)
+        government_node_value = self._get_user_government_node_value(request.user)
+        if government_node_value:
+            self._set_responsible_government(cleaned_object, government_node_value)
         patched = cleaned_object
         serializer = self.get_serializer(data=patched)
 
@@ -462,6 +565,9 @@ class SubmitHeritageSite(
         self.patch_data(cleaned_object)
         self.prune_data(cleaned_object)
         self._ensure_image_i18n_fields(cleaned_object)
+        government_node_value = self._get_user_government_node_value(request.user)
+        if government_node_value:
+            self._set_responsible_government(cleaned_object, government_node_value)
         patched = cleaned_object
 
         resourceinstanceid = self.kwargs.get("resourceinstanceid")
@@ -486,6 +592,9 @@ class SubmitHeritageSite(
                 if t.get("tileid")
             }
             internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
+            site_images = patched.get("aliased_data", {}).get("site_images", [])
+            if site_images:
+                self._pre_clear_primary_image(resourceinstanceid, site_images)
             self.perform_update(serializer)
         except Exception as e:
             logger.error(f"Unable to update: {e}", exc_info=True)

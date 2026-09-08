@@ -743,3 +743,316 @@ class PartialUpdateTest(TestCase):
         self._run()
         args = self.view._delete_orphaned_tiles.call_args
         self.assertEqual(args[0][1], self.resource_id)
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite._get_user_government_node_value
+# ---------------------------------------------------------------------------
+
+_PATCH_RTT = "bcrhp.views.workflows.heritage_site_submissions.ResourceTileTree"
+
+
+def _make_government_person_mock(resource_id):
+    """Build a mock government_person tile tree that returns a government_association ResourceInstance."""
+    gov_assoc_resource = MagicMock()
+    gov_assoc_resource.pk = resource_id
+    person = MagicMock()
+    person.aliased_data.government_association.aliased_data.government_association = (
+        gov_assoc_resource
+    )
+    return person
+
+
+class GetUserGovernmentNodeValueTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.user = MagicMock()
+        self.user.username = "lguser"
+        self.resource_id = uuid.uuid4()
+        self.node_value = [
+            {
+                "resourceId": str(self.resource_id),
+                "ontologyProperty": "",
+                "inverseOntologyProperty": "",
+            }
+        ]
+
+    def test_returns_node_value_when_government_association_exists(self):
+        person = _make_government_person_mock(self.resource_id)
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.return_value.filter.return_value.get.return_value = (
+                person
+            )
+            result = self.view._get_user_government_node_value(self.user)
+        self.assertEqual(result, self.node_value)
+
+    def test_returns_none_when_no_government_person(self):
+        from django.core.exceptions import ObjectDoesNotExist
+
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.return_value.filter.return_value.get.side_effect = (
+                ObjectDoesNotExist()
+            )
+            result = self.view._get_user_government_node_value(self.user)
+        self.assertIsNone(result)
+
+    def test_returns_none_when_government_association_tile_is_falsy(self):
+        person = MagicMock()
+        person.aliased_data.government_association = None
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.return_value.filter.return_value.get.return_value = (
+                person
+            )
+            result = self.view._get_user_government_node_value(self.user)
+        self.assertIsNone(result)
+
+    def test_returns_none_when_government_association_resource_is_falsy(self):
+        person = MagicMock()
+        person.aliased_data.government_association.aliased_data.government_association = (
+            None
+        )
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.return_value.filter.return_value.get.return_value = (
+                person
+            )
+            result = self.view._get_user_government_node_value(self.user)
+        self.assertIsNone(result)
+
+    def test_returns_none_on_arbitrary_exception(self):
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.side_effect = Exception("unexpected db error")
+            result = self.view._get_user_government_node_value(self.user)
+        self.assertIsNone(result)
+
+    def test_queries_government_person_graph_by_username(self):
+        person = _make_government_person_mock(self.resource_id)
+        with patch(_PATCH_RTT) as mock_rtt:
+            mock_rtt.get_tiles.return_value.filter.return_value.get.return_value = (
+                person
+            )
+            self.view._get_user_government_node_value(self.user)
+            mock_rtt.get_tiles.assert_called_once_with(graph_slug="lg_person")
+            mock_rtt.get_tiles.return_value.filter.assert_called_once_with(
+                username=self.user.username
+            )
+
+
+# ---------------------------------------------------------------------------
+# SubmitHeritageSite._set_responsible_government
+# ---------------------------------------------------------------------------
+
+
+def _make_new_protection_event(responsible_government_value=None):
+    """Create a protection_event dict representing a new (unsaved) tile."""
+    event = {"aliased_data": {}}
+    if responsible_government_value is not None:
+        event["aliased_data"]["responsible_government"] = {
+            "node_value": responsible_government_value
+        }
+    return event
+
+
+def _make_existing_protection_event(responsible_government_value=None):
+    """Create a protection_event dict representing an existing (saved) tile."""
+    return {
+        "tileid": str(uuid.uuid4()),
+        "aliased_data": {
+            "responsible_government": {"node_value": responsible_government_value},
+        },
+    }
+
+
+def _make_site_with_protection_events(events):
+    return {
+        "aliased_data": {
+            "bc_right": {
+                "aliased_data": {
+                    "protection_event": events,
+                }
+            }
+        }
+    }
+
+
+class SetResponsibleGovernmentTest(TestCase):
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.node_value = [
+            {
+                "resourceId": str(uuid.uuid4()),
+                "ontologyProperty": "",
+                "inverseOntologyProperty": "",
+            }
+        ]
+
+    def _get_responsible_government(self, site, index=0):
+        return site["aliased_data"]["bc_right"]["aliased_data"]["protection_event"][
+            index
+        ]["aliased_data"]["responsible_government"]["node_value"]
+
+    def test_sets_responsible_government_on_new_event(self):
+        site = _make_site_with_protection_events([_make_new_protection_event()])
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site), self.node_value)
+
+    def test_sets_responsible_government_on_multiple_new_events(self):
+        site = _make_site_with_protection_events(
+            [_make_new_protection_event(), _make_new_protection_event()]
+        )
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site, 0), self.node_value)
+        self.assertEqual(self._get_responsible_government(site, 1), self.node_value)
+
+    def test_sets_on_new_event_with_null_node_value(self):
+        """New event carrying {"node_value": None} should still be populated."""
+        event = _make_new_protection_event(responsible_government_value=None)
+        event["aliased_data"]["responsible_government"] = {"node_value": None}
+        site = _make_site_with_protection_events([event])
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site), self.node_value)
+
+    def test_skips_existing_tile(self):
+        """Events with a tileid (already in DB) must not be modified."""
+        old_value = [{"resourceId": str(uuid.uuid4())}]
+        site = _make_site_with_protection_events(
+            [_make_existing_protection_event(old_value)]
+        )
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site), old_value)
+
+    def test_skips_existing_tile_with_null_responsible_government(self):
+        """Existing tiles are skipped even when responsible_government is null."""
+        site = _make_site_with_protection_events(
+            [_make_existing_protection_event(responsible_government_value=None)]
+        )
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertIsNone(self._get_responsible_government(site))
+
+    def test_skips_new_event_with_existing_node_value(self):
+        """New events that already carry a node_value must not be overwritten."""
+        existing_value = [{"resourceId": str(uuid.uuid4())}]
+        site = _make_site_with_protection_events(
+            [_make_new_protection_event(existing_value)]
+        )
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site), existing_value)
+
+    def test_mixed_new_and_existing_events(self):
+        """Only new events without a value are updated; existing tiles are left alone."""
+        old_value = [{"resourceId": str(uuid.uuid4())}]
+        events = [
+            _make_existing_protection_event(old_value),
+            _make_new_protection_event(),
+        ]
+        site = _make_site_with_protection_events(events)
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(self._get_responsible_government(site, 0), old_value)
+        self.assertEqual(self._get_responsible_government(site, 1), self.node_value)
+
+    def test_empty_protection_event_list_is_noop(self):
+        site = _make_site_with_protection_events([])
+        self.view._set_responsible_government(site, self.node_value)
+        self.assertEqual(
+            site["aliased_data"]["bc_right"]["aliased_data"]["protection_event"], []
+        )
+
+    def test_no_protection_event_key_is_noop(self):
+        site = {"aliased_data": {"bc_right": {"aliased_data": {}}}}
+        self.view._set_responsible_government(site, self.node_value)  # must not raise
+
+    def test_no_bc_right_key_is_noop(self):
+        site = {"aliased_data": {}}
+        self.view._set_responsible_government(site, self.node_value)  # must not raise
+
+    def test_skips_non_dict_entries_in_protection_event_list(self):
+        site = _make_site_with_protection_events(["not-a-dict", None, 42])
+        self.view._set_responsible_government(site, self.node_value)  # must not raise
+
+
+# ---------------------------------------------------------------------------
+# Integration: responsible_government wired into create / partial_update
+# ---------------------------------------------------------------------------
+
+
+class CreateResponsibleGovernmentIntegrationTest(TestCase):
+    """Verify create() calls _set_responsible_government when a government is found."""
+
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.view.kwargs = {}
+        self.view.format_kwarg = None
+        self.view.patch_data = MagicMock()
+        self.view.prune_data = MagicMock()
+
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.data = {"resourceinstanceid": str(uuid.uuid4())}
+        self.view.get_serializer = MagicMock(return_value=mock_serializer)
+        self.view.perform_create = MagicMock()
+        self.view.get_success_headers = MagicMock(return_value={})
+
+    def test_set_responsible_government_called_when_government_found(self):
+        node_value = [{"resourceId": str(uuid.uuid4())}]
+        self.view._get_user_government_node_value = MagicMock(return_value=node_value)
+        self.view._set_responsible_government = MagicMock()
+
+        request = _make_mock_request()
+        self.view.request = request
+        self.view.create(request)
+
+        self.view._set_responsible_government.assert_called_once_with(
+            request.data, node_value
+        )
+
+    def test_set_responsible_government_not_called_when_no_government(self):
+        self.view._get_user_government_node_value = MagicMock(return_value=None)
+        self.view._set_responsible_government = MagicMock()
+
+        request = _make_mock_request()
+        self.view.request = request
+        self.view.create(request)
+
+        self.view._set_responsible_government.assert_not_called()
+
+
+class PartialUpdateResponsibleGovernmentIntegrationTest(TestCase):
+    """Verify partial_update() calls _set_responsible_government when a government is found."""
+
+    def setUp(self):
+        self.view = SubmitHeritageSite()
+        self.resource_id = str(uuid.uuid4())
+        self.view.kwargs = {"resourceinstanceid": self.resource_id}
+        self.view.format_kwarg = None
+        self.view.patch_data = MagicMock()
+        self.view.prune_data = MagicMock()
+        self.view._delete_orphaned_tiles = MagicMock()
+        self.view.get_object = MagicMock(return_value=MagicMock())
+
+        mock_serializer = MagicMock()
+        mock_serializer.is_valid.return_value = True
+        mock_serializer.data = {"resourceinstanceid": self.resource_id}
+        self.view.get_serializer = MagicMock(return_value=mock_serializer)
+        self.view.perform_update = MagicMock()
+
+    def test_set_responsible_government_called_when_government_found(self):
+        node_value = [{"resourceId": str(uuid.uuid4())}]
+        self.view._get_user_government_node_value = MagicMock(return_value=node_value)
+        self.view._set_responsible_government = MagicMock()
+
+        request = _make_mock_request()
+        self.view.request = request
+        self.view.partial_update(request)
+
+        self.view._set_responsible_government.assert_called_once_with(
+            request.data, node_value
+        )
+
+    def test_set_responsible_government_not_called_when_no_government(self):
+        self.view._get_user_government_node_value = MagicMock(return_value=None)
+        self.view._set_responsible_government = MagicMock()
+
+        request = _make_mock_request()
+        self.view.request = request
+        self.view.partial_update(request)
+
+        self.view._set_responsible_government.assert_not_called()
