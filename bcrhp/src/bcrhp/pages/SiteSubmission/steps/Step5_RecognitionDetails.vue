@@ -248,7 +248,7 @@ defineExpose({ isValid });
                     />
                 </div>
             </LabelledInput>
-            <div class="row">
+            <div class="mb-2">
                 <LabelledInput
                     class="grow"
                     label="Legislative Act"

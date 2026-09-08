@@ -44,7 +44,7 @@ const workflowItems = ref([
             For help completing a submission, refer to the
             <a
                 class="manual-link"
-                href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/lg_submission_guide.pdf"
+                href="https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/our-history/historic-places/documents/lg_submission_manual.pdf"
                 target="manual"
                 >Local Government Submission Manual</a
             >

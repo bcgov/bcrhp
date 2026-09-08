@@ -96,11 +96,12 @@ async function buildHeritageSiteFormData(
 ): Promise<FormData> {
     const fd = new FormData();
 
+    // Collect new file binaries from the original site object before cloning, because
+    // File instances are not JSON-serialisable and would be lost in the deep copy.
     site.aliased_data.site_images.forEach((image_tile: SiteImagesTileType) => {
         const file: FileReference = image_tile.aliased_data.site_images
             .node_value[0] as FileReference;
         if (file?.file instanceof File) {
-            file.file_id = `file-list_${image_tile.tileid}-${file.node_id}`;
             fd.append(
                 `file-list_${image_tile.tileid}-${file.node_id}`,
                 file.file,
@@ -113,7 +114,6 @@ async function buildHeritageSiteFormData(
         (document_tile: SiteDocumentTileType) => {
             const file = document_tile.aliased_data.site_document.node_value[0];
             if (file?.file instanceof File) {
-                file.file_id = `file-list_${document_tile.tileid}-${file.node_id}`;
                 fd.append(
                     `file-list_${document_tile.tileid}-${file.node_id}`,
                     file.file,
@@ -123,7 +123,40 @@ async function buildHeritageSiteFormData(
         },
     );
 
-    fd.append('json', JSON.stringify(site));
+    // Deep-clone the site for the JSON payload so we never mutate the reactive state.
+    // The server identifies which FormData part belongs to a file-list node by matching
+    // the "file-list_<tileid>-<nodeid>" key, so file_id in the JSON must use that same
+    // format for new uploads — but only on the clone, not the live object.
+    const siteForJson = JSON.parse(JSON.stringify(site)) as HeritageSiteType;
+
+    siteForJson.aliased_data.site_images.forEach(
+        (image_tile: SiteImagesTileType, index: number) => {
+            const file: FileReference = site.aliased_data.site_images[index]
+                ?.aliased_data?.site_images?.node_value?.[0] as FileReference;
+            if (file?.file instanceof File) {
+                siteForJson.aliased_data.site_images[
+                    index
+                ].aliased_data.site_images.node_value[0].file_id =
+                    `file-list_${image_tile.tileid}-${file.node_id}`;
+            }
+        },
+    );
+
+    siteForJson.aliased_data.site_document.forEach(
+        (document_tile: SiteDocumentTileType, index: number) => {
+            const file =
+                site.aliased_data.site_document[index]?.aliased_data
+                    ?.site_document?.node_value?.[0];
+            if (file?.file instanceof File) {
+                siteForJson.aliased_data.site_document[
+                    index
+                ].aliased_data.site_document.node_value[0].file_id =
+                    `file-list_${document_tile.tileid}-${file.node_id}`;
+            }
+        },
+    );
+
+    fd.append('json', JSON.stringify(siteForJson));
     return fd;
 }
 

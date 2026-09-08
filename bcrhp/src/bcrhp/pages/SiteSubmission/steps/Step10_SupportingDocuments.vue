@@ -73,6 +73,15 @@ const supportingDocumentsResolver = getFlattenResolver(
 );
 
 const isValid = () => {
+    if (editMode === EditMode.Edit && !isEditing.value) return true;
+
+    const doc = siteDocument.value.aliased_data;
+    const hasUnsavedDocument = !!(
+        doc.site_document?.node_value?.length ||
+        doc.document_description?.node_value?.en?.value
+    );
+    if (hasUnsavedDocument) return false;
+
     return editMode === EditMode.Edit || siteDocumentList.value.length > 0;
 };
 
@@ -162,6 +171,7 @@ defineExpose({ isValid });
             ref="supportingDocumentsForm"
             v-slot="$form"
             name="supportingDocumentsForm"
+            class="supporting-document-form"
             :validateOnBlur="true"
             :resolver="supportingDocumentsResolver"
         >
@@ -193,7 +203,6 @@ defineExpose({ isValid });
                 <LabelledInput
                     label="Document"
                     input-name="document"
-                    :error-message="$form.site_document?.error?.message"
                     :required="true"
                 >
                     <GenericWidget
@@ -259,24 +268,24 @@ defineExpose({ isValid });
                     ></GenericWidget>
                 </LabelledInput>
             </FieldSet>
+            <div class="row">
+                <Button
+                    id="addOtherName"
+                    label="+ Add"
+                    class="button-padding"
+                    :aria-disabled="addDocumentDisabled"
+                    :disabled="addDocumentDisabled"
+                    @click="saveDocument"
+                ></Button>
+                <ChipsList
+                    label="Site Documents"
+                    :items="siteDocumentList"
+                    :display-function="documentDisplayFunction"
+                    :disabled-function="isExistingDocument"
+                    @remove="deleteSiteDocument"
+                />
+            </div>
         </Form>
-        <div class="row">
-            <Button
-                id="addOtherName"
-                label="+ Add"
-                class="button-padding"
-                :aria-disabled="addDocumentDisabled"
-                :disabled="addDocumentDisabled"
-                @click="saveDocument"
-            ></Button>
-            <ChipsList
-                label="Site Documents"
-                :items="siteDocumentList"
-                :display-function="documentDisplayFunction"
-                :disabled-function="isExistingDocument"
-                @remove="deleteSiteDocument"
-            />
-        </div>
     </template>
     <Form>
         <FieldSet
@@ -308,6 +317,11 @@ defineExpose({ isValid });
     </Form>
 </template>
 
+<style>
+form.supporting-document-form .p-message-error {
+    display: none;
+}
+</style>
 <style scoped>
 .instructions > ul {
     margin-left: 2rem;

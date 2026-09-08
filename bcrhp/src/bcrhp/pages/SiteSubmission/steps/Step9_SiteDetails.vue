@@ -228,12 +228,12 @@ const chronologyDisplayFunction = (chronology: ChronologyTileType) => {
     const data = chronology.aliased_data;
     const start = getText(data.start_year);
     const end = getText(data.end_year);
+    const circa = data.dates_approximate.node_value ? 'Circa ' : '';
+    const notes = getText(data.chronology_notes);
 
     let label = getText(data.chronology);
-    if (start || end) label += ` (${start} - ${end})`;
-    if (currentChronology.value.circa) label += ' [Circa]';
-    if (currentChronology.value.chronologyNotes)
-        label += ` - ${currentChronology.value.chronologyNotes}`;
+    if (start || end) label += ` (${circa}${start} - ${end})`;
+    if (notes) label += ` - ${notes}`;
     return label;
 };
 
@@ -398,7 +398,7 @@ defineExpose({ isValid });
             >
                 <div class="flex flex-row flex-wrap">
                     <div class="flex-grow">
-                        <div class="flex flex-col flex-grow nobold_label">
+                        <div class="flex flex-col nobold_label">
                             <GenericWidget
                                 :mode="EDIT"
                                 :should-show-label="true"
@@ -765,7 +765,6 @@ defineExpose({ isValid });
     gap: 0.25rem !important;
 }
 
-.flex-grow,
 .flex-grow .widget {
     flex-grow: 1;
 }

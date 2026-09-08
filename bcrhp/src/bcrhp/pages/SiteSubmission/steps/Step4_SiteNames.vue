@@ -121,7 +121,7 @@ const updateCommonName = function (
         baseUpdateModelValue(
             newValue,
             attribute_name,
-            commonName,
+            commonName.aliased_data,
             commonNameForm as Ref<FormInstance>,
         );
         emit('update:stepIsValid', isValid());

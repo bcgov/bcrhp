@@ -41,6 +41,8 @@ import { EDIT } from '@/arches_component_lab/widgets/constants.ts';
 import { getSiteBoundary } from '@/bcrhp/schemas/heritage_site/site_boundary.ts';
 import Step2_SiteAddressView from '@/bcrhp/pages/SiteSubmission/steps/Step2_SiteAddressView.vue';
 import TimesCircleIcon from '@primevue/icons/timescircle';
+import { useBCGeocoder } from '@/bcgov_arches_common/composables/useBCGeocoder.ts';
+import BCGeocoderPopup from '@/bcgov_arches_common/components/BCGeocoderPopup/BCGeocoderPopup.vue';
 
 const editMode = inject<EditMode>('editMode')!;
 const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
@@ -80,6 +82,17 @@ const legalFormKey = ref('0_0');
 const addingNewAddress = ref(true);
 const addLegalDescriptionVisible = ref(false);
 const pidField = ref<any>();
+
+// BC Geocoder autocomplete
+const {
+    results: geocoderResults,
+    isLoading: geocoderLoading,
+    search: geocoderSearch,
+    clear: geocoderClear,
+} = useBCGeocoder();
+let geocoderDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+const streetAddressKey = ref(0);
+const cityKey = ref(0);
 const legalDescriptionTargetAddress: Ref<BcPropertyAddressTileType | null> =
     ref(null);
 
@@ -115,7 +128,46 @@ const currentAddressValid = computed(() => {
     }
 });
 
+function selectGeocoderResult(feature: (typeof geocoderResults.value)[0]) {
+    const p = feature.properties;
+    const streetParts = [
+        p.civicNumber,
+        p.streetName,
+        p.streetType,
+        p.streetDirection,
+    ]
+        .map((v) => String(v ?? '').trim())
+        .filter(Boolean);
+    const street = streetParts.join(' ');
+    const city = String(p.localityName ?? '').trim();
+
+    currentPropertyAddress.value.aliased_data.street_address = {
+        display_value: street,
+        node_value: { en: { value: street, direction: 'ltr' } },
+        details: [],
+    };
+    currentPropertyAddress.value.aliased_data.city = {
+        display_value: city,
+        node_value: { en: { value: city, direction: 'ltr' } },
+        details: [],
+    };
+
+    streetAddressKey.value += 1;
+    cityKey.value += 1;
+    geocoderClear();
+    emit('update:stepIsValid', isValid());
+}
+
 const updateAddress = (newValue: AliasedNodeData, attribute_name: string) => {
+    if (attribute_name === 'street_address' && !disableAddressSection.value) {
+        if (geocoderDebounceTimer !== null) clearTimeout(geocoderDebounceTimer);
+        const text = String(newValue?.display_value ?? '').trim();
+        if (text.length > 2) {
+            geocoderDebounceTimer = setTimeout(() => geocoderSearch(text), 300);
+        } else {
+            geocoderClear();
+        }
+    }
     if (attribute_name === 'location_description') {
         newValue = convertNbspToSpaces(newValue as StringValue);
     }
@@ -205,6 +257,7 @@ const clearCivicFields = (aliasedData: any) => {
 
 const hasAddressChanged = function () {
     hasPropertyAddress.value = !hasPropertyAddress.value;
+    geocoderClear();
     if (disableAddressSection.value) {
         clearCivicFields(currentPropertyAddress.value.aliased_data);
         propertyAddressList.value.forEach((address: any) =>
@@ -436,28 +489,36 @@ defineExpose({ isValid });
                         :error-message="$form.streetAddress?.error?.message"
                         :required="true"
                     >
-                        <GenericWidget
-                            ref="streetWidgetRef"
-                            class="input-grow"
-                            :mode="EDIT"
-                            :should-show-label="false"
-                            :aliased-node-data="
-                                currentPropertyAddress?.aliased_data
-                                    ?.street_address
-                            "
-                            graph-slug="heritage_site"
-                            node-alias="street_address"
-                            @update:value="
-                                updateAddress($event, 'street_address')
-                            "
-                        />
+                        <BCGeocoderPopup
+                            :results="geocoderResults"
+                            :loading="geocoderLoading"
+                            @select="selectGeocoderResult"
+                        >
+                            <GenericWidget
+                                :key="streetAddressKey"
+                                ref="streetWidgetRef"
+                                class="flex-grow"
+                                :mode="EDIT"
+                                :should-show-label="false"
+                                :aliased-node-data="
+                                    currentPropertyAddress?.aliased_data
+                                        ?.street_address
+                                "
+                                graph-slug="heritage_site"
+                                node-alias="street_address"
+                                @update:value="
+                                    updateAddress($event, 'street_address')
+                                "
+                            />
+                        </BCGeocoderPopup>
                     </LabelledInput>
                 </div>
 
                 <div style="flex: 1; margin-left: 1.5rem">
                     <GenericWidget
+                        :key="cityKey"
                         ref="cityWidgetRef"
-                        class="input-grow"
+                        class="flex-grow"
                         :mode="EDIT"
                         :aliased-node-data="
                             currentPropertyAddress?.aliased_data?.city
@@ -485,7 +546,6 @@ defineExpose({ isValid });
                     >
                         <GenericWidget
                             ref="localityWidgetRef"
-                            class="input-grow"
                             :mode="EDIT"
                             :aliased-node-data="
                                 currentPropertyAddress?.aliased_data?.locality
@@ -628,7 +688,7 @@ defineExpose({ isValid });
             <div>
                 <LabelledInput
                     label="Parcel Identifier (PID)"
-                    hint="Add a 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
+                    hint="Add 9-digit Parcel Identifiers (PIDs) for each address, as applicable."
                     input-name="parcelId"
                     :error-message="$form.parcelId?.error?.message"
                     :required="true"
@@ -637,7 +697,7 @@ defineExpose({ isValid });
                         <div class="row">
                             <GenericWidget
                                 :ref="pidField"
-                                style="flex-grow: 1; margin-left: 1rem"
+                                class="flex-grow"
                                 :mode="EDIT"
                                 :should-show-label="false"
                                 :aliased-node-data="
@@ -727,10 +787,6 @@ defineExpose({ isValid });
     align-items: flex-start;
     margin: 1.5rem 0;
 }
-
-.grow {
-    flex: 1;
-}
 </style>
 <style>
 .inline-labeled-input.locality .form-label {
@@ -752,9 +808,7 @@ defineExpose({ isValid });
     align-self: center;
     margin-left: 3rem;
 }
-.input-grow {
-    width: 100%;
-}
+
 .dialogFonts {
     //font-size: 1rem;
 }
