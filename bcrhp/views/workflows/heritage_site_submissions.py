@@ -310,48 +310,6 @@ class SubmitHeritageSite(
     _DEFAULT_I18N = {"en": {"value": "", "direction": "ltr"}}
     _IMAGE_I18N_FIELDS = ("title", "altText", "attribution", "description")
 
-    def _pre_clear_primary_image(
-        self, resourceinstanceid: str, site_images: list
-    ) -> None:
-        """Clear primary_image on existing site_images tiles before a batch PATCH.
-
-        UniqueBooleanValue.save() queries the DB for conflicting tiles at
-        pre-save time — before any writes in the batch are committed. When the
-        primary image changes (old tile A was True, new tile C becomes True),
-        __preSave(Tile_C) finds Tile_A still True in the DB and raises a false
-        uniqueness conflict.
-
-        Pre-clearing all primary_image True values here ensures no conflict
-        exists when the batch save runs its pre-save checks.
-        Only runs when at least one incoming tile has primary_image=True.
-        """
-        has_incoming_primary = any(
-            isinstance(t, dict)
-            and t.get("aliased_data", {}).get("primary_image", {}).get("node_value")
-            is True
-            for t in site_images
-        )
-        if not has_incoming_primary:
-            return
-
-        primary_image_node = Node.objects.filter(
-            alias="primary_image",
-            graph__slug="heritage_site",
-        ).first()
-        if primary_image_node is None:
-            return
-
-        node_id = str(primary_image_node.nodeid)
-        tiles = Tile.objects.filter(
-            resourceinstance_id=resourceinstanceid,
-            nodegroup_id=primary_image_node.nodegroup_id,
-        )
-        to_clear = [t for t in tiles if t.data.get(node_id) is True]
-        if to_clear:
-            for tile in to_clear:
-                tile.data[node_id] = False
-            Tile.objects.bulk_update(to_clear, ["data"])
-
     def _ensure_image_i18n_fields(self, site: dict) -> None:
         """Add missing i18n metadata fields to every file entry in site_images tiles."""
         for image_tile in site.get("aliased_data", {}).get("site_images", []):
@@ -420,6 +378,47 @@ class SubmitHeritageSite(
             if (aliased.get("responsible_government") or {}).get("node_value"):
                 continue
             aliased["responsible_government"] = {"node_value": government_node_value}
+
+    # Alias → (list_alias, node_alias) for every boolean node covered by
+    # UniqueBooleanValue that lives inside a cardinality-n nodegroup.  The
+    # stash keyed by (str(tileid), str(node_pk)) lets the function hook see
+    # pending batch values before bulk_update commits them.
+    _UNIQUE_BOOL_NODES = [
+        ("site_images", "primary_image"),
+    ]
+
+    def _stash_pending_tile_data(self, request, patched: dict) -> None:
+        """Attach incoming node values to the request so UniqueBooleanValue
+        can detect same-batch flag swaps before bulk_update commits them."""
+        from arches.app.models.models import Node as _Node
+
+        stash: dict = getattr(request, "_pending_tile_data", {})
+
+        for list_alias, node_alias in self._UNIQUE_BOOL_NODES:
+            tiles = patched.get("aliased_data", {}).get(list_alias, [])
+            if not tiles:
+                continue
+            node_pk = (
+                _Node.objects.filter(
+                    alias=node_alias,
+                    graph__slug=self.serializer_class.Meta.graph_slug,
+                )
+                .values_list("pk", flat=True)
+                .first()
+            )
+            if node_pk is None:
+                continue
+            node_id_str = str(node_pk)
+            for tile in tiles:
+                tileid = tile.get("tileid") if isinstance(tile, dict) else None
+                if not tileid:
+                    continue
+                node_value = (
+                    tile.get("aliased_data", {}).get(node_alias, {}).get("node_value")
+                )
+                stash[str(tileid)] = {node_id_str: node_value}
+
+        request._pending_tile_data = stash
 
     def create(self, request, *args, **kwargs):
         raw = request.data
@@ -573,6 +572,15 @@ class SubmitHeritageSite(
         resourceinstanceid = self.kwargs.get("resourceinstanceid")
         self._delete_orphaned_tiles(patched, resourceinstanceid, request)
 
+        # Pre-populate a stash of incoming node values so that pre-save
+        # function hooks (e.g. UniqueBooleanValue) can see what ALL tiles
+        # in this batch will be saved to, even though bulk_update hasn't
+        # committed yet.  Without this, a primary-image handoff (tile A:
+        # True→False, tile B: False→True in the same save) always causes a
+        # false uniqueness conflict because every __preSave() sees the
+        # pre-batch DB state.
+        self._stash_pending_tile_data(request, patched)
+
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=patched, partial=True)
 
@@ -592,9 +600,6 @@ class SubmitHeritageSite(
                 if t.get("tileid")
             }
             internal_remark = patched.get("aliased_data", {}).get("internal_remark", [])
-            site_images = patched.get("aliased_data", {}).get("site_images", [])
-            if site_images:
-                self._pre_clear_primary_image(resourceinstanceid, site_images)
             self.perform_update(serializer)
         except Exception as e:
             logger.error(f"Unable to update: {e}", exc_info=True)
