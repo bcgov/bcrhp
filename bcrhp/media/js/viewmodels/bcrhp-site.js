@@ -162,6 +162,12 @@ const BcrhpSiteViewModel = function (params) {
                 values_list.push(tileValues);
             }
         });
+        if (_.contains(node_aliases, 'primary_image')) {
+            const isPrimary = (v) => ko.unwrap(v.primary_image) === true;
+            values_list = _.filter(values_list, isPrimary).concat(
+                _.reject(values_list, isPrimary),
+            );
+        }
         return values_list;
     };
 
