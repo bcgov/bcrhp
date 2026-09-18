@@ -484,7 +484,7 @@ defineExpose({ isValid });
                 <div style="flex: 2; margin-left: 0.75rem">
                     <LabelledInput
                         label="Street Address"
-                        hint="Enter one street address, or if applicable, an address range"
+                        hint="Enter or select one street address, or if applicable, an address range"
                         input-name="streetAddress"
                         :error-message="$form.streetAddress?.error?.message"
                         :required="true"
@@ -493,6 +493,7 @@ defineExpose({ isValid });
                             :results="geocoderResults"
                             :loading="geocoderLoading"
                             @select="selectGeocoderResult"
+                            @dismiss="geocoderClear"
                         >
                             <GenericWidget
                                 :key="streetAddressKey"
