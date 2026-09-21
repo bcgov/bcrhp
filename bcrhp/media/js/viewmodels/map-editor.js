@@ -734,25 +734,15 @@ const viewModel = function (params) {
                                     ),
                                 );
                             else if (extension === 'shp')
-                                geoJSON = {
-                                    type: 'FeatureCollection',
-                                    features: shpjs
-                                        .parseShp(e.target.result)
-                                        .reduce(function (features, geometry) {
-                                            features = features.concat({
-                                                type: 'Feature',
-                                                geometry: geometry,
-                                                properties: {},
-                                            });
-                                            return features;
-                                        }, []),
-                                };
+                                shpjs({
+                                    shp: e.target.result,
+                                }).then((parsedShp) => resolve(parsedShp));
                             else if (extension === 'zip')
-                                shpjs
-                                    .parseZip(e.target.result)
-                                    .then(function (parsedZip) {
+                                shpjs(e.target.result).then(
+                                    function (parsedZip) {
                                         resolve(parsedZip);
-                                    });
+                                    },
+                                );
                             if (extension !== 'zip') resolve(geoJSON);
                         };
                         if (['shp', 'zip'].includes(extension)) {

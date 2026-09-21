@@ -21,7 +21,7 @@ export const BcPropertyAddressTileSchema = TileSchema.extend({
         street_address: getStringValueRequiredSchema(80),
         postal_code: getBCPostalCodeSchema(),
         location_description: getRichTextValueRequiredSchema(4000),
-        city: getStringValueRequiredSchema(80),
+        city: getStringValueSchema(80),
         province: ConceptValueRequiredSchema,
         locality: getStringValueSchema(50),
         bc_property_legal_description: z.array(
