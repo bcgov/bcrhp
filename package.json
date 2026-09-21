@@ -37,7 +37,7 @@
         "arches": "github:bcgov/arches#stable/8.0.10_bcgov_12578_12377_12616_12502_12697_12610_12707_12791_12681_12789_CONCEPTLIST_PROVDEL",
         "arches-component-lab": "github:bcgov/arches-component-lab#v0.0.1a13-bcgov",
         "arches-querysets": "github:bcgov/arches-querysets#v1.1.3-bcgov",
-        "bcgov_arches_common": "github:bcgov/bcgov-arches-common#v2.0.12",
+        "bcgov_arches_common": "github:bcgov/bcgov-arches-common#brf/bugfix/provisional_delete",
         "ckeditor5": "44.2.0",
         "dayjs": "^1.11.13",
         "dompurify": "^3.3.0",
