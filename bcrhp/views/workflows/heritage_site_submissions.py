@@ -190,7 +190,13 @@ class SubmitHeritageSite(
     # Aliases whose orphaned tiles should be deleted when omitted from a PATCH
     # payload list. Sections absent from this set are never orphan-deleted even
     # if they appear in the payload, preserving sparse-tree semantics for them.
+    #
+    # Dot notation expresses nesting: "parent.child" means `child` is a list
+    # inside each `parent` tile's aliased_data.  Top-level aliases (no dot)
+    # are looked up directly in the resource's aliased_data.
     deletable_list_aliases = {
+        # top-level nodegroups
+        "site_names",
         "site_images",
         "external_url",
         "chronology",
@@ -198,6 +204,11 @@ class SubmitHeritageSite(
         "heritage_theme",
         "heritage_class",
         "heritage_function",
+        # children of heritage_site_location
+        "heritage_site_location.site_boundary",
+        "heritage_site_location.bc_property_address",
+        # grandchild of heritage_site_location
+        "heritage_site_location.bc_property_address.bc_property_legal_description",
     }
 
     def get_default_registration_status_uuid(self):
@@ -511,18 +522,55 @@ class SubmitHeritageSite(
         Only sections that ARE present in the payload are diffed — sections
         absent from the (sparse) payload are left completely untouched.
 
+        Entries in deletable_list_aliases may use dot notation to express
+        nesting, e.g. "heritage_site_location.bc_property_address".  Each
+        dot-separated segment is the alias of a parent nodegroup whose tiles'
+        aliased_data dicts are traversed to reach the next segment.
+
         Uses Tile.delete() (not a bulk queryset delete) so that audit logging,
         search index cleanup, and datatype post_tile_delete hooks all run.
         """
-        aliased = patched_data.get("aliased_data", {})
-        for alias, value in aliased.items():
-            if alias not in self.deletable_list_aliases:
+        for path in self.deletable_list_aliases:
+            parts = path.split(".")
+            alias = parts[-1]
+            parent_parts = parts[:-1]
+
+            # Walk the payload, collecting all aliased_data dicts that are
+            # direct parents of `alias`.  For top-level aliases parent_parts
+            # is empty, so contexts stays as the resource's aliased_data.
+            contexts = [patched_data.get("aliased_data", {})]
+            for part in parent_parts:
+                next_contexts = []
+                for ctx in contexts:
+                    for parent_tile in ctx.get(part) or []:
+                        if isinstance(parent_tile, dict):
+                            child = parent_tile.get("aliased_data")
+                            if isinstance(child, dict):
+                                next_contexts.append(child)
+                contexts = next_contexts
+                if not contexts:
+                    break
+
+            if not contexts:
                 continue
-            if not isinstance(value, list):
+
+            # Collect incoming tileids across all parent contexts.
+            # Only diff if at least one parent context actually includes this alias.
+            incoming_tileids = set()
+            alias_present = False
+            for ctx in contexts:
+                value = ctx.get(alias)
+                if isinstance(value, list):
+                    alias_present = True
+                    incoming_tileids.update(
+                        t["tileid"]
+                        for t in value
+                        if isinstance(t, dict) and t.get("tileid")
+                    )
+
+            if not alias_present:
                 continue
-            incoming_tileids = {
-                t["tileid"] for t in value if isinstance(t, dict) and t.get("tileid")
-            }
+
             # The grouping node for a nodegroup is the node whose nodeid
             # equals its own nodegroup_id.
             node = Node.objects.filter(
@@ -532,16 +580,18 @@ class SubmitHeritageSite(
             ).first()
             if node is None:
                 continue
+
             orphans = Tile.objects.filter(
                 resourceinstance_id=resourceinstanceid,
                 nodegroup_id=node.nodegroup_id,
             ).exclude(tileid__in=incoming_tileids)
+
             count = orphans.count()
             if count:
                 logger.info(
-                    "Deleting %d orphaned tile(s) for alias=%s resource=%s",
+                    "Deleting %d orphaned tile(s) for path=%s resource=%s",
                     count,
-                    alias,
+                    path,
                     resourceinstanceid,
                 )
                 for tile in orphans:
