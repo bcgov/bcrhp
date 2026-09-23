@@ -62,10 +62,6 @@ const heritageSite = inject<Ref<HeritageSiteType>>('heritageSite')!;
                             }}
                             {{
                                 constructionActor.aliased_data
-                                    .construction_actor_type.display_value
-                            }}
-                            {{
-                                constructionActor.aliased_data
                                     .construction_actor.display_value
                             }}
                             <div>
