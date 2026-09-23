@@ -12,6 +12,8 @@ import proj4 from 'proj4';
 import MapComponentViewModel from 'views/components/map';
 import selectFeatureLayersFactory from 'views/components/cards/select-feature-layers';
 import geojsonDatatype from 'views/components/datatypes/geojson-feature-collection';
+import { getFeatureForObjectId } from '@/bcrhp/parcelmap-api.ts';
+
 import externalUtils from 'utils/map-filter-utils';
 import MapboxDraw from 'mapbox-gl-draw';
 
@@ -644,12 +646,16 @@ const viewModel = function (params) {
     self.selectFeature = function (feature) {
         try {
             let geometry = feature.toJSON().geometry;
-            var newFeature = {
-                type: 'Feature',
-                properties: {},
-                geometry: geometry,
-            };
-            addSelectFeatures([newFeature]);
+            getFeatureForObjectId(feature.properties.OBJECTID).then(
+                function (newFeature) {
+                    addSelectFeatures([newFeature]);
+                },
+            );
+            // var newFeature = {
+            //     type: 'Feature',
+            //     properties: {},
+            //     geometry: geometry,
+            // };
         } catch (e) {
             $.getJSON(feature.properties.geojson, function (data) {
                 addSelectFeatures(data.features);
@@ -728,25 +734,15 @@ const viewModel = function (params) {
                                     ),
                                 );
                             else if (extension === 'shp')
-                                geoJSON = {
-                                    type: 'FeatureCollection',
-                                    features: shpjs
-                                        .parseShp(e.target.result)
-                                        .reduce(function (features, geometry) {
-                                            features = features.concat({
-                                                type: 'Feature',
-                                                geometry: geometry,
-                                                properties: {},
-                                            });
-                                            return features;
-                                        }, []),
-                                };
+                                shpjs({
+                                    shp: e.target.result,
+                                }).then((parsedShp) => resolve(parsedShp));
                             else if (extension === 'zip')
-                                shpjs
-                                    .parseZip(e.target.result)
-                                    .then(function (parsedZip) {
+                                shpjs(e.target.result).then(
+                                    function (parsedZip) {
                                         resolve(parsedZip);
-                                    });
+                                    },
+                                );
                             if (extension !== 'zip') resolve(geoJSON);
                         };
                         if (['shp', 'zip'].includes(extension)) {

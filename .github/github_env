@@ -99,3 +99,7 @@ OAUTHLIB_INSECURE_TRANSPORT=True
 #Local Tileserver config
 TILESERVER_OUTBOUND_PROXY=
 TILESERVER_LOCAL_URL=http://localhost:7801/
+
+# For BC Geocoder address completion
+BC_GEOCODER_API_URL=https://geocoderdlv.api.gov.bc.ca/addresses.json
+BC_GEOCODER_API_KEY=

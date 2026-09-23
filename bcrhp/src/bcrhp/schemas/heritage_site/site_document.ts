@@ -1,9 +1,9 @@
 import * as uuid from 'uuid';
 import { z } from 'zod';
 import { TileSchema } from '@/bcgov_arches_common/datatypes/tile.ts';
-import { FileListValueSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
+import { getFileListValueRequiredSchema } from '@/bcgov_arches_common/datatypes/file-list/validation/zod.ts';
 import { ConceptValueSchema } from '@/bcgov_arches_common/datatypes/concept/validation/zod.ts';
-import { getStringValueSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
+import { getStringValueRequiredSchema } from '@/bcgov_arches_common/datatypes/string/validation/zod.ts';
 import type { FileListValue } from '@/arches_component_lab/datatypes/file-list/types.ts';
 import type { ConceptValue } from '@/arches_component_lab/datatypes/concept/types.ts';
 import type { StringValue } from '@/arches_component_lab/datatypes/string/types.ts';
@@ -14,8 +14,8 @@ import { blankStringValue, blankFileListValue } from '@/bcrhp/utils.ts';
 
 export const SiteDocumentTileSchema = TileSchema.extend({
     aliased_data: z.object({
-        site_document: FileListValueSchema,
-        document_description: getStringValueSchema(250),
+        site_document: getFileListValueRequiredSchema(10),
+        document_description: getStringValueRequiredSchema(250),
         document_type: ConceptValueSchema,
     }),
 });

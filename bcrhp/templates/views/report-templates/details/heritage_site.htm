@@ -17,7 +17,7 @@
 </div>
 <div class="data-carousel summary-slider details-site-images" data-bind="descendantsComplete: initCarousel, visible: nodesHaveData(['site_images'])" style="background-color:#f2f2f2;max-width: calc(100vw - 600px);padding:1em">
     <!-- ko let: {widget: getWidgetForAlias('image_date')}-->
-    <!-- ko foreach: { data: getValuesFromTiles(['site_images', 'image_type', 'image_features', 'image_view', 'image_date', 'copyright', 'photographer']), as: 'tileValues' } -->
+    <!-- ko foreach: { data: getValuesFromTiles(['site_images', 'primary_image', 'image_type', 'image_features', 'image_view', 'image_date', 'copyright', 'photographer']), as: 'tileValues' } -->
     <div class="details-carousel">
         <img class="details-photo" data-bind="attr: {src: $parent.getFileUrl(ko.unwrap(ko.unwrap(tileValues['site_images'])[0]['url']))}"/>
         <div class="photo-info" style="max-width: 500px;">
