@@ -6,6 +6,11 @@ node_alias = "site_boundary"
 update_notes = (
     "321 - Re-apply advancedStyle and enable advancedStyling on site_boundary node"
 )
+LAYER_LEGEND = (
+    '<p><div class="legend-swatch site-provincial"></div>Provincial<br />\n'
+    '<div class="legend-swatch site-federal"></div>Federal<br />\n'
+    '<div class="legend-swatch site-municipal"></div>Municipal</p>\n'
+)
 
 ADVANCED_STYLE = (
     '[\n  {\n    "id": "resources-fill-1b6235b0-0d0f-11ed-98c2-5254008afee6",\n'
@@ -265,6 +270,7 @@ def apply_site_boundary_advanced_style(apps, schema_editor):
     )
     node_to_update.config["advancedStyle"] = ADVANCED_STYLE
     node_to_update.config["advancedStyling"] = True
+    node_to_update.config["layerLegend"] = LAYER_LEGEND
     node_to_update.save()
 
     source_graph.promote_draft_graph_to_active_graph()
