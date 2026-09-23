@@ -663,7 +663,7 @@ class DeleteOrphanedTilesTest(TestCase):
 
     def test_only_deletable_aliases_are_processed(self):
         """Aliases in deletable_list_aliases trigger a node lookup; others do not."""
-        alias = next(iter(self.view.deletable_list_aliases))
+        alias = next(a for a in self.view.deletable_list_aliases if "." not in a)
         data = {"aliased_data": {alias: [], "some_other": []}}
 
         mock_node = MagicMock()
